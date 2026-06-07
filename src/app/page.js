@@ -236,7 +236,7 @@ export default function Home() {
           
           <div className="balance-widget">
             <span className="balance-title">الرصيد الحالي</span>
-            <span className="balance-value">{Number(customerUser?.balance || 0).toFixed(2)} USD</span>
+            <span className="balance-value">{Number(customerUser?.balance || 0).toFixed(2)} ج.م</span>
           </div>
         </div>
 

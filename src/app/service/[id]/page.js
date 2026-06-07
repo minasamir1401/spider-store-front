@@ -327,7 +327,7 @@ export default function ServiceDetail({ params }) {
             <span>👤</span>
             <div>
               <div>{customerUser?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: ${Number(customerUser?.balance || 0).toFixed(2)}</div>
+              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: {Number(customerUser?.balance || 0).toFixed(2)} ج.م</div>
             </div>
           </div>
         )}
@@ -421,7 +421,7 @@ export default function ServiceDetail({ params }) {
                     onClick={() => setSelectedPackage(pkg)}
                   >
                     <span className="package-name">{pkg.name}</span>
-                    <span className="package-price">${pkg.price.toFixed(2)}</span>
+                    <span className="package-price">{pkg.price.toFixed(2)} ج.م</span>
                   </div>
                 ))}
               </div>
@@ -468,7 +468,7 @@ export default function ServiceDetail({ params }) {
             <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>المبلغ: ${selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"}</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>المبلغ: {selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"} ج.م</span>
               </div>
 
               <div style={{ display: "grid", gap: "10px" }}>
@@ -477,7 +477,7 @@ export default function ServiceDetail({ params }) {
                   <span>
                     <strong>المحفظة</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: $${Number(customerUser?.balance || 0).toFixed(2)}` : "يتطلب تسجيل الدخول."}
+                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
                 </label>
@@ -546,7 +546,7 @@ export default function ServiceDetail({ params }) {
                 </div>
                 <div className="summary-row">
                   <span className="summary-label">سعر الباقة</span>
-                  <span className="summary-value">${selectedPackage.price.toFixed(2)}</span>
+                  <span className="summary-value">{selectedPackage.price.toFixed(2)} ج.م</span>
                 </div>
               </>
             )}
@@ -563,7 +563,7 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                ${selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"}
+                {selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"} ج.م
               </span>
             </div>
 
@@ -588,14 +588,14 @@ export default function ServiceDetail({ params }) {
               <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> ${successData.package_price.toFixed(2)}</div>
+              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {successData.package_price.toFixed(2)} ج.م</div>
               <div><strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong> {successData.payment_method === "wallet" ? "المحفظة" : `تحويل إلى ${successData.transfer_to}`}</div>
               {successData.sender_phone && (
                 <div><strong style={{ color: "#cbd5e1" }}>الرقم المحول منه:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>
               )}
               <div><strong style={{ color: "#cbd5e1" }}>حساب الشحن:</strong> <span style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{successData.player_id}</span></div>
               {typeof successData.customer_balance === "number" && (
-                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>${successData.customer_balance.toFixed(2)}</span></div>
+                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</span></div>
               )}
               <div><strong style={{ color: "#cbd5e1" }}>الحالة:</strong> <span style={{ color: "#86efac" }}>قيد الانتظار (سيتم الشحن فورا)</span></div>
             </div>

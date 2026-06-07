@@ -1923,7 +1923,7 @@ export default function AdminDashboard() {
                   <div className="premium-stat-card" style={{ "--glow-color": "rgba(6, 182, 212, 0.15)" }}>
                     <div className="stat-card-info">
                       <span className="stat-card-title">الأرباح الإجمالية</span>
-                      <span className="stat-card-value" style={{ color: "#22d3ee" }}>${stats.revenue.toFixed(2)}</span>
+                      <span className="stat-card-value" style={{ color: "#22d3ee" }}>{stats.revenue.toFixed(2)} ج.م</span>
                     </div>
                     <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(6, 182, 212, 0.1)", "--icon-border": "rgba(6, 182, 212, 0.2)", "--icon-color": "#22d3ee", "--icon-shadow": "0 0 15px rgba(6, 182, 212, 0.3)" }}>
                       💰
@@ -2007,7 +2007,7 @@ export default function AdminDashboard() {
                             <td style={{ fontWeight: 700, color: "#f8fafc" }}>
                               {order.package_name} 
                               <span style={{ color: "#34d399", marginRight: "6px", fontSize: "0.8rem" }}>
-                                (${order.package_price.toFixed(2)})
+                                ({Number(order.package_price || 0).toFixed(2)} ج.م)
                               </span>
                             </td>
                             <td style={{ direction: "ltr", fontWeight: 700, color: "#c084fc", textAlign: "right" }}>
@@ -2115,10 +2115,10 @@ export default function AdminDashboard() {
                                   </span>
                                 </td>
                                 <td style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
-                                  ${Number(tx.amount || 0).toFixed(2)}
+                                  {Number(tx.amount || 0).toFixed(2)} ج.م
                                 </td>
-                                <td>${Number(tx.balance_before || 0).toFixed(2)}</td>
-                                <td>${Number(tx.balance_after || 0).toFixed(2)}</td>
+                                <td>{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
+                                <td>{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
                                 <td style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
                                   {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
                                   {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
@@ -2231,7 +2231,7 @@ export default function AdminDashboard() {
                               <div style={{ fontWeight: 700 }}>{request.customer_username}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ID: {request.customer_id}</div>
                             </td>
-                            <td style={{ fontWeight: 800, color: "#34d399" }}>${Number(request.amount).toFixed(2)}</td>
+                            <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(request.amount).toFixed(2)} ج.م</td>
                             <td style={{ direction: "ltr" }}>{request.sender_phone || "-"}</td>
                             <td style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes || "-"}</td>
                             <td style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
@@ -2293,7 +2293,7 @@ export default function AdminDashboard() {
                     <div className="premium-stat-card" style={{ "--glow-color": "rgba(16, 185, 129, 0.15)" }}>
                       <div className="stat-card-info">
                         <span className="stat-card-title">إجمالي أرصدة العملاء</span>
-                        <span className="stat-card-value">${customers.reduce((sum, c) => sum + Number(c.balance || 0), 0).toFixed(2)}</span>
+                        <span className="stat-card-value">{customers.reduce((sum, c) => sum + Number(c.balance || 0), 0).toFixed(2)} ج.م</span>
                       </div>
                       <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(16, 185, 129, 0.1)", "--icon-border": "rgba(16, 185, 129, 0.2)", "--icon-color": "#34d399" }}>
                         💰
@@ -2351,7 +2351,7 @@ export default function AdminDashboard() {
                               <td style={{ fontWeight: 700 }}>{customer.username}</td>
                               <td style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
                               <td style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
-                              <td style={{ fontWeight: 800, color: "#34d399" }}>${Number(customer.balance || 0).toFixed(2)}</td>
+                              <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} ج.م</td>
                               <td>
                                 <span className={`premium-badge ${Number(customer.balance || 0) > 0 ? "premium-badge-approved" : "premium-badge-pending"}`}>
                                   {Number(customer.balance || 0) > 0 ? "يوجد رصيد" : "صفر"}
@@ -2422,10 +2422,10 @@ export default function AdminDashboard() {
                                   </span>
                                 </td>
                                 <td style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
-                                  ${Number(tx.amount || 0).toFixed(2)}
+                                  {Number(tx.amount || 0).toFixed(2)} ج.م
                                 </td>
-                                <td>${Number(tx.balance_before || 0).toFixed(2)}</td>
-                                <td>${Number(tx.balance_after || 0).toFixed(2)}</td>
+                                <td>{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
+                                <td>{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
                                 <td style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
                                   {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
                                   {tx.reference_type === "order_refund" && `استرداد #${tx.reference_id}`}
@@ -2592,7 +2592,7 @@ export default function AdminDashboard() {
                                   ))}
                                 </div>
                               </td>
-                              <td style={{ fontWeight: 800, color: "#34d399" }}>${Number(service.price || 0).toFixed(2)}</td>
+                              <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(service.price || 0).toFixed(2)} ج.م</td>
                               <td style={{ textAlign: "center" }}>
                                 <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                                   <button

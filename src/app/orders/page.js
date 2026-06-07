@@ -139,7 +139,7 @@ export default function OrdersHistory() {
             <span>👤</span>
             <div>
               <div>{customer?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>${Number(customer?.balance || 0).toFixed(2)}</div>
+              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>{Number(customer?.balance || 0).toFixed(2)} ج.م</div>
             </div>
           </div>
         )}
@@ -182,7 +182,7 @@ export default function OrdersHistory() {
             <div className="user-menu-widget nav-mobile-hidden">
               <span className="user-username"><span className="nav-btn-text">مرحباً، </span>{customer.username}</span>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                ${Number(customer?.balance || 0).toFixed(2)}
+                {Number(customer?.balance || 0).toFixed(2)} ج.م
               </span>
               <span className="logout-btn-text" onClick={handleLogout}>
                 <span className="nav-btn-text">خروج</span>
@@ -239,7 +239,7 @@ export default function OrdersHistory() {
                       </div>
                       <h3 style={{ fontWeight: 800, fontSize: "1.2rem", marginTop: "4px" }}>{order.service_name}</h3>
                       <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                        الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>${Number(order.package_price || 0).toFixed(2)}</strong>
+                        الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} ج.م</strong>
                       </p>
                       <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                         حساب الشحن (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
@@ -359,7 +359,7 @@ export default function OrdersHistory() {
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>القيمة الإجمالية:</span>
-                      <strong style={{ color: "#34d399" }}>${Number(singleOrder.package_price || 0).toFixed(2)}</strong>
+                      <strong style={{ color: "#34d399" }}>{Number(singleOrder.package_price || 0).toFixed(2)} ج.م</strong>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>تاريخ الطلب:</span>

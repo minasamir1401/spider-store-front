@@ -141,7 +141,7 @@ export default function WalletPage() {
             <span>💳</span>
             <div>
               <div>{customer?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: ${Number(customer?.balance || 0).toFixed(2)}</div>
+              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: {Number(customer?.balance || 0).toFixed(2)} ج.م</div>
             </div>
           </div>
         )}
@@ -205,7 +205,7 @@ export default function WalletPage() {
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(139, 92, 246, 0.08)", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
               <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>الرصيد الحالي</div>
               <div style={{ fontSize: "1.8rem", fontWeight: 900, marginTop: "6px" }}>
-                ${Number(customer?.balance || 0).toFixed(2)}
+                {Number(customer?.balance || 0).toFixed(2)} ج.م
               </div>
             </div>
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)" }}>
@@ -294,7 +294,7 @@ export default function WalletPage() {
                     </span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-                    <div>المبلغ: <strong style={{ color: "white" }}>${Number(request.amount).toFixed(2)}</strong></div>
+                    <div>المبلغ: <strong style={{ color: "white" }}>{Number(request.amount).toFixed(2)} ج.م</strong></div>
                     <div>رقم التحويل: <strong style={{ color: "white" }}>{request.sender_phone || "-"}</strong></div>
                     <div>التاريخ: <strong style={{ color: "white" }}>{new Date(request.created_at).toLocaleString("ar-EG")}</strong></div>
                     <div>الملاحظة: <strong style={{ color: "white" }}>{request.notes || "-"}</strong></div>
