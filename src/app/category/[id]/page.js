@@ -376,7 +376,7 @@ export default function CategoryServices({ params }) {
                 <div>
                   <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>تبدأ الأسعار من</span>
                   <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--primary-color)" }}>
-                    ${service.price ? service.price.toFixed(2) : "0.00"}
+                    ${service.price ? Number(service.price).toFixed(2) : "0.00"}
                   </div>
                 </div>
                 

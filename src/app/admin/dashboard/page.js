@@ -2592,7 +2592,7 @@ export default function AdminDashboard() {
                                   ))}
                                 </div>
                               </td>
-                              <td style={{ fontWeight: 800, color: "#34d399" }}>${service.price.toFixed(2)}</td>
+                              <td style={{ fontWeight: 800, color: "#34d399" }}>${Number(service.price || 0).toFixed(2)}</td>
                               <td style={{ textAlign: "center" }}>
                                 <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                                   <button
