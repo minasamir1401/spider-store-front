@@ -26,13 +26,20 @@ export default function Home() {
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
-    { id: 1, name: "شحن ألعاب", image: "games" },
-    { id: 2, name: "شحن تطبيقات", image: "apps" },
-    { id: 3, name: "الأرصدة والاتصالات", image: "telecom" },
-    { id: 4, name: "الدفع الإلكتروني", image: "payment" },
-    { id: 5, name: "تفعيل البرامج", image: "software" },
-    { id: 6, name: "الحسابات والاشتراكات", image: "accounts" }
+    { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
+    { id: 2,  name: "تطبيقات اللايف",    image: "/uploads/live-apps.png",            color: "#eab308", icon: "credit-card"  },
+    { id: 3,  name: "بطاقات الكترونية",  image: "/uploads/electronic-cards.png",     color: "#6366f1", icon: "credit-card"  },
+    { id: 4,  name: "الأرصدة والعملات",  image: "/uploads/balances-currencies.png",  color: "#eab308", icon: "credit-card"  },
+    { id: 5,  name: "سوشال ميديا",       image: "/uploads/social-media.png",         color: "#eab308", icon: "credit-card"  },
+    { id: 6,  name: "خدمات السيرفر",     image: "/uploads/server-services.png",      color: "#6366f1", icon: "gamepad2"     },
+    { id: 7,  name: "اشتراكات",          image: "/uploads/subscriptions.png",        color: "#d946ef", icon: "credit-card"  },
+    { id: 8,  name: "الذكاء الاصطناعي",  image: "/uploads/ai-section.png",           color: "#eab308", icon: "credit-card"  },
+    { id: 9,  name: "قسم الارقام",       image: "/uploads/numbers-section.png",      color: "#6366f1", icon: "credit-card"  },
+    { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
+    { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
+    { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
   ];
+
 
   const defaultSlides = [
     {
@@ -290,13 +297,13 @@ export default function Home() {
         <span className="search-icon-center">🔍</span>
       </div>
 
-      {/* Categories Grid */}
+      {/* Categories Grid - cc-card style */}
       <section>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
           <h2 className="section-title" style={{ margin: 0 }}>الأقسام الرئيسية</h2>
           <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "700", cursor: "pointer" }}>عرض الكل</span>
         </div>
-        
+
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px", fontSize: "1.2rem", fontWeight: 700 }}>
             جاري تحميل الأقسام...
@@ -306,28 +313,78 @@ export default function Home() {
             لا توجد أقسام مطابقة للبحث.
           </div>
         ) : (
-          <div className="categories-grid">
+          <div className="cc-grid">
             {filteredCategories.map((cat) => {
-              const isCustomImg = cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads"));
+              const color = cat.color || "#6366f1";
+              const glowColor = color + "73";
+              const iconType = cat.icon || "credit-card";
+              const imgSrc = cat.image && (cat.image.startsWith("http") || cat.image.startsWith("/uploads"))
+                ? (cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image)
+                : null;
+
               return (
-                <Link href={`/category/${cat.id}`} key={cat.id}>
-                  <div className="glass-card category-card" style={{ borderRadius: "16px" }}>
-                    <div className="category-img-container" style={isCustomImg ? { padding: 0 } : {}}>
-                      {isCustomImg ? (
-                        <img 
-                          src={cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image} 
-                          alt={cat.name} 
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                <div className="cc-wrap" key={cat.id}>
+                  <Link
+                    className="cc-card"
+                    dir="rtl"
+                    href={`/category/${cat.id}`}
+                    style={{ "--cc-ac": color, "--cc-gl": glowColor }}
+                  >
+                    <div className="cc-img-wrap">
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={cat.name}
+                          loading="lazy"
+                          className="cc-img"
+                          style={{ opacity: 0, transition: "opacity 0.4s ease" }}
+                          onLoad={e => { e.target.style.opacity = 1; }}
                         />
                       ) : (
-                        <span className="category-banner-icon">
-                          {getCategoryIcon(cat.image)}
-                        </span>
+                        <div className="cc-img-placeholder">{cat.name.charAt(0)}</div>
                       )}
                     </div>
-                    <h3 className="category-title">{cat.name}</h3>
-                  </div>
-                </Link>
+                    <div className="cc-tint"></div>
+                    <div className="cc-overlay-bottom"></div>
+                    <div className="cc-shimmer"></div>
+                    <div className="cc-icon-badge">
+                      {iconType === "gamepad2" && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="6" x2="10" y1="11" y2="11"></line>
+                          <line x1="8" x2="8" y1="9" y2="13"></line>
+                          <line x1="15" x2="15.01" y1="12" y2="12"></line>
+                          <line x1="18" x2="18.01" y1="10" y2="10"></line>
+                          <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+                        </svg>
+                      )}
+                      {iconType === "share2" && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="18" cy="5" r="3"></circle>
+                          <circle cx="6" cy="12" r="3"></circle>
+                          <circle cx="18" cy="19" r="3"></circle>
+                          <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+                          <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+                        </svg>
+                      )}
+                      {(iconType === "credit-card" || (!["gamepad2","share2"].includes(iconType))) && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                          <line x1="2" x2="22" y1="10" y2="10"></line>
+                        </svg>
+                      )}
+                    </div>
+                    <div className="cc-name-area">
+                      <span className="cc-name">{cat.name}</span>
+                      <span className="cc-enter">
+                        دخول
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m15 18-6-6 6-6"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="cc-bottom-glow"></div>
+                  </Link>
+                </div>
               );
             })}
           </div>
