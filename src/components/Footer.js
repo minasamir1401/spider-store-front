@@ -7,8 +7,8 @@ export default function Footer() {
         {/* About column */}
         <div className="footer-column">
           <div className="logo-container" style={{ cursor: "default" }}>
-            <span style={{ fontSize: "1.2rem" }}>SPIDER STORE</span>
-            <div className="logo-circle" style={{ width: "36px", height: "36px", fontSize: "1.4rem" }}>S</div>
+            <span style={{ fontSize: "1.2rem" }}>Spider Store</span>
+            <div className="logo-circle" style={{ width: "36px", height: "36px", fontSize: "1.2rem" }}>S</div>
           </div>
           <p className="footer-desc" style={{ marginTop: "10px" }}>
             المنصة العربية الأسرع والأكثر أماناً لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات الترفيهية والخدمية والبطاقات الرقمية بأفضل الأسعار على مدار الساعة.

@@ -59,7 +59,7 @@ export default function AdminLogin() {
         {/* Logo and title */}
         <div style={{ textAlign: "center" }}>
           <div style={{ display: "inline-flex", justifyContent: "center", marginBottom: "15px" }}>
-            <div className="logo-circle" style={{ width: "60px", height: "60px", fontSize: "2rem" }}>S</div>
+            <div className="logo-circle" style={{ width: "60px", height: "60px", fontSize: "2rem", borderRadius: "12px" }}>S</div>
           </div>
           <h2 style={{ fontWeight: 800 }}>بوابة المشرفين الآمنة</h2>
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "5px" }}>تسجيل دخول لوحة تحكم Spider Store</p>

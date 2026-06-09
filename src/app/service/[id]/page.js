@@ -25,9 +25,16 @@ export default function ServiceDetail({ params }) {
 
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
+  const [theme, setTheme] = useState("dark");
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    // Theme sync
+    if (typeof window !== "undefined") {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(currentTheme);
+    }
+
     const token = localStorage.getItem("customer_token");
     const userStr = localStorage.getItem("customer_user");
     if (token && userStr) {
@@ -39,6 +46,13 @@ export default function ServiceDetail({ params }) {
     }
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    localStorage.setItem("theme", nextTheme);
+  };
 
   const handleCustomerLogout = () => {
     localStorage.removeItem("customer_token");
@@ -289,7 +303,7 @@ export default function ServiceDetail({ params }) {
 
   if (loading) {
     return (
-      <div className="glass-container" style={{ textAlign: "center", padding: "80px" }}>
+      <div style={{ textAlign: "center", padding: "80px" }}>
         <h2 style={{ fontWeight: 800 }}>جاري تحميل تفاصيل الخدمة...</h2>
       </div>
     );
@@ -297,7 +311,7 @@ export default function ServiceDetail({ params }) {
 
   if (!service) {
     return (
-      <div className="glass-container" style={{ textAlign: "center", padding: "80px" }}>
+      <div style={{ textAlign: "center", padding: "80px" }}>
         <h2 style={{ fontWeight: 800, color: "var(--danger-color)" }}>الخدمة المطلوبة غير متوفرة!</h2>
         <Link href="/" className="glass-btn glass-btn-primary" style={{ marginTop: "20px" }}>العودة للرئيسية</Link>
       </div>
@@ -305,90 +319,7 @@ export default function ServiceDetail({ params }) {
   }
 
   return (
-    <div className="glass-container">
-
-      {/* Mobile Drawer Overlay */}
-      {drawerOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)} />
-      )}
-
-      {/* Mobile Drawer */}
-      <div className={`mobile-drawer ${drawerOpen ? "open" : "closed"}`}>
-        <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">
-            <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>S</div>
-            القائمة
-          </span>
-          <button className="mobile-drawer-close" onClick={() => setDrawerOpen(false)}>✕</button>
-        </div>
-
-        {isCustomerLoggedIn && customerUser && (
-          <div className="mobile-drawer-user-card">
-            <span>👤</span>
-            <div>
-              <div>{customerUser?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: {Number(customerUser?.balance || 0).toFixed(2)} ج.م</div>
-            </div>
-          </div>
-        )}
-
-        <div className="mobile-drawer-divider" />
-
-        <Link href="/" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>🏠 الرئيسية</Link>
-        <Link href="/orders" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>📦 تتبع الطلبات</Link>
-        {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>💳 شحن رصيدي</Link>}
-
-        <div className="mobile-drawer-divider" />
-
-        {isCustomerLoggedIn ? (
-          <button
-            className="mobile-drawer-link danger"
-            onClick={() => { handleCustomerLogout(); setDrawerOpen(false); }}
-          >🚪 تسجيل الخروج</button>
-        ) : (
-          <Link href="/login" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>👤 تسجيل الدخول / حساب</Link>
-        )}
-      </div>
-
-      {/* Header */}
-      <header className="navbar">
-        <div className="nav-right">
-          <button className="nav-icon-btn" onClick={() => router.back()} title="رجوع">
-            <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>→</span>
-          </button>
-
-          <div className="nav-links-desktop">
-            <Link href="/">الرئيسية</Link>
-            <Link href="/orders">تتبع الطلبات</Link>
-          </div>
-        </div>
-
-        <div className="nav-left">
-          {isCustomerLoggedIn ? (
-            <div className="user-menu-widget nav-mobile-hidden">
-              <span className="user-username">{customerUser?.username}</span>
-              <span className="logout-btn-text" onClick={handleCustomerLogout}>خروج</span>
-            </div>
-          ) : (
-            <Link href="/login" className="nav-mobile-hidden">
-              <button className="nav-text-btn" title="حسابي">
-                حسابي
-              </button>
-            </Link>
-          )}
-
-          <Link href="/">
-            <div className="logo-container">
-              <span className="logo-text" style={{ fontSize: "1.1rem" }}>SPIDER STORE</span>
-              <div className="logo-circle">S</div>
-            </div>
-          </Link>
-
-          {/* Burger Button */}
-          <button className="burger-btn" onClick={() => setDrawerOpen(true)} aria-label="القائمة">☰</button>
-        </div>
-      </header>
-
+    <>
       {/* Main layout */}
       <div className="service-details-layout">
         {/* Form and Packages Selector */}
@@ -414,16 +345,42 @@ export default function ServiceDetail({ params }) {
             <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
             {service.packages && service.packages.length > 0 ? (
               <div className="packages-selector">
-                {service.packages.map((pkg) => (
-                  <div
-                    key={pkg.id}
-                    className={`package-option ${selectedPackage?.id === pkg.id ? "selected" : ""}`}
-                    onClick={() => setSelectedPackage(pkg)}
-                  >
-                    <span className="package-name">{pkg.name}</span>
-                    <span className="package-price">{pkg.price.toFixed(2)} ج.م</span>
-                  </div>
-                ))}
+                {service.packages.map((pkg, idx) => {
+                  const simulatedDiscount = 2 + (idx % 4);
+                  const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
+                  return (
+                    <div
+                      key={pkg.id}
+                      className={`package-option ${selectedPackage?.id === pkg.id ? "selected" : ""}`}
+                      onClick={() => setSelectedPackage(pkg)}
+                      style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px" }}
+                    >
+                      {/* Discount Tag */}
+                      <span style={{
+                        position: "absolute",
+                        top: "6px",
+                        left: "6px",
+                        background: "var(--danger-color)",
+                        color: "white",
+                        fontSize: "0.68rem",
+                        padding: "2px 6px",
+                        borderRadius: "6px",
+                        fontWeight: "800"
+                      }}>
+                        -{simulatedDiscount}%
+                      </span>
+
+                      <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
+
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
+                        <span className="package-price" style={{ fontSize: "1.1rem" }}>{pkg.price.toFixed(2)} ج.م</span>
+                        <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                          {originalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
@@ -610,25 +567,6 @@ export default function ServiceDetail({ params }) {
           </div>
         </div>
       )}
-      {/* Bottom Navigation Bar */}
-      <nav className="bottom-nav">
-        <Link href="/" className="bottom-nav-item">
-          <span className="bottom-nav-icon">🏠</span>
-          <span className="bottom-nav-label">الرئيسية</span>
-        </Link>
-        <Link href="/orders" className="bottom-nav-item">
-          <span className="bottom-nav-icon">📦</span>
-          <span className="bottom-nav-label">طلباتي</span>
-        </Link>
-        <Link href="/wallet" className="bottom-nav-item">
-          <span className="bottom-nav-icon">💳</span>
-          <span className="bottom-nav-label">محفظتي</span>
-        </Link>
-        <Link href="/login" className="bottom-nav-item">
-          <span className="bottom-nav-icon">👤</span>
-          <span className="bottom-nav-label">حسابي</span>
-        </Link>
-      </nav>
-    </div>
+    </>
   );
 }

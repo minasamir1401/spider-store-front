@@ -89,7 +89,7 @@ export default function CustomerLogin() {
         {/* Header */}
         <div style={{ textAlign: "center" }}>
           <div style={{ display: "inline-flex", justifyContent: "center", marginBottom: "10px" }}>
-            <div className="logo-circle" style={{ width: "54px", height: "54px", fontSize: "1.6rem" }}>S</div>
+            <div className="logo-circle" style={{ width: "54px", height: "54px", fontSize: "1.6rem", borderRadius: "12px" }}>S</div>
           </div>
           <h2 style={{ fontWeight: 900 }}>حساب Spider Store</h2>
           <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>تابع مشترياتك واشحن ألعابك بسرعة فائقة</p>

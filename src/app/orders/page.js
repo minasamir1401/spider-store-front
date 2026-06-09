@@ -68,8 +68,11 @@ export default function OrdersHistory() {
       .then((res) => (res.ok ? res.json() : null))
       .then((profile) => {
         if (profile) {
-          setCustomerUserStr(JSON.stringify(profile));
-          localStorage.setItem("customer_user", JSON.stringify(profile));
+          const profileStr = JSON.stringify(profile);
+          if (profileStr !== customerUserStr) {
+            setCustomerUserStr(profileStr);
+            localStorage.setItem("customer_user", profileStr);
+          }
         }
       })
       .catch(() => {});
@@ -113,101 +116,26 @@ export default function OrdersHistory() {
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(currentTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    localStorage.setItem("theme", nextTheme);
+  };
 
   if (!hydrated) return null;
 
   return (
-    <div className="glass-container">
-
-      {/* Mobile Drawer Overlay */}
-      {drawerOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)} />
-      )}
-
-      {/* Mobile Drawer */}
-      <div className={`mobile-drawer ${drawerOpen ? "open" : "closed"}`}>
-        <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">
-            <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>S</div>
-            القائمة
-          </span>
-          <button className="mobile-drawer-close" onClick={() => setDrawerOpen(false)}>✕</button>
-        </div>
-
-        {isLoggedIn && (
-          <div className="mobile-drawer-user-card">
-            <span>👤</span>
-            <div>
-              <div>{customer?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>{Number(customer?.balance || 0).toFixed(2)} ج.م</div>
-            </div>
-          </div>
-        )}
-
-        <div className="mobile-drawer-divider" />
-
-        <Link href="/" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>🏠 الرئيسية</Link>
-        <Link href="/orders" className="mobile-drawer-link active" onClick={() => setDrawerOpen(false)}>📦 تتبع الطلبات</Link>
-        {isLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>💳 شحن رصيدي</Link>}
-
-        <div className="mobile-drawer-divider" />
-
-        {isLoggedIn ? (
-          <button
-            className="mobile-drawer-link danger"
-            onClick={() => { handleLogout(); setDrawerOpen(false); }}
-          >🚪 تسجيل الخروج</button>
-        ) : (
-          <Link href="/login" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>👤 تسجيل الدخول / حساب</Link>
-        )}
-      </div>
-
-      {/* Header */}
-      <header className="navbar">
-        <div className="nav-right">
-          <Link href="/" className="glass-btn" style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.85rem" }}>
-            <span className="nav-btn-text">← تصفح المتجر</span>
-            <span className="nav-btn-icon">←</span>
-          </Link>
-          {isLoggedIn && (
-            <Link href="/wallet" className="glass-btn nav-mobile-hidden" style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.85rem" }}>
-              <span className="nav-btn-text">💳 المحفظة</span>
-              <span className="nav-btn-icon">💳</span>
-            </Link>
-          )}
-        </div>
-
-        <div className="nav-left">
-          {isLoggedIn ? (
-            <div className="user-menu-widget nav-mobile-hidden">
-              <span className="user-username"><span className="nav-btn-text">مرحباً، </span>{customer.username}</span>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                {Number(customer?.balance || 0).toFixed(2)} ج.م
-              </span>
-              <span className="logout-btn-text" onClick={handleLogout}>
-                <span className="nav-btn-text">خروج</span>
-                <span className="nav-btn-icon" style={{ color: "var(--danger-color)" }}>🚪</span>
-              </span>
-            </div>
-          ) : (
-            <Link href="/login" className="glass-btn glass-btn-primary nav-mobile-hidden" style={{ padding: "8px 18px", borderRadius: "100px", fontSize: "0.85rem" }}>
-              <span className="nav-btn-text">تسجيل الدخول</span>
-              <span className="nav-btn-icon">👤</span>
-            </Link>
-          )}
-
-          <Link href="/">
-            <div className="logo-container">
-              <span className="logo-text" style={{ fontSize: "1.1rem" }}>SPIDER STORE</span>
-              <div className="logo-circle">S</div>
-            </div>
-          </Link>
-
-          {/* Burger Button */}
-          <button className="burger-btn" onClick={() => setDrawerOpen(true)} aria-label="القائمة">☰</button>
-        </div>
-      </header>
-
+    <>
       {/* Main content */}
       <div style={{ marginBottom: "40px" }}>
         {isLoggedIn ? (
@@ -397,25 +325,6 @@ export default function OrdersHistory() {
         )}
       </div>
 
-      {/* Bottom Navigation Bar */}
-      <nav className="bottom-nav">
-        <Link href="/" className="bottom-nav-item">
-          <span className="bottom-nav-icon">🏠</span>
-          <span className="bottom-nav-label">الرئيسية</span>
-        </Link>
-        <Link href="/orders" className="bottom-nav-item active">
-          <span className="bottom-nav-icon">📦</span>
-          <span className="bottom-nav-label">طلباتي</span>
-        </Link>
-        <Link href="/wallet" className="bottom-nav-item">
-          <span className="bottom-nav-icon">💳</span>
-          <span className="bottom-nav-label">محفظتي</span>
-        </Link>
-        <Link href="/login" className="bottom-nav-item">
-          <span className="bottom-nav-icon">👤</span>
-          <span className="bottom-nav-label">حسابي</span>
-        </Link>
-      </nav>
-    </div>
+    </>
   );
 }

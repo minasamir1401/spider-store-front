@@ -104,6 +104,21 @@ export default function WalletPage() {
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(currentTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    localStorage.setItem("theme", nextTheme);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("customer_token");
@@ -112,7 +127,7 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="glass-container" dir="rtl">
+    <>
       <style>{`
         @media (max-width: 992px) {
           .wallet-grid {
@@ -120,69 +135,6 @@ export default function WalletPage() {
           }
         }
       `}</style>
-
-      {/* Mobile Drawer Overlay */}
-      {drawerOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)} />
-      )}
-
-      {/* Mobile Drawer */}
-      <div className={`mobile-drawer ${drawerOpen ? "open" : "closed"}`}>
-        <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">
-            <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>S</div>
-            القائمة
-          </span>
-          <button className="mobile-drawer-close" onClick={() => setDrawerOpen(false)}>✕</button>
-        </div>
-
-        {customer && (
-          <div className="mobile-drawer-user-card">
-            <span>💳</span>
-            <div>
-              <div>{customer?.username}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيد: {Number(customer?.balance || 0).toFixed(2)} ج.م</div>
-            </div>
-          </div>
-        )}
-
-        <div className="mobile-drawer-divider" />
-
-        <Link href="/" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>🏠 الرئيسية</Link>
-        <Link href="/orders" className="mobile-drawer-link" onClick={() => setDrawerOpen(false)}>📦 تتبع الطلبات</Link>
-        <Link href="/wallet" className="mobile-drawer-link active" onClick={() => setDrawerOpen(false)}>💳 المحفظة</Link>
-
-        <div className="mobile-drawer-divider" />
-
-        <button
-          className="mobile-drawer-link danger"
-          onClick={() => { handleLogout(); setDrawerOpen(false); }}
-        >🚪 تسجيل الخروج</button>
-      </div>
-
-      <header className="navbar">
-        <div className="nav-right">
-          <Link href="/" className="glass-btn" style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.85rem" }}>
-            <span className="nav-btn-text">← العودة للرئيسية</span>
-            <span className="nav-btn-icon">←</span>
-          </Link>
-        </div>
-
-        <div className="nav-left">
-          <div className="user-menu-widget nav-mobile-hidden">
-            <span className="user-username">{customer?.username || "محفظتي"}</span>
-          </div>
-          <Link href="/">
-            <div className="logo-container">
-              <span className="logo-text" style={{ fontSize: "1.1rem" }}>SPIDER STORE</span>
-              <div className="logo-circle">S</div>
-            </div>
-          </Link>
-
-          {/* Burger Button */}
-          <button className="burger-btn" onClick={() => setDrawerOpen(true)} aria-label="القائمة">☰</button>
-        </div>
-      </header>
 
       <div className="wallet-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
         <section className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -305,25 +257,6 @@ export default function WalletPage() {
           )}
         </section>
       </div>
-      {/* Bottom Navigation Bar */}
-      <nav className="bottom-nav">
-        <Link href="/" className="bottom-nav-item">
-          <span className="bottom-nav-icon">🏠</span>
-          <span className="bottom-nav-label">الرئيسية</span>
-        </Link>
-        <Link href="/orders" className="bottom-nav-item">
-          <span className="bottom-nav-icon">📦</span>
-          <span className="bottom-nav-label">طلباتي</span>
-        </Link>
-        <Link href="/wallet" className="bottom-nav-item active">
-          <span className="bottom-nav-icon">💳</span>
-          <span className="bottom-nav-label">محفظتي</span>
-        </Link>
-        <Link href="/login" className="bottom-nav-item">
-          <span className="bottom-nav-icon">👤</span>
-          <span className="bottom-nav-label">حسابي</span>
-        </Link>
-      </nav>
-    </div>
+    </>
   );
 }

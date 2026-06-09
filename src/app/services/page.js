@@ -1,21 +1,14 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/config";
 
-export default function CategoryServices({ params }) {
-  // Unwrap params using React.use() to comply with Next.js 15+ specifications
-  const unwrappedParams = use(params);
-  const categoryId = unwrappedParams.id;
-  const router = useRouter();
-
-  const [categoryName, setCategoryName] = useState("");
+export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Backup static services if backend is unreachable
   const staticServices = [
     {
       id: 1,
@@ -23,12 +16,7 @@ export default function CategoryServices({ params }) {
       name: "ببجي موبايل (PUBG Mobile)",
       description: "اشحن شدات ببجي موبايل فوراً ومباشرة في حسابك عن طريق الآيدي ID بأفضل الأسعار.",
       price: 0.99,
-      image: "pubg",
-      packages: [
-        { id: 1, name: "60 شدة (UC)", price: 0.99 },
-        { id: 2, name: "325 شدة (UC)", price: 4.85 },
-        { id: 3, name: "660 شدة (UC)", price: 9.50 }
-      ]
+      image: "pubg"
     },
     {
       id: 2,
@@ -36,11 +24,7 @@ export default function CategoryServices({ params }) {
       name: "فري فاير (Free Fire)",
       description: "اشحن جواهر فري فاير فوراً لتفعيل الفاير باس والحصول على أحدث سكنات اللعبة عبر الآيدي.",
       price: 1.10,
-      image: "freefire",
-      packages: [
-        { id: 1, name: "110 جوهرة", price: 1.10 },
-        { id: 2, name: "231 جوهرة", price: 2.20 }
-      ]
+      image: "freefire"
     },
     {
       id: 3,
@@ -48,10 +32,7 @@ export default function CategoryServices({ params }) {
       name: "بيجو لايف (Bigo Live)",
       description: "اشحن فاصوليا ومجوهرات تطبيق بيجو لايف لدعم البث المباشر المفضل لديك.",
       price: 1.25,
-      image: "bigo",
-      packages: [
-        { id: 1, name: "42 جوهرة", price: 1.25 }
-      ]
+      image: "bigo"
     },
     {
       id: 4,
@@ -59,10 +40,7 @@ export default function CategoryServices({ params }) {
       name: "فودافون كاش مصر (Vodafone Cash)",
       description: "شحن رصيد وتحويل أموال عبر محفظة فودافون كاش مباشرة بسعر الصرف الممتاز.",
       price: 1.00,
-      image: "vodafone",
-      packages: [
-        { id: 1, name: "إرسال 100 جنيه مصري", price: 2.10 }
-      ]
+      image: "vodafone"
     },
     {
       id: 5,
@@ -70,10 +48,7 @@ export default function CategoryServices({ params }) {
       name: "شحن رصيد USDT (TRC20)",
       description: "شراء وسحب عملة USDT الرقمية بأفضل أسعار الصرف وبسرعة تنفيذ خيالية.",
       price: 1.00,
-      image: "usdt",
-      packages: [
-        { id: 1, name: "10 USDT", price: 10.30 }
-      ]
+      image: "usdt"
     },
     {
       id: 6,
@@ -81,10 +56,7 @@ export default function CategoryServices({ params }) {
       name: "اشتراك كانفا برو (Canva Pro)",
       description: "تفعيل اشتراك كانفا برو الحساب الشخصي بكافة ميزات التصميم والذكاء الاصطناعي.",
       price: 1.99,
-      image: "canva",
-      packages: [
-        { id: 1, name: "تفعيل لمدة شهر", price: 1.99 }
-      ]
+      image: "canva"
     },
     {
       id: 7,
@@ -92,98 +64,25 @@ export default function CategoryServices({ params }) {
       name: "اشتراك نتفليكس (Netflix Premium)",
       description: "شاشة خاصة بك بجودة 4K UHD على حساب نتفليكس مشترك أو حساب مستقل بالكامل.",
       price: 2.50,
-      image: "netflix",
-      packages: [
-        { id: 1, name: "شاشة واحدة لمدة شهر 4K", price: 2.50 }
-      ]
+      image: "netflix"
     }
   ];
 
-  const categoryNamesMap = {
-    1: "شحن ألعاب",
-    2: "شحن تطبيقات",
-    3: "الأرصدة والاتصالات",
-    4: "الدفع الإلكتروني",
-    5: "تفعيل البرامج",
-    6: "الحسابات والاشتراكات"
-  };
-
   useEffect(() => {
-    setLoading(true);
-
-    // Fetch category name
-    fetch(`${API_BASE_URL}/api/categories`)
-      .then(res => res.json())
-      .then(cats => {
-        const cat = cats.find(c => c.id === Number(categoryId));
-        if (cat) setCategoryName(cat.name);
-        else setCategoryName(categoryNamesMap[categoryId] || "الخدمات المتاحة");
-      })
-      .catch(() => {
-        setCategoryName(categoryNamesMap[categoryId] || "الخدمات المتاحة");
-      });
-
-    // Fetch services filtering by category_id
-    fetch(`${API_BASE_URL}/api/services?category_id=${categoryId}`)
-      .then(res => {
+    fetch(`${API_BASE_URL}/api/services`)
+      .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setServices(data);
         setLoading(false);
       })
       .catch(() => {
-        // Fallback filtering by category ID
-        const filtered = staticServices.filter(s => s.category_id === Number(categoryId));
-        setServices(filtered);
+        setServices(staticServices);
         setLoading(false);
       });
-  }, [categoryId]);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-  const [customerUser, setCustomerUser] = useState(null);
-  const [theme, setTheme] = useState("dark");
-
-  const handleSearchSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (searchTerm.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
-
-  useEffect(() => {
-    // Theme sync
-    if (typeof window !== "undefined") {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      setTheme(currentTheme);
-    }
-
-    const token = localStorage.getItem("customer_token");
-    const userStr = localStorage.getItem("customer_user");
-    if (token && userStr) {
-      setIsCustomerLoggedIn(true);
-      setCustomerUser(JSON.parse(userStr));
-    }
   }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.setAttribute("data-theme", nextTheme);
-    localStorage.setItem("theme", nextTheme);
-  };
-
-  const handleCustomerLogout = () => {
-    localStorage.removeItem("customer_token");
-    localStorage.removeItem("customer_user");
-    setIsCustomerLoggedIn(false);
-    setCustomerUser(null);
-  };
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const getServiceIcon = (image) => {
     if (!image) return "⚡";
@@ -201,31 +100,57 @@ export default function CategoryServices({ params }) {
     return "⚡";
   };
 
+  const filteredServices = services.filter((s) =>
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
-      {/* Page Title */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", gap: "12px", flexWrap: "wrap" }}>
-        <h2 className="section-title" style={{ margin: 0 }}>قسم {categoryName}</h2>
-        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: "600" }}>
-          {services.length} خدمة متوفرة
-        </span>
+      {/* Announcement Banner */}
+      <div className="announcement-banner">
+        <span>✨</span>
+        <span>عملائنا الأعزاء — للحصول على أسعار الجملة يرجى التواصل مع الإدارة.</span>
       </div>
 
-      {/* Services Grid (Subcategories scc-grid) */}
+      {/* Page Title */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", marginBottom: "10px", gap: "12px", flexWrap: "wrap" }}>
+        <h2 className="section-title" style={{ margin: 0 }}>الخدمات المتاحة</h2>
+        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: "600" }}>
+          {filteredServices.length} خدمة متوفرة
+        </span>
+      </div>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", margin: "0 0 20px 0" }}>
+        تصفح وابحث في كافة الخدمات الرقمية المتوفرة للشحن والدفع المباشر.
+      </p>
+
+      {/* Centered Search Bar */}
+      <div className="search-container-center">
+        <input
+          type="text"
+          className="search-input-center"
+          placeholder="ابحث عن خدمة شحن، بطاقات، ألعاب..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <span className="search-icon-center">🔍</span>
+      </div>
+
+      {/* Services List (scc-grid) */}
       {loading ? (
         <div style={{ textAlign: "center", padding: "40px", fontSize: "1.2rem", fontWeight: 700 }}>
           جاري تحميل الخدمات...
         </div>
-      ) : services.length === 0 ? (
+      ) : filteredServices.length === 0 ? (
         <div className="glass-panel" style={{ textAlign: "center", padding: "40px" }}>
           <span style={{ fontSize: "3rem" }}>📭</span>
-          <h3 style={{ margin: "15px 0 10px 0" }}>لا تتوفر خدمات في هذا القسم حالياً</h3>
-          <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>سندرج خدمات جديدة قريباً جداً، ترقبوا التحديثات!</p>
+          <h3 style={{ margin: "15px 0 10px 0" }}>لا تتوفر خدمات مطابقة للبحث</h3>
+          <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>يرجى تجربة كلمات بحث أخرى أو تصفح الأقسام الرئيسية.</p>
           <Link href="/" className="glass-btn glass-btn-primary">العودة للرئيسية</Link>
         </div>
       ) : (
         <div className="scc-grid">
-          {services.map((service) => {
+          {filteredServices.map((service) => {
             const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
             return (
               <Link href={`/service/${service.id}`} className="scc-card" key={service.id}>

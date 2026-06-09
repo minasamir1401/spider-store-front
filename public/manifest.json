@@ -1,0 +1,28 @@
+{
+  "name": "Spider Store",
+  "short_name": "Spider Store",
+  "description": "متجر Spider Store لشحن الألعاب والبطاقات الرقمية والخدمات الإلكترونية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141a28",
+  "theme_color": "#00b4d8",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "/icons/icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

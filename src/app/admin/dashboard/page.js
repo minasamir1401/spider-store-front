@@ -1106,6 +1106,7 @@ export default function AdminDashboard() {
           align-items: center;
           margin-bottom: 35px;
           gap: 20px;
+          flex-wrap: wrap;
         }
 
         .header-title-section h1 {
@@ -1504,9 +1505,9 @@ export default function AdminDashboard() {
         .pkg-tag {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.05);
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 0.72rem;
+          padding: 1px 5px;
+          border-radius: 4px;
+          font-size: 0.65rem;
           color: #94a3b8;
         }
 
@@ -1823,6 +1824,39 @@ export default function AdminDashboard() {
         }
 
         @media (max-width: 640px) {
+          .content-header {
+            gap: 12px;
+            margin-bottom: 25px;
+          }
+
+          .header-actions {
+            width: 100%;
+            display: flex;
+          }
+
+          .header-actions .btn-add-premium {
+            flex-grow: 1;
+            text-align: center;
+            justify-content: center;
+          }
+
+          .status-tabs-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+
+          .status-tabs-wrapper::-webkit-scrollbar {
+            display: none;
+          }
+
+          .status-tab-btn {
+            flex-shrink: 0;
+          }
+
           .premium-stats-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
@@ -1938,7 +1972,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="premium-sidebar">
         <div className="premium-logo">
-          <div className="logo-circle">S</div>
+          <div className="logo-circle" style={{ borderRadius: "10px" }}>S</div>
           <span>Spider Store المسؤول</span>
         </div>
 
@@ -2016,7 +2050,7 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="premium-content">
-        <header className="content-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <header className="content-header">
           <button className="admin-burger-btn" onClick={() => setAdminDrawerOpen(true)}>☰</button>
           <div className="header-title-section">
             <h1>
@@ -2764,12 +2798,12 @@ export default function AdminDashboard() {
                           return (
                             <tr key={service.id}>
                               <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{service.id}</td>
-                              <td style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                <div style={{ width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "10px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
+                              <td style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "160px", maxWidth: "220px" }}>
+                                <div style={{ width: "32px", height: "32px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
                                   {service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads")) ? (
                                     <img src={service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                                   ) : (
-                                    <span style={{ fontSize: "1.5rem" }}>
+                                    <span style={{ fontSize: "1.1rem" }}>
                                       {service.image === "pubg" && "🔫"}
                                       {service.image === "freefire" && "🔥"}
                                       {service.image === "bigo" && "💬"}
@@ -2782,20 +2816,25 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
                                 <div>
-                                  <div style={{ fontWeight: 700 }}>{service.name}</div>
-                                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                                  <div style={{ fontWeight: 700, fontSize: "0.88rem", whiteSpace: "normal" }}>{service.name}</div>
+                                  <div style={{ fontSize: "0.7rem", color: "#64748b" }}>
                                     أيقونة: {service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads")) ? "صورة مخصصة" : service.image}
                                   </div>
                                 </div>
                               </td>
                               <td style={{ fontWeight: 700 }}>{parentCat ? parentCat.name : `قسم #${service.category_id}`}</td>
                               <td>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                                  {parsedPackages && parsedPackages.map((pkg) => (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
+                                  {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                     <span key={pkg.id || pkg.name} className="pkg-tag">
                                       {pkg.name} (${pkg.price})
                                     </span>
                                   ))}
+                                  {parsedPackages && parsedPackages.length > 3 && (
+                                    <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
+                                      + {parsedPackages.length - 3} أخرى
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(service.price || 0).toFixed(2)} ج.م</td>
@@ -3169,33 +3208,52 @@ export default function AdminDashboard() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {newServicePackages.map((pkg, idx) => (
-                    <div key={idx} className="pkg-row">
-                      <input
-                        type="text"
-                        placeholder="اسم الباقة (مثلاً: 325 شدة)"
-                        value={pkg.name}
-                        onChange={(e) => handlePkgChange(idx, "name", e.target.value)}
-                        style={{ flex: 2 }}
-                        required
-                      />
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="السعر بالدولار"
-                        value={pkg.price || ""}
-                        onChange={(e) => handlePkgChange(idx, "price", e.target.value)}
-                        style={{ flex: 1, direction: "ltr" }}
-                        required
-                      />
-                      {newServicePackages.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePkgInput(idx)}
-                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "1.4rem", cursor: "pointer", padding: "0 8px" }}
-                        >
-                          ×
-                        </button>
-                      )}
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
+                        {newServicePackages.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePkgInput(idx)}
+                            style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                          >
+                            حذف الباقة ×
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الباقة"
+                            value={pkg.name}
+                            onChange={(e) => handlePkgChange(idx, "name", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="السعر"
+                            value={pkg.price || ""}
+                            onChange={(e) => handlePkgChange(idx, "price", e.target.value)}
+                            style={{ direction: "ltr" }}
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -3217,56 +3275,79 @@ export default function AdminDashboard() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {newServiceFields.map((f, idx) => (
-                    <div key={idx} className="pkg-row" style={{ flexWrap: "wrap", gap: "8px" }}>
-                      <input
-                        type="text"
-                        placeholder="معرّف الحقل (ID مثل: player_id)"
-                        value={f.id}
-                        onChange={(e) => handleFieldChange(idx, "id", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                        required
-                      />
-                      <input
-                        type="text"
-                        placeholder="اسم الحقل بالعربية (مثال: معرّف اللاعب)"
-                        value={f.label}
-                        onChange={(e) => handleFieldChange(idx, "label", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                        required
-                      />
-                      <input
-                        type="text"
-                        placeholder="نص تلميح تلميحي"
-                        value={f.placeholder}
-                        onChange={(e) => handleFieldChange(idx, "placeholder", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                      />
-                      <select
-                        value={f.type}
-                        onChange={(e) => handleFieldChange(idx, "type", e.target.value)}
-                        style={{
-                          flex: 1,
-                          minWidth: "80px",
-                          padding: "8px",
-                          borderRadius: "8px",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          background: "rgba(13, 18, 36, 0.7)",
-                          color: "#ffffff"
-                        }}
-                      >
-                        <option value="text">نص (text)</option>
-                        <option value="tel">هاتف (tel)</option>
-                        <option value="number">رقم (number)</option>
-                        <option value="email">إيميل (email)</option>
-                      </select>
-                      
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveField(idx)}
-                        style={{ background: "none", border: "none", color: "#f87171", fontSize: "1.4rem", cursor: "pointer", padding: "0 8px" }}
-                      >
-                        ×
-                      </button>
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#22d3ee", fontWeight: "800" }}>الحقل المطلوب #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveField(idx)}
+                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                        >
+                          حذف الحقل ×
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف الحقل (ID):</span>
+                          <input
+                            type="text"
+                            placeholder="معرّف الحقل (ID مثل: player_id)"
+                            value={f.id}
+                            onChange={(e) => handleFieldChange(idx, "id", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الحقل بالعربية:</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الحقل بالعربية"
+                            value={f.label}
+                            onChange={(e) => handleFieldChange(idx, "label", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نص تلميح تلميحي:</span>
+                          <input
+                            type="text"
+                            placeholder="نص تلميح تلميحي"
+                            value={f.placeholder}
+                            onChange={(e) => handleFieldChange(idx, "placeholder", e.target.value)}
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نوع المدخل:</span>
+                          <select
+                            value={f.type}
+                            onChange={(e) => handleFieldChange(idx, "type", e.target.value)}
+                            style={{
+                              padding: "8px 12px",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.06)",
+                              background: "rgba(13, 18, 36, 0.7)",
+                              color: "#ffffff",
+                              fontSize: "0.85rem",
+                              width: "100%",
+                              boxSizing: "border-box"
+                            }}
+                          >
+                            <option value="text">نص (text)</option>
+                            <option value="tel">هاتف (tel)</option>
+                            <option value="number">رقم (number)</option>
+                            <option value="email">إيميل (email)</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -3394,21 +3475,11 @@ export default function AdminDashboard() {
         <div
           className="premium-overlay"
           onClick={() => setShowEditServiceModal(false)}
-          style={{ alignItems: "stretch", justifyContent: "stretch" }}
         >
           <div
             className="premium-modal"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "100vw",
-              height: "100vh",
-              maxWidth: "100vw",
-              maxHeight: "100vh",
-              borderRadius: "0",
-              overflowY: "auto",
-              padding: "24px",
-              boxSizing: "border-box"
-            }}
+            style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}
           >
             <div className="premium-modal-header">
               <h3 className="premium-modal-title">تعديل الخدمة</h3>
@@ -3552,33 +3623,52 @@ export default function AdminDashboard() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {editServicePackages.map((pkg, idx) => (
-                    <div key={idx} className="pkg-row">
-                      <input
-                        type="text"
-                        placeholder="اسم الباقة (مثلاً: 325 شدة)"
-                        value={pkg.name}
-                        onChange={(e) => handleEditPkgChange(idx, "name", e.target.value)}
-                        style={{ flex: 2 }}
-                        required
-                      />
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="السعر بالدولار"
-                        value={pkg.price || ""}
-                        onChange={(e) => handleEditPkgChange(idx, "price", e.target.value)}
-                        style={{ flex: 1, direction: "ltr" }}
-                        required
-                      />
-                      {editServicePackages.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveEditPkgInput(idx)}
-                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "1.4rem", cursor: "pointer", padding: "0 8px" }}
-                        >
-                          ×
-                        </button>
-                      )}
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
+                        {editServicePackages.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveEditPkgInput(idx)}
+                            style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                          >
+                            حذف الباقة ×
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الباقة"
+                            value={pkg.name}
+                            onChange={(e) => handleEditPkgChange(idx, "name", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="السعر"
+                            value={pkg.price || ""}
+                            onChange={(e) => handleEditPkgChange(idx, "price", e.target.value)}
+                            style={{ direction: "ltr" }}
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -3600,56 +3690,79 @@ export default function AdminDashboard() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {editServiceFields.map((f, idx) => (
-                    <div key={idx} className="pkg-row" style={{ flexWrap: "wrap", gap: "8px" }}>
-                      <input
-                        type="text"
-                        placeholder="معرّف الحقل (ID مثل: player_id)"
-                        value={f.id}
-                        onChange={(e) => handleEditFieldChange(idx, "id", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                        required
-                      />
-                      <input
-                        type="text"
-                        placeholder="اسم الحقل بالعربية (مثال: معرّف اللاعب)"
-                        value={f.label}
-                        onChange={(e) => handleEditFieldChange(idx, "label", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                        required
-                      />
-                      <input
-                        type="text"
-                        placeholder="نص تلميح تلميحي"
-                        value={f.placeholder}
-                        onChange={(e) => handleEditFieldChange(idx, "placeholder", e.target.value)}
-                        style={{ flex: 1, minWidth: "120px" }}
-                      />
-                      <select
-                        value={f.type}
-                        onChange={(e) => handleEditFieldChange(idx, "type", e.target.value)}
-                        style={{
-                          flex: 1,
-                          minWidth: "80px",
-                          padding: "8px",
-                          borderRadius: "8px",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          background: "rgba(13, 18, 36, 0.7)",
-                          color: "#ffffff"
-                        }}
-                      >
-                        <option value="text">نص (text)</option>
-                        <option value="tel">هاتف (tel)</option>
-                        <option value="number">رقم (number)</option>
-                        <option value="email">إيميل (email)</option>
-                      </select>
-                      
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveEditField(idx)}
-                        style={{ background: "none", border: "none", color: "#f87171", fontSize: "1.4rem", cursor: "pointer", padding: "0 8px" }}
-                      >
-                        ×
-                      </button>
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#22d3ee", fontWeight: "800" }}>الحقل المطلوب #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditField(idx)}
+                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                        >
+                          حذف الحقل ×
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف الحقل (ID):</span>
+                          <input
+                            type="text"
+                            placeholder="معرّف الحقل (ID مثل: player_id)"
+                            value={f.id}
+                            onChange={(e) => handleEditFieldChange(idx, "id", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الحقل بالعربية:</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الحقل بالعربية"
+                            value={f.label}
+                            onChange={(e) => handleEditFieldChange(idx, "label", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نص تلميح تلميحي:</span>
+                          <input
+                            type="text"
+                            placeholder="نص تلميح تلميحي"
+                            value={f.placeholder}
+                            onChange={(e) => handleEditFieldChange(idx, "placeholder", e.target.value)}
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نوع المدخل:</span>
+                          <select
+                            value={f.type}
+                            onChange={(e) => handleEditFieldChange(idx, "type", e.target.value)}
+                            style={{
+                              padding: "8px 12px",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.06)",
+                              background: "rgba(13, 18, 36, 0.7)",
+                              color: "#ffffff",
+                              fontSize: "0.85rem",
+                              width: "100%",
+                              boxSizing: "border-box"
+                            }}
+                          >
+                            <option value="text">نص (text)</option>
+                            <option value="tel">هاتف (tel)</option>
+                            <option value="number">رقم (number)</option>
+                            <option value="email">إيميل (email)</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

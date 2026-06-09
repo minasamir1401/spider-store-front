@@ -17,6 +17,13 @@ export default function Home() {
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
 
+  // Theme states
+  const [theme, setTheme] = useState("dark");
+
+  // PWA states
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
   // Backup static categories if backend is unreachable
   const staticCategories = [
     { id: 1, name: "شحن ألعاب", image: "games" },
@@ -33,7 +40,7 @@ export default function Home() {
       highlight: "Zoom USDT",
       desc: "كافة طرق الدفع متاحة | عمولة صفر | تنفيذ تلقائي فوري 100% وآمن تماماً.",
       badge: "عرض خاص",
-      color: "#10b981",
+      color: "#00b4d8",
       icon: "🪙"
     },
     {
@@ -41,7 +48,7 @@ export default function Home() {
       highlight: "PUBG Mobile UC",
       desc: "شحن مباشر وسريع في حسابك عبر الآيدي ID على مدار 24 ساعة.",
       badge: "الأكثر مبيعاً",
-      color: "#f59e0b",
+      color: "#00b4d8",
       icon: "🎮"
     },
     {
@@ -49,7 +56,7 @@ export default function Home() {
       highlight: "Canva & ChatGPT",
       desc: "حسابات كانفا برو وشات جي بي تي بلس بتفعيل فوري ومضمون.",
       badge: "الجديد كلياً",
-      color: "#2563eb",
+      color: "#00b4d8",
       icon: "🚀"
     }
   ];
@@ -57,6 +64,24 @@ export default function Home() {
   const [slides, setSlides] = useState(defaultSlides);
 
   useEffect(() => {
+    // Theme sync
+    if (typeof window !== "undefined") {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(currentTheme);
+    }
+
+    // PWA Install Prompt Listener
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      // Show custom banner if not already running in standalone PWA mode
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallBanner(true);
+      }
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
     // Check customer login
     const token = localStorage.getItem("customer_token");
     const userStr = localStorage.getItem("customer_user");
@@ -118,7 +143,27 @@ export default function Home() {
       .catch((err) => {
         console.warn("Using default static banners:", err);
       });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    localStorage.setItem("theme", nextTheme);
+  };
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User choice outcome: ${outcome}`);
+    setDeferredPrompt(null);
+    setShowInstallBanner(false);
+  };
 
   // Auto-scroll hero banner carousel
   useEffect(() => {
@@ -167,176 +212,11 @@ export default function Home() {
 
   return (
     <>
-      {/* Burger Menu Drawer Overlay - Outside glass-container for proper fixed positioning */}
-      {menuOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setMenuOpen(false)} />
-      )}
-      <div className={`mobile-drawer ${menuOpen ? "open" : "closed"}`}>
-        <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">تصفح الموقع</span>
-          <button className="mobile-drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
-        </div>
-        
-        {isCustomerLoggedIn ? (
-          <div className="mobile-drawer-user-card" style={{ marginBottom: "10px" }}>
-            <span>👤</span>
-            <div>مرحباً، {customerUser?.username}</div>
-          </div>
-        ) : (
-          <Link href="/login" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
-            <span>👤</span>
-            حسابي (تسجيل الدخول)
-          </Link>
-        )}
-        
-        <div className="mobile-drawer-divider" />
-        
-        <Link href="/" className="mobile-drawer-link active" onClick={() => setMenuOpen(false)}>
-          🏠 الرئيسية
-        </Link>
-        <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
-          📦 تتبع طلباتي ومشترياتي
-        </Link>
-        {isCustomerLoggedIn && (
-          <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
-            💳 محفظتي وشحن الرصيد
-          </Link>
-        )}
-        
-        <div className="mobile-drawer-divider" />
-        
-        {isCustomerLoggedIn && (
-          <button className="mobile-drawer-link danger" onClick={() => { handleCustomerLogout(); setMenuOpen(false); }}>
-            تسجيل الخروج 🚪
-          </button>
-        )}
-        
-        <div style={{ padding: "10px 16px", fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "auto" }}>
-          قسم الدعم الفني متاح 24/7 لمساعدتكم.
-        </div>
+      {/* Announcement Banner */}
+      <div className="announcement-banner">
+        <span>✨</span>
+        <span>عملائنا الأعزاء — للحصول على أسعار الجملة يرجى التواصل مع الإدارة.</span>
       </div>
-
-      <div className="glass-container">
-      {/* Header / Navbar */}
-      <header className="navbar">
-        <div className="nav-right">
-          <button 
-            className="nav-icon-btn nav-burger-btn" 
-            onClick={() => setMenuOpen(!menuOpen)}
-            title="القائمة"
-          >
-            <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>☰</span>
-          </button>
-
-          <div className="nav-links-desktop">
-            <Link href="/">الرئيسية</Link>
-            <Link href="/orders">تتبع الطلبات</Link>
-            {isCustomerLoggedIn && <Link href="/wallet">محفظتي</Link>}
-          </div>
-          
-          <div className="balance-widget">
-            <span className="balance-title">الرصيد الحالي</span>
-            <span className="balance-value">{Number(customerUser?.balance || 0).toFixed(2)} ج.م</span>
-          </div>
-        </div>
-
-        {/* Desktop Search Bar */}
-        <div className="nav-search-wrapper">
-          <input
-            type="text"
-            className="nav-search-input"
-            placeholder="ابحث عن قسم أو خدمة شحن..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <span className="nav-search-icon">🔍</span>
-        </div>
-
-        <div className="nav-left">
-          <button 
-            className="nav-text-btn nav-search-mobile-btn" 
-            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            title="البحث"
-          >
-            <span className="nav-btn-text">البحث</span>
-            <span className="nav-btn-icon">🔍</span>
-          </button>
-
-          <button 
-            className="nav-text-btn nav-mobile-hidden" 
-            onClick={() => setNotificationOpen(!notificationOpen)}
-            title="الإشعارات"
-          >
-            <span className="nav-btn-text">الإشعارات</span>
-            <span className="nav-btn-icon">🔔</span>
-          </button>
-
-          {isCustomerLoggedIn ? (
-            <div className="user-menu-widget nav-mobile-hidden">
-              <span className="user-username">{customerUser?.username}</span>
-              <span className="logout-btn-text" onClick={handleCustomerLogout}>
-                <span className="nav-btn-text">خروج</span>
-                <span className="nav-btn-icon" style={{ color: "var(--danger-color)" }}>🚪</span>
-              </span>
-            </div>
-          ) : (
-            <Link href="/login" className="nav-mobile-hidden">
-              <button className="nav-text-btn" title="حسابي">
-                <span className="nav-btn-text">حسابي</span>
-                <span className="nav-btn-icon">👤</span>
-              </button>
-            </Link>
-          )}
-          
-          <Link href="/">
-            <div className="logo-container">
-              <span className="logo-text">Spider Store</span>
-            </div>
-          </Link>
-        </div>
-      </header>
-
-      {/* Mobile Search Bar Dropdown */}
-      <div className={`mobile-search-bar-container ${mobileSearchOpen ? "open" : ""}`}>
-        <div className="mobile-search-bar-inner">
-          <div className="mobile-search-bar">
-            <input
-              type="text"
-              className="nav-search-input"
-              placeholder="ابحث عن قسم أو خدمة شحن..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <span className="nav-search-icon">🔍</span>
-          </div>
-        </div>
-      </div>
-
-
-      {/* Notifications Drawer */}
-      {notificationOpen && (
-        <div className="overlay" onClick={() => setNotificationOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ width: "90%", maxWidth: "350px", position: "absolute", left: "10px", top: "85px" }}>
-            <div className="modal-header">
-              <h3 style={{ fontWeight: 800 }}>تنبيهات النظام</h3>
-              <button className="modal-close" onClick={() => setNotificationOpen(false)}>×</button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
-              <div style={{ padding: "10px", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderLeft: "4px solid var(--success-color)", fontSize: "0.85rem" }}>
-                <strong>شحن USDT تلقائي:</strong> يمكنك الآن شراء وسحب الـ USDT بأمان عبر محفظتك الإلكترونية مباشرة.
-              </div>
-              <div style={{ padding: "10px", borderRadius: "8px", background: "rgba(37, 99, 235, 0.1)", borderLeft: "4px solid var(--primary-color)", fontSize: "0.85rem" }}>
-                <strong>تحديث الأسعار:</strong> تم تحديث أسعار شدات ببجي موبايل وعروض فري فاير اليومية.
-              </div>
-              <div style={{ padding: "10px", borderRadius: "8px", background: "rgba(139, 92, 246, 0.1)", borderLeft: "4px solid #8b5cf6", fontSize: "0.85rem" }}>
-                <strong>المحفظة الجديدة:</strong> يمكنك شحن رصيد حسابك من صفحة المحفظة ثم تتم الموافقة عليه من لوحة التحكم.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Search Bar has been moved to Navbar */}
 
       {/* Hero Slide Banner */}
       <section className="hero-banner">
@@ -398,9 +278,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Centered Search Bar */}
+      <div className="search-container-center">
+        <input
+          type="text"
+          className="search-input-center"
+          placeholder="ابحث عن قسم أو خدمة شحن..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <span className="search-icon-center">🔍</span>
+      </div>
+
       {/* Categories Grid */}
       <section>
-        <h2 className="section-title">الأقسام المتوفرة</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
+          <h2 className="section-title" style={{ margin: 0 }}>الأقسام الرئيسية</h2>
+          <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "700", cursor: "pointer" }}>عرض الكل</span>
+        </div>
         
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px", fontSize: "1.2rem", fontWeight: 700 }}>
@@ -411,12 +306,12 @@ export default function Home() {
             لا توجد أقسام مطابقة للبحث.
           </div>
         ) : (
-          <div className="categories-grid">
+          <div className="categories-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
             {filteredCategories.map((cat) => {
               const isCustomImg = cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads"));
               return (
                 <Link href={`/category/${cat.id}`} key={cat.id}>
-                  <div className="glass-card category-card">
+                  <div className="glass-card category-card" style={{ borderRadius: "16px" }}>
                     <div className="category-img-container" style={isCustomImg ? { padding: 0 } : {}}>
                       {isCustomImg ? (
                         <img 
@@ -438,26 +333,6 @@ export default function Home() {
           </div>
         )}
       </section>
-      {/* Bottom Navigation Bar */}
-      <nav className="bottom-nav">
-        <Link href="/" className="bottom-nav-item active">
-          <span className="bottom-nav-icon">🏠</span>
-          <span className="bottom-nav-label">الرئيسية</span>
-        </Link>
-        <Link href="/orders" className="bottom-nav-item">
-          <span className="bottom-nav-icon">📦</span>
-          <span className="bottom-nav-label">طلباتي</span>
-        </Link>
-        <Link href="/wallet" className="bottom-nav-item">
-          <span className="bottom-nav-icon">💳</span>
-          <span className="bottom-nav-label">محفظتي</span>
-        </Link>
-        <Link href="/login" className="bottom-nav-item">
-          <span className="bottom-nav-icon">👤</span>
-          <span className="bottom-nav-label">حسابي</span>
-        </Link>
-      </nav>
-    </div>
     </>
   );
 }
