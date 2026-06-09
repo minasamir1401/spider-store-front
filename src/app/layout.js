@@ -5,6 +5,17 @@ import MainLayout from "../components/MainLayout";
 export const metadata = {
   title: "Spider Store | شحن الألعاب والخدمات الرقمية",
   description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
+  icons: {
+    icon: [
+      { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
+  },
 };
 
 export const viewport = {
@@ -22,6 +33,11 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+        {/* Favicon / Tab Icon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
         
         {/* Anti-Flicker Theme Initialization Script */}
         <script
