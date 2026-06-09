@@ -305,8 +305,18 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", fontSize: "1.2rem", fontWeight: 700 }}>
-            جاري تحميل الأقسام...
+          <div className="cc-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div className="cc-wrap" key={i}>
+                <div className="cc-card cc-skeleton-card" style={{ "--cc-ac": "#6366f1", "--cc-gl": "#6366f173" }}>
+                  <div className="cc-img-wrap" style={{ animation: "cc-skeleton-pulse 1.6s infinite linear" }} />
+                  <div className="cc-name-area">
+                    <div style={{ height: "12px", borderRadius: "6px", background: "rgba(255,255,255,0.08)", width: "70%", marginBottom: "4px" }} />
+                    <div style={{ height: "10px", borderRadius: "6px", background: "rgba(255,255,255,0.05)", width: "40%" }} />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredCategories.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
@@ -314,6 +324,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="cc-grid">
+            {/* Skeleton placeholders while API images load */}
             {filteredCategories.map((cat) => {
               const color = cat.color || "#6366f1";
               const glowColor = color + "73";
@@ -321,6 +332,8 @@ export default function Home() {
               const imgSrc = cat.image && (cat.image.startsWith("http") || cat.image.startsWith("/uploads"))
                 ? (cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image)
                 : null;
+              // Preload first 4 images for faster LCP
+              const isPriority = cat.id <= 4;
 
               return (
                 <div className="cc-wrap" key={cat.id}>
@@ -335,10 +348,13 @@ export default function Home() {
                         <img
                           src={imgSrc}
                           alt={cat.name}
-                          loading="lazy"
+                          loading={isPriority ? "eager" : "lazy"}
+                          fetchpriority={isPriority ? "high" : "auto"}
+                          decoding="async"
                           className="cc-img"
-                          style={{ opacity: 0, transition: "opacity 0.4s ease" }}
+                          style={{ opacity: 0, transition: "opacity 0.35s ease" }}
                           onLoad={e => { e.target.style.opacity = 1; }}
+                          onError={e => { e.target.style.display = 'none'; }}
                         />
                       ) : (
                         <div className="cc-img-placeholder">{cat.name.charAt(0)}</div>
