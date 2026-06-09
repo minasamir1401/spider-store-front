@@ -15,7 +15,7 @@ export default function ContactFloatingButton() {
   }
 
   return (
-    <div style={{ position: "fixed", right: "20px", bottom: "20px", zIndex: 80 }}>
+    <div className="contact-floating-btn-wrap">
       {open && (
         <div
           style={{
