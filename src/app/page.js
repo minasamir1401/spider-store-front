@@ -349,7 +349,7 @@ export default function Home() {
                           src={imgSrc}
                           alt={cat.name}
                           loading={isPriority ? "eager" : "lazy"}
-                          fetchpriority={isPriority ? "high" : "auto"}
+                          fetchPriority={isPriority ? "high" : "auto"}
                           decoding="async"
                           className="cc-img"
                           style={{ opacity: 0, transition: "opacity 0.35s ease" }}
