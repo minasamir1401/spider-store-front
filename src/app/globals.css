@@ -2276,7 +2276,7 @@ button, input, textarea, select {
 }
 
 .scc-meta span {
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .scc-dot {
