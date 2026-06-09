@@ -281,11 +281,51 @@ export default function MainLayout({ children }) {
         {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
         
         <div className="mobile-drawer-divider" />
+
+        {/* Theme Toggle in Mobile Drawer */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
+          <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "1.1rem" }}>{theme === "dark" ? "🌙" : "☀️"}</span>
+            <span>المظهر الليلي</span>
+          </span>
+          <button 
+            onClick={toggleTheme}
+            style={{
+              background: theme === "dark" ? "var(--primary-color)" : "rgba(0, 0, 0, 0.15)",
+              border: "none",
+              borderRadius: "100px",
+              width: "48px",
+              height: "26px",
+              display: "flex",
+              alignItems: "center",
+              padding: "3px",
+              cursor: "pointer",
+              transition: "background-color 0.3s ease",
+              position: "relative",
+              outline: "none"
+            }}
+            type="button"
+            aria-label="تبديل المظهر"
+          >
+            <div style={{
+              width: "20px",
+              height: "20px",
+              borderRadius: "50%",
+              background: "#ffffff",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              transform: theme === "dark" ? "translateX(-22px)" : "translateX(0)"
+            }} />
+          </button>
+        </div>
         
         {isCustomerLoggedIn && (
-          <button className="mobile-drawer-link danger" onClick={() => { handleCustomerLogout(); setMenuOpen(false); }}>
-            تسجيل الخروج 🚪
-          </button>
+          <>
+            <div className="mobile-drawer-divider" />
+            <button className="mobile-drawer-link danger" onClick={() => { handleCustomerLogout(); setMenuOpen(false); }}>
+              تسجيل الخروج 🚪
+            </button>
+          </>
         )}
       </div>
 
@@ -369,9 +409,9 @@ export default function MainLayout({ children }) {
 
           {/* Right Section: Theme Toggle + Language Switcher + Notifications + Profile Initials/Login */}
           <div className="flex items-center gap-1" style={{ position: "relative" }}>
-            {/* Theme Toggle (shown on desktop, hidden on mobile) */}
+            {/* Theme Toggle */}
             <button 
-              className="header-btn lg-flex w-9 h-9" 
+              className="header-btn w-9 h-9" 
               onClick={toggleTheme}
               title={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
               type="button"

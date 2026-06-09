@@ -306,7 +306,7 @@ export default function Home() {
             لا توجد أقسام مطابقة للبحث.
           </div>
         ) : (
-          <div className="categories-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+          <div className="categories-grid">
             {filteredCategories.map((cat) => {
               const isCustomImg = cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads"));
               return (
