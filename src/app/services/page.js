@@ -152,36 +152,66 @@ export default function ServicesPage() {
         <div className="scc-grid">
           {filteredServices.map((service) => {
             const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
+            
+            // Premium colors per category
+            const categoryColors = {
+              1: '#6366f1', // games
+              2: '#eab308', // live apps
+              3: '#a855f7', // cards
+              4: '#06b6d4', // balances/currencies
+              5: '#ec4899', // social media
+              6: '#10b981', // server services
+              7: '#d946ef', // subscriptions
+              8: '#eab308', // AI
+              9: '#6366f1', // numbers
+              10: '#6366f1', // programming/design
+              11: '#eab308', // ready accounts
+              12: '#ec4899'  // ads
+            };
+            const catColor = categoryColors[service.category_id] || '#6366f1';
+            
+            const hexToRgb = (hex) => {
+              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+              return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
+            };
+            const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
+
+            const imgSrc = isCustomImg
+              ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
+              : null;
+
             return (
-              <Link href={`/service/${service.id}`} className="scc-card" key={service.id}>
-                {/* Image on the right */}
-                <div className="scc-image-container">
-                  {isCustomImg ? (
-                    <img 
-                      src={service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image} 
-                      alt={service.name} 
-                    />
-                  ) : (
-                    <span style={{ fontSize: "2rem" }}>
-                      {getServiceIcon(service.image)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Text details in the middle */}
-                <div className="scc-info">
-                  <h3 className="scc-title">{service.name}</h3>
-                  <p className="scc-desc">{service.description}</p>
-                </div>
-
-                {/* Action and price on the left */}
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", alignItems: "flex-end", minWidth: "90px" }}>
-                  <div className="scc-action">اضغط للعرض</div>
-                  <div style={{ fontSize: "0.85rem", fontWeight: "800", color: "var(--primary-color)", marginTop: "12px" }}>
-                    {service.price ? Number(service.price).toFixed(2) : "0.00"} ج.م
+              <div className="scc-wrap" key={service.id}>
+                <Link 
+                  href={`/service/${service.id}`} 
+                  className="scc-card" 
+                  dir="rtl" 
+                  style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
+                >
+                  <div className="scc-side-line"></div>
+                  <div className="scc-img-ring">
+                    <div className="scc-img-inner">
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
+                      ) : (
+                        <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
+                  <div className="scc-content">
+                    <span className="scc-name">{service.name}</span>
+                    <div className="scc-meta">
+                      <div className="scc-dot"></div>
+                      <span>اضغط للعرض</span>
+                    </div>
+                  </div>
+                  <div className="scc-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-left">
+                      <path d="m15 18-6-6 6-6"></path>
+                    </svg>
+                  </div>
+                </Link>
+              </div>
             );
           })}
         </div>
