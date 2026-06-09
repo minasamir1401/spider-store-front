@@ -2623,4 +2623,17 @@ button, input, textarea, select {
   justify-content: center !important;
 }
 
+/* Dropdown option styles to prevent white-on-white text across OS/browser themes */
+select option {
+  background-color: #0d1224 !important;
+  color: #ffffff !important;
+}
+
+/* Light theme options styling */
+[data-theme="light"] select option {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+
 

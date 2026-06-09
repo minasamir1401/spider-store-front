@@ -402,7 +402,7 @@ export default function ServiceDetail({ params }) {
                     value={formData[field.name] || ""}
                     onChange={(e) => handleFieldChange(field.name, e.target.value)}
                     required={field.required !== false}
-                    style={{ width: "100%", padding: "12px 14px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", fontSize: "0.95rem", background: "rgba(255,255,255,0.6)" }}
+                    style={{ width: "100%" }}
                   >
                     <option value="">-- اختر --</option>
                     {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
