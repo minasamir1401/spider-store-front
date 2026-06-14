@@ -46,6 +46,9 @@ export const metadata = {
     description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
     images: ["https://spider-store.duckdns.org/uploads/og-image.png"],
   },
+  verification: {
+    google: "gqLrYi58w5XaErY-bdg29ngTqxAQQ60V7qOw9MAGT1w",
+  },
   icons: {
     icon: [
       { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
