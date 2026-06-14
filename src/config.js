@@ -1,4 +1,5 @@
-let apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+let apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === "production" ? "https://spider-store-api.duckdns.org" : "http://localhost:5000");
 
 if (typeof window !== "undefined") {
   if (process.env.NEXT_PUBLIC_API_URL) {

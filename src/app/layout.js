@@ -4,7 +4,48 @@ import MainLayout from "../components/MainLayout";
 
 export const metadata = {
   title: "Spider Store | شحن الألعاب والخدمات الرقمية",
-  description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
+  description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ في مصر والوطن العربي.",
+  keywords: [
+    "اسبيرد استور",
+    "اسبيدر استور",
+    "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه",
+    "اسبيدر استور مصر",
+    "Spider Store",
+    "Spider Store Egypt",
+    "شحن شدات ببجي",
+    "شحن جواهر فري فاير",
+    "شحن USDT",
+    "تفعيل كانفا برو",
+    "تفعيل نتفليكس",
+    "شحن فودافون كاش",
+    "شحن رصيد",
+    "متجر شحن ألعاب"
+  ],
+  alternates: {
+    canonical: "https://spider-store.duckdns.org",
+  },
+  openGraph: {
+    title: "Spider Store | شحن الألعاب والخدمات الرقمية",
+    description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ في مصر والوطن العربي.",
+    url: "https://spider-store.duckdns.org",
+    siteName: "Spider Store",
+    images: [
+      {
+        url: "https://spider-store.duckdns.org/uploads/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Spider Store - شحن الألعاب والخدمات الرقمية"
+      }
+    ],
+    locale: "ar_EG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Spider Store | شحن الألعاب والخدمات الرقمية",
+    description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
+    images: ["https://spider-store.duckdns.org/uploads/og-image.png"],
+  },
   icons: {
     icon: [
       { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
@@ -24,6 +65,45 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://spider-store.duckdns.org/#organization",
+        "name": "Spider Store - اسبيدر استور",
+        "alternateName": ["اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه"],
+        "url": "https://spider-store.duckdns.org",
+        "logo": {
+          "@type": "ImageObject",
+          "@id": "https://spider-store.duckdns.org/#logo",
+          "url": "https://spider-store.duckdns.org/icons/icon-192.png",
+          "caption": "Spider Store Logo"
+        },
+        "description": "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://spider-store.duckdns.org/#website",
+        "url": "https://spider-store.duckdns.org",
+        "name": "Spider Store | شحن الألعاب والخدمات الرقمية",
+        "description": "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
+        "publisher": {
+          "@id": "https://spider-store.duckdns.org/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://spider-store.duckdns.org/?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        },
+        "inLanguage": "ar"
+      }
+    ]
+  };
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
@@ -39,6 +119,12 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
         <link rel="shortcut icon" href="/favicon.png" />
         
+        {/* SEO Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
         {/* Anti-Flicker Theme Initialization Script */}
         <script
           dangerouslySetInnerHTML={{
