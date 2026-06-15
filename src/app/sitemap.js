@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "@/config";
 
 export default async function sitemap() {
-  const baseUrl = "https://spider-store.duckdns.org";
+  const baseUrl = "https://spider-store.vercel.app";
 
   // Static URLs
   const staticUrls = [

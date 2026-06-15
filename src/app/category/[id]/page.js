@@ -49,18 +49,18 @@ export async function generateMetadata({ params }) {
       `أسعار خدمات ${category.name}`
     ],
     alternates: {
-      canonical: `https://spider-store.duckdns.org/category/${id}`,
+      canonical: `https://spider-store.vercel.app/category/${id}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://spider-store.duckdns.org/category/${id}`,
+      url: `https://spider-store.vercel.app/category/${id}`,
       siteName: "Spider Store",
       images: [
         {
           url: category.image && category.image.startsWith("http") 
             ? category.image 
-            : "https://spider-store.duckdns.org/uploads/og-image.png",
+            : "https://spider-store.vercel.app/uploads/og-image.png",
           alt: category.name
         }
       ],
@@ -82,13 +82,13 @@ export default async function Page({ params }) {
         "@type": "ListItem",
         "position": 1,
         "name": "الرئيسية",
-        "item": "https://spider-store.duckdns.org"
+        "item": "https://spider-store.vercel.app"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": category.name,
-        "item": `https://spider-store.duckdns.org/category/${id}`
+        "item": `https://spider-store.vercel.app/category/${id}`
       }
     ]
   };

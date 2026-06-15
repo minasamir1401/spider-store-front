@@ -9,6 +9,6 @@ export default function robots() {
         "/wallet/"
       ],
     },
-    sitemap: "https://spider-store.duckdns.org/sitemap.xml",
+    sitemap: "https://spider-store.vercel.app/sitemap.xml",
   };
 }

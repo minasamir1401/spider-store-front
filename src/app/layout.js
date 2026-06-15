@@ -3,13 +3,19 @@ import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
 
 export const metadata = {
-  title: "Spider Store | شحن الألعاب والخدمات الرقمية",
-  description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ في مصر والوطن العربي.",
+  title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
+  description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
   keywords: [
-    "اسبيرد استور",
-    "اسبيدر استور",
-    "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه",
     "اسبيدر استور مصر",
+    "اسبيدر لشحن الالعاب",
+    "اسبيدر استور لشحن الالعاب",
+    "متجر اسبيدر",
+    "اسبيدر استور",
+    "شحن الالعاب اسبيدر",
+    "شحن شدات ببجي اسبيدر",
+    "شحن جواهر فري فاير اسبيدر",
+    "اسبيدر شحن",
+    "اسبيرد استور",
     "Spider Store",
     "Spider Store Egypt",
     "شحن شدات ببجي",
@@ -22,16 +28,16 @@ export const metadata = {
     "متجر شحن ألعاب"
   ],
   alternates: {
-    canonical: "https://spider-store.duckdns.org",
+    canonical: "https://spider-store.vercel.app",
   },
   openGraph: {
-    title: "Spider Store | شحن الألعاب والخدمات الرقمية",
-    description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ في مصر والوطن العربي.",
-    url: "https://spider-store.duckdns.org",
+    title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
+    description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
+    url: "https://spider-store.vercel.app",
     siteName: "Spider Store",
     images: [
       {
-        url: "https://spider-store.duckdns.org/uploads/og-image.png",
+        url: "https://spider-store.vercel.app/uploads/og-image.png",
         width: 1200,
         height: 630,
         alt: "Spider Store - شحن الألعاب والخدمات الرقمية"
@@ -42,9 +48,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Spider Store | شحن الألعاب والخدمات الرقمية",
-    description: "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
-    images: ["https://spider-store.duckdns.org/uploads/og-image.png"],
+    title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
+    description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
+    images: ["https://spider-store.vercel.app/uploads/og-image.png"],
   },
   verification: {
     google: "gqLrYi58w5XaErY-bdg29ngTqxAQQ60V7qOw9MAGT1w",
@@ -73,32 +79,32 @@ export default function RootLayout({ children }) {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://spider-store.duckdns.org/#organization",
+        "@id": "https://spider-store.vercel.app/#organization",
         "name": "Spider Store - اسبيدر استور",
-        "alternateName": ["اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه"],
-        "url": "https://spider-store.duckdns.org",
+        "alternateName": ["اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه", "اسبيدر لشحن الالعاب", "متجر اسبيدر"],
+        "url": "https://spider-store.vercel.app",
         "logo": {
           "@type": "ImageObject",
-          "@id": "https://spider-store.duckdns.org/#logo",
-          "url": "https://spider-store.duckdns.org/icons/icon-192.png",
+          "@id": "https://spider-store.vercel.app/#logo",
+          "url": "https://spider-store.vercel.app/icons/icon-192.png",
           "caption": "Spider Store Logo"
         },
-        "description": "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ."
+        "description": "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر."
       },
       {
         "@type": "WebSite",
-        "@id": "https://spider-store.duckdns.org/#website",
-        "url": "https://spider-store.duckdns.org",
-        "name": "Spider Store | شحن الألعاب والخدمات الرقمية",
-        "description": "متجر Spider Store لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات والبطاقات الرقمية بأفضل الأسعار وأسرع تنفيذ.",
+        "@id": "https://spider-store.vercel.app/#website",
+        "url": "https://spider-store.vercel.app",
+        "name": "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
+        "description": "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
         "publisher": {
-          "@id": "https://spider-store.duckdns.org/#organization"
+          "@id": "https://spider-store.vercel.app/#organization"
         },
         "potentialAction": {
           "@type": "SearchAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://spider-store.duckdns.org/?search={search_term_string}"
+            "urlTemplate": "https://spider-store.vercel.app/?search={search_term_string}"
           },
           "query-input": "required name=search_term_string"
         },
