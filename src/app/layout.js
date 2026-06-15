@@ -53,7 +53,7 @@ export const metadata = {
     images: ["https://spider-store.vercel.app/uploads/og-image.png"],
   },
   verification: {
-    google: "gqLrYi58w5XaErY-bdg29ngTqxAQQ60V7qOw9MAGT1w",
+    google: "yFNB147NXr3pxjnf_qGAB9wJrfQsTh2QTyh0bc5e8h8",
   },
   icons: {
     icon: [
