@@ -384,9 +384,9 @@ export default function ServiceDetail({ params }) {
                       fontSize: "1.2rem",
                       fontWeight: "bold",
                       borderRadius: "14px",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
-                      background: "rgba(255, 255, 255, 0.02)",
-                      color: "#ffffff",
+                      border: "2px solid #3b82f6",
+                      background: "#ffffff",
+                      color: "#000000",
                       width: "100%",
                       boxSizing: "border-box",
                       outline: "none"

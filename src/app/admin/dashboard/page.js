@@ -3314,7 +3314,7 @@ export default function AdminDashboard() {
                       transition: "all 0.2s ease"
                     }}
                   >
-                    📦 باقات شحن ثابتة (Fixed)
+                    📦 باقات (Packages)
                   </button>
                   <button
                     type="button"
@@ -3331,7 +3331,7 @@ export default function AdminDashboard() {
                       transition: "all 0.2s ease"
                     }}
                   >
-                    ⚡ تسعير بالكمية لكل 1000 (SMM)
+                    ⚡ عادي (Normal / SMM)
                   </button>
                 </div>
               </div>
@@ -3785,7 +3785,7 @@ export default function AdminDashboard() {
                       transition: "all 0.2s ease"
                     }}
                   >
-                    📦 باقات شحن ثابتة (Fixed)
+                    📦 باقات (Packages)
                   </button>
                   <button
                     type="button"
@@ -3802,7 +3802,7 @@ export default function AdminDashboard() {
                       transition: "all 0.2s ease"
                     }}
                   >
-                    ⚡ تسعير بالكمية لكل 1000 (SMM)
+                    ⚡ عادي (Normal / SMM)
                   </button>
                 </div>
               </div>
