@@ -14,6 +14,8 @@ export default function ServiceDetail({ params }) {
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [customQuantity, setCustomQuantity] = useState(1000);
+  const [copied, setCopied] = useState(false);
+  const [customerPricingMode, setCustomerPricingMode] = useState("packages");
   
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
@@ -164,6 +166,11 @@ export default function ServiceDetail({ params }) {
         if (data.packages && data.packages.length > 0) {
           setSelectedPackage(data.packages[0]);
         }
+        if (data.price_type === "dynamic") {
+          setCustomerPricingMode("dynamic");
+        } else {
+          setCustomerPricingMode("packages");
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -172,6 +179,11 @@ export default function ServiceDetail({ params }) {
           setService(fallback);
           if (fallback.packages && fallback.packages.length > 0) {
             setSelectedPackage(fallback.packages[0]);
+          }
+          if (fallback.price_type === "dynamic") {
+            setCustomerPricingMode("dynamic");
+          } else {
+            setCustomerPricingMode("packages");
           }
         }
         setLoading(false);
@@ -205,7 +217,7 @@ export default function ServiceDetail({ params }) {
     e.preventDefault();
     setErrorMessage("");
 
-    const isDynamic = service.price_type === "dynamic";
+    const isDynamic = service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic");
 
     if (!isDynamic && !selectedPackage) {
       setErrorMessage("من فضلك حدد باقة الشحن المطلوبة.");
@@ -358,7 +370,48 @@ export default function ServiceDetail({ params }) {
 
           {/* Package Select / Custom Quantity */}
           <div>
-            {service.price_type === "dynamic" ? (
+            {service.price_type === "both" && (
+              <div style={{ display: "flex", gap: "10px", marginBottom: "18px" }}>
+                <button
+                  type="button"
+                  onClick={() => setCustomerPricingMode("packages")}
+                  style={{
+                    flex: 1,
+                    padding: "12px 14px",
+                    borderRadius: "12px",
+                    border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+                    background: customerPricingMode === "packages" ? "#ffffff" : "rgba(255, 255, 255, 0.02)",
+                    color: customerPricingMode === "packages" ? "#000000" : "#cbd5e1",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  📦 باقات الشحن (Packages)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerPricingMode("dynamic")}
+                  style={{
+                    flex: 1,
+                    padding: "12px 14px",
+                    borderRadius: "12px",
+                    border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+                    background: customerPricingMode === "dynamic" ? "#ffffff" : "rgba(255, 255, 255, 0.02)",
+                    color: customerPricingMode === "dynamic" ? "#000000" : "#cbd5e1",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  ⚡ شحن بالكمية (عادي)
+                </button>
+              </div>
+            )}
+
+            {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
               <div>
                 <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
                 <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
@@ -505,7 +558,7 @@ export default function ServiceDetail({ params }) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: {(service.price_type === "dynamic" ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
                 </span>
               </div>
 
@@ -551,8 +604,29 @@ export default function ServiceDetail({ params }) {
                       outline: "none"
                     }}
                   />
-                  <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "rgba(59,130,246,0.08)", color: "#cbd5e1", fontSize: "0.85rem" }}>
-                    رقم الاستلام: <strong style={{ color: "#ffffff", direction: "ltr", display: "inline-block" }}>{transferNumber}</strong>
+                  <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>رقم الاستلام: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{transferNumber}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(transferNumber);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      style={{
+                        background: copied ? "#10b981" : "#3b82f6",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "4px 8px",
+                        fontSize: "0.75rem",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
+                    </button>
                   </div>
                 </div>
               )}
@@ -586,7 +660,7 @@ export default function ServiceDetail({ params }) {
               <span className="summary-value">{service.name}</span>
             </div>
 
-            {service.price_type === "dynamic" ? (
+            {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
               <>
                 <div className="summary-row">
                   <span className="summary-label">الكمية المطلوبة</span>
@@ -624,7 +698,7 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {(service.price_type === "dynamic" ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
               </span>
             </div>
 
@@ -650,7 +724,51 @@ export default function ServiceDetail({ params }) {
               <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
               <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
-              <div><strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong> {successData.payment_method === "wallet" ? "المحفظة" : `تحويل إلى ${successData.transfer_to}`}</div>
+              <div>
+                <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
+                {successData.payment_method === "wallet" ? (
+                  "المحفظة"
+                ) : (
+                  <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                    تحويل إلى:{" "}
+                    <strong style={{
+                      color: "#000000",
+                      background: "#f1f5f9",
+                      padding: "4px 10px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      direction: "ltr",
+                      display: "inline-block",
+                      fontSize: "0.95rem",
+                      userSelect: "all",
+                      fontWeight: "bold"
+                    }}>
+                      {successData.transfer_to}
+                    </strong>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(successData.transfer_to);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      style={{
+                        background: copied ? "#10b981" : "#3b82f6",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "4px 10px",
+                        fontSize: "0.8rem",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
+                    </button>
+                  </span>
+                )}
+              </div>
               {successData.sender_phone && (
                 <div><strong style={{ color: "#cbd5e1" }}>الرقم المحول منه:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>
               )}

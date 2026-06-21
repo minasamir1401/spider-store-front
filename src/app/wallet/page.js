@@ -20,6 +20,7 @@ export default function WalletPage() {
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -141,16 +142,54 @@ export default function WalletPage() {
           <div>
             <h2 style={{ fontWeight: 900, marginBottom: "6px" }}>المحفظة الرقمية</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.7 }}>
-              حوّل المبلغ على الرقم <strong style={{ color: "#ffffff" }}>01026785879</strong> ثم اكتب رقم الهاتف الذي تم التحويل منه، وبعدها تتم المراجعة يدويًا من لوحة التحكم.
+              حوّل المبلغ على الرقم{" "}
+              <strong style={{
+                color: "#000000",
+                background: "#f1f5f9",
+                padding: "2px 6px",
+                borderRadius: "6px",
+                border: "1px solid #cbd5e1",
+                direction: "ltr",
+                display: "inline-block",
+                fontSize: "0.95rem",
+                userSelect: "all",
+                fontWeight: "bold"
+              }}>
+                01026785879
+              </strong>{" "}
+              ثم اكتب رقم الهاتف الذي تم التحويل منه، وبعدها تتم المراجعة يدويًا من لوحة التحكم.
             </p>
           </div>
 
-          <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(6, 182, 212, 0.08)", border: "1px solid rgba(6, 182, 212, 0.18)" }}>
-            <div style={{ fontWeight: 800, marginBottom: "6px", color: "#e2e8f0" }}>رقم التحويل</div>
-            <div style={{ fontSize: "1.35rem", fontWeight: 900, color: "#22d3ee", direction: "ltr" }}>01026785879</div>
-            <div style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "6px" }}>
-              اذكر رقم الهاتف الذي تم التحويل منه حتى يظهر في الداشبورد.
+          <div style={{ padding: "16px", borderRadius: "16px", background: "#f1f5f9", border: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontWeight: 800, marginBottom: "4px", color: "#475569" }}>رقم التحويل المباشر:</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#000000", direction: "ltr", userSelect: "all" }}>01026785879</div>
+              <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "4px" }}>
+                تأكد من كتابة رقم الهاتف الذي حولت منه بدقة بالأسفل.
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText("01026785879");
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              style={{
+                background: copied ? "#10b981" : "#3b82f6",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                fontSize: "0.9rem",
+                cursor: "pointer",
+                fontWeight: "bold",
+                transition: "all 0.2s"
+              }}
+            >
+              {copied ? "تم النسخ! ✓" : "نسخ الرقم 📋"}
+            </button>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>

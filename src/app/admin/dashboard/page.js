@@ -487,9 +487,19 @@ export default function AdminDashboard() {
         return;
       }
       minPrice = Math.min(...validPackages.map(p => p.price));
-    } else {
+    } else if (newServicePriceType === "dynamic") {
       minPrice = parseFloat(newServicePricePerThousand) || 0;
       validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
+    } else {
+      validPackages = newServicePackages
+        .filter(p => p.name.trim())
+        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+
+      if (validPackages.length === 0) {
+        setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
+        return;
+      }
+      minPrice = parseFloat(newServicePricePerThousand) || 0;
     }
 
     try {
@@ -712,9 +722,19 @@ export default function AdminDashboard() {
         return;
       }
       minPrice = Math.min(...validPackages.map(p => p.price));
-    } else {
+    } else if (editServicePriceType === "dynamic") {
       minPrice = parseFloat(editServicePricePerThousand) || 0;
       validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
+    } else {
+      validPackages = editServicePackages
+        .filter(p => p.name.trim())
+        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+
+      if (validPackages.length === 0) {
+        setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
+        return;
+      }
+      minPrice = parseFloat(editServicePricePerThousand) || 0;
     }
 
     try {
@@ -2926,6 +2946,24 @@ export default function AdminDashboard() {
                                   <span className="pkg-tag" style={{ background: "rgba(192, 132, 252, 0.15)", color: "#c084fc", borderColor: "rgba(192, 132, 252, 0.3)", fontWeight: "bold" }}>
                                     سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
                                   </span>
+                                ) : service.price_type === "both" ? (
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <span className="pkg-tag" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", borderColor: "rgba(59, 130, 246, 0.3)", fontWeight: "bold", width: "fit-content" }}>
+                                      سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
+                                    </span>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
+                                      {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
+                                        <span key={pkg.id || pkg.name} className="pkg-tag">
+                                          {pkg.name} ({pkg.price} ج.م)
+                                        </span>
+                                      ))}
+                                      {parsedPackages && parsedPackages.length > 3 && (
+                                        <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
+                                          + {parsedPackages.length - 3} أخرى
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
                                 ) : (
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                     {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
@@ -2943,6 +2981,8 @@ export default function AdminDashboard() {
                               </td>
                               <td data-label="السعر الابتدائي" style={{ fontWeight: 800, color: "#34d399" }}>
                                 {service.price_type === "dynamic" ? (
+                                  `${Number(service.price_per_thousand || 0).toFixed(2)} ج.م / 1000`
+                                ) : service.price_type === "both" ? (
                                   `${Number(service.price_per_thousand || 0).toFixed(2)} ج.م / 1000`
                                 ) : (
                                   `${Number(service.price || 0).toFixed(2)} ج.م`
@@ -3322,11 +3362,12 @@ export default function AdminDashboard() {
                 >
                   <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
                   <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
+                  <option value="both" style={{ color: "#000000", background: "#ffffff" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
                 </select>
               </div>
 
-              {newServicePriceType === "dynamic" ? (
-                <div className="form-group" style={{ marginBottom: 0 }}>
+              {(newServicePriceType === "dynamic" || newServicePriceType === "both") && (
+                <div className="form-group" style={{ marginBottom: "20px" }}>
                   <label>سعر الـ 1000 وحدة (ج.م):</label>
                   <input
                     type="number"
@@ -3336,12 +3377,14 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewServicePricePerThousand(e.target.value)}
                     className="search-input-premium"
                     style={{ padding: "12px 16px", direction: "ltr" }}
-                    required={newServicePriceType === "dynamic"}
+                    required={newServicePriceType === "dynamic" || newServicePriceType === "both"}
                   />
                 </div>
-              ) : (
+              )}
+
+              {(newServicePriceType === "fixed" || newServicePriceType === "both") && (
                 /* Package Builder List */
-                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                     <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
                     <button 
@@ -3776,11 +3819,12 @@ export default function AdminDashboard() {
                 >
                   <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
                   <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
+                  <option value="both" style={{ color: "#000000", background: "#ffffff" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
                 </select>
               </div>
 
-              {editServicePriceType === "dynamic" ? (
-                <div className="form-group" style={{ marginBottom: 0 }}>
+              {(editServicePriceType === "dynamic" || editServicePriceType === "both") && (
+                <div className="form-group" style={{ marginBottom: "20px" }}>
                   <label>سعر الـ 1000 وحدة (ج.م):</label>
                   <input
                     type="number"
@@ -3790,12 +3834,14 @@ export default function AdminDashboard() {
                     onChange={(e) => setEditServicePricePerThousand(e.target.value)}
                     className="search-input-premium"
                     style={{ padding: "12px 16px", direction: "ltr" }}
-                    required={editServicePriceType === "dynamic"}
+                    required={editServicePriceType === "dynamic" || editServicePriceType === "both"}
                   />
                 </div>
-              ) : (
+              )}
+
+              {(editServicePriceType === "fixed" || editServicePriceType === "both") && (
                 /* Package Builder List */
-                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                     <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
                     <button 
