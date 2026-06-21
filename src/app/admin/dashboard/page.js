@@ -2924,7 +2924,7 @@ export default function AdminDashboard() {
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                     {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                       <span key={pkg.id || pkg.name} className="pkg-tag">
-                                        {pkg.name} (${pkg.price})
+                                        {pkg.name} ({pkg.price} ج.م)
                                       </span>
                                     ))}
                                     {parsedPackages && parsedPackages.length > 3 && (
@@ -3382,7 +3382,7 @@ export default function AdminDashboard() {
                             />
                           </div>
                           <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر (ج.م):</span>
                             <input
                               type="number"
                               step="0.01"
@@ -3834,7 +3834,7 @@ export default function AdminDashboard() {
                             />
                           </div>
                           <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر (ج.م):</span>
                             <input
                               type="number"
                               step="0.01"
