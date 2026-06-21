@@ -18,3 +18,5 @@ if (typeof window !== "undefined") {
 }
 
 export const API_BASE_URL = apiBaseUrl;
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://spider-store.vercel.app";
+

@@ -13,6 +13,7 @@ export default function ServiceDetail({ params }) {
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [customQuantity, setCustomQuantity] = useState(1000);
   
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
@@ -204,8 +205,15 @@ export default function ServiceDetail({ params }) {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!selectedPackage) {
+    const isDynamic = service.price_type === "dynamic";
+
+    if (!isDynamic && !selectedPackage) {
       setErrorMessage("من فضلك حدد باقة الشحن المطلوبة.");
+      return;
+    }
+
+    if (isDynamic && (!customQuantity || customQuantity < 100)) {
+      setErrorMessage("من فضلك أدخل كمية صالحة (الحد الأدنى 100).");
       return;
     }
 
@@ -229,6 +237,13 @@ export default function ServiceDetail({ params }) {
 
     setSubmitting(true);
 
+    const computedPrice = isDynamic 
+      ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
+      : selectedPackage.price;
+    const computedPackageName = isDynamic
+      ? `كمية: ${customQuantity}`
+      : selectedPackage.name;
+
     try {
       const headers = {
         "Content-Type": "application/json"
@@ -246,12 +261,13 @@ export default function ServiceDetail({ params }) {
           service_id: service.id,
           player_id: formData.player_id || formData[activeFields[0]?.name] || "",
           phone: formData.phone || "",
-          package_name: selectedPackage.name,
-          package_price: selectedPackage.price,
+          package_name: computedPackageName,
+          package_price: computedPrice,
           payment_method: paymentMethod,
           sender_phone: senderPhone,
           transfer_to: transferNumber,
-          custom_fields: formData
+          custom_fields: formData,
+          quantity: isDynamic ? customQuantity : 1
         })
       });
 
@@ -340,50 +356,86 @@ export default function ServiceDetail({ params }) {
 
           <hr style={{ opacity: 0.1 }} />
 
-          {/* Package Select */}
+          {/* Package Select / Custom Quantity */}
           <div>
-            <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
-            {service.packages && service.packages.length > 0 ? (
-              <div className="packages-selector">
-                {service.packages.map((pkg, idx) => {
-                  const simulatedDiscount = 2 + (idx % 4);
-                  const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
-                  return (
-                    <div
-                      key={pkg.id}
-                      className={`package-option ${selectedPackage?.id === pkg.id ? "selected" : ""}`}
-                      onClick={() => setSelectedPackage(pkg)}
-                      style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px" }}
-                    >
-                      {/* Discount Tag */}
-                      <span style={{
-                        position: "absolute",
-                        top: "6px",
-                        left: "6px",
-                        background: "var(--danger-color)",
-                        color: "white",
-                        fontSize: "0.68rem",
-                        padding: "2px 6px",
-                        borderRadius: "6px",
-                        fontWeight: "800"
-                      }}>
-                        -{simulatedDiscount}%
-                      </span>
-
-                      <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
-
-                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                        <span className="package-price" style={{ fontSize: "1.1rem" }}>{pkg.price.toFixed(2)} ج.م</span>
-                        <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                          {originalPrice.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+            {service.price_type === "dynamic" ? (
+              <div>
+                <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
+                <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
+                  سعر الـ 1000 وحدة هو: {(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
+                </p>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <input
+                    type="number"
+                    min="100"
+                    step="100"
+                    value={customQuantity}
+                    onChange={(e) => setCustomQuantity(Math.max(100, parseInt(e.target.value) || 0))}
+                    style={{
+                      padding: "16px 20px",
+                      fontSize: "1.2rem",
+                      fontWeight: "bold",
+                      borderRadius: "14px",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(255, 255, 255, 0.02)",
+                      color: "#ffffff",
+                      width: "100%",
+                      boxSizing: "border-box",
+                      outline: "none"
+                    }}
+                    placeholder="أدخل الكمية هنا (مثال: 5000)"
+                  />
+                  <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                    السعر التقريبي: <strong style={{ color: "#34d399" }}>{((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
+              <div>
+                <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
+                {service.packages && service.packages.length > 0 ? (
+                  <div className="packages-selector">
+                    {service.packages.map((pkg, idx) => {
+                      const simulatedDiscount = 2 + (idx % 4);
+                      const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
+                      return (
+                        <div
+                          key={pkg.id}
+                          className={`package-option ${selectedPackage?.id === pkg.id ? "selected" : ""}`}
+                          onClick={() => setSelectedPackage(pkg)}
+                          style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px" }}
+                        >
+                          {/* Discount Tag */}
+                          <span style={{
+                            position: "absolute",
+                            top: "6px",
+                            left: "6px",
+                            background: "var(--danger-color)",
+                            color: "white",
+                            fontSize: "0.68rem",
+                            padding: "2px 6px",
+                            borderRadius: "6px",
+                            fontWeight: "800"
+                          }}>
+                            -{simulatedDiscount}%
+                          </span>
+
+                          <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
+
+                          <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
+                            <span className="package-price" style={{ fontSize: "1.1rem" }}>{pkg.price.toFixed(2)} ج.م</span>
+                            <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                              {originalPrice.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
+                )}
+              </div>
             )}
           </div>
 
@@ -425,7 +477,9 @@ export default function ServiceDetail({ params }) {
             <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>المبلغ: {selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"} ج.م</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                  المبلغ: {(service.price_type === "dynamic" ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                </span>
               </div>
 
               <div style={{ display: "grid", gap: "10px" }}>
@@ -495,17 +549,30 @@ export default function ServiceDetail({ params }) {
               <span className="summary-value">{service.name}</span>
             </div>
 
-            {selectedPackage && (
+            {service.price_type === "dynamic" ? (
               <>
                 <div className="summary-row">
-                  <span className="summary-label">الباقة المختارة</span>
-                  <span className="summary-value">{selectedPackage.name}</span>
+                  <span className="summary-label">الكمية المطلوبة</span>
+                  <span className="summary-value">{customQuantity} وحدة</span>
                 </div>
                 <div className="summary-row">
-                  <span className="summary-label">سعر الباقة</span>
-                  <span className="summary-value">{selectedPackage.price.toFixed(2)} ج.م</span>
+                  <span className="summary-label">سعر الـ 1000 وحدة</span>
+                  <span className="summary-value">{(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
                 </div>
               </>
+            ) : (
+              selectedPackage && (
+                <>
+                  <div className="summary-row">
+                    <span className="summary-label">الباقة المختارة</span>
+                    <span className="summary-value">{selectedPackage.name}</span>
+                  </div>
+                  <div className="summary-row">
+                    <span className="summary-label">سعر الباقة</span>
+                    <span className="summary-value">{selectedPackage.price.toFixed(2)} ج.م</span>
+                  </div>
+                </>
+              )
             )}
 
             {activeFields.map((field, idx) => (
@@ -520,7 +587,7 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {selectedPackage ? selectedPackage.price.toFixed(2) : "0.00"} ج.م
+                {(service.price_type === "dynamic" ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
               </span>
             </div>
 

@@ -1,5 +1,5 @@
 import ServiceClient from "./ServiceClient";
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, SITE_URL } from "@/config";
 
 const staticServices = [
   {
@@ -109,7 +109,7 @@ export async function generateMetadata({ params }) {
 
   if (!service) {
     return {
-      title: "الخدمة غير متوفرة | اسبيدر استور مصر",
+      title: "الخدمة غير متوفرة | سبايدر استور (اسبيدر)",
       description: "الخدمة المطلوبة غير متوفرة حالياً في متجر Spider Store."
     };
   }
@@ -122,7 +122,7 @@ export async function generateMetadata({ params }) {
     priceText = ` بأسعار تبدأ من ${minPrice.toFixed(2)} ج.م`;
   }
 
-  const title = `شحن ${service.name}${priceText} | اسبيدر استور مصر`;
+  const title = `شحن ${service.name}${priceText} | سبايدر استور (اسبيدر)`;
   const description = `${service.description} تنفيذ فوري تلقائي وآمن 100% على متجر Spider Store لشحن الألعاب والخدمات الرقمية.`;
 
   return {
@@ -132,24 +132,26 @@ export async function generateMetadata({ params }) {
       `شحن ${service.name}`,
       `أسعار شحن ${service.name}`,
       `باقات ${service.name}`,
+      "سبايدر استور",
+      "سبايدر ستور",
       "اسبيدر استور",
       "اسبيرد استور",
       "Spider Store",
       `شحن رخيص ${service.name}`
     ],
     alternates: {
-      canonical: `https://spider-store.vercel.app/service/${id}`,
+      canonical: `${SITE_URL}/service/${id}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://spider-store.vercel.app/service/${id}`,
+      url: `${SITE_URL}/service/${id}`,
       siteName: "Spider Store",
       images: [
         {
           url: service.image && service.image.startsWith("http")
             ? service.image
-            : "https://spider-store.vercel.app/uploads/og-image.png",
+            : `${SITE_URL}/uploads/og-image.png`,
           alt: service.name
         }
       ],
@@ -176,13 +178,13 @@ export default async function Page({ params }) {
         "@type": "ListItem",
         "position": 1,
         "name": "الرئيسية",
-        "item": "https://spider-store.vercel.app"
+        "item": SITE_URL
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": service.name,
-        "item": `https://spider-store.vercel.app/service/${id}`
+        "item": `${SITE_URL}/service/${id}`
       }
     ]
   };
@@ -201,7 +203,7 @@ export default async function Page({ params }) {
       "description": service.description,
       "image": service.image && service.image.startsWith("http")
         ? service.image
-        : `https://spider-store.vercel.app/icons/icon-192.png`,
+        : `${SITE_URL}/icons/icon-192.png`,
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": "EGP",
@@ -214,7 +216,7 @@ export default async function Page({ params }) {
           "price": pkg.price.toFixed(2),
           "priceCurrency": "EGP",
           "availability": "https://schema.org/InStock",
-          "url": `https://spider-store.vercel.app/service/${id}`
+          "url": `${SITE_URL}/service/${id}`
         }))
       }
     };

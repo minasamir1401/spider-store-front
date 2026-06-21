@@ -1,11 +1,19 @@
 import "./globals.css";
 import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
+import { SITE_URL } from "../config";
 
 export const metadata = {
-  title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
-  description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
+  title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
+  description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
   keywords: [
+    "سبايدر استور",
+    "سبايدر استور مصر",
+    "متجر سبايدر",
+    "سبايدر لشحن الالعاب",
+    "سبايدر ستور",
+    "سبايدر ستور مصر",
+    "متجر سبايدر ستور",
     "اسبيدر استور مصر",
     "اسبيدر لشحن الالعاب",
     "اسبيدر استور لشحن الالعاب",
@@ -28,16 +36,16 @@ export const metadata = {
     "متجر شحن ألعاب"
   ],
   alternates: {
-    canonical: "https://spider-store.vercel.app",
+    canonical: SITE_URL,
   },
   openGraph: {
-    title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
-    description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
-    url: "https://spider-store.vercel.app",
+    title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
+    description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
+    url: SITE_URL,
     siteName: "Spider Store",
     images: [
       {
-        url: "https://spider-store.vercel.app/uploads/og-image.png",
+        url: `${SITE_URL}/uploads/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Spider Store - شحن الألعاب والخدمات الرقمية"
@@ -48,9 +56,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
-    description: "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
-    images: ["https://spider-store.vercel.app/uploads/og-image.png"],
+    title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
+    description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
+    images: [`${SITE_URL}/uploads/og-image.png`],
   },
   verification: {
     google: "yFNB147NXr3pxjnf_qGAB9wJrfQsTh2QTyh0bc5e8h8",
@@ -79,36 +87,74 @@ export default function RootLayout({ children }) {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://spider-store.vercel.app/#organization",
-        "name": "Spider Store - اسبيدر استور",
-        "alternateName": ["اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر استور لشحن الالعاب والخدمات الالكترونيه", "اسبيدر لشحن الالعاب", "متجر اسبيدر"],
-        "url": "https://spider-store.vercel.app",
+        "@id": `${SITE_URL}/#organization`,
+        "name": "Spider Store - سبايدر استور",
+        "alternateName": ["اسبيدر استور", "سبايدر استور", "سبايدر ستور", "اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر لشحن الالعاب", "متجر اسبيدر", "متجر سبايدر"],
+        "url": SITE_URL,
         "logo": {
           "@type": "ImageObject",
-          "@id": "https://spider-store.vercel.app/#logo",
-          "url": "https://spider-store.vercel.app/icons/icon-192.png",
+          "@id": `${SITE_URL}/#logo`,
+          "url": `${SITE_URL}/icons/icon-192.png`,
           "caption": "Spider Store Logo"
         },
-        "description": "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر."
+        "description": "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي."
       },
       {
         "@type": "WebSite",
-        "@id": "https://spider-store.vercel.app/#website",
-        "url": "https://spider-store.vercel.app",
-        "name": "اسبيدر استور مصر | متجر اسبيدر لشحن الألعاب والخدمات الرقمية",
-        "description": "متجر اسبيدر استور مصر لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي في مصر.",
+        "@id": `${SITE_URL}/#website`,
+        "url": SITE_URL,
+        "name": "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
+        "description": "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
         "publisher": {
-          "@id": "https://spider-store.vercel.app/#organization"
+          "@id": `${SITE_URL}/#organization`
         },
         "potentialAction": {
           "@type": "SearchAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://spider-store.vercel.app/?search={search_term_string}"
+            "urlTemplate": `${SITE_URL}/?search={search_term_string}`
           },
           "query-input": "required name=search_term_string"
         },
         "inLanguage": "ar"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${SITE_URL}/#faq`,
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "ما هو متجر سبايدر استور (Spider Store)؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "متجر سبايدر استور (اسبيدر) هو منصة متكاملة لشحن الألعاب وتفعيل الاشتراكات الرقمية وبطاقات الهدايا بأسرع تنفيذ تلقائي وأفضل الأسعار في مصر."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "كيف يمكنني شحن شدات ببجي أو جواهر فري فاير؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "يمكنك شحن ألعابك المفضلة مباشرة عبر معرّف اللاعب (Player ID) من خلال اختيار اللعبة، وتحديد الفئة، وإتمام الدفع لتبدأ عملية الشحن التلقائي فوراً."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ما هي طرق الدفع المتاحة في متجر سبايدر؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "يدعم المتجر الدفع الإلكتروني المباشر، الدفع عبر رصيد المحفظة الخاص بك، وطرق الدفع المحلية مثل فودافون كاش ومحافظ الهاتف الذكي في مصر."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "كيف أضمن أمان شحن الألعاب والخدمات؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "متجر سبايدر استور آمن وموثوق 100%، وتتم كافة المعاملات عبر بوابات دفع مشفرة وخدمات شحن رسمية تضمن حماية حسابات اللاعبين."
+            }
+          }
+        ]
       }
     ]
   };

@@ -1,5 +1,5 @@
 import CategoryClient from "./CategoryClient";
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, SITE_URL } from "@/config";
 
 const categoryNamesMap = {
   1: "قسم الالعاب",
@@ -34,8 +34,8 @@ export async function generateMetadata({ params }) {
   const id = unwrappedParams.id;
   const category = await getCategoryData(id);
 
-  const title = `شحن ألعاب وقسم ${category.name} بأفضل الأسعار | اسبيدر استور مصر`;
-  const description = `تصفح كافة الخدمات المتاحة في قسم ${category.name} على متجر Spider Store لشحن الألعاب والشدات والجواهر والاشتراكات بأسرع تنفيذ في مصر.`;
+  const title = `شحن ألعاب وقسم ${category.name} بأفضل الأسعار | سبايدر استور (اسبيدر)`;
+  const description = `تصفح كافة الخدمات المتاحة في قسم ${category.name} على متجر Spider Store سبايدر لشحن الألعاب والشدات والجواهر والاشتراكات بأسرع تنفيذ في مصر.`;
 
   return {
     title,
@@ -43,24 +43,26 @@ export async function generateMetadata({ params }) {
     keywords: [
       `شحن ${category.name}`,
       `قسم ${category.name}`,
+      "سبايدر استور",
+      "سبايدر ستور",
       "اسبيدر استور",
       "اسبيرد استور",
       "Spider Store",
       `أسعار خدمات ${category.name}`
     ],
     alternates: {
-      canonical: `https://spider-store.vercel.app/category/${id}`,
+      canonical: `${SITE_URL}/category/${id}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://spider-store.vercel.app/category/${id}`,
+      url: `${SITE_URL}/category/${id}`,
       siteName: "Spider Store",
       images: [
         {
           url: category.image && category.image.startsWith("http") 
             ? category.image 
-            : "https://spider-store.vercel.app/uploads/og-image.png",
+            : `${SITE_URL}/uploads/og-image.png`,
           alt: category.name
         }
       ],
@@ -82,13 +84,13 @@ export default async function Page({ params }) {
         "@type": "ListItem",
         "position": 1,
         "name": "الرئيسية",
-        "item": "https://spider-store.vercel.app"
+        "item": SITE_URL
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": category.name,
-        "item": `https://spider-store.vercel.app/category/${id}`
+        "item": `${SITE_URL}/category/${id}`
       }
     ]
   };

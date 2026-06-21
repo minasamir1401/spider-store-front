@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/config";
+
 export default function robots() {
   return {
     rules: {
@@ -9,6 +11,7 @@ export default function robots() {
         "/wallet/"
       ],
     },
-    sitemap: "https://spider-store.vercel.app/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
+

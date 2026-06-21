@@ -406,6 +406,47 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* FAQ Section */}
+      <section className="faq-section" style={{ marginTop: "50px", marginBottom: "40px" }}>
+        <h2 className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول متجر سبايدر استور</h2>
+        <div className="faq-container">
+          <details className="faq-item">
+            <summary className="faq-question">ما هو متجر سبايدر استور (Spider Store)؟</summary>
+            <p className="faq-answer">
+              متجر سبايدر استور (اسبيدر) هو منصة متكاملة ومطورة (PWA) مخصصة لشحن الألعاب والخدمات الرقمية وتفعيل الاشتراكات. نحن نوفر أسرع نظام شحن تلقائي بأفضل الأسعار وأقل عمولة في مصر.
+            </p>
+          </details>
+
+          <details className="faq-item">
+            <summary className="faq-question">كيف يمكنني شحن شدات ببجي أو جواهر فري فاير؟</summary>
+            <p className="faq-answer">
+              عملية الشحن سهلة للغاية: اختر اللعبة المفضلة لديك (مثل ببجي موبايل أو فري فاير)، حدد كمية الشدات أو الجواهر التي تريدها، أدخل معرّف اللاعب (Player ID) الخاص بك، ثم اختر وسيلة الدفع المناسبة. يتم تنفيذ الشحن تلقائياً فور تأكيد الدفع.
+            </p>
+          </details>
+
+          <details className="faq-item">
+            <summary className="faq-question">ما هي وسائل الدفع المدعومة في الموقع؟</summary>
+            <p className="faq-answer">
+              نوفر طرق دفع متعددة لتناسب الجميع، منها الدفع المباشر من خلال رصيد محفظتك الرقمية في الموقع، والتحويل اليدوي السريع عبر فودافون كاش مصر ومختلف المحافظ الإلكترونية، بالإضافة لشحن رصيد المحفظة باستخدام USDT لتسهيل الدفع للمشتركين خارج مصر.
+            </p>
+          </details>
+
+          <details className="faq-item">
+            <summary className="faq-question">هل شحن الألعاب من خلال متجر سبايدر آمن وحساباتي محمية؟</summary>
+            <p className="faq-answer">
+              نعم، متجر سبايدر استور يعتمد على قنوات شحن رسمية ومعتمدة 100% ومضمونة لحماية حسابات اللاعبين من الحظر أو المشاكل الأمنية. كافة تفاصيل المدفوعات والمعلومات الشخصية تخضع لأعلى معايير الحماية والأمان.
+            </p>
+          </details>
+
+          <details className="faq-item">
+            <summary className="faq-question">كيف يمكنني الحصول على أسعار الجملة؟</summary>
+            <p className="faq-answer">
+              إذا كنت صاحب متجر أو ترغب في العمل كموزع لخدماتنا، يمكنك التواصل مباشرة مع إدارة متجر سبايدر عبر الواتساب أو تيليجرام لترقية حسابك والحصول على تسعيرة الجملة والخصومات الخاصة.
+            </p>
+          </details>
+        </div>
+      </section>
     </>
   );
 }

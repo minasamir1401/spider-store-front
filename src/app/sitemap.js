@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, SITE_URL } from "@/config";
 
 export default async function sitemap() {
-  const baseUrl = "https://spider-store.vercel.app";
+  const baseUrl = SITE_URL;
 
   // Static URLs
   const staticUrls = [

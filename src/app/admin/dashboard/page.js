@@ -38,6 +38,8 @@ export default function AdminDashboard() {
   const [newServicePrice, setNewServicePrice] = useState(0);
   const [newServiceImage, setNewServiceImage] = useState("pubg");
   const [serviceUploadedFile, setServiceUploadedFile] = useState(null);
+  const [newServicePriceType, setNewServicePriceType] = useState("fixed"); // fixed or dynamic
+  const [newServicePricePerThousand, setNewServicePricePerThousand] = useState(0);
   
   // Package list builder
   const [newServicePackages, setNewServicePackages] = useState([
@@ -67,6 +69,8 @@ export default function AdminDashboard() {
   const [editServiceUploadedFile, setEditServiceUploadedFile] = useState(null);
   const [editServicePackages, setEditServicePackages] = useState([{ name: "", price: 0 }]);
   const [editServiceFields, setEditServiceFields] = useState(defaultFields);
+  const [editServicePriceType, setEditServicePriceType] = useState("fixed");
+  const [editServicePricePerThousand, setEditServicePricePerThousand] = useState(0);
 
   // Banners data & form states
   const [banners, setBanners] = useState([]);
@@ -464,18 +468,23 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Filter out empty packages
-    const validPackages = newServicePackages
-      .filter(p => p.name.trim())
-      .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+    let validPackages = [];
+    let minPrice = 0;
 
-    if (validPackages.length === 0) {
-      setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
-      return;
+    if (newServicePriceType === "fixed") {
+      validPackages = newServicePackages
+        .filter(p => p.name.trim())
+        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+
+      if (validPackages.length === 0) {
+        setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
+        return;
+      }
+      minPrice = Math.min(...validPackages.map(p => p.price));
+    } else {
+      minPrice = parseFloat(newServicePricePerThousand) || 0;
+      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
     }
-
-    // Starting price is the price of the cheapest package
-    const minPrice = Math.min(...validPackages.map(p => p.price));
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/services`, {
@@ -491,7 +500,9 @@ export default function AdminDashboard() {
           price: minPrice,
           image: serviceUploadedFile || newServiceImage,
           packages: validPackages,
-          fields: newServiceFields
+          fields: newServiceFields,
+          price_type: newServicePriceType,
+          price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0
         })
       });
 
@@ -511,6 +522,8 @@ export default function AdminDashboard() {
       setServiceUploadedFile(null);
       setNewServicePackages([{ name: "", price: 0 }]);
       setNewServiceFields(defaultFields);
+      setNewServicePriceType("fixed");
+      setNewServicePricePerThousand(0);
       setShowServiceModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -622,6 +635,8 @@ export default function AdminDashboard() {
       parsedFields = service.fields || [];
     }
     setEditServiceFields(parsedFields.length > 0 ? parsedFields : defaultFields);
+    setEditServicePriceType(service.price_type || "fixed");
+    setEditServicePricePerThousand(service.price_per_thousand || 0);
 
     setShowEditServiceModal(true);
   };
@@ -678,16 +693,23 @@ export default function AdminDashboard() {
       return;
     }
 
-    const validPackages = editServicePackages
-      .filter(p => p.name.trim())
-      .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+    let validPackages = [];
+    let minPrice = 0;
 
-    if (validPackages.length === 0) {
-      setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
-      return;
+    if (editServicePriceType === "fixed") {
+      validPackages = editServicePackages
+        .filter(p => p.name.trim())
+        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+
+      if (validPackages.length === 0) {
+        setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
+        return;
+      }
+      minPrice = Math.min(...validPackages.map(p => p.price));
+    } else {
+      minPrice = parseFloat(editServicePricePerThousand) || 0;
+      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
     }
-
-    const minPrice = Math.min(...validPackages.map(p => p.price));
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/services/${editServiceId}`, {
@@ -703,7 +725,9 @@ export default function AdminDashboard() {
           price: minPrice,
           image: editServiceUploadedFile || editServiceImage,
           packages: validPackages,
-          fields: editServiceFields
+          fields: editServiceFields,
+          price_type: editServicePriceType,
+          price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
         })
       });
 
@@ -721,7 +745,9 @@ export default function AdminDashboard() {
         price: minPrice,
         image: data.image,
         packages: validPackages,
-        fields: data.fields
+        fields: data.fields,
+        price_type: editServicePriceType,
+        price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
       } : s));
       
       setShowEditServiceModal(false);
@@ -1908,6 +1934,67 @@ export default function AdminDashboard() {
           }
         }
 
+        @media (max-width: 768px) {
+          .premium-table-wrapper {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            overflow-x: visible !important;
+          }
+          .premium-table, 
+          .premium-table thead, 
+          .premium-table tbody, 
+          .premium-table th, 
+          .premium-table td, 
+          .premium-table tr {
+            display: block !important;
+            width: 100% !important;
+          }
+          .premium-table thead {
+            display: none !important;
+          }
+          .premium-table tr {
+            background: rgba(255, 255, 255, 0.02) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-radius: 16px !important;
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+            transition: all 0.3s ease !important;
+          }
+          .premium-table tr:hover {
+            border-color: rgba(239, 68, 68, 0.2) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            transform: translateY(-2px);
+          }
+          .premium-table td {
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+            padding: 10px 0 !important;
+            font-size: 0.88rem !important;
+            color: #cbd5e1 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            text-align: left !important;
+            white-space: normal !important;
+          }
+          .premium-table td:last-child {
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+          }
+          .premium-table td::before {
+            content: attr(data-label) !important;
+            font-weight: 800 !important;
+            color: #94a3b8 !important;
+            margin-left: 16px !important;
+            text-align: right !important;
+            font-size: 0.82rem !important;
+            flex-shrink: 0 !important;
+          }
+        }
+
         @media (max-width: 420px) {
           .premium-stats-grid {
             grid-template-columns: 1fr;
@@ -2213,8 +2300,8 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Table */}
-                  <div className="premium-table-wrapper">
-                    <table className="premium-table">
+                <div className="premium-table-wrapper">
+                  <table className="premium-table">
                     <thead>
                       <tr>
                         <th>رقم الطلب</th>
@@ -2239,33 +2326,38 @@ export default function AdminDashboard() {
                       ) : (
                         filteredOrders.map((order) => (
                           <tr key={order.id}>
-                            <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{order.id}</td>
-                            <td>
+                            <td data-label="رقم الطلب" style={{ fontWeight: 800, color: "#38bdf8" }}>#{order.id}</td>
+                            <td data-label="الخدمة / التصنيف">
                               <div style={{ fontWeight: 700 }}>{order.service_name}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.category_name}</div>
                             </td>
-                            <td style={{ fontWeight: 700, color: "#f8fafc" }}>
+                            <td data-label="الباقة المطلوبة" style={{ fontWeight: 700, color: "#f8fafc" }}>
                               {order.package_name} 
+                              {order.quantity && order.quantity > 1 && (
+                                <div style={{ fontSize: "0.8rem", color: "#c084fc", marginTop: "2px" }}>
+                                  الكمية: {order.quantity}
+                                </div>
+                              )}
                               <span style={{ color: "#34d399", marginRight: "6px", fontSize: "0.8rem" }}>
                                 ({Number(order.package_price || 0).toFixed(2)} ج.م)
                               </span>
                             </td>
-                            <td style={{ direction: "ltr", fontWeight: 700, color: "#c084fc", textAlign: "right" }}>
+                            <td data-label="معرّف الحساب (ID)" style={{ direction: "ltr", fontWeight: 700, color: "#c084fc", textAlign: "right" }}>
                               {order.player_id}
                             </td>
-                            <td>{order.phone}</td>
-                            <td style={{ fontWeight: 700, color: order.payment_method === "wallet" ? "#34d399" : "#38bdf8" }}>
+                            <td data-label="رقم الهاتف">{order.phone}</td>
+                            <td data-label="طريقة الدفع" style={{ fontWeight: 700, color: order.payment_method === "wallet" ? "#34d399" : "#38bdf8" }}>
                               {order.payment_method === "wallet" && "المحفظة"}
                               {order.payment_method === "transfer" && `تحويل إلى ${order.transfer_to || "01026785879"}`}
                               {!order.payment_method && "غير محدد"}
                             </td>
-                            <td style={{ direction: "ltr", fontWeight: 700, color: "#f8fafc" }}>
+                            <td data-label="رقم التحويل" style={{ direction: "ltr", fontWeight: 700, color: "#f8fafc" }}>
                               {order.payment_method === "transfer" ? (order.sender_phone || "-") : "-"}
                             </td>
-                            <td style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                            <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
                               {new Date(order.created_at).toLocaleString("ar-EG")}
                             </td>
-                            <td>
+                            <td data-label="الحالة">
                               <span className={`premium-badge premium-badge-${order.status}`}>
                                 <span className="badge-dot" />
                                 {order.status === "pending" && "انتظار"}
@@ -2273,7 +2365,7 @@ export default function AdminDashboard() {
                                 {order.status === "cancelled" && "ملغي"}
                               </span>
                             </td>
-                            <td style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <td data-label="الإجراءات" style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                               {order.status === "pending" ? (
                                 <>
                                   <button
@@ -2304,78 +2396,78 @@ export default function AdminDashboard() {
                         ))
                       )}
                     </tbody>
-                    </table>
+                  </table>
+                </div>
+
+                <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px", flexWrap: "wrap" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>سجل الحركات في المحفظة</h3>
+                      <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: "0.85rem" }}>
+                        كل إضافة شحن أو خصم شراء يظهر هنا مع الرصيد قبل وبعد العملية.
+                      </p>
+                    </div>
+                    <div style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
+                      إجمالي العمليات: <strong style={{ color: "#ffffff" }}>{walletTransactions.length}</strong>
+                    </div>
                   </div>
 
-                  <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px", flexWrap: "wrap" }}>
-                      <div>
-                        <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>سجل الحركات في المحفظة</h3>
-                        <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: "0.85rem" }}>
-                          كل إضافة شحن أو خصم شراء يظهر هنا مع الرصيد قبل وبعد العملية.
-                        </p>
-                      </div>
-                      <div style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
-                        إجمالي العمليات: <strong style={{ color: "#ffffff" }}>{walletTransactions.length}</strong>
-                      </div>
-                    </div>
-
-                    <div className="premium-table-wrapper" style={{ marginBottom: 0 }}>
-                      <table className="premium-table">
-                        <thead>
+                  <div className="premium-table-wrapper" style={{ marginBottom: 0 }}>
+                    <table className="premium-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>العميل</th>
+                          <th>النوع</th>
+                          <th>المبلغ</th>
+                          <th>الرصيد قبل</th>
+                          <th>الرصيد بعد</th>
+                          <th>المرجع</th>
+                          <th>التاريخ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredWalletTransactions.length === 0 ? (
                           <tr>
-                            <th>ID</th>
-                            <th>العميل</th>
-                            <th>النوع</th>
-                            <th>المبلغ</th>
-                            <th>الرصيد قبل</th>
-                            <th>الرصيد بعد</th>
-                            <th>المرجع</th>
-                            <th>التاريخ</th>
+                            <td colSpan="8" style={{ textAlign: "center", padding: "36px", color: "#64748b" }}>
+                              لا توجد حركات محفظة مطابقة للبحث.
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {filteredWalletTransactions.length === 0 ? (
-                            <tr>
-                              <td colSpan="8" style={{ textAlign: "center", padding: "36px", color: "#64748b" }}>
-                                لا توجد حركات محفظة مطابقة للبحث.
+                        ) : (
+                          filteredWalletTransactions.map((tx) => (
+                            <tr key={tx.id}>
+                              <td data-label="ID" style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>#{tx.id}</td>
+                              <td data-label="العميل">
+                                <div style={{ fontWeight: 700 }}>{tx.customer_username}</div>
+                                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ID: {tx.customer_id}</div>
+                              </td>
+                              <td data-label="النوع">
+                                <span className={`premium-badge ${tx.type === "credit" ? "premium-badge-approved" : "premium-badge-rejected"}`}>
+                                  {tx.type === "credit" ? "إضافة" : "خصم"}
+                                </span>
+                              </td>
+                              <td data-label="المبلغ" style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
+                                {Number(tx.amount || 0).toFixed(2)} ج.م
+                              </td>
+                              <td data-label="الرصيد قبل">{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
+                              <td data-label="الرصيد بعد">{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
+                              <td data-label="المرجع" style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
+                                {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
+                                {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
+                                {!tx.reference_type && "-"}
+                              </td>
+                              <td data-label="التاريخ" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                                {tx.created_at ? new Date(tx.created_at).toLocaleString("ar-EG") : "-"}
                               </td>
                             </tr>
-                          ) : (
-                            filteredWalletTransactions.map((tx) => (
-                              <tr key={tx.id}>
-                                <td style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>#{tx.id}</td>
-                                <td>
-                                  <div style={{ fontWeight: 700 }}>{tx.customer_username}</div>
-                                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ID: {tx.customer_id}</div>
-                                </td>
-                                <td>
-                                  <span className={`premium-badge ${tx.type === "credit" ? "premium-badge-approved" : "premium-badge-rejected"}`}>
-                                    {tx.type === "credit" ? "إضافة" : "خصم"}
-                                  </span>
-                                </td>
-                                <td style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
-                                  {Number(tx.amount || 0).toFixed(2)} ج.م
-                                </td>
-                                <td>{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
-                                <td>{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
-                                <td style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
-                                  {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
-                                  {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
-                                  {!tx.reference_type && "-"}
-                                </td>
-                                <td style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-                                  {tx.created_at ? new Date(tx.created_at).toLocaleString("ar-EG") : "-"}
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
                   </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
             {/* Wallet Requests Section */}
               {activeTab === "wallets" && (
@@ -2466,18 +2558,18 @@ export default function AdminDashboard() {
                       ) : (
                         filteredWalletRequests.map((request) => (
                           <tr key={request.id}>
-                            <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{request.id}</td>
-                            <td>
+                            <td data-label="رقم الطلب" style={{ fontWeight: 800, color: "#38bdf8" }}>#{request.id}</td>
+                            <td data-label="العميل">
                               <div style={{ fontWeight: 700 }}>{request.customer_username}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ID: {request.customer_id}</div>
                             </td>
-                            <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(request.amount).toFixed(2)} ج.م</td>
-                            <td style={{ direction: "ltr" }}>{request.sender_phone || "-"}</td>
-                            <td style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes || "-"}</td>
-                            <td style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                            <td data-label="المبلغ" style={{ fontWeight: 800, color: "#34d399" }}>{Number(request.amount).toFixed(2)} ج.م</td>
+                            <td data-label="رقم التحويل" style={{ direction: "ltr" }}>{request.sender_phone || "-"}</td>
+                            <td data-label="ملاحظات" style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes || "-"}</td>
+                            <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
                               {new Date(request.created_at).toLocaleString("ar-EG")}
                             </td>
-                            <td>
+                            <td data-label="الحالة">
                               <span className={`premium-badge premium-badge-${request.status}`}>
                                 <span className="badge-dot" />
                                 {request.status === "pending" && "انتظار"}
@@ -2485,7 +2577,7 @@ export default function AdminDashboard() {
                                 {request.status === "rejected" && "مرفوض"}
                               </span>
                             </td>
-                            <td style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <td data-label="الإجراءات" style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                               {request.status === "pending" ? (
                                 <>
                                   <button
@@ -2587,17 +2679,17 @@ export default function AdminDashboard() {
                         ) : (
                           filteredCustomers.map((customer) => (
                             <tr key={customer.id}>
-                              <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
-                              <td style={{ fontWeight: 700 }}>{customer.username}</td>
-                              <td style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
-                              <td style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
-                              <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} ج.م</td>
-                              <td>
+                              <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
+                              <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>{customer.username}</td>
+                              <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
+                              <td data-label="كلمة المرور" style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
+                              <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} ج.م</td>
+                              <td data-label="الحالة">
                                 <span className={`premium-badge ${Number(customer.balance || 0) > 0 ? "premium-badge-approved" : "premium-badge-pending"}`}>
                                   {Number(customer.balance || 0) > 0 ? "يوجد رصيد" : "صفر"}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "center" }}>
+                              <td data-label="الاختيار" style={{ textAlign: "center" }}>
                                 <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                                   <button
                                     type="button"
@@ -2656,24 +2748,24 @@ export default function AdminDashboard() {
                           ) : (
                             selectedCustomerTransactions.map((tx) => (
                               <tr key={tx.id}>
-                                <td>
+                                <td data-label="النوع">
                                   <span className={`premium-badge ${tx.type === "credit" ? "premium-badge-approved" : "premium-badge-rejected"}`}>
                                     {tx.type === "credit" ? "إضافة" : "خصم"}
                                   </span>
                                 </td>
-                                <td style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
+                                <td data-label="المبلغ" style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
                                   {Number(tx.amount || 0).toFixed(2)} ج.م
                                 </td>
-                                <td>{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
-                                <td>{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
-                                <td style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
+                                <td data-label="الرصيد قبل">{Number(tx.balance_before || 0).toFixed(2)} ج.م</td>
+                                <td data-label="الرصيد بعد">{Number(tx.balance_after || 0).toFixed(2)} ج.م</td>
+                                <td data-label="المرجع" style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
                                   {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
                                   {tx.reference_type === "order_refund" && `استرداد #${tx.reference_id}`}
                                   {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
                                   {!tx.reference_type && "-"}
                                 </td>
-                                <td style={{ color: "#e2e8f0" }}>{tx.description || "-"}</td>
-                                <td style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                                <td data-label="الوصف" style={{ color: "#e2e8f0" }}>{tx.description || "-"}</td>
+                                <td data-label="التاريخ" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
                                   {tx.created_at ? new Date(tx.created_at).toLocaleString("ar-EG") : "-"}
                                 </td>
                               </tr>
@@ -2797,8 +2889,8 @@ export default function AdminDashboard() {
 
                           return (
                             <tr key={service.id}>
-                              <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{service.id}</td>
-                              <td style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "160px", maxWidth: "220px" }}>
+                              <td data-label="رقم الخدمة" style={{ fontWeight: 800, color: "#38bdf8" }}>#{service.id}</td>
+                              <td data-label="الخدمة" style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "160px", maxWidth: "220px" }}>
                                 <div style={{ width: "32px", height: "32px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
                                   {service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads")) ? (
                                     <img src={service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -2822,23 +2914,35 @@ export default function AdminDashboard() {
                                   </div>
                                 </div>
                               </td>
-                              <td style={{ fontWeight: 700 }}>{parentCat ? parentCat.name : `قسم #${service.category_id}`}</td>
-                              <td>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
-                                  {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
-                                    <span key={pkg.id || pkg.name} className="pkg-tag">
-                                      {pkg.name} (${pkg.price})
-                                    </span>
-                                  ))}
-                                  {parsedPackages && parsedPackages.length > 3 && (
-                                    <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
-                                      + {parsedPackages.length - 3} أخرى
-                                    </span>
-                                  )}
-                                </div>
+                              <td data-label="القسم التابع" style={{ fontWeight: 700 }}>{parentCat ? parentCat.name : `قسم #${service.category_id}`}</td>
+                              <td data-label="الباقات المتوفرة">
+                                {service.price_type === "dynamic" ? (
+                                  <span className="pkg-tag" style={{ background: "rgba(192, 132, 252, 0.15)", color: "#c084fc", borderColor: "rgba(192, 132, 252, 0.3)", fontWeight: "bold" }}>
+                                    سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
+                                  </span>
+                                ) : (
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
+                                    {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
+                                      <span key={pkg.id || pkg.name} className="pkg-tag">
+                                        {pkg.name} (${pkg.price})
+                                      </span>
+                                    ))}
+                                    {parsedPackages && parsedPackages.length > 3 && (
+                                      <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
+                                        + {parsedPackages.length - 3} أخرى
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </td>
-                              <td style={{ fontWeight: 800, color: "#34d399" }}>{Number(service.price || 0).toFixed(2)} ج.م</td>
-                              <td style={{ textAlign: "center" }}>
+                              <td data-label="السعر الابتدائي" style={{ fontWeight: 800, color: "#34d399" }}>
+                                {service.price_type === "dynamic" ? (
+                                  `${Number(service.price_per_thousand || 0).toFixed(2)} ج.م / 1000`
+                                ) : (
+                                  `${Number(service.price || 0).toFixed(2)} ج.م`
+                                )}
+                              </td>
+                              <td data-label="الإجراءات" style={{ textAlign: "center" }}>
                                 <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                                   <button
                                     onClick={() => handleOpenEditService(service)}
@@ -2902,17 +3006,17 @@ export default function AdminDashboard() {
                       ) : (
                         banners.filter(b => b.title.toLowerCase().includes(bannerSearch.toLowerCase())).map((banner) => (
                           <tr key={banner.id}>
-                            <td style={{ fontWeight: 800, color: "#38bdf8" }}>#{banner.id}</td>
-                            <td>
+                            <td data-label="رقم الشريحة" style={{ fontWeight: 800, color: "#38bdf8" }}>#{banner.id}</td>
+                            <td data-label="الشريحة / العنوان">
                               <div style={{ fontWeight: 700 }}>{banner.title}</div>
                               <div style={{ fontSize: "0.85rem", color: banner.color || "#8b5cf6", fontWeight: "bold" }}>
                                 {banner.highlight}
                               </div>
                             </td>
-                            <td style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <td data-label="الوصف" style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {banner.desc}
                             </td>
-                            <td>
+                            <td data-label="الشارة / الخصم">
                               {banner.badge ? (
                                 <span className="premium-badge" style={{ background: `${banner.color || '#8b5cf6'}22`, color: banner.color || '#8b5cf6', border: `1px solid ${banner.color || '#8b5cf6'}33` }}>
                                   {banner.badge}
@@ -2921,7 +3025,7 @@ export default function AdminDashboard() {
                                 <span style={{ color: "#64748b" }}>لا يوجد</span>
                               )}
                             </td>
-                            <td>
+                            <td data-label="الرمز / اللون">
                               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                 {banner.icon && (banner.icon.startsWith("data:image") || banner.icon.startsWith("http") || banner.icon.startsWith("/uploads")) ? (
                                   <img src={banner.icon.startsWith("/uploads") ? `${API_BASE_URL}${banner.icon}` : banner.icon} alt={banner.title} style={{ width: "35px", height: "35px", objectFit: "contain", borderRadius: "6px" }} />
@@ -2931,7 +3035,7 @@ export default function AdminDashboard() {
                                 <span style={{ width: "16px", height: "16px", borderRadius: "50%", background: banner.color || "#8b5cf6", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" }} />
                               </div>
                             </td>
-                            <td style={{ textAlign: "center" }}>
+                            <td data-label="الإجراءات" style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                                 <button
                                   onClick={() => handleOpenEditBanner(banner)}
@@ -3192,72 +3296,109 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* Package Builder List */}
-              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                  <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddPkgInput} 
-                    className="action-btn"
-                    style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
-                  >
-                    + إضافة باقة
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {newServicePackages.map((pkg, idx) => (
-                    <div key={idx} style={{
-                      background: "rgba(255, 255, 255, 0.02)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)",
-                      borderRadius: "12px",
-                      padding: "12px",
-                      marginBottom: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px"
-                    }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
-                        {newServicePackages.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePkgInput(idx)}
-                            style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
-                          >
-                            حذف الباقة ×
-                          </button>
-                        )}
-                      </div>
-                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                        <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
-                          <input
-                            type="text"
-                            placeholder="اسم الباقة"
-                            value={pkg.name}
-                            onChange={(e) => handlePkgChange(idx, "name", e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="السعر"
-                            value={pkg.price || ""}
-                            onChange={(e) => handlePkgChange(idx, "price", e.target.value)}
-                            style={{ direction: "ltr" }}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>نوع التسعير:</label>
+                <select 
+                  value={newServicePriceType} 
+                  onChange={(e) => setNewServicePriceType(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                >
+                  <option value="fixed">باقات ثابتة (Fixed Packages)</option>
+                  <option value="dynamic">تسعير بالكمية / لكل 1000 وحدة (Dynamic per 1000)</option>
+                </select>
               </div>
+
+              {newServicePriceType === "dynamic" ? (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>سعر الـ 1000 وحدة (ج.م):</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="مثال: 50.00"
+                    value={newServicePricePerThousand || ""}
+                    onChange={(e) => setNewServicePricePerThousand(e.target.value)}
+                    className="search-input-premium"
+                    style={{ padding: "12px 16px !important", direction: "ltr" }}
+                    required={newServicePriceType === "dynamic"}
+                  />
+                </div>
+              ) : (
+                /* Package Builder List */
+                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
+                    <button 
+                      type="button" 
+                      onClick={handleAddPkgInput} 
+                      className="action-btn"
+                      style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
+                    >
+                      + إضافة باقة
+                    </button>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {newServicePackages.map((pkg, idx) => (
+                      <div key={idx} style={{
+                        background: "rgba(255, 255, 255, 0.02)",
+                        border: "1px solid rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        padding: "12px",
+                        marginBottom: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px"
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
+                          {newServicePackages.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePkgInput(idx)}
+                              style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                            >
+                              حذف الباقة ×
+                            </button>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                          <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
+                            <input
+                              type="text"
+                              placeholder="اسم الباقة"
+                              value={pkg.name}
+                              onChange={(e) => handlePkgChange(idx, "name", e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              placeholder="السعر"
+                              value={pkg.price || ""}
+                              onChange={(e) => handlePkgChange(idx, "price", e.target.value)}
+                              style={{ direction: "ltr" }}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Custom Fields Builder */}
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
@@ -3607,72 +3748,109 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* Package Builder List */}
-              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                  <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddEditPkgInput} 
-                    className="action-btn"
-                    style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
-                  >
-                    + إضافة باقة
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {editServicePackages.map((pkg, idx) => (
-                    <div key={idx} style={{
-                      background: "rgba(255, 255, 255, 0.02)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)",
-                      borderRadius: "12px",
-                      padding: "12px",
-                      marginBottom: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px"
-                    }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
-                        {editServicePackages.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveEditPkgInput(idx)}
-                            style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
-                          >
-                            حذف الباقة ×
-                          </button>
-                        )}
-                      </div>
-                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                        <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
-                          <input
-                            type="text"
-                            placeholder="اسم الباقة"
-                            value={pkg.name}
-                            onChange={(e) => handleEditPkgChange(idx, "name", e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="السعر"
-                            value={pkg.price || ""}
-                            onChange={(e) => handleEditPkgChange(idx, "price", e.target.value)}
-                            style={{ direction: "ltr" }}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>نوع التسعير:</label>
+                <select 
+                  value={editServicePriceType} 
+                  onChange={(e) => setEditServicePriceType(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                >
+                  <option value="fixed">باقات ثابتة (Fixed Packages)</option>
+                  <option value="dynamic">تسعير بالكمية / لكل 1000 وحدة (Dynamic per 1000)</option>
+                </select>
               </div>
+
+              {editServicePriceType === "dynamic" ? (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>سعر الـ 1000 وحدة (ج.م):</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="مثال: 50.00"
+                    value={editServicePricePerThousand || ""}
+                    onChange={(e) => setEditServicePricePerThousand(e.target.value)}
+                    className="search-input-premium"
+                    style={{ padding: "12px 16px !important", direction: "ltr" }}
+                    required={editServicePriceType === "dynamic"}
+                  />
+                </div>
+              ) : (
+                /* Package Builder List */
+                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
+                    <button 
+                      type="button" 
+                      onClick={handleAddEditPkgInput} 
+                      className="action-btn"
+                      style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
+                    >
+                      + إضافة باقة
+                    </button>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {editServicePackages.map((pkg, idx) => (
+                      <div key={idx} style={{
+                        background: "rgba(255, 255, 255, 0.02)",
+                        border: "1px solid rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        padding: "12px",
+                        marginBottom: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px"
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "0.82rem", color: "#c084fc", fontWeight: "800" }}>الباقة #{idx + 1}</span>
+                          {editServicePackages.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveEditPkgInput(idx)}
+                              style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                            >
+                              حذف الباقة ×
+                            </button>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                          <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
+                            <input
+                              type="text"
+                              placeholder="اسم الباقة"
+                              value={pkg.name}
+                              onChange={(e) => handleEditPkgChange(idx, "name", e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>السعر ($):</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              placeholder="السعر"
+                              value={pkg.price || ""}
+                              onChange={(e) => handleEditPkgChange(idx, "price", e.target.value)}
+                              style={{ direction: "ltr" }}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Custom Fields Builder */}
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
