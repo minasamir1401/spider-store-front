@@ -462,11 +462,20 @@ export default function ServiceDetail({ params }) {
                     value={formData[field.name] || ""}
                     onChange={(e) => handleFieldChange(field.name, e.target.value)}
                     required={field.required !== false}
-                    style={{ width: "100%" }}
+                    style={{
+                      width: "100%",
+                      padding: "14px 18px",
+                      fontSize: "0.95rem",
+                      borderRadius: "12px",
+                      border: "2px solid #3b82f6",
+                      background: "#ffffff",
+                      color: "#000000",
+                      outline: "none"
+                    }}
                   >
-                    <option value="">-- اختر --</option>
+                    <option value="" style={{ color: "#000000", background: "#ffffff" }}>-- اختر --</option>
                     {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
-                      <option key={i} value={opt.trim()}>{opt.trim()}</option>
+                      <option key={i} value={opt.trim()} style={{ color: "#000000", background: "#ffffff" }}>{opt.trim()}</option>
                     ))}
                   </select>
                 ) : (
@@ -477,6 +486,16 @@ export default function ServiceDetail({ params }) {
                     value={formData[field.name] || ""}
                     onChange={(e) => handleFieldChange(field.name, e.target.value)}
                     required={field.required !== false}
+                    style={{
+                      width: "100%",
+                      padding: "14px 18px",
+                      fontSize: "0.95rem",
+                      borderRadius: "12px",
+                      border: "2px solid #3b82f6",
+                      background: "#ffffff",
+                      color: "#000000",
+                      outline: "none"
+                    }}
                   />
                 )}
               </div>
@@ -521,6 +540,16 @@ export default function ServiceDetail({ params }) {
                     placeholder="مثال: 01023456789"
                     value={senderPhone}
                     onChange={(e) => setSenderPhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "14px 18px",
+                      fontSize: "0.95rem",
+                      borderRadius: "12px",
+                      border: "2px solid #3b82f6",
+                      background: "#ffffff",
+                      color: "#000000",
+                      outline: "none"
+                    }}
                   />
                   <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "rgba(59,130,246,0.08)", color: "#cbd5e1", fontSize: "0.85rem" }}>
                     رقم الاستلام: <strong style={{ color: "#ffffff", direction: "ltr", display: "inline-block" }}>{transferNumber}</strong>

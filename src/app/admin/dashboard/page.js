@@ -3298,42 +3298,25 @@ export default function AdminDashboard() {
 
               <div className="form-group" style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>نوع التسعير:</label>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setNewServicePriceType("fixed")}
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "12px",
-                      border: newServicePriceType === "fixed" ? "2px solid #8b5cf6" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: newServicePriceType === "fixed" ? "rgba(139, 92, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
-                      color: newServicePriceType === "fixed" ? "#c084fc" : "#94a3b8",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                  >
-                    📦 باقات (Packages)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewServicePriceType("dynamic")}
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "12px",
-                      border: newServicePriceType === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: newServicePriceType === "dynamic" ? "rgba(59, 130, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
-                      color: newServicePriceType === "dynamic" ? "#60a5fa" : "#94a3b8",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                  >
-                    ⚡ عادي (Normal / SMM)
-                  </button>
-                </div>
+                <select
+                  value={newServicePriceType}
+                  onChange={(e) => setNewServicePriceType(e.target.value)}
+                  style={{
+                    padding: "16px 20px",
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                    borderRadius: "14px",
+                    border: "2px solid #3b82f6",
+                    background: "#ffffff",
+                    color: "#000000",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    outline: "none"
+                  }}
+                >
+                  <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
+                  <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
+                </select>
               </div>
 
               {newServicePriceType === "dynamic" ? (
@@ -3769,42 +3752,25 @@ export default function AdminDashboard() {
 
               <div className="form-group" style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>نوع التسعير:</label>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setEditServicePriceType("fixed")}
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "12px",
-                      border: editServicePriceType === "fixed" ? "2px solid #8b5cf6" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: editServicePriceType === "fixed" ? "rgba(139, 92, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
-                      color: editServicePriceType === "fixed" ? "#c084fc" : "#94a3b8",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                  >
-                    📦 باقات (Packages)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditServicePriceType("dynamic")}
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "12px",
-                      border: editServicePriceType === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: editServicePriceType === "dynamic" ? "rgba(59, 130, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
-                      color: editServicePriceType === "dynamic" ? "#60a5fa" : "#94a3b8",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                  >
-                    ⚡ عادي (Normal / SMM)
-                  </button>
-                </div>
+                <select
+                  value={editServicePriceType}
+                  onChange={(e) => setEditServicePriceType(e.target.value)}
+                  style={{
+                    padding: "16px 20px",
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                    borderRadius: "14px",
+                    border: "2px solid #3b82f6",
+                    background: "#ffffff",
+                    color: "#000000",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    outline: "none"
+                  }}
+                >
+                  <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
+                  <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
+                </select>
               </div>
 
               {editServicePriceType === "dynamic" ? (
