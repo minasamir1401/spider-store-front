@@ -6,8 +6,24 @@ import { API_BASE_URL } from "@/config";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const staticCategories = [
+    { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
+    { id: 2,  name: "تطبيقات اللايف",    image: "/uploads/live-apps.png",            color: "#eab308", icon: "credit-card"  },
+    { id: 3,  name: "بطاقات الكترونية",  image: "/uploads/electronic-cards.png",     color: "#6366f1", icon: "credit-card"  },
+    { id: 4,  name: "الأرصدة والعملات",  image: "/uploads/balances-currencies.png",  color: "#eab308", icon: "credit-card"  },
+    { id: 5,  name: "سوشال ميديا",       image: "/uploads/social-media.png",         color: "#eab308", icon: "credit-card"  },
+    { id: 6,  name: "خدمات السيرفر",     image: "/uploads/server-services.png",      color: "#6366f1", icon: "gamepad2"     },
+    { id: 7,  name: "اشتراكات",          image: "/uploads/subscriptions.png",        color: "#d946ef", icon: "credit-card"  },
+    { id: 8,  name: "الذكاء الاصطناعي",  image: "/uploads/ai-section.png",           color: "#eab308", icon: "credit-card"  },
+    { id: 9,  name: "قسم الارقام",       image: "/uploads/numbers-section.png",      color: "#6366f1", icon: "credit-card"  },
+    { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
+    { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
+    { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
+  ];
 
   const staticServices = [
     {
@@ -69,6 +85,22 @@ export default function ServicesPage() {
   ];
 
   useEffect(() => {
+    setLoading(true);
+
+    // Fetch categories
+    fetch(`${API_BASE_URL}/api/categories`)
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch(() => {
+        setCategories(staticCategories);
+      });
+
+    // Fetch services
     fetch(`${API_BASE_URL}/api/services`)
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -103,6 +135,10 @@ export default function ServicesPage() {
   const filteredServices = services.filter((s) =>
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const uncategorizedServices = filteredServices.filter(
+    (s) => !categories.some((c) => c.id === s.category_id)
   );
 
   return (
@@ -149,71 +185,206 @@ export default function ServicesPage() {
           <Link href="/" className="glass-btn glass-btn-primary">العودة للرئيسية</Link>
         </div>
       ) : (
-        <div className="scc-grid">
-          {filteredServices.map((service) => {
-            const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
-            
-            // Premium colors per category
-            const categoryColors = {
-              1: '#6366f1', // games
-              2: '#eab308', // live apps
-              3: '#a855f7', // cards
-              4: '#06b6d4', // balances/currencies
-              5: '#ec4899', // social media
-              6: '#10b981', // server services
-              7: '#d946ef', // subscriptions
-              8: '#eab308', // AI
-              9: '#6366f1', // numbers
-              10: '#6366f1', // programming/design
-              11: '#eab308', // ready accounts
-              12: '#ec4899'  // ads
-            };
-            const catColor = categoryColors[service.category_id] || '#6366f1';
-            
-            const hexToRgb = (hex) => {
-              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-              return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
-            };
-            const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
-
-            const imgSrc = isCustomImg
-              ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
-              : null;
+        <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+          {categories.map((cat) => {
+            const catServices = filteredServices.filter(s => s.category_id === cat.id);
+            if (catServices.length === 0) return null;
 
             return (
-              <div className="scc-wrap" key={service.id}>
-                <Link 
-                  href={`/service/${service.id}`} 
-                  className="scc-card" 
-                  dir="rtl" 
-                  style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
-                >
-                  <div className="scc-side-line"></div>
-                  <div className="scc-img-ring">
-                    <div className="scc-img-inner">
-                      {imgSrc ? (
-                        <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
-                      ) : (
-                        <span style={{ fontSize: "1.2rem" }}>⚡</span>
-                      )}
-                    </div>
+              <div key={cat.id} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                {/* Category Header */}
+                <div style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: "12px", 
+                  paddingBottom: "12px", 
+                  borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
+                  position: "relative"
+                }}>
+                  <div style={{ 
+                    width: "36px", 
+                    height: "36px", 
+                    borderRadius: "10px", 
+                    background: "rgba(255, 255, 255, 0.03)", 
+                    border: "1px solid rgba(255, 255, 255, 0.05)", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center",
+                    overflow: "hidden"
+                  }}>
+                    {cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads")) ? (
+                      <img src={cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                    ) : (
+                      <span style={{ fontSize: "1.2rem" }}>📁</span>
+                    )}
                   </div>
-                  <div className="scc-content">
-                    <span className="scc-name">{service.name}</span>
-                    <div className="scc-meta">
-                      <div className="scc-dot"></div>
-                      <span>اضغط للعرض</span>
-                    </div>
-                  </div>
-                  <div className="scc-arrow">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-left">
-                      <path d="m15 18-6-6 6-6"></path>
-                    </svg>
-                  </div>
-                </Link>
+                  <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "var(--text-main)" }}>{cat.name}</h3>
+                  <span style={{ 
+                    fontSize: "0.75rem", 
+                    color: "#a855f7", 
+                    background: "rgba(168, 85, 247, 0.12)", 
+                    border: "1px solid rgba(168, 85, 247, 0.15)",
+                    padding: "2px 8px", 
+                    borderRadius: "10px", 
+                    fontWeight: "700" 
+                  }}>
+                    {catServices.length} {catServices.length === 1 ? "خدمة" : catServices.length === 2 ? "خدمتين" : "خدمات"}
+                  </span>
+                </div>
+
+                {/* Sub Services Grid */}
+                <div className="scc-grid">
+                  {catServices.map((service) => {
+                    const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
+                    
+                    const categoryColors = {
+                      1: '#6366f1', // games
+                      2: '#eab308', // live apps
+                      3: '#a855f7', // cards
+                      4: '#06b6d4', // balances/currencies
+                      5: '#ec4899', // social media
+                      6: '#10b981', // server services
+                      7: '#d946ef', // subscriptions
+                      8: '#eab308', // AI
+                      9: '#6366f1', // numbers
+                      10: '#6366f1', // programming/design
+                      11: '#eab308', // ready accounts
+                      12: '#ec4899'  // ads
+                    };
+                    const catColor = categoryColors[service.category_id] || '#6366f1';
+                    
+                    const hexToRgb = (hex) => {
+                      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                      return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
+                    };
+                    const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
+
+                    const imgSrc = isCustomImg
+                      ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
+                      : null;
+
+                    return (
+                      <div className="scc-wrap" key={service.id}>
+                        <Link 
+                          href={`/service/${service.id}`} 
+                          className="scc-card" 
+                          dir="rtl" 
+                          style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
+                        >
+                          <div className="scc-side-line"></div>
+                          <div className="scc-img-ring">
+                            <div className="scc-img-inner">
+                              {imgSrc ? (
+                                <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
+                              ) : (
+                                <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="scc-content">
+                            <span className="scc-name">{service.name}</span>
+                            <div className="scc-meta">
+                              <div className="scc-dot"></div>
+                              <span>اضغط للعرض</span>
+                            </div>
+                          </div>
+                          <div className="scc-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-left">
+                              <path d="m15 18-6-6 6-6"></path>
+                            </svg>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
+
+          {uncategorizedServices.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "12px", 
+                paddingBottom: "12px", 
+                borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
+                position: "relative"
+              }}>
+                <div style={{ 
+                  width: "36px", 
+                  height: "36px", 
+                  borderRadius: "10px", 
+                  background: "rgba(255, 255, 255, 0.03)", 
+                  border: "1px solid rgba(255, 255, 255, 0.05)", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  overflow: "hidden"
+                }}>
+                  <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                </div>
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "var(--text-main)" }}>خدمات أخرى</h3>
+                <span style={{ 
+                  fontSize: "0.75rem", 
+                  color: "#cbd5e1", 
+                  background: "rgba(255, 255, 255, 0.05)", 
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "2px 8px", 
+                  borderRadius: "10px", 
+                  fontWeight: "700" 
+                }}>
+                  {uncategorizedServices.length} خدمة
+                </span>
+              </div>
+
+              <div className="scc-grid">
+                {uncategorizedServices.map((service) => {
+                  const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
+                  const catColor = '#6366f1';
+                  const catGlow = 'rgba(99, 102, 241, 0.35)';
+                  const imgSrc = isCustomImg
+                    ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
+                    : null;
+
+                  return (
+                    <div className="scc-wrap" key={service.id}>
+                      <Link 
+                        href={`/service/${service.id}`} 
+                        className="scc-card" 
+                        dir="rtl" 
+                        style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
+                      >
+                        <div className="scc-side-line"></div>
+                        <div className="scc-img-ring">
+                          <div className="scc-img-inner">
+                            {imgSrc ? (
+                              <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
+                            ) : (
+                              <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="scc-content">
+                          <span className="scc-name">{service.name}</span>
+                          <div className="scc-meta">
+                            <div className="scc-dot"></div>
+                            <span>اضغط للعرض</span>
+                          </div>
+                        </div>
+                        <div className="scc-arrow">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-left">
+                            <path d="m15 18-6-6 6-6"></path>
+                          </svg>
+                        </div>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
