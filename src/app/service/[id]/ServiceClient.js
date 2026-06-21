@@ -362,7 +362,7 @@ export default function ServiceDetail({ params }) {
               <div>
                 <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
                 <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-                  سعر الـ 1000 وحدة هو: {(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
+                  سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
                 </p>
                 <div className="form-group" style={{ marginBottom: "20px" }}>
                   <input
@@ -431,9 +431,9 @@ export default function ServiceDetail({ params }) {
                           <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
 
                           <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                            <span className="package-price" style={{ fontSize: "1.1rem" }}>{pkg.price.toFixed(2)} ج.م</span>
+                            <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
                             <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                              {originalPrice.toFixed(2)}
+                              {Number(originalPrice).toFixed(2)}
                             </span>
                           </div>
                         </div>
@@ -565,7 +565,7 @@ export default function ServiceDetail({ params }) {
                 </div>
                 <div className="summary-row">
                   <span className="summary-label">سعر الـ 1000 وحدة</span>
-                  <span className="summary-value">{(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
+                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
                 </div>
               </>
             ) : (
@@ -577,7 +577,7 @@ export default function ServiceDetail({ params }) {
                   </div>
                   <div className="summary-row">
                     <span className="summary-label">سعر الباقة</span>
-                    <span className="summary-value">{selectedPackage.price.toFixed(2)} ج.م</span>
+                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} ج.م</span>
                   </div>
                 </>
               )
@@ -620,7 +620,7 @@ export default function ServiceDetail({ params }) {
               <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {successData.package_price.toFixed(2)} ج.م</div>
+              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
               <div><strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong> {successData.payment_method === "wallet" ? "المحفظة" : `تحويل إلى ${successData.transfer_to}`}</div>
               {successData.sender_phone && (
                 <div><strong style={{ color: "#cbd5e1" }}>الرقم المحول منه:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>

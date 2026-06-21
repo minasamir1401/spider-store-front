@@ -213,7 +213,7 @@ export default async function Page({ params }) {
         "offers": service.packages.map(pkg => ({
           "@type": "Offer",
           "name": pkg.name,
-          "price": pkg.price.toFixed(2),
+          "price": Number(pkg.price || 0).toFixed(2),
           "priceCurrency": "EGP",
           "availability": "https://schema.org/InStock",
           "url": `${SITE_URL}/service/${id}`
