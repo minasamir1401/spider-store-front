@@ -173,6 +173,12 @@ export default function AdminDashboard() {
 
       // Fetch orders
       const orderRes = await fetch(`${API_BASE_URL}/api/orders`, { headers });
+      if (orderRes.status === 401 || orderRes.status === 403) {
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
+        router.push("/admin/login");
+        return;
+      }
       if (orderRes.ok) {
         const orderData = await orderRes.json();
         setOrders(orderData);
