@@ -3296,25 +3296,44 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label>نوع التسعير:</label>
-                <select 
-                  value={newServicePriceType} 
-                  onChange={(e) => setNewServicePriceType(e.target.value)}
-                  style={{
-                    padding: "12px 18px",
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    background: "rgba(13, 18, 36, 0.7)",
-                    color: "#ffffff",
-                    fontSize: "0.95rem",
-                    outline: "none",
-                    width: "100%"
-                  }}
-                >
-                  <option value="fixed">باقات ثابتة (Fixed Packages)</option>
-                  <option value="dynamic">تسعير بالكمية / لكل 1000 وحدة (Dynamic per 1000)</option>
-                </select>
+              <div className="form-group" style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>نوع التسعير:</label>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setNewServicePriceType("fixed")}
+                    style={{
+                      flex: 1,
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: newServicePriceType === "fixed" ? "2px solid #8b5cf6" : "1px solid rgba(255, 255, 255, 0.08)",
+                      background: newServicePriceType === "fixed" ? "rgba(139, 92, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
+                      color: newServicePriceType === "fixed" ? "#c084fc" : "#94a3b8",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    📦 باقات شحن ثابتة (Fixed)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewServicePriceType("dynamic")}
+                    style={{
+                      flex: 1,
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: newServicePriceType === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+                      background: newServicePriceType === "dynamic" ? "rgba(59, 130, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
+                      color: newServicePriceType === "dynamic" ? "#60a5fa" : "#94a3b8",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    ⚡ تسعير بالكمية لكل 1000 (SMM)
+                  </button>
+                </div>
               </div>
 
               {newServicePriceType === "dynamic" ? (
@@ -3327,7 +3346,7 @@ export default function AdminDashboard() {
                     value={newServicePricePerThousand || ""}
                     onChange={(e) => setNewServicePricePerThousand(e.target.value)}
                     className="search-input-premium"
-                    style={{ padding: "12px 16px !important", direction: "ltr" }}
+                    style={{ padding: "12px 16px", direction: "ltr" }}
                     required={newServicePriceType === "dynamic"}
                   />
                 </div>
@@ -3748,25 +3767,44 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label>نوع التسعير:</label>
-                <select 
-                  value={editServicePriceType} 
-                  onChange={(e) => setEditServicePriceType(e.target.value)}
-                  style={{
-                    padding: "12px 18px",
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    background: "rgba(13, 18, 36, 0.7)",
-                    color: "#ffffff",
-                    fontSize: "0.95rem",
-                    outline: "none",
-                    width: "100%"
-                  }}
-                >
-                  <option value="fixed">باقات ثابتة (Fixed Packages)</option>
-                  <option value="dynamic">تسعير بالكمية / لكل 1000 وحدة (Dynamic per 1000)</option>
-                </select>
+              <div className="form-group" style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>نوع التسعير:</label>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setEditServicePriceType("fixed")}
+                    style={{
+                      flex: 1,
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: editServicePriceType === "fixed" ? "2px solid #8b5cf6" : "1px solid rgba(255, 255, 255, 0.08)",
+                      background: editServicePriceType === "fixed" ? "rgba(139, 92, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
+                      color: editServicePriceType === "fixed" ? "#c084fc" : "#94a3b8",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    📦 باقات شحن ثابتة (Fixed)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditServicePriceType("dynamic")}
+                    style={{
+                      flex: 1,
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: editServicePriceType === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+                      background: editServicePriceType === "dynamic" ? "rgba(59, 130, 246, 0.15)" : "rgba(13, 18, 36, 0.4)",
+                      color: editServicePriceType === "dynamic" ? "#60a5fa" : "#94a3b8",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    ⚡ تسعير بالكمية لكل 1000 (SMM)
+                  </button>
+                </div>
               </div>
 
               {editServicePriceType === "dynamic" ? (
@@ -3779,7 +3817,7 @@ export default function AdminDashboard() {
                     value={editServicePricePerThousand || ""}
                     onChange={(e) => setEditServicePricePerThousand(e.target.value)}
                     className="search-input-premium"
-                    style={{ padding: "12px 16px !important", direction: "ltr" }}
+                    style={{ padding: "12px 16px", direction: "ltr" }}
                     required={editServicePriceType === "dynamic"}
                   />
                 </div>

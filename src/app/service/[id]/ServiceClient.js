@@ -370,7 +370,15 @@ export default function ServiceDetail({ params }) {
                     min="100"
                     step="100"
                     value={customQuantity}
-                    onChange={(e) => setCustomQuantity(Math.max(100, parseInt(e.target.value) || 0))}
+                    onChange={(e) => {
+                      const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                      setCustomQuantity(val);
+                    }}
+                    onBlur={() => {
+                      if (!customQuantity || customQuantity < 100) {
+                        setCustomQuantity(100);
+                      }
+                    }}
                     style={{
                       padding: "16px 20px",
                       fontSize: "1.2rem",
@@ -385,8 +393,8 @@ export default function ServiceDetail({ params }) {
                     }}
                     placeholder="أدخل الكمية هنا (مثال: 5000)"
                   />
-                  <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                    السعر التقريبي: <strong style={{ color: "#34d399" }}>{((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+                  <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+                    السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
                   </div>
                 </div>
               </div>
