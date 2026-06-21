@@ -346,6 +346,111 @@ export default function ServiceDetail({ params }) {
     );
   }
 
+  const packagesSection = (
+    <div>
+      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
+      {service.packages && service.packages.length > 0 ? (
+        <div className="packages-selector">
+          {service.packages.map((pkg, idx) => {
+            const simulatedDiscount = 2 + (idx % 4);
+            const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
+            const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
+            return (
+              <div
+                key={pkg.id}
+                className={`package-option ${isSelected ? "selected" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (service.price_type === "both") {
+                    setCustomerPricingMode("packages");
+                  }
+                  setSelectedPackage(pkg);
+                }}
+                style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px", cursor: "pointer" }}
+              >
+                {/* Discount Tag */}
+                <span style={{
+                  position: "absolute",
+                  top: "6px",
+                  left: "6px",
+                  background: "var(--danger-color)",
+                  color: "white",
+                  fontSize: "0.68rem",
+                  padding: "2px 6px",
+                  borderRadius: "6px",
+                  fontWeight: "800"
+                }}>
+                  -{simulatedDiscount}%
+                </span>
+
+                <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
+
+                <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
+                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
+                  <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                    {Number(originalPrice).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
+      )}
+    </div>
+  );
+
+  const customQuantitySection = (
+    <div>
+      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
+      <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
+        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
+      </p>
+      <div className="form-group" style={{ marginBottom: "20px" }}>
+        <input
+          type="number"
+          min="100"
+          step="100"
+          value={customQuantity}
+          onFocus={() => {
+            if (service.price_type === "both") {
+              setCustomerPricingMode("dynamic");
+            }
+          }}
+          onChange={(e) => {
+            if (service.price_type === "both") {
+              setCustomerPricingMode("dynamic");
+            }
+            const val = e.target.value === "" ? "" : parseInt(e.target.value);
+            setCustomQuantity(val);
+          }}
+          onBlur={() => {
+            if (!customQuantity || customQuantity < 100) {
+              setCustomQuantity(100);
+            }
+          }}
+          style={{
+            padding: "16px 20px",
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            borderRadius: "14px",
+            border: (service.price_type !== "both" || customerPricingMode === "dynamic") ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+            background: "#ffffff",
+            color: "#000000",
+            width: "100%",
+            boxSizing: "border-box",
+            outline: "none"
+          }}
+          placeholder="أدخل الكمية هنا (مثال: 5000)"
+        />
+        <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* Main layout */}
@@ -370,133 +475,79 @@ export default function ServiceDetail({ params }) {
 
           {/* Package Select / Custom Quantity */}
           <div>
-            {service.price_type === "both" && (
-              <div style={{ display: "flex", gap: "10px", marginBottom: "18px" }}>
-                <button
-                  type="button"
+            {service.price_type === "both" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                
+                {/* Option 1: Packages */}
+                <div 
                   onClick={() => setCustomerPricingMode("packages")}
-                  style={{
-                    flex: 1,
-                    padding: "12px 14px",
-                    borderRadius: "12px",
-                    border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
-                    background: customerPricingMode === "packages" ? "#ffffff" : "rgba(255, 255, 255, 0.02)",
-                    color: customerPricingMode === "packages" ? "#000000" : "#cbd5e1",
-                    fontWeight: "bold",
+                  style={{ 
+                    border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "16px",
+                    padding: "20px 16px 16px 16px",
+                    background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
                     cursor: "pointer",
-                    fontSize: "0.95rem",
                     transition: "all 0.2s"
                   }}
                 >
-                  📦 باقات الشحن (Packages)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCustomerPricingMode("dynamic")}
-                  style={{
-                    flex: 1,
-                    padding: "12px 14px",
-                    borderRadius: "12px",
-                    border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
-                    background: customerPricingMode === "dynamic" ? "#ffffff" : "rgba(255, 255, 255, 0.02)",
-                    color: customerPricingMode === "dynamic" ? "#000000" : "#cbd5e1",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    fontSize: "0.95rem",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  ⚡ شحن بالكمية (عادي)
-                </button>
-              </div>
-            )}
-
-            {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
-              <div>
-                <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
-                <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-                  سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
-                </p>
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <input
-                    type="number"
-                    min="100"
-                    step="100"
-                    value={customQuantity}
-                    onChange={(e) => {
-                      const val = e.target.value === "" ? "" : parseInt(e.target.value);
-                      setCustomQuantity(val);
-                    }}
-                    onBlur={() => {
-                      if (!customQuantity || customQuantity < 100) {
-                        setCustomQuantity(100);
-                      }
-                    }}
-                    style={{
-                      padding: "16px 20px",
-                      fontSize: "1.2rem",
-                      fontWeight: "bold",
-                      borderRadius: "14px",
-                      border: "2px solid #3b82f6",
-                      background: "#ffffff",
-                      color: "#000000",
-                      width: "100%",
-                      boxSizing: "border-box",
-                      outline: "none"
-                    }}
-                    placeholder="أدخل الكمية هنا (مثال: 5000)"
-                  />
-                  <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-                    السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                    <input 
+                      type="radio" 
+                      name="pricing_mode_selector" 
+                      checked={customerPricingMode === "packages"} 
+                      onChange={() => setCustomerPricingMode("packages")} 
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
+                    <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
+                      📦 الخيار الأول: اختر باقة شحن جاهزة
+                    </strong>
+                  </div>
+                  
+                  <div style={{ 
+                    opacity: customerPricingMode === "packages" ? 1 : 0.6, 
+                    pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
+                    transition: "opacity 0.2s"
+                  }}>
+                    {packagesSection}
                   </div>
                 </div>
+
+                {/* Option 2: Custom Quantity */}
+                <div 
+                  onClick={() => setCustomerPricingMode("dynamic")}
+                  style={{ 
+                    border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "16px",
+                    padding: "20px 16px 16px 16px",
+                    background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                    <input 
+                      type="radio" 
+                      name="pricing_mode_selector" 
+                      checked={customerPricingMode === "dynamic"} 
+                      onChange={() => setCustomerPricingMode("dynamic")} 
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
+                    <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
+                      ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
+                    </strong>
+                  </div>
+
+                  <div style={{ 
+                    opacity: customerPricingMode === "dynamic" ? 1 : 0.6, 
+                    transition: "opacity 0.2s"
+                  }}>
+                    {customQuantitySection}
+                  </div>
+                </div>
+
               </div>
             ) : (
-              <div>
-                <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
-                {service.packages && service.packages.length > 0 ? (
-                  <div className="packages-selector">
-                    {service.packages.map((pkg, idx) => {
-                      const simulatedDiscount = 2 + (idx % 4);
-                      const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
-                      return (
-                        <div
-                          key={pkg.id}
-                          className={`package-option ${selectedPackage?.id === pkg.id ? "selected" : ""}`}
-                          onClick={() => setSelectedPackage(pkg)}
-                          style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px" }}
-                        >
-                          {/* Discount Tag */}
-                          <span style={{
-                            position: "absolute",
-                            top: "6px",
-                            left: "6px",
-                            background: "var(--danger-color)",
-                            color: "white",
-                            fontSize: "0.68rem",
-                            padding: "2px 6px",
-                            borderRadius: "6px",
-                            fontWeight: "800"
-                          }}>
-                            -{simulatedDiscount}%
-                          </span>
-
-                          <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
-
-                          <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                            <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
-                            <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                              {Number(originalPrice).toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
-                )}
-              </div>
+              service.price_type === "dynamic" ? customQuantitySection : packagesSection
             )}
           </div>
 
