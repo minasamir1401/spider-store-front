@@ -3,21 +3,26 @@ import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
 import { API_BASE_URL, SITE_URL, fetchWithTimeout } from "../config";
 
+// Skip API fetch during Vercel build when the API is not reachable
+const isBuildTime = typeof window === "undefined" && (API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1"));
+
 export async function generateMetadata() {
   let siteName = "متجر سبايدر";
   let siteLogo = "/icons/icon-192.png";
   let siteFavicon = "/favicon.png";
 
-  try {
-    const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
-    if (res.ok) {
-      const settings = await res.json();
-      if (settings.site_name) siteName = settings.site_name;
-      if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
-      if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+  if (!isBuildTime) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+      if (res.ok) {
+        const settings = await res.json();
+        if (settings.site_name) siteName = settings.site_name;
+        if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
+        if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings for metadata:", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch settings for metadata:", error);
   }
 
   const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
@@ -89,16 +94,18 @@ export default async function RootLayout({ children }) {
   let siteLogo = "/icons/icon-192.png";
   let siteFavicon = "/favicon.png";
 
-  try {
-    const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
-    if (res.ok) {
-      const settings = await res.json();
-      if (settings.site_name) siteName = settings.site_name;
-      if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
-      if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+  if (!isBuildTime) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+      if (res.ok) {
+        const settings = await res.json();
+        if (settings.site_name) siteName = settings.site_name;
+        if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
+        if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings in layout:", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch settings in layout:", error);
   }
 
   const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
