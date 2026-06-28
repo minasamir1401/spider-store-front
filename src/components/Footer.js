@@ -1,14 +1,41 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config";
 import Link from "next/link";
 
 export default function Footer() {
+  const [settings, setSettings] = useState({ site_name: "متجر سبايدر", site_logo: "default" });
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setSettings(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch settings", err));
+  }, []);
+
   return (
     <footer className="footer">
       <div className="footer-top">
         {/* About column */}
         <div className="footer-column">
-          <div className="logo-container" style={{ cursor: "default" }}>
-            <span style={{ fontSize: "1.2rem" }}>Spider Store</span>
-            <div className="logo-circle" style={{ width: "36px", height: "36px", fontSize: "1.2rem" }}>S</div>
+          <div className="logo-container" style={{ cursor: "default", display: "flex", alignItems: "center", gap: "8px" }}>
+            {settings.site_logo && settings.site_logo !== "default" ? (
+              <img 
+                src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+                alt={settings.site_name} 
+                style={{ width: "36px", height: "36px", borderRadius: "8px", objectFit: "cover" }} 
+              />
+            ) : (
+              <div className="logo-circle" style={{ width: "36px", height: "36px", fontSize: "1.2rem" }}>
+                {settings.site_name ? settings.site_name.charAt(0) : "S"}
+              </div>
+            )}
+            <span style={{ fontSize: "1.2rem" }}>{settings.site_name}</span>
           </div>
           <p className="footer-desc" style={{ marginTop: "10px" }}>
             المنصة العربية الأسرع والأكثر أماناً لشحن شدات وجواهر الألعاب وتفعيل الاشتراكات الترفيهية والخدمية والبطاقات الرقمية بأفضل الأسعار على مدار الساعة.
@@ -40,7 +67,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        جميع الحقوق محفوظة © {new Date().getFullYear()} لصالح متجر Spider Store. تصميم فخم ومطور بالكامل.
+        جميع الحقوق محفوظة © {new Date().getFullYear()} لصالح {settings.site_name}. تصميم فخم ومطور بالكامل.
       </div>
     </footer>
   );

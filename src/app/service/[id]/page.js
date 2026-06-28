@@ -102,17 +102,47 @@ async function getServiceData(id) {
   return fallback || null;
 }
 
+async function getSiteName() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const settings = await res.json();
+      if (settings.site_name) return settings.site_name;
+    }
+  } catch (err) {
+    console.error("Error fetching site name in metadata:", err);
+  }
+  return "متجر سبايدر";
+}
+
 export async function generateMetadata({ params }) {
   const unwrappedParams = await params;
   const id = unwrappedParams.id;
   const service = await getServiceData(id);
+  const siteName = await getSiteName();
 
   if (!service) {
     return {
-      title: "الخدمة غير متوفرة | سبايدر استور (اسبيدر)",
-      description: "الخدمة المطلوبة غير متوفرة حالياً في متجر Spider Store."
+      title: `الخدمة غير متوفرة | ${siteName}`,
+      description: `الخدمة المطلوبة غير متوفرة حالياً في متجر ${siteName}.`
     };
   }
+
+  const categoryNamesMap = {
+    1: "ألعاب",
+    2: "تطبيقات لايف",
+    3: "بطاقات إلكترونية",
+    4: "شحن أرصدة وعملات",
+    5: "خدمات سوشيال ميديا",
+    6: "خدمات سيرفر",
+    7: "اشتراكات رقمية",
+    8: "ذكاء اصطناعي",
+    9: "أرقام افتراضية",
+    10: "برمجة وتصميم",
+    11: "حسابات جاهزة",
+    12: "إعلانات ممولة"
+  };
+  const categoryName = categoryNamesMap[service.category_id] || "خدمات رقمية";
 
   // Determine price range
   let priceText = "";
@@ -122,31 +152,43 @@ export async function generateMetadata({ params }) {
     priceText = ` بأسعار تبدأ من ${minPrice.toFixed(2)} ج.م`;
   }
 
-  const title = `شحن ${service.name}${priceText} | سبايدر استور (اسبيدر)`;
-  const description = `${service.description} تنفيذ فوري تلقائي وآمن 100% على متجر Spider Store لشحن الألعاب والخدمات الرقمية.`;
+  const title = `شحن ${service.name} تلقائي ${priceText} - قسم ${categoryName} | ${siteName}`;
+  const description = `اشحن ${service.name} فوراً بأفضل الأسعار. ${service.description} شحن تلقائي آمن وموثوق 100% عبر متجر ${siteName} لشحن الألعاب والخدمات الرقمية.`;
 
   return {
     title,
     description,
     keywords: [
       `شحن ${service.name}`,
-      `أسعار شحن ${service.name}`,
+      `شراء ${service.name}`,
+      `شحن ${service.name} رخيص`,
+      `موقع شحن ${service.name}`,
+      `${service.name} id`,
       `باقات ${service.name}`,
-      "سبايدر استور",
-      "سبايدر ستور",
-      "اسبيدر استور",
-      "اسبيرد استور",
-      "Spider Store",
-      `شحن رخيص ${service.name}`
+      siteName,
+      `${siteName} لشحن الألعاب`,
+      categoryName,
+      `شحن ${categoryName}`
     ],
     alternates: {
       canonical: `${SITE_URL}/service/${id}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
     openGraph: {
       title,
       description,
       url: `${SITE_URL}/service/${id}`,
-      siteName: "Spider Store",
+      siteName: siteName,
       images: [
         {
           url: service.image && service.image.startsWith("http")
@@ -156,6 +198,16 @@ export async function generateMetadata({ params }) {
         }
       ],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [
+        service.image && service.image.startsWith("http")
+          ? service.image
+          : `${SITE_URL}/uploads/og-image.png`
+      ],
     }
   };
 }

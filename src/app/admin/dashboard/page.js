@@ -110,6 +110,12 @@ export default function AdminDashboard() {
   const [editBannerIcon, setEditBannerIcon] = useState("⚡");
   const [editBannerUploadedFile, setEditBannerUploadedFile] = useState(null);
 
+  const [siteName, setSiteName] = useState("");
+  const [siteLogo, setSiteLogo] = useState("");
+  const [siteFavicon, setSiteFavicon] = useState("");
+  const [logoUploadedFile, setLogoUploadedFile] = useState(null);
+  const [faviconUploadedFile, setFaviconUploadedFile] = useState(null);
+
   const [errorMsg, setErrorMsg] = useState("");
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -170,6 +176,15 @@ export default function AdminDashboard() {
       const serviceRes = await fetch(`${API_BASE_URL}/api/services`);
       const serviceData = await serviceRes.json();
       setServices(serviceData);
+
+      // Fetch site settings
+      const settingsRes = await fetch(`${API_BASE_URL}/api/settings`);
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setSiteName(settingsData.site_name || "متجر سبايدر");
+        setSiteLogo(settingsData.site_logo || "default");
+        setSiteFavicon(settingsData.site_favicon || "default");
+      }
 
       // Fetch orders
       const orderRes = await fetch(`${API_BASE_URL}/api/orders`, { headers });
@@ -911,8 +926,37 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateSettings = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          site_name: siteName,
+          site_logo: logoUploadedFile || siteLogo,
+          site_favicon: faviconUploadedFile || siteFavicon
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "فشل تحديث الإعدادات.");
+      }
+
+      alert("تم تحديث إعدادات الموقع بنجاح!");
+      window.location.reload();
+    } catch (err) {
+      setErrorMsg(err.message);
+    }
+  };
+
   // Filtering Logic
-  const filteredOrders = orders.filter(o => {
+  const filteredOrders = Array.isArray(orders) ? orders.filter(o => {
     const matchesSearch = 
       o.id.toString().includes(orderSearch) ||
       o.service_name.toLowerCase().includes(orderSearch.toLowerCase()) ||
@@ -924,20 +968,20 @@ export default function AdminDashboard() {
     
     const matchesStatus = orderFilter === "all" ? true : o.status === orderFilter;
     return matchesSearch && matchesStatus;
-  });
+  }) : [];
 
-  const filteredCategories = categories.filter(c => 
+  const filteredCategories = Array.isArray(categories) ? categories.filter(c => 
     c.name.toLowerCase().includes(catSearch.toLowerCase())
-  );
+  ) : [];
 
-  const filteredServices = services.filter(s => {
-    const parentCat = categories.find(c => c.id === s.category_id);
+  const filteredServices = Array.isArray(services) ? services.filter(s => {
+    const parentCat = Array.isArray(categories) ? categories.find(c => c.id === s.category_id) : null;
     const catName = parentCat ? parentCat.name : "";
     return s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || 
            catName.toLowerCase().includes(serviceSearch.toLowerCase());
-  });
+  }) : [];
 
-  const filteredWalletRequests = walletRequests.filter((request) => {
+  const filteredWalletRequests = Array.isArray(walletRequests) ? walletRequests.filter((request) => {
     const search = walletSearch.toLowerCase();
     const matchesSearch =
       request.id.toString().includes(walletSearch) ||
@@ -949,9 +993,9 @@ export default function AdminDashboard() {
 
     const matchesStatus = walletFilter === "all" ? true : request.status === walletFilter;
     return matchesSearch && matchesStatus;
-  });
+  }) : [];
 
-  const filteredWalletTransactions = walletTransactions.filter((tx) => {
+  const filteredWalletTransactions = Array.isArray(walletTransactions) ? walletTransactions.filter((tx) => {
     const search = walletSearch.toLowerCase();
     const typeLabel = tx.type === "credit" ? "إضافة" : "خصم";
     return (
@@ -962,9 +1006,9 @@ export default function AdminDashboard() {
       (tx.description || "").toLowerCase().includes(search) ||
       typeLabel.toLowerCase().includes(search)
     );
-  });
+  }) : [];
 
-  const filteredCustomers = customers.filter((customer) => {
+  const filteredCustomers = Array.isArray(customers) ? customers.filter((customer) => {
     const search = customerSearch.toLowerCase();
     return (
       customer.id.toString().includes(customerSearch) ||
@@ -972,7 +1016,7 @@ export default function AdminDashboard() {
       (customer.phone || "").toLowerCase().includes(search) ||
       String(customer.balance || "").includes(customerSearch)
     );
-  });
+  }) : [];
 
   if (!hydrated) return null;
 
@@ -2085,8 +2129,14 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="premium-sidebar">
         <div className="premium-logo">
-          <div className="logo-circle" style={{ borderRadius: "10px" }}>S</div>
-          <span>Spider Store المسؤول</span>
+          <div className="logo-circle" style={{ borderRadius: "10px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {siteLogo && siteLogo !== "default" ? (
+              <img src={siteLogo.startsWith("/uploads") ? `${API_BASE_URL}${siteLogo}` : siteLogo} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            ) : (
+              (siteName ? siteName.charAt(0) : "S")
+            )}
+          </div>
+          <span>{siteName || "متجر سبايدر"} المسؤول</span>
         </div>
 
         <div className="user-menu-widget" style={{ marginBottom: "18px", justifyContent: "space-between" }}>
@@ -2143,6 +2193,14 @@ export default function AdminDashboard() {
               <span>العملاء والمحفظة</span>
             </div>
 
+            <div
+              className={`nav-item-premium ${activeTab === "settings" ? "active" : ""}`}
+              onClick={() => setActiveTab("settings")}
+            >
+              <span className="nav-icon">⚙️</span>
+              <span>إعدادات الموقع</span>
+            </div>
+
             <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
@@ -2173,6 +2231,7 @@ export default function AdminDashboard() {
                 {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
                 {activeTab === "wallets" && "طلبات شحن الرصيد"}
                 {activeTab === "customers" && "العملاء، الرصيد، وسجل المعاملات"}
+                {activeTab === "settings" && "إعدادات معلومات الموقع"}
               </h1>
               <p>
                 {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
@@ -2181,6 +2240,7 @@ export default function AdminDashboard() {
                 {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
                 {activeTab === "customers" && "استعراض الحسابات المسجلة، رصيد كل محفظة، وسجل الحركات المرتبط بكل عميل"}
+                {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
               </p>
             </div>
 
@@ -3104,6 +3164,124 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               </>
+            )}
+
+            {/* Settings Section */}
+            {activeTab === "settings" && (
+              <div style={{ maxWidth: "600px", margin: "0 auto", background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)" }}>
+                <form onSubmit={handleUpdateSettings} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="form-group">
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>اسم الموقع بالكامل:</label>
+                    <input
+                      type="text"
+                      className="search-input-premium"
+                      style={{ padding: "12px 16px !important" }}
+                      value={siteName}
+                      onChange={(e) => setSiteName(e.target.value)}
+                      placeholder="مثال: عرب تيك لخدمات الإلكترونية"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>شعار (لجو) الموقع:</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setLogoUploadedFile(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      style={{
+                        padding: "10px 18px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        width: "100%"
+                      }}
+                    />
+                    {(logoUploadedFile || (siteLogo && siteLogo !== "default")) && (
+                      <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <img 
+                          src={logoUploadedFile || (siteLogo.startsWith("/uploads") ? `${API_BASE_URL}${siteLogo}` : siteLogo)} 
+                          alt="Logo Preview" 
+                          style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)" }} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => { setLogoUploadedFile(null); setSiteLogo("default"); }}
+                          className="action-btn btn-danger-premium"
+                          style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                        >
+                          إعادة الشعار الافتراضي
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>أيقونة التبويب (Favicon):</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFaviconUploadedFile(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      style={{
+                        padding: "10px 18px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        width: "100%"
+                      }}
+                    />
+                    {(faviconUploadedFile || (siteFavicon && siteFavicon !== "default")) && (
+                      <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <img 
+                          src={faviconUploadedFile || (siteFavicon.startsWith("/uploads") ? `${API_BASE_URL}${siteFavicon}` : siteFavicon)} 
+                          alt="Favicon Preview" 
+                          style={{ width: "32px", height: "32px", objectFit: "contain", borderRadius: "4px", border: "1px solid rgba(255, 255, 255, 0.1)" }} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => { setFaviconUploadedFile(null); setSiteFavicon("default"); }}
+                          className="action-btn btn-danger-premium"
+                          style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                        >
+                          إعادة الأيقونة الافتراضية
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {errorMsg && (
+                    <div style={{ color: "#f87171", fontSize: "0.85rem", fontWeight: "600" }}>
+                      ⚠️ {errorMsg}
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn-add-premium" style={{ width: "100%", padding: "14px", marginTop: "10px" }}>
+                    حفظ التغييرات وإعادة التحميل
+                  </button>
+                </form>
+              </div>
             )}
           </>
         )}

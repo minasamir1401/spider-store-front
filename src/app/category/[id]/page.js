@@ -29,13 +29,27 @@ async function getCategoryData(id) {
   return { id: Number(id), name: categoryNamesMap[id] || "الخدمات المتاحة" };
 }
 
+async function getSiteName() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const settings = await res.json();
+      if (settings.site_name) return settings.site_name;
+    }
+  } catch (err) {
+    console.error("Error fetching site name in metadata:", err);
+  }
+  return "متجر سبايدر";
+}
+
 export async function generateMetadata({ params }) {
   const unwrappedParams = await params;
   const id = unwrappedParams.id;
   const category = await getCategoryData(id);
+  const siteName = await getSiteName();
 
-  const title = `شحن ألعاب وقسم ${category.name} بأفضل الأسعار | سبايدر استور (اسبيدر)`;
-  const description = `تصفح كافة الخدمات المتاحة في قسم ${category.name} على متجر Spider Store سبايدر لشحن الألعاب والشدات والجواهر والاشتراكات بأسرع تنفيذ في مصر.`;
+  const title = `قسم ${category.name} شحن تلقائي فوري بأفضل الأسعار | ${siteName}`;
+  const description = `تصفح جميع خدمات شحن وتفعيل ${category.name} الفورية. أفضل العروض والأسعار الحصرية على متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات.`;
 
   return {
     title,
@@ -43,21 +57,31 @@ export async function generateMetadata({ params }) {
     keywords: [
       `شحن ${category.name}`,
       `قسم ${category.name}`,
-      "سبايدر استور",
-      "سبايدر ستور",
-      "اسبيدر استور",
-      "اسبيرد استور",
-      "Spider Store",
-      `أسعار خدمات ${category.name}`
+      siteName,
+      `متجر ${siteName}`,
+      `عروض ${category.name}`,
+      `شحن رخيص ${category.name}`,
+      `شراء بطاقات ${category.name}`
     ],
     alternates: {
       canonical: `${SITE_URL}/category/${id}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
     openGraph: {
       title,
       description,
       url: `${SITE_URL}/category/${id}`,
-      siteName: "Spider Store",
+      siteName: siteName,
       images: [
         {
           url: category.image && category.image.startsWith("http") 
@@ -67,6 +91,16 @@ export async function generateMetadata({ params }) {
         }
       ],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [
+        category.image && category.image.startsWith("http") 
+          ? category.image 
+          : `${SITE_URL}/uploads/og-image.png`
+      ],
     }
   };
 }

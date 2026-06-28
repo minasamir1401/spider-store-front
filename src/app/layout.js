@@ -1,110 +1,132 @@
 import "./globals.css";
 import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
-import { SITE_URL } from "../config";
+import { API_BASE_URL, SITE_URL } from "../config";
 
-export const metadata = {
-  title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
-  description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
-  keywords: [
-    "سبايدر استور",
-    "سبايدر استور مصر",
-    "متجر سبايدر",
-    "سبايدر لشحن الالعاب",
-    "سبايدر ستور",
-    "سبايدر ستور مصر",
-    "متجر سبايدر ستور",
-    "اسبيدر استور مصر",
-    "اسبيدر لشحن الالعاب",
-    "اسبيدر استور لشحن الالعاب",
-    "متجر اسبيدر",
-    "اسبيدر استور",
-    "شحن الالعاب اسبيدر",
-    "شحن شدات ببجي اسبيدر",
-    "شحن جواهر فري فاير اسبيدر",
-    "اسبيدر شحن",
-    "اسبيرد استور",
-    "Spider Store",
-    "Spider Store Egypt",
-    "شحن شدات ببجي",
-    "شحن جواهر فري فاير",
-    "شحن USDT",
-    "تفعيل كانفا برو",
-    "تفعيل نتفليكس",
-    "شحن فودافون كاش",
-    "شحن رصيد",
-    "متجر شحن ألعاب"
-  ],
-  alternates: {
-    canonical: SITE_URL,
-  },
-  openGraph: {
-    title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
-    description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
-    url: SITE_URL,
-    siteName: "Spider Store",
-    images: [
-      {
-        url: `${SITE_URL}/uploads/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: "Spider Store - شحن الألعاب والخدمات الرقمية"
-      }
+export async function generateMetadata() {
+  let siteName = "متجر سبايدر";
+  let siteLogo = "/icons/icon-192.png";
+  let siteFavicon = "/favicon.png";
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      const settings = await res.json();
+      if (settings.site_name) siteName = settings.site_name;
+      if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
+      if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+    }
+  } catch (error) {
+    console.error("Failed to fetch settings for metadata:", error);
+  }
+
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("/") || siteFavicon.startsWith("data:") ? siteFavicon : `${API_BASE_URL}${siteFavicon}`;
+
+  const titleText = `${siteName} | لشحن الألعاب والخدمات الرقمية`;
+  const descText = `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: titleText,
+    description: descText,
+    keywords: [
+      siteName,
+      `${siteName} لشحن الالعاب`,
+      `متجر ${siteName}`,
+      "شحن شدات ببجي",
+      "شحن جواهر فري فاير",
+      "شحن USDT",
+      "تفعيل كانفا برو",
+      "تفعيل نتفليكس",
+      "شحن فودافون كاش",
+      "متجر شحن ألعاب"
     ],
-    locale: "ar_EG",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
-    description: "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
-    images: [`${SITE_URL}/uploads/og-image.png`],
-  },
-  verification: {
-    google: "yFNB147NXr3pxjnf_qGAB9wJrfQsTh2QTyh0bc5e8h8",
-  },
-  icons: {
-    icon: [
-      { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    shortcut: "/favicon.png",
-  },
-};
+    alternates: {
+      canonical: SITE_URL,
+    },
+    openGraph: {
+      title: titleText,
+      description: descText,
+      url: SITE_URL,
+      siteName: siteName,
+      images: [
+        {
+          url: siteLogoUrl,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} - شحن الألعاب والخدمات الرقمية`
+        }
+      ],
+      locale: "ar_EG",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: titleText,
+      description: descText,
+      images: [siteLogoUrl],
+    },
+    icons: {
+      icon: [
+        { url: siteFaviconUrl, type: "image/png" }
+      ],
+      apple: [
+        { url: siteLogoUrl, type: "image/png" }
+      ],
+      shortcut: siteFaviconUrl,
+    }
+  };
+}
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  let siteName = "متجر سبايدر";
+  let siteLogo = "/icons/icon-192.png";
+  let siteFavicon = "/favicon.png";
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      const settings = await res.json();
+      if (settings.site_name) siteName = settings.site_name;
+      if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
+      if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
+    }
+  } catch (error) {
+    console.error("Failed to fetch settings in layout:", error);
+  }
+
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("/") || siteFavicon.startsWith("data:") ? siteFavicon : `${API_BASE_URL}${siteFavicon}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
         "@id": `${SITE_URL}/#organization`,
-        "name": "Spider Store - سبايدر استور",
-        "alternateName": ["اسبيدر استور", "سبايدر استور", "سبايدر ستور", "اسبيرد استور", "اسبيدر استور مصر", "Spider Store Egypt", "اسبيدر لشحن الالعاب", "متجر اسبيدر", "متجر سبايدر"],
+        "name": siteName,
+        "alternateName": [siteName],
         "url": SITE_URL,
         "logo": {
           "@type": "ImageObject",
           "@id": `${SITE_URL}/#logo`,
-          "url": `${SITE_URL}/icons/icon-192.png`,
-          "caption": "Spider Store Logo"
+          "url": siteLogoUrl,
+          "caption": `${siteName} Logo`
         },
-        "description": "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي."
+        "description": `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`
       },
       {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         "url": SITE_URL,
-        "name": "سبايدر استور | متجر اسبيدر لشحن الألعاب والخدمات الرقمية مصر",
-        "description": "متجر سبايدر استور (اسبيدر مصر) لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.",
+        "name": `${siteName} | لشحن الألعاب والخدمات الرقمية`,
+        "description": `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`,
         "publisher": {
           "@id": `${SITE_URL}/#organization`
         },
@@ -124,10 +146,10 @@ export default function RootLayout({ children }) {
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "ما هو متجر سبايدر استور (Spider Store)؟",
+            "name": `ما هو متجر ${siteName}؟`,
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "متجر سبايدر استور (اسبيدر) هو منصة متكاملة لشحن الألعاب وتفعيل الاشتراكات الرقمية وبطاقات الهدايا بأسرع تنفيذ تلقائي وأفضل الأسعار في مصر."
+              "text": `متجر ${siteName} هو منصة متكاملة لشحن الألعاب وتفعيل الاشتراكات الرقمية وبطاقات الهدايا بأسرع تنفيذ تلقائي وأفضل الأسعار في مصر.`
             }
           },
           {
@@ -140,7 +162,7 @@ export default function RootLayout({ children }) {
           },
           {
             "@type": "Question",
-            "name": "ما هي طرق الدفع المتاحة في متجر سبايدر؟",
+            "name": `ما هي طرق الدفع المتاحة في متجر ${siteName}؟`,
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "يدعم المتجر الدفع الإلكتروني المباشر، الدفع عبر رصيد المحفظة الخاص بك، وطرق الدفع المحلية مثل فودافون كاش ومحافظ الهاتف الذكي في مصر."
@@ -151,7 +173,7 @@ export default function RootLayout({ children }) {
             "name": "كيف أضمن أمان شحن الألعاب والخدمات؟",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "متجر سبايدر استور آمن وموثوق 100%، وتتم كافة المعاملات عبر بوابات دفع مشفرة وخدمات شحن رسمية تضمن حماية حسابات اللاعبين."
+              "text": `متجر ${siteName} آمن وموثوق 100%، وتتم كافة المعاملات عبر بوابات دفع مشفرة وخدمات شحن رسمية تضمن حماية حسابات اللاعبين.`
             }
           }
         ]
@@ -167,12 +189,11 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#00b4d8" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href={siteLogoUrl} />
 
         {/* Favicon / Tab Icon */}
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
-        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="icon" type="image/png" href={siteFaviconUrl} />
+        <link rel="shortcut icon" href={siteFaviconUrl} />
         
         {/* SEO Structured Data */}
         <script

@@ -11,6 +11,18 @@ export default function MainLayout({ children }) {
   
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settings, setSettings] = useState({ site_name: "متجر سبايدر", site_logo: "default" });
+  
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setSettings(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch settings", err));
+  }, []);
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -148,9 +160,19 @@ export default function MainLayout({ children }) {
       {/* Desktop Sidebar (RTL Right Side) */}
       <aside className="app-sidebar">
         <div className="sidebar-logo-section" style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-          <div className="logo-circle" style={{ width: "44px", height: "44px", borderRadius: "12px" }}>S</div>
+          {settings.site_logo && settings.site_logo !== "default" ? (
+            <img 
+              src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+              alt={settings.site_name} 
+              style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover" }} 
+            />
+          ) : (
+            <div className="logo-circle" style={{ width: "44px", height: "44px", borderRadius: "12px" }}>
+              {settings.site_name ? settings.site_name.charAt(0) : "S"}
+            </div>
+          )}
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontWeight: 900, fontSize: "1.15rem", color: "var(--text-main)" }}>Spider Store</span>
+            <span style={{ fontWeight: 900, fontSize: "1.15rem", color: "var(--text-main)" }}>{settings.site_name}</span>
             <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", letterSpacing: "0.5px" }}>DIGITAL SERVICES</span>
           </div>
         </div>
@@ -254,9 +276,19 @@ export default function MainLayout({ children }) {
       {/* Mobile Drawer Menu */}
       <div className={`mobile-drawer ${menuOpen ? "open" : "closed"}`}>
         <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">
-            <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>S</div>
-            Spider Store
+          <span className="mobile-drawer-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {settings.site_logo && settings.site_logo !== "default" ? (
+              <img 
+                src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+                alt={settings.site_name} 
+                style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} 
+              />
+            ) : (
+              <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>
+                {settings.site_name ? settings.site_name.charAt(0) : "S"}
+              </div>
+            )}
+            {settings.site_name}
           </span>
           <button className="mobile-drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
         </div>
@@ -337,7 +369,7 @@ export default function MainLayout({ children }) {
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "1.5rem" }}>📱</span>
               <div>
-                <strong style={{ display: "block", fontSize: "0.9rem", color: "var(--text-main)", textAlign: "right" }}>ثبّت تطبيق Spider Store</strong>
+                <strong style={{ display: "block", fontSize: "0.9rem", color: "var(--text-main)", textAlign: "right" }}>ثبّت تطبيق {settings.site_name}</strong>
                 <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", display: "block", textAlign: "right" }}>تصفح أسرع وتجربة استخدام أفضل بدون متصفح!</span>
               </div>
             </div>
@@ -397,8 +429,18 @@ export default function MainLayout({ children }) {
 
             {/* Logo Link (shown on mobile, hidden on desktop) */}
             <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none" }}>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px" }}>S</div>
-              <span className="font-black text-sm" style={{ color: "var(--text-main)" }}>Spider <span style={{ color: "rgb(79, 70, 229)" }}>Store</span></span>
+              {settings.site_logo && settings.site_logo !== "default" ? (
+                <img 
+                  src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+                  alt={settings.site_name} 
+                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover" }} 
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px" }}>
+                  {settings.site_name ? settings.site_name.charAt(0) : "S"}
+                </div>
+              )}
+              <span className="font-black text-sm" style={{ color: "var(--text-main)" }}>{settings.site_name}</span>
             </Link>
 
             {/* Page Title (shown on desktop, hidden on mobile) */}

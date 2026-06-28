@@ -24,6 +24,9 @@ export default function Home() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
+  // Settings state
+  const [settings, setSettings] = useState({ site_name: "متجر سبايدر", site_logo: "default" });
+
   // Backup static categories if backend is unreachable
   const staticCategories = [
     { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
@@ -150,6 +153,16 @@ export default function Home() {
       .catch((err) => {
         console.warn("Using default static banners:", err);
       });
+
+    // Fetch settings from backend
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setSettings(data);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch settings:", err));
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -409,19 +422,19 @@ export default function Home() {
 
       {/* FAQ Section */}
       <section className="faq-section" style={{ marginTop: "50px", marginBottom: "40px" }}>
-        <h2 className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول متجر سبايدر استور</h2>
+        <h2 className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول {settings.site_name}</h2>
         <div className="faq-container">
           <details className="faq-item">
-            <summary className="faq-question">ما هو متجر سبايدر استور (Spider Store)؟</summary>
+            <summary className="faq-question">ما هو {settings.site_name}؟</summary>
             <p className="faq-answer">
-              متجر سبايدر استور (اسبيدر) هو منصة متكاملة ومطورة (PWA) مخصصة لشحن الألعاب والخدمات الرقمية وتفعيل الاشتراكات. نحن نوفر أسرع نظام شحن تلقائي بأفضل الأسعار وأقل عمولة في مصر.
+              {settings.site_name} هو منصة متكاملة ومطورة (PWA) مخصصة لشحن الألعاب والخدمات الرقمية وتفعيل الاشتراكات. نحن نوفر أسرع نظام شحن تلقائي بأفضل الأسعار وأقل عمولة في مصر.
             </p>
           </details>
 
           <details className="faq-item">
             <summary className="faq-question">كيف يمكنني شحن شدات ببجي أو جواهر فري فاير؟</summary>
             <p className="faq-answer">
-              عملية الشحن سهلة للغاية: اختر اللعبة المفضلة لديك (مثل ببجي موبايل أو فري فاير)، حدد كمية الشدات أو الجواهر التي تريدها، أدخل معرّف اللاعب (Player ID) الخاص بك، ثم اختر وسيلة الدفع المناسبة. يتم تنفيذ الشحن تلقائياً فور تأكيد الدفع.
+              عملية الشحن سهلة للغاية: اختر اللعبة المفضلة لديك (like ببجي موبايل أو فري فاير)، حدد كمية الشدات أو الجواهر التي تريدها، أدخل معرّف اللاعب (Player ID) الخاص بك، ثم اختر وسيلة الدفع المناسبة. يتم تنفيذ الشحن تلقائياً فور تأكيد الدفع.
             </p>
           </details>
 
@@ -433,16 +446,16 @@ export default function Home() {
           </details>
 
           <details className="faq-item">
-            <summary className="faq-question">هل شحن الألعاب من خلال متجر سبايدر آمن وحساباتي محمية؟</summary>
+            <summary className="faq-question">هل شحن الألعاب من خلال {settings.site_name} آمن وحساباتي محمية؟</summary>
             <p className="faq-answer">
-              نعم، متجر سبايدر استور يعتمد على قنوات شحن رسمية ومعتمدة 100% ومضمونة لحماية حسابات اللاعبين من الحظر أو المشاكل الأمنية. كافة تفاصيل المدفوعات والمعلومات الشخصية تخضع لأعلى معايير الحماية والأمان.
+              نعم، {settings.site_name} يعتمد على قنوات شحن رسمية ومعتمدة 100% ومضمونة لحماية حسابات اللاعبين من الحظر أو المشاكل الأمنية. كافة تفاصيل المدفوعات والمعلومات الشخصية تخضع لأعلى معايير الحماية والأمان.
             </p>
           </details>
 
           <details className="faq-item">
             <summary className="faq-question">كيف يمكنني الحصول على أسعار الجملة؟</summary>
             <p className="faq-answer">
-              إذا كنت صاحب متجر أو ترغب في العمل كموزع لخدماتنا، يمكنك التواصل مباشرة مع إدارة متجر سبايدر عبر الواتساب أو تيليجرام لترقية حسابك والحصول على تسعيرة الجملة والخصومات الخاصة.
+              إذا كنت صاحب متجر أو ترغب في العمل كموزع لخدماتنا، يمكنك التواصل مباشرة مع إدارة {settings.site_name} عبر الواتساب أو تيليجرام لترقية حسابك والحصول على تسعيرة الجملة والخصومات الخاصة.
             </p>
           </details>
         </div>
