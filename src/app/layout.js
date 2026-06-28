@@ -1,7 +1,7 @@
 import "./globals.css";
 import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
-import { API_BASE_URL, SITE_URL } from "../config";
+import { API_BASE_URL, SITE_URL, fetchWithTimeout } from "../config";
 
 export async function generateMetadata() {
   let siteName = "متجر سبايدر";
@@ -9,7 +9,7 @@ export async function generateMetadata() {
   let siteFavicon = "/favicon.png";
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
     if (res.ok) {
       const settings = await res.json();
       if (settings.site_name) siteName = settings.site_name;
@@ -90,7 +90,7 @@ export default async function RootLayout({ children }) {
   let siteFavicon = "/favicon.png";
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
     if (res.ok) {
       const settings = await res.json();
       if (settings.site_name) siteName = settings.site_name;

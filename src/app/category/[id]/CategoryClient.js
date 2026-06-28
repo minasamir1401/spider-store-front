@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, fetchWithTimeout } from "@/config";
 
 export default function CategoryServices({ params }) {
   // Unwrap params using React.use() to comply with Next.js 15+ specifications
@@ -118,7 +118,7 @@ export default function CategoryServices({ params }) {
     setLoading(true);
 
     // Fetch category name
-    fetch(`${API_BASE_URL}/api/categories`)
+    fetchWithTimeout(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(cats => {
         const cat = cats.find(c => c.id === Number(categoryId));
@@ -130,7 +130,7 @@ export default function CategoryServices({ params }) {
       });
 
     // Fetch services filtering by category_id
-    fetch(`${API_BASE_URL}/api/services?category_id=${categoryId}`)
+    fetchWithTimeout(`${API_BASE_URL}/api/services?category_id=${categoryId}`)
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();

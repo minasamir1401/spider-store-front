@@ -20,3 +20,19 @@ if (typeof window !== "undefined") {
 export const API_BASE_URL = apiBaseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://spider-store.vercel.app";
 
+export async function fetchWithTimeout(url, options = {}, timeout = 4000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
