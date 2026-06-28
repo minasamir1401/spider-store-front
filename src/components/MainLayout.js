@@ -428,19 +428,19 @@ export default function MainLayout({ children }) {
             )}
 
             {/* Logo Link (shown on mobile, hidden on desktop) */}
-            <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none" }}>
+            <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none", minWidth: 0, flex: 1 }}>
               {settings.site_logo && settings.site_logo !== "default" ? (
                 <img 
                   src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
                   alt={settings.site_name} 
-                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover" }} 
+                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} 
                 />
               ) : (
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px" }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px", flexShrink: 0 }}>
                   {settings.site_name ? settings.site_name.charAt(0) : "S"}
                 </div>
               )}
-              <span className="font-black text-sm" style={{ color: "var(--text-main)" }}>{settings.site_name}</span>
+              <span className="font-black" style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: "clamp(0.7rem, 2.5vw, 0.875rem)" }}>{settings.site_name}</span>
             </Link>
 
             {/* Page Title (shown on desktop, hidden on mobile) */}
