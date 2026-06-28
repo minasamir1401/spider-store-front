@@ -28,7 +28,7 @@ export default function MainLayout({ children }) {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [showNotificationToast, setShowNotificationToast] = useState(false);
+
 
   // Fetch customer profile
   const fetchProfile = () => {
@@ -143,13 +143,7 @@ export default function MainLayout({ children }) {
     return "Home";
   };
 
-  const triggerNotificationToast = (e) => {
-    e.preventDefault();
-    setShowNotificationToast(true);
-    setTimeout(() => {
-      setShowNotificationToast(false);
-    }, 3000);
-  };
+
 
   if (pathname && pathname.startsWith("/admin")) {
     return <>{children}</>;
@@ -479,17 +473,8 @@ export default function MainLayout({ children }) {
 
 
 
-            {/* Notifications Bell */}
-            <a className="relative" href="#" onClick={triggerNotificationToast}>
-              <button className="header-btn w-9 h-9" title="الإشعارات" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell w-4 h-4">
-                  <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
-                  <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
-                </svg>
-              </button>
-            </a>
-
-            {/* User Profile Menu Trigger */}
+            {/* User Profile Menu Trigger — desktop only, mobile uses drawer */}
+            <div className="lg-block">
             {isCustomerLoggedIn && customerUser ? (
               <button 
                 className="header-user-btn" 
@@ -515,6 +500,7 @@ export default function MainLayout({ children }) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
               </button>
             )}
+            </div>
 
             {/* Profile Dropdown Menu */}
             {isCustomerLoggedIn && customerUser && profileMenuOpen && (
@@ -543,12 +529,7 @@ export default function MainLayout({ children }) {
             )}
           </div>
           
-          {/* Notification Toast */}
-          {showNotificationToast && (
-            <div className="notification-toast">
-              🔔 لا توجد إشعارات جديدة حالياً
-            </div>
-          )}
+
         </header>
 
         {/* Child Pages Content */}
