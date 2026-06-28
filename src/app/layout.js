@@ -13,7 +13,7 @@ export async function generateMetadata() {
 
   if (!isBuildTime) {
     try {
-      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 10 } });
       if (res.ok) {
         const settings = await res.json();
         if (settings.site_name) siteName = settings.site_name;
@@ -96,7 +96,7 @@ export default async function RootLayout({ children }) {
 
   if (!isBuildTime) {
     try {
-      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 10 } });
       if (res.ok) {
         const settings = await res.json();
         if (settings.site_name) siteName = settings.site_name;
