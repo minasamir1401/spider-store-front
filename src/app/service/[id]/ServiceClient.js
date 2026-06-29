@@ -25,6 +25,7 @@ export default function ServiceDetail({ params }) {
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [senderPhone, setSenderPhone] = useState("");
   const [paymentMethods, setPaymentMethods] = useState([]);
+  const [receiptImage, setReceiptImage] = useState("");
   const transferNumber = "01026785879";
 
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
@@ -227,6 +228,21 @@ export default function ServiceDetail({ params }) {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
   };
 
+  const handleReceiptChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("حجم الصورة كبير جداً. الحد الأقصى المسموح به هو 10 ميجابايت.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -248,8 +264,8 @@ export default function ServiceDetail({ params }) {
       return;
     }
 
-    if (paymentMethod !== "wallet" && !senderPhone.trim()) {
-      setErrorMessage("يرجى إدخال البيانات أو الرقم الذي تم التحويل منه.");
+    if (paymentMethod !== "wallet" && !senderPhone.trim() && !receiptImage) {
+      setErrorMessage("يرجى إدخال الرقم الذي تم التحويل منه أو رفع صورة إيصال التحويل.");
       return;
     }
 
@@ -293,7 +309,8 @@ export default function ServiceDetail({ params }) {
           sender_phone: senderPhone,
           transfer_to: paymentMethod === "wallet" ? "" : (paymentMethods.find(pm => pm.id === paymentMethod)?.value || ""),
           custom_fields: formData,
-          quantity: isDynamic ? customQuantity : 1
+          quantity: isDynamic ? customQuantity : 1,
+          receipt_image: receiptImage
         })
       });
 
@@ -709,8 +726,59 @@ export default function ServiceDetail({ params }) {
                           color: "#000000",
                           outline: "none"
                         }}
-                        required
+                        required={!receiptImage}
                       />
+                      
+                      <div style={{ marginTop: "14px" }}>
+                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>أو ارفع صورة إيصال التحويل (لقطة شاشة):</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleReceiptChange}
+                          style={{
+                            width: "100%",
+                            padding: "10px",
+                            fontSize: "0.9rem",
+                            borderRadius: "10px",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            background: "rgba(255,255,255,0.02)",
+                            color: "#ffffff"
+                          }}
+                        />
+                        {receiptImage && (
+                          <div style={{ marginTop: "10px", position: "relative", display: "inline-block" }}>
+                            <img
+                              src={receiptImage}
+                              alt="Receipt Preview"
+                              style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "10px", border: "2px solid #22c55e" }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setReceiptImage("")}
+                              style={{
+                                position: "absolute",
+                                top: "-8px",
+                                right: "-8px",
+                                background: "#ef4444",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "50%",
+                                width: "20px",
+                                height: "20px",
+                                cursor: "pointer",
+                                fontSize: "0.75rem",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontWeight: "bold"
+                              }}
+                              title="حذف الصورة"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span>بيانات الاستلام للتحويل: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{currentPM.value}</strong></span>
                         <button
@@ -906,6 +974,20 @@ export default function ServiceDetail({ params }) {
                   <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
                     <span style={{ color: "#94a3b8" }}>الرقم المحول منه:</span>
                     <strong style={{ color: "#e2e8f0", direction: "ltr" }}>{successData.sender_phone}</strong>
+                  </div>
+                )}
+                {successData.receipt_image && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", gridColumn: "1 / -1", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "12px", textAlign: "right" }}>
+                    <span style={{ color: "#94a3b8" }}>صورة إيصال التحويل المرفقة:</span>
+                    <div style={{ marginTop: "4px" }}>
+                      <img 
+                        src={`${API_BASE_URL}${successData.receipt_image}`} 
+                        alt="Receipt Screenshot" 
+                        style={{ maxWidth: "150px", maxHeight: "150px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
+                        onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_blank')}
+                        title="انقر لفتح الصورة في نافذة جديدة"
+                      />
+                    </div>
                   </div>
                 )}
                 {typeof successData.customer_balance === "number" && (

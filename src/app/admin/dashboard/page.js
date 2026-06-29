@@ -2477,7 +2477,35 @@ export default function AdminDashboard() {
                               {!order.payment_method && "غير محدد"}
                             </td>
                             <td data-label="رقم التحويل" style={{ direction: "ltr", fontWeight: 700, color: "#f8fafc" }}>
-                              {order.payment_method === "transfer" ? (order.sender_phone || "-") : "-"}
+                              {order.payment_method === "transfer" ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+                                  {order.sender_phone && <span>{order.sender_phone}</span>}
+                                  {order.receipt_image && (
+                                    <a 
+                                      href={`${API_BASE_URL}${order.receipt_image}`} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="action-btn"
+                                      style={{ 
+                                        padding: "4px 8px", 
+                                        fontSize: "0.75rem", 
+                                        background: "rgba(34, 197, 94, 0.2)", 
+                                        color: "#4ade80", 
+                                        border: "1px solid rgba(34, 197, 94, 0.3)", 
+                                        borderRadius: "6px", 
+                                        textDecoration: "none",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        fontWeight: "bold"
+                                      }}
+                                    >
+                                      📸 إيصال التحويل
+                                    </a>
+                                  )}
+                                  {!order.sender_phone && !order.receipt_image && <span>-</span>}
+                                </div>
+                              ) : "-"}
                             </td>
                             <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
                               {new Date(order.created_at).toLocaleString("ar-EG")}
@@ -3516,6 +3544,34 @@ export default function AdminDashboard() {
                       تحديث بيانات تسجيل الدخول
                     </button>
                   </form>
+                </div>
+
+                <hr style={{ opacity: 0.1, margin: "30px 0" }} />
+                <div style={{ border: "1px solid rgba(239, 68, 68, 0.15)", padding: "20px", borderRadius: "18px", background: "rgba(239, 68, 68, 0.02)" }}>
+                  <h3 style={{ fontWeight: 800, fontSize: "1.1rem", marginBottom: "8px", color: "#f87171" }}>🗑️ تفريغ مساحة السيرفر (صور إيصالات التحويل)</h3>
+                  <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "15px", lineHeight: "1.5" }}>
+                    يمكنك حذف كافة صور التحويلات واللقطات المرفوعة من العملاء لتوفير مساحة على السيرفر (الحد الأقصى المسموح به هو 1 جيجابايت).
+                  </p>
+                  <button 
+                    type="button" 
+                    onClick={async () => {
+                      if (!confirm("هل أنت متأكد من حذف كافة صور إيصالات التحويل من السيرفر نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+                      try {
+                        const res = await fetch(`${API_BASE_URL}/api/orders/receipts/clear`, {
+                          method: "DELETE",
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        alert(data.message || "تم تفريغ كافة صور الإيصالات بنجاح.");
+                      } catch (err) {
+                        alert("حدث خطأ أثناء تفريغ صور الإيصالات.");
+                      }
+                    }}
+                    className="action-btn btn-danger-premium" 
+                    style={{ width: "100%", padding: "12px", justifyContent: "center", borderRadius: "10px", fontSize: "0.9rem", fontWeight: "bold" }}
+                  >
+                    حذف كافة إيصالات التحويل من السيرفر
+                  </button>
                 </div>
               </div>
             )}
