@@ -2145,6 +2145,7 @@ export default function AdminDashboard() {
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "العملاء والمحفظة" },
+          { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
         ].map(item => (
           <button key={item.tab}
             className={`mobile-drawer-link ${activeTab === item.tab ? "active" : ""}`}
