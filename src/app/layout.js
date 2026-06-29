@@ -25,8 +25,8 @@ export async function generateMetadata() {
     }
   }
 
-  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
-  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("/") || siteFavicon.startsWith("data:") ? siteFavicon : `${API_BASE_URL}${siteFavicon}`;
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
 
   const titleText = `${siteName} | لشحن الألعاب والخدمات الرقمية`;
   const descText = `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`;
@@ -111,8 +111,8 @@ export default async function RootLayout({ children }) {
     }
   }
 
-  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("/") || siteLogo.startsWith("data:") ? siteLogo : `${API_BASE_URL}${siteLogo}`;
-  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("/") || siteFavicon.startsWith("data:") ? siteFavicon : `${API_BASE_URL}${siteFavicon}`;
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
 
   const jsonLd = {
     "@context": "https://schema.org",
