@@ -28,8 +28,8 @@ export async function generateMetadata() {
   const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
   const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
 
-  const titleText = `${siteName} | لشحن الألعاب والخدمات الرقمية`;
-  const descText = `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`;
+  const titleText = `${siteName} | لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج`;
+  const descText = `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -129,14 +129,14 @@ export default async function RootLayout({ children }) {
           "url": siteLogoUrl,
           "caption": `${siteName} Logo`
         },
-        "description": `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`
+        "description": `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`
       },
       {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         "url": SITE_URL,
-        "name": `${siteName} | لشحن الألعاب والخدمات الرقمية`,
-        "description": `متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات. اشحن شدات وجواهر ألعابك المفضلة وتفعيل الاشتراكات بأفضل الأسعار وأسرع تنفيذ تلقائي.`,
+        "name": `${siteName} | لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج`,
+        "description": `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`,
         "publisher": {
           "@id": `${SITE_URL}/#organization`
         },
@@ -159,7 +159,7 @@ export default async function RootLayout({ children }) {
             "name": `ما هو متجر ${siteName}؟`,
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": `متجر ${siteName} هو منصة متكاملة لشحن الألعاب وتفعيل الاشتراكات الرقمية وبطاقات الهدايا بأسرع تنفيذ تلقائي وأفضل الأسعار في مصر.`
+              "text": `سيرفر ${siteName} هو منصة متكاملة لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج والاشتراكات الرقمية بأسرع تنفيذ تلقائي وأفضل الأسعار.`
             }
           },
           {

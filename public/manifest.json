@@ -1,7 +1,7 @@
 {
-  "name": "Spider Store",
-  "short_name": "Spider Store",
-  "description": "متجر Spider Store لشحن الألعاب والبطاقات الرقمية والخدمات الإلكترونية",
+  "name": "عرب تك سيرفر",
+  "short_name": "عرب تك سيرفر",
+  "description": "سيرفر عرب تيك لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#141a28",

@@ -445,7 +445,7 @@ export default function Home() {
           <details className="faq-item">
             <summary className="faq-question">ما هو {settings.site_name}؟</summary>
             <p className="faq-answer">
-              {settings.site_name} هو منصة متكاملة ومطورة (PWA) مخصصة لشحن الألعاب والخدمات الرقمية وتفعيل الاشتراكات. نحن نوفر أسرع نظام شحن تلقائي بأفضل الأسعار وأقل عمولة في مصر.
+              {settings.site_name} هو منصة متكاملة ومطورة (PWA) مخصصة لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج والاشتراكات الرقمية بأسرع تنفيذ تلقائي وأفضل الأسعار.
             </p>
           </details>
 
