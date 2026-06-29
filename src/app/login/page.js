@@ -31,9 +31,17 @@ export default function CustomerLogin() {
   }, []);
 
   useEffect(() => {
-    // If already logged in, redirect to home
+    // If already logged in, redirect to home or redirectTo
     const token = localStorage.getItem("customer_token");
     if (token) {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get("redirectTo");
+        if (redirectTo) {
+          router.push(redirectTo);
+          return;
+        }
+      }
       router.push("/");
     }
   }, [router]);
@@ -85,6 +93,15 @@ export default function CustomerLogin() {
       setSuccess(activeTab === "login" ? "تم تسجيل دخولك بنجاح!" : "تم إنشاء حسابك وتسجيل الدخول بنجاح!");
       
       setTimeout(() => {
+        if (typeof window !== "undefined") {
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTo = urlParams.get("redirectTo");
+          if (redirectTo) {
+            router.push(redirectTo);
+            router.refresh();
+            return;
+          }
+        }
         router.push("/");
         router.refresh();
       }, 1000);

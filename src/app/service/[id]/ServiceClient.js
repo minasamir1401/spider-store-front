@@ -46,8 +46,10 @@ export default function ServiceDetail({ params }) {
       setIsCustomerLoggedIn(true);
       setCustomerUser(JSON.parse(userStr));
       setPaymentMethod("wallet");
+    } else {
+      router.push(`/login?redirectTo=/service/${serviceId}`);
     }
-  }, []);
+  }, [serviceId, router]);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings`)
