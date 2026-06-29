@@ -153,7 +153,7 @@ export default function AdminDashboard() {
     const completed = orders.filter((o) => o.status === "completed").length;
     const revenue = orders
       .filter((o) => o.status === "completed")
-      .reduce((sum, o) => sum + o.package_price, 0);
+      .reduce((sum, o) => sum + Number(o.package_price || 0), 0);
 
     return {
       totalOrders: total,
