@@ -62,6 +62,7 @@ export default function Footer() {
           <div className="footer-links" style={{ marginTop: "5px" }}>
             <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer">💬 واتساب الدعم</a>
             <a href="https://t.me/ARABTECSUPPURT" target="_blank" rel="noopener noreferrer">✈️ تلجرام الدعم</a>
+            <a href="https://tiktok.com/@arabtechsuppurt" target="_blank" rel="noopener noreferrer">🎵 تيك توك عرب تك</a>
           </div>
         </div>
       </div>

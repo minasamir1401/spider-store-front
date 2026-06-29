@@ -788,6 +788,33 @@ export default function MainLayout({ children }) {
                 </div>
                 <span style={{ color: "#478bfb" }}>←</span>
               </a>
+
+              {/* TikTok Account */}
+              <a 
+                href="https://tiktok.com/@arabtechsuppurt" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(254, 44, 85, 0.08)",
+                  border: "1px solid rgba(254, 44, 85, 0.15)",
+                  borderRadius: "14px",
+                  color: "#fe2c55",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>🎵</span>
+                  <span>حساب تيك توك عرب تك</span>
+                </div>
+                <span style={{ color: "#fe2c55" }}>←</span>
+              </a>
             </div>
           </div>
         </div>

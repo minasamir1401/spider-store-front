@@ -9,6 +9,7 @@ const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5";
 const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H";
 const TELEGRAM_CHANNEL = "https://t.me/ARABTECSUPPURT";
 const FACEBOOK_PAGE = "https://www.facebook.com/share/1Ehtc4bMXy/";
+const TIKTOK_ACCOUNT = "https://tiktok.com/@arabtechsuppurt";
 
 export default function ContactFloatingButton() {
   const [open, setOpen] = useState(false);
@@ -94,6 +95,17 @@ export default function ContactFloatingButton() {
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(24, 119, 242, 0.1)", borderColor: "rgba(24, 119, 242, 0.2)", color: "#478bfb" }}
           >
             📘 صفحة فيسبوك عرب تك
+          </a>
+
+          {/* TikTok Account */}
+          <a
+            href={TIKTOK_ACCOUNT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(254, 44, 85, 0.1)", borderColor: "rgba(254, 44, 85, 0.2)", color: "#fe2c55" }}
+          >
+            🎵 حساب تيك توك عرب تك
           </a>
         </div>
       )}
