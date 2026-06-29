@@ -26,6 +26,7 @@ export default function ServiceDetail({ params }) {
   const [senderPhone, setSenderPhone] = useState("");
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [receiptImage, setReceiptImage] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
   const transferNumber = "01026785879";
 
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
@@ -266,8 +267,18 @@ export default function ServiceDetail({ params }) {
       return;
     }
 
-    if (paymentMethod !== "wallet" && !senderPhone.trim() && !receiptImage) {
-      setErrorMessage("يرجى إدخال الرقم الذي تم التحويل منه أو رفع صورة إيصال التحويل.");
+    if (paymentMethod !== "wallet" && !senderPhone.trim()) {
+      setErrorMessage("يرجى إدخال الرقم أو اسم الحساب الذي تم التحويل منه.");
+      return;
+    }
+
+    if (paymentMethod !== "wallet" && !receiptImage) {
+      setErrorMessage("يرجى رفع صورة إيصال التحويل (لقطة شاشة).");
+      return;
+    }
+
+    if (paymentMethod !== "wallet" && !transferAmount.trim()) {
+      setErrorMessage("يرجى تحديد المبلغ الذي قمت بتحويله.");
       return;
     }
 
@@ -312,7 +323,8 @@ export default function ServiceDetail({ params }) {
           transfer_to: paymentMethod === "wallet" ? "" : (paymentMethods.find(pm => pm.id === paymentMethod)?.value || ""),
           custom_fields: formData,
           quantity: isDynamic ? customQuantity : 1,
-          receipt_image: receiptImage
+          receipt_image: receiptImage,
+          transfer_amount: paymentMethod === "wallet" ? 0 : parseFloat(transferAmount)
         })
       });
 
@@ -711,7 +723,7 @@ export default function ServiceDetail({ params }) {
                   if (!currentPM) return null;
                   return (
                     <div className="form-group" style={{ marginTop: "14px" }}>
-                      <label htmlFor="senderPhone">الرقم أو اسم الحساب الذي تم التحويل منه:</label>
+                      <label htmlFor="senderPhone">الرقم أو اسم الحساب الذي تم التحويل منه *إجباري*:</label>
                       <input
                         id="senderPhone"
                         type="text"
@@ -728,11 +740,34 @@ export default function ServiceDetail({ params }) {
                           color: "#000000",
                           outline: "none"
                         }}
-                        required={!receiptImage}
+                        required
                       />
+
+                      <div style={{ marginTop: "14px" }}>
+                        <label htmlFor="transferAmount">المبلغ الذي قمت بتحويله فعلياً (ج.م) *إجباري*:</label>
+                        <input
+                          id="transferAmount"
+                          type="number"
+                          step="any"
+                          placeholder="أدخل المبلغ المحول بالضبط (مثال: 150)"
+                          value={transferAmount}
+                          onChange={(e) => setTransferAmount(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "14px 18px",
+                            fontSize: "0.95rem",
+                            borderRadius: "12px",
+                            border: "2px solid #3b82f6",
+                            background: "#ffffff",
+                            color: "#000000",
+                            outline: "none"
+                          }}
+                          required
+                        />
+                      </div>
                       
                       <div style={{ marginTop: "14px" }}>
-                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>أو ارفع صورة إيصال التحويل (لقطة شاشة):</label>
+                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>ارفع صورة إيصال التحويل (لقطة شاشة) *إجباري*:</label>
                         <input
                           type="file"
                           accept="image/*"

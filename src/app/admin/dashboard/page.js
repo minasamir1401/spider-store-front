@@ -2480,6 +2480,11 @@ export default function AdminDashboard() {
                               {order.payment_method === "transfer" ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
                                   {order.sender_phone && <span>{order.sender_phone}</span>}
+                                  {Number(order.transfer_amount || 0) > 0 && (
+                                    <span style={{ fontSize: "0.78rem", color: "#38bdf8", background: "rgba(56, 189, 248, 0.1)", padding: "2px 6px", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.2)" }}>
+                                      مبلغ: {Number(order.transfer_amount).toFixed(2)} ج.م
+                                    </span>
+                                  )}
                                   {order.receipt_image && (
                                     <a 
                                       href={`${API_BASE_URL}${order.receipt_image}`} 
