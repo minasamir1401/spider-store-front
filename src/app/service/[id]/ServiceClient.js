@@ -467,6 +467,38 @@ export default function ServiceDetail({ params }) {
 
   return (
     <>
+      <style>{`
+        .spinner-loader {
+          width: 18px;
+          height: 18px;
+          border: 3.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 50%;
+          border-top-color: #ffffff;
+          animation: spin-loader 0.8s linear infinite;
+          display: inline-block;
+        }
+        @keyframes spin-loader {
+          to { transform: rotate(360deg); }
+        }
+        
+        .success-ring-pulse {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: rgba(34, 197, 94, 0.12);
+          box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+          animation: pulse-ring 2s infinite;
+          margin-bottom: 20px;
+        }
+        @keyframes pulse-ring {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+          70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+      `}</style>
       {/* Main layout */}
       <div className="service-details-layout">
         {/* Form and Packages Selector */}
@@ -719,9 +751,29 @@ export default function ServiceDetail({ params }) {
               type="submit"
               disabled={submitting}
               className="glass-btn glass-btn-primary"
-              style={{ width: "100%", padding: "14px", fontSize: "1.1rem", borderRadius: "14px" }}
+              style={{ 
+                width: "100%", 
+                padding: "14px", 
+                fontSize: "1.1rem", 
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                cursor: submitting ? "not-allowed" : "pointer",
+                background: submitting ? "linear-gradient(90deg, #1e3a8a, #3b82f6)" : "",
+                opacity: submitting ? 0.8 : 1,
+                transition: "all 0.3s ease"
+              }}
             >
-              {submitting ? "جاري إرسال الطلب..." : "تأكيد وإرسال طلب الشحن"}
+              {submitting ? (
+                <>
+                  <span className="spinner-loader"></span>
+                  <span>جاري معالجة طلبك وإرساله... يرجى الانتظار ⏳</span>
+                </>
+              ) : (
+                "تأكيد وإرسال طلب الشحن"
+              )}
             </button>
           </form>
 
@@ -788,77 +840,150 @@ export default function ServiceDetail({ params }) {
 
       {/* Success Modal */}
       {successData && (
-        <div className="overlay">
-          <div className="modal-content" style={{ textAlign: "center", padding: "30px 20px", width: "95%", maxWidth: "500px", borderRadius: "24px", maxHeight: "90vh", overflowY: "auto" }}>
-            <span style={{ fontSize: "4rem", color: "var(--success-color)", display: "block", marginBottom: "15px" }}>✅</span>
-            <h2 style={{ fontWeight: 800, color: "#ffffff" }}>تم استلام طلبك بنجاح!</h2>
-            <p style={{ margin: "15px 0", lineHeight: "1.6", color: "#cbd5e1" }}>
-              شكراً لتعاملك مع Spider Store. تم تسجيل طلب الشحن الخاص بك بنجاح وهو قيد التنفيذ الآن.
+        <div className="overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, padding: "20px", backdropFilter: "blur(8px)" }}>
+          <div className="modal-content" style={{ 
+            textAlign: "center", 
+            padding: "40px 30px", 
+            width: "100%", 
+            maxWidth: "650px", 
+            borderRadius: "30px", 
+            maxHeight: "90vh", 
+            overflowY: "auto",
+            background: "rgba(15, 23, 42, 0.95)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15)",
+            backdropFilter: "blur(16px)"
+          }}>
+            <div className="success-ring-pulse">
+              <span style={{ fontSize: "3rem", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>✓</span>
+            </div>
+            
+            <h2 style={{ fontWeight: 800, fontSize: "1.8rem", color: "#ffffff", marginBottom: "10px" }}>تم استلام طلبك بنجاح!</h2>
+            <p style={{ margin: "0 auto 30px auto", maxWidth: "480px", lineHeight: "1.6", color: "#94a3b8", fontSize: "0.95rem" }}>
+              شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>Spider Store</strong>. تم استلام وتسجيل طلب الشحن الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
             </p>
             
-            <div style={{ background: "linear-gradient(180deg, rgba(13, 18, 36, 0.98), rgba(13, 18, 36, 0.82))", border: "1px solid rgba(255,255,255,0.08)", padding: "15px", borderRadius: "12px", textAlign: "right", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem", marginBottom: "20px", color: "#f8fafc" }}>
-              <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
-              <div>
-                <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
+            <div style={{ 
+              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8))", 
+              border: "1px solid rgba(255,255,255,0.06)", 
+              padding: "24px", 
+              borderRadius: "20px", 
+              textAlign: "right",
+              marginBottom: "24px",
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", marginBottom: "16px" }}>
+                <span style={{ fontSize: "1.2rem" }}>📄</span>
+                <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الشحن</strong>
+              </div>
+              
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
+                gap: "14px 20px" 
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>رقم الطلب:</span>
+                  <strong style={{ color: "#38bdf8" }}>#{successData.id}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>الخدمة:</span>
+                  <strong style={{ color: "#f1f5f9" }}>{successData.service_name}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>الباقة / الكمية:</span>
+                  <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
+                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>{Number(successData.package_price).toFixed(2)} ج.م</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
+                  <span style={{ color: "#94a3b8" }}>حساب الشحن (Player ID):</span>
+                  <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>
+                </div>
+                {successData.sender_phone && (
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
+                    <span style={{ color: "#94a3b8" }}>الرقم المحول منه:</span>
+                    <strong style={{ color: "#e2e8f0", direction: "ltr" }}>{successData.sender_phone}</strong>
+                  </div>
+                )}
+                {typeof successData.customer_balance === "number" && (
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                    <span style={{ color: "#94a3b8" }}>الرصيد المتبقي:</span>
+                    <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</strong>
+                  </div>
+                )}
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>الحالة:</span>
+                  <span style={{ color: "#4ade80", background: "rgba(74, 222, 128, 0.1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "bold" }}>قيد الانتظار (سيتم الشحن فوراً)</span>
+                </div>
+              </div>
+
+              {/* Payment Method Details inside Receipt */}
+              <div style={{ 
+                marginTop: "20px", 
+                padding: "12px 16px", 
+                borderRadius: "12px", 
+                background: "rgba(255,255,255,0.03)", 
+                border: "1px solid rgba(255,255,255,0.05)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px"
+              }}>
+                <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>طريقة الدفع ومستلم التحويل:</span>
                 {successData.payment_method === "wallet" ? (
-                  "المحفظة"
+                  <strong style={{ color: "#60a5fa" }}>المحفظة الشخصية للموقع</strong>
                 ) : (
-                  <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                    تحويل إلى:{" "}
-                    <strong style={{
-                      color: "#000000",
-                      background: "#f1f5f9",
-                      padding: "4px 10px",
-                      borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
-                      direction: "ltr",
-                      display: "inline-block",
-                      fontSize: "0.95rem",
-                      userSelect: "all",
-                      fontWeight: "bold"
-                    }}>
-                      {successData.transfer_to}
-                    </strong>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(successData.transfer_to);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      style={{
-                        background: copied ? "#10b981" : "#3b82f6",
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", marginTop: "4px" }}>
+                    <span style={{ color: "#f1f5f9", fontWeight: "bold" }}>تحويل يدوي إلى الرقم:</span>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <strong style={{
                         color: "#ffffff",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "4px 10px",
-                        fontSize: "0.8rem",
-                        cursor: "pointer",
+                        background: "#1e293b",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        direction: "ltr",
+                        display: "inline-block",
+                        fontSize: "0.95rem",
+                        userSelect: "all",
                         fontWeight: "bold",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
-                    </button>
-                  </span>
+                        letterSpacing: "0.5px"
+                      }}>
+                        {successData.transfer_to}
+                      </strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(successData.transfer_to);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }}
+                        style={{
+                          background: copied ? "#22c55e" : "#3b82f6",
+                          color: "#ffffff",
+                          border: "none",
+                          borderRadius: "8px",
+                          padding: "6px 12px",
+                          fontSize: "0.85rem",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {copied ? "تم النسخ ✓" : "نسخ 📋"}
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
-              {successData.sender_phone && (
-                <div><strong style={{ color: "#cbd5e1" }}>الرقم المحول منه:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>
-              )}
-              <div><strong style={{ color: "#cbd5e1" }}>حساب الشحن:</strong> <span style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{successData.player_id}</span></div>
-              {typeof successData.customer_balance === "number" && (
-                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</span></div>
-              )}
-              <div><strong style={{ color: "#cbd5e1" }}>الحالة:</strong> <span style={{ color: "#86efac" }}>قيد الانتظار (سيتم الشحن فورا)</span></div>
+
             </div>
 
             <button
               className="glass-btn glass-btn-primary"
-              style={{ width: "100%", padding: "12px" }}
+              style={{ width: "100%", padding: "14px", fontSize: "1.05rem", borderRadius: "14px", fontWeight: "bold" }}
               onClick={() => router.push("/")}
             >
               حسناً، العودة للرئيسية

@@ -35,6 +35,9 @@ export async function generateMetadata() {
     metadataBase: new URL(SITE_URL),
     title: titleText,
     description: descText,
+    verification: {
+      google: "BpQsEK6Xln0FauVIlj0qYpPxuzvoYrACWOehkyBc5-U",
+    },
     keywords: [
       siteName,
       `${siteName} لشحن الالعاب`,
@@ -191,6 +194,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
+        <meta name="google-site-verification" content="BpQsEK6Xln0FauVIlj0qYpPxuzvoYrACWOehkyBc5-U" />
         {/* PWA Settings */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#00b4d8" />
