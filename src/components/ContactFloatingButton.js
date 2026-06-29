@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-const WHATSAPP_URL = "https://wa.me/message/7J7PQMKIB2G7O1";
-const TELEGRAM_URL = "https://t.me/spaider_store_2";
+const WHATSAPP_URL = "https://wa.me/201552672948";
+const TELEGRAM_URL = "https://t.me/ARABTECSUPPURT";
 
 export default function ContactFloatingButton() {
   const [open, setOpen] = useState(false);

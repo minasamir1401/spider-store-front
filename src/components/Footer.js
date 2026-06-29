@@ -60,8 +60,8 @@ export default function Footer() {
             فريق الدعم الفني متواجد لمساعدتكم 24 ساعة طوال أيام الأسبوع لحل أي مشكلة تتعلق بالشحن أو الدفع.
           </p>
           <div className="footer-links" style={{ marginTop: "5px" }}>
-            <a href="https://wa.me/message/7J7PQMKIB2G7O1" target="_blank" rel="noopener noreferrer">💬 واتساب الدعم</a>
-            <a href="https://t.me/spaider_store_2" target="_blank" rel="noopener noreferrer">✈️ تلجرام الدعم</a>
+            <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer">💬 واتساب الدعم</a>
+            <a href="https://t.me/ARABTECSUPPURT" target="_blank" rel="noopener noreferrer">✈️ تلجرام الدعم</a>
           </div>
         </div>
       </div>

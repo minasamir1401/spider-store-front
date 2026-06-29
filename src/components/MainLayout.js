@@ -627,9 +627,9 @@ export default function MainLayout({ children }) {
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {/* WhatsApp Support */}
+              {/* WhatsApp Support 1 */}
               <a 
-                href="https://wa.me/message/7J7PQMKIB2G7O1" 
+                href="https://wa.me/16728972935" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{
@@ -649,7 +649,34 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>🟢</span>
-                  <span>واتساب الدعم الفني المباشر</span>
+                  <span>واتساب الدعم (1) +1 (672) 897-2935</span>
+                </div>
+                <span style={{ color: "#22d3ee" }}>←</span>
+              </a>
+
+              {/* WhatsApp Support 2 */}
+              <a 
+                href="https://wa.me/201552672948" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(34, 211, 238, 0.1)",
+                  border: "1px solid rgba(34, 211, 238, 0.15)",
+                  borderRadius: "14px",
+                  color: "#22d3ee",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>🟢</span>
+                  <span>واتساب الدعم (2) +20 15 52672948</span>
                 </div>
                 <span style={{ color: "#22d3ee" }}>←</span>
               </a>
@@ -708,9 +735,9 @@ export default function MainLayout({ children }) {
                 <span style={{ color: "#34d399" }}>←</span>
               </a>
 
-              {/* Telegram Support */}
+              {/* Telegram Channel */}
               <a 
-                href="https://t.me/spaider_store_2" 
+                href="https://t.me/ARABTECSUPPURT" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{
@@ -730,7 +757,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>✈️</span>
-                  <span>تلجرام الدعم الفني المباشر</span>
+                  <span>قناة تلجرام عرب تك</span>
                 </div>
                 <span style={{ color: "#60a5fa" }}>←</span>
               </a>

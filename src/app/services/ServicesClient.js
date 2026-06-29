@@ -148,20 +148,20 @@ export default function ServicesClient() {
         <div className="announcement-ticker-wrapper">
           {/* Copy 1 */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/message/7J7PQMKIB2G7O1" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 للتواصل الفوري عبر الواتساب الفني المباشر: اضغط هنا
+            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              🟢 واتساب الإدارة 1: +1 (672) 897-2935
             </a>
-            <a href="https://t.me/spaider_store_2" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              ✈️ للانضمام لقناة التلجرام الرسمية للدعم والمتابعة: اضغط هنا
+            <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              🟢 واتساب الإدارة 2: +20 15 52672948
             </a>
           </div>
           {/* Copy 2 (Seamless loop) */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/message/7J7PQMKIB2G7O1" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 للتواصل الفوري عبر الواتساب الفني المباشر: اضغط هنا
+            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              🟢 واتساب الإدارة 1: +1 (672) 897-2935
             </a>
-            <a href="https://t.me/spaider_store_2" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              ✈️ للانضمام لقناة التلجرام الرسمية للدعم والمتابعة: اضغط هنا
+            <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              🟢 واتساب الإدارة 2: +20 15 52672948
             </a>
           </div>
         </div>

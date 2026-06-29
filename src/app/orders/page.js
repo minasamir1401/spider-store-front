@@ -180,7 +180,7 @@ export default function OrdersHistory() {
                       </span>
                       {order.status === "pending" && (
                         <a
-                          href={`https://wa.me/201000000000?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلبي رقم #${order.id} لشحن ${order.service_name}`)}`}
+                          href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلبي رقم #${order.id} لشحن ${order.service_name}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="glass-btn"
@@ -297,7 +297,7 @@ export default function OrdersHistory() {
 
                   {singleOrder.status === "pending" && (
                     <a
-                      href={`https://wa.me/201000000000?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلب الشحن رقم #${singleOrder.id}`)}`}
+                      href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلب الشحن رقم #${singleOrder.id}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="glass-btn"
