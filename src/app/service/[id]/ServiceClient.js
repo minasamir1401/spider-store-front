@@ -535,6 +535,29 @@ export default function ServiceDetail({ params }) {
         {/* Form and Packages Selector */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           
+          {isCustomerLoggedIn && customerUser && (
+            <div style={{ 
+              background: "rgba(59, 130, 246, 0.08)", 
+              border: "1px solid rgba(59, 130, 246, 0.2)", 
+              padding: "12px 18px", 
+              borderRadius: "14px", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "10px",
+              fontSize: "0.9rem",
+              color: "#38bdf8",
+              flexWrap: "wrap"
+            }}>
+              <span style={{ fontSize: "1.1rem" }}>👤</span>
+              <span>أنت تقوم بالشراء بحساب: <strong>{customerUser.username}</strong></span>
+              {typeof customerUser.balance === "number" && (
+                <span style={{ marginInlineStart: "auto", background: "rgba(34, 197, 94, 0.15)", color: "#4ade80", padding: "4px 10px", borderRadius: "8px", fontWeight: "bold", fontSize: "0.82rem" }}>
+                  رصيد محفظتك: {customerUser.balance.toFixed(2)} ج.م
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Header of service */}
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
