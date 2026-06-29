@@ -971,8 +971,8 @@ export default function ServiceDetail({ params }) {
         <div className="overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, padding: "20px", backdropFilter: "blur(8px)" }}>
           <div className="modal-content" style={{ 
             textAlign: "center", 
-            padding: "40px 30px", 
-            width: "100%", 
+            padding: "30px clamp(12px, 5vw, 24px)", 
+            width: "95%", 
             maxWidth: "650px", 
             borderRadius: "30px", 
             maxHeight: "90vh", 
@@ -1044,8 +1044,8 @@ export default function ServiceDetail({ params }) {
                         src={`${API_BASE_URL}${successData.receipt_image}`} 
                         alt="Receipt Screenshot" 
                         style={{ maxWidth: "150px", maxHeight: "150px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
-                        onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_blank')}
-                        title="انقر لفتح الصورة في نافذة جديدة"
+                        onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_self')}
+                        title="انقر لفتح الصورة في نفس الصفحة"
                       />
                     </div>
                   </div>

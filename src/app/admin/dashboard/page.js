@@ -2497,8 +2497,6 @@ export default function AdminDashboard() {
                                   {order.receipt_image && (
                                     <a 
                                       href={`${API_BASE_URL}${order.receipt_image}`} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
                                       className="action-btn"
                                       style={{ 
                                         padding: "4px 8px", 
