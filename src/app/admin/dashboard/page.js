@@ -3399,7 +3399,7 @@ export default function AdminDashboard() {
                               </button>
                             </div>
                             
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                 <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الطريقة (مثلاً: إنستاباي):</span>
                                 <input
