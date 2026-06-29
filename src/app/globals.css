@@ -2958,6 +2958,39 @@ select option {
   .faq-answer {
     font-size: 0.86rem;
   }
+  .glass-panel {
+    padding: 16px !important;
+  }
+  .summary-box {
+    padding: 16px !important;
+  }
+  .summary-row {
+    padding: 8px 0 !important;
+    font-size: 0.85rem !important;
+  }
+  .summary-total {
+    font-size: 1.15rem !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .glass-panel {
+    padding: 10px !important;
+  }
+  .summary-box {
+    padding: 10px !important;
+  }
+  .summary-row {
+    padding: 6px 0 !important;
+    font-size: 0.78rem !important;
+  }
+  .summary-total {
+    font-size: 1rem !important;
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
+  }
 }
 
 
