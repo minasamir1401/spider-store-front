@@ -2430,6 +2430,7 @@ export default function AdminDashboard() {
                     <thead>
                       <tr>
                         <th>رقم الطلب</th>
+                        <th>حساب العميل</th>
                         <th>الخدمة / التصنيف</th>
                         <th>الباقة المطلوبة</th>
                         <th>معرّف الحساب (ID)</th>
@@ -2444,7 +2445,7 @@ export default function AdminDashboard() {
                     <tbody>
                       {filteredOrders.length === 0 ? (
                         <tr>
-                          <td colSpan="10" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                          <td colSpan="11" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
                             لا توجد أي طلبات شحن تطابق معايير البحث.
                           </td>
                         </tr>
@@ -2452,6 +2453,14 @@ export default function AdminDashboard() {
                         filteredOrders.map((order) => (
                           <tr key={order.id}>
                             <td data-label="رقم الطلب" style={{ fontWeight: 800, color: "#38bdf8" }}>#{order.id}</td>
+                            <td data-label="حساب العميل" style={{ fontWeight: 700 }}>
+                              <div style={{ color: order.customer_username && order.customer_username.includes("زائر") ? "#94a3b8" : "#fbbf24" }}>
+                                {order.customer_username || "زائر (بدون حساب)"}
+                              </div>
+                              {order.customer_id && (
+                                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "normal" }}>ID: {order.customer_id}</div>
+                              )}
+                            </td>
                             <td data-label="الخدمة / التصنيف">
                               <div style={{ fontWeight: 700 }}>{order.service_name}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.category_name}</div>
