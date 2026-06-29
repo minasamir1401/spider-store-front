@@ -21,6 +21,22 @@ export default function WalletPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedMethodId, setSelectedMethodId] = useState("");
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.payment_methods) {
+          setPaymentMethods(data.payment_methods);
+          if (data.payment_methods.length > 0) {
+            setSelectedMethodId(data.payment_methods[0].id);
+          }
+        }
+      })
+      .catch(err => console.error("Error loading settings in wallet page:", err));
+  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -139,58 +155,84 @@ export default function WalletPage() {
 
       <div className="wallet-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
         <section className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-          <div>
-            <h2 style={{ fontWeight: 900, marginBottom: "6px" }}>المحفظة الرقمية</h2>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.7 }}>
-              حوّل المبلغ على الرقم{" "}
-              <strong style={{
-                color: "#000000",
-                background: "#f1f5f9",
-                padding: "2px 6px",
-                borderRadius: "6px",
-                border: "1px solid #cbd5e1",
-                direction: "ltr",
-                display: "inline-block",
-                fontSize: "0.95rem",
-                userSelect: "all",
-                fontWeight: "bold"
-              }}>
-                01026785879
-              </strong>{" "}
-              ثم اكتب رقم الهاتف الذي تم التحويل منه، وبعدها تتم المراجعة يدويًا من لوحة التحكم.
-            </p>
-          </div>
-
-          <div style={{ padding: "16px", borderRadius: "16px", background: "#f1f5f9", border: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontWeight: 800, marginBottom: "4px", color: "#475569" }}>رقم التحويل المباشر:</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#000000", direction: "ltr", userSelect: "all" }}>01026785879</div>
-              <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "4px" }}>
-                تأكد من كتابة رقم الهاتف الذي حولت منه بدقة بالأسفل.
-              </div>
+          {paymentMethods.length > 1 && (
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "5px" }}>
+              {paymentMethods.map((pm) => (
+                <button
+                  key={pm.id}
+                  type="button"
+                  onClick={() => setSelectedMethodId(pm.id)}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "10px",
+                    background: selectedMethodId === pm.id ? "linear-gradient(135deg, #ef4444 0%, #8b5cf6 100%)" : "rgba(255,255,255,0.03)",
+                    color: "#ffffff",
+                    border: selectedMethodId === pm.id ? "none" : "1px solid rgba(255,255,255,0.08)",
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {pm.name}
+                </button>
+              ))}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText("01026785879");
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
-              style={{
-                background: copied ? "#10b981" : "#3b82f6",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                fontSize: "0.9rem",
-                cursor: "pointer",
-                fontWeight: "bold",
-                transition: "all 0.2s"
-              }}
-            >
-              {copied ? "تم النسخ! ✓" : "نسخ الرقم 📋"}
-            </button>
-          </div>
+          )}
+
+          {(() => {
+            const currentPM = paymentMethods.find(pm => pm.id === selectedMethodId) || paymentMethods[0];
+            if (!currentPM) {
+              return (
+                <div>
+                  <h2 style={{ fontWeight: 900, marginBottom: "6px" }}>شحن المحفظة</h2>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>يرجى تهيئة طرق الدفع من لوحة التحكم.</p>
+                </div>
+              );
+            }
+            return (
+              <>
+                <div>
+                  <h2 style={{ fontWeight: 900, marginBottom: "6px" }}>المحفظة الرقمية ({currentPM.name})</h2>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.7 }}>
+                    {currentPM.description}
+                  </p>
+                </div>
+
+                <div style={{ padding: "16px", borderRadius: "16px", background: "#f1f5f9", border: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, marginBottom: "4px", color: "#475569" }}>رقم أو عنوان التحويل:</div>
+                    <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", direction: "ltr", userSelect: "all", wordBreak: "break-all" }}>{currentPM.value}</div>
+                    <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "4px" }}>
+                      تأكد من كتابة الرقم/اسم الحساب الذي حولت منه بدقة بالأسفل.
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(currentPM.value);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    style={{
+                      background: copied ? "#10b981" : "#3b82f6",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "8px 16px",
+                      fontSize: "0.9rem",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      transition: "all 0.2s",
+                      marginRight: "10px"
+                    }}
+                  >
+                    {copied ? "تم النسخ! ✓" : "نسخ 📋"}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(139, 92, 246, 0.08)", border: "1px solid rgba(139, 92, 246, 0.15)" }}>

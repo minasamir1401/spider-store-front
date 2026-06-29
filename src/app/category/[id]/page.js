@@ -29,6 +29,19 @@ async function getCategoryData(id) {
   return { id: Number(id), name: categoryNamesMap[id] || "الخدمات المتاحة" };
 }
 
+async function getCategoryServices(catId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/services`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const services = await res.json();
+      return services.filter(s => s.category_id === Number(catId));
+    }
+  } catch (err) {
+    console.error("Error fetching services in metadata:", err);
+  }
+  return [];
+}
+
 async function getSiteName() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
@@ -39,7 +52,7 @@ async function getSiteName() {
   } catch (err) {
     console.error("Error fetching site name in metadata:", err);
   }
-  return "متجر سبايدر";
+  return "عرب تك سيرفر";
 }
 
 export async function generateMetadata({ params }) {
@@ -109,6 +122,7 @@ export default async function Page({ params }) {
   const unwrappedParams = await params;
   const id = unwrappedParams.id;
   const category = await getCategoryData(id);
+  const services = await getCategoryServices(id);
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -129,11 +143,38 @@ export default async function Page({ params }) {
     ]
   };
 
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `قسم ${category.name} - شحن فوري تلقائي`,
+    "description": `تصفح جميع خدمات شحن وتفعيل ${category.name} الفورية. أفضل العروض والأسعار الحصرية.`,
+    "url": `${SITE_URL}/category/${id}`,
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": services.length,
+      "itemListElement": services.map((s, idx) => ({
+        "@type": "ListItem",
+        "position": idx + 1,
+        "item": {
+          "@type": "Product",
+          "name": s.name,
+          "description": s.description,
+          "url": `${SITE_URL}/service/${s.id}`,
+          "image": s.image && s.image.startsWith("http") ? s.image : `${SITE_URL}/logo.jpg`
+        }
+      }))
+    }
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
       />
       <CategoryClient params={params} />
     </>

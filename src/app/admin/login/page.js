@@ -10,7 +10,20 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   const router = useRouter();
+
+  // Fetch settings on mount
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setSettings(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch settings", err));
+  }, []);
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -59,10 +72,20 @@ export default function AdminLogin() {
         {/* Logo and title */}
         <div style={{ textAlign: "center" }}>
           <div style={{ display: "inline-flex", justifyContent: "center", marginBottom: "15px" }}>
-            <div className="logo-circle" style={{ width: "60px", height: "60px", fontSize: "2rem", borderRadius: "12px" }}>S</div>
+            {settings.site_logo && settings.site_logo !== "default" ? (
+              <img 
+                src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+                alt={settings.site_name} 
+                style={{ width: "60px", height: "60px", borderRadius: "12px", objectFit: "cover" }} 
+              />
+            ) : (
+              <div className="logo-circle" style={{ width: "60px", height: "60px", fontSize: "2rem", borderRadius: "12px" }}>
+                {settings.site_name ? settings.site_name.charAt(0) : "ع"}
+              </div>
+            )}
           </div>
           <h2 style={{ fontWeight: 800 }}>بوابة المشرفين الآمنة</h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "5px" }}>تسجيل دخول لوحة تحكم Spider Store</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "5px" }}>تسجيل دخول لوحة تحكم {settings.site_name}</p>
         </div>
 
         <hr style={{ opacity: 0.1 }} />

@@ -7,8 +7,8 @@ import { API_BASE_URL, SITE_URL, fetchWithTimeout } from "../config";
 const isBuildTime = typeof window === "undefined" && (API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1"));
 
 export async function generateMetadata() {
-  let siteName = "متجر سبايدر";
-  let siteLogo = "/icons/icon-192.png";
+  let siteName = "عرب تك سيرفر";
+  let siteLogo = "/logo.jpg";
   let siteFavicon = "/favicon.png";
 
   if (!isBuildTime) {
@@ -90,8 +90,8 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  let siteName = "متجر سبايدر";
-  let siteLogo = "/icons/icon-192.png";
+  let siteName = "عرب تك سيرفر";
+  let siteLogo = "/logo.jpg";
   let siteFavicon = "/favicon.png";
 
   if (!isBuildTime) {
@@ -245,7 +245,7 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning={true}>
         <MainLayout>
           {children}
           <ContactFloatingButton />

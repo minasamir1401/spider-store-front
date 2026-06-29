@@ -115,6 +115,13 @@ export default function AdminDashboard() {
   const [siteFavicon, setSiteFavicon] = useState("");
   const [logoUploadedFile, setLogoUploadedFile] = useState(null);
   const [faviconUploadedFile, setFaviconUploadedFile] = useState(null);
+  const [paymentMethodsList, setPaymentMethodsList] = useState([]);
+
+  const [newAdminUsername, setNewAdminUsername] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [credentialsErrorMsg, setCredentialsErrorMsg] = useState("");
+  const [credentialsSuccessMsg, setCredentialsSuccessMsg] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -133,6 +140,12 @@ export default function AdminDashboard() {
     }
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (adminUser && adminUser.username) {
+      setNewAdminUsername(adminUser.username);
+    }
+  }, [adminUser]);
 
   const stats = useMemo(() => {
     const total = orders.length;
@@ -181,9 +194,10 @@ export default function AdminDashboard() {
       const settingsRes = await fetch(`${API_BASE_URL}/api/settings`);
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
-        setSiteName(settingsData.site_name || "متجر سبايدر");
+        setSiteName(settingsData.site_name || "عرب تك سيرفر");
         setSiteLogo(settingsData.site_logo || "default");
         setSiteFavicon(settingsData.site_favicon || "default");
+        setPaymentMethodsList(settingsData.payment_methods || []);
       }
 
       // Fetch orders
@@ -939,7 +953,8 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           site_name: siteName,
           site_logo: logoUploadedFile || siteLogo,
-          site_favicon: faviconUploadedFile || siteFavicon
+          site_favicon: faviconUploadedFile || siteFavicon,
+          payment_methods: paymentMethodsList
         })
       });
 
@@ -952,6 +967,48 @@ export default function AdminDashboard() {
       window.location.reload();
     } catch (err) {
       setErrorMsg(err.message);
+    }
+  };
+
+  const handleUpdateCredentials = async (e) => {
+    e.preventDefault();
+    setCredentialsErrorMsg("");
+    setCredentialsSuccessMsg("");
+
+    if (!newAdminUsername && !newAdminPassword) {
+      setCredentialsErrorMsg("يرجى إدخال اسم المستخدم أو كلمة المرور الجديدة.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/update-credentials`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          new_username: newAdminUsername,
+          new_password: newAdminPassword
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "فشل تحديث البيانات.");
+      }
+
+      setCredentialsSuccessMsg("تم تحديث بيانات المسؤول بنجاح!");
+      
+      // Update local storage username if it changed
+      if (adminUser) {
+        const updatedUser = { ...adminUser, username: newAdminUsername };
+        localStorage.setItem("admin_user", JSON.stringify(updatedUser));
+        setAdminUser(updatedUser);
+      }
+      setNewAdminPassword("");
+    } catch (err) {
+      setCredentialsErrorMsg(err.message);
     }
   };
 
@@ -1026,7 +1083,7 @@ export default function AdminDashboard() {
       <style>{`
         .admin-dashboard-root {
           display: grid;
-          grid-template-columns: 280px 1fr;
+          grid-template-columns: 280px minmax(0, 1fr);
           min-height: 100vh;
           background-color: #060814;
           background-image: 
@@ -1075,22 +1132,6 @@ export default function AdminDashboard() {
         @keyframes adminFloat2 {
           0% { transform: translate(0, 0) scale(1.05); }
           100% { transform: translate(50px, -50px) scale(0.95); }
-        }
-
-        /* Custom Scrollbar */
-        .admin-dashboard-root ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .admin-dashboard-root ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.01);
-        }
-        .admin-dashboard-root ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 10px;
-        }
-        .admin-dashboard-root ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.15);
         }
 
         /* Sidebar Glass Styling */
@@ -1189,8 +1230,6 @@ export default function AdminDashboard() {
         /* Content Area */
         .premium-content {
           padding: 40px;
-          overflow-y: auto;
-          max-height: 100vh;
           z-index: 1;
           position: relative;
         }
@@ -1891,7 +1930,7 @@ export default function AdminDashboard() {
         /* Responsiveness */
         @media (max-width: 992px) {
           .admin-dashboard-root {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
           }
           .premium-sidebar {
             display: none !important;
@@ -2136,7 +2175,7 @@ export default function AdminDashboard() {
               (siteName ? siteName.charAt(0) : "S")
             )}
           </div>
-          <span>{siteName || "متجر سبايدر"} المسؤول</span>
+          <span>{siteName || "عرب تك سيرفر"} المسؤول</span>
         </div>
 
         <div className="user-menu-widget" style={{ marginBottom: "18px", justifyContent: "space-between" }}>
@@ -3271,6 +3310,134 @@ export default function AdminDashboard() {
                     )}
                   </div>
 
+                  <hr style={{ opacity: 0.1, margin: "10px 0" }} />
+                  <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                      <h4 style={{ fontWeight: 800, fontSize: "0.95rem", color: "#cbd5e1" }}>إدارة طرق التحويل والتحصيل:</h4>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setPaymentMethodsList(prev => [
+                            ...prev, 
+                            { id: Date.now().toString(), name: "تحويل فودافون كاش", value: "01026785879", type: "vodafone", description: "بعد التحويل اكتب الرقم الذي تم التحويل منه حتى يظهر للأدمن." }
+                          ]);
+                        }} 
+                        className="action-btn"
+                        style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
+                      >
+                        + إضافة طريقة دفع
+                      </button>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {paymentMethodsList.length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "10px", color: "#64748b", fontSize: "0.85rem" }}>
+                          لا توجد طرق تحويل يدوي مضافة. اضغط على الزر بالأعلى لإضافة طريقة دفع.
+                        </div>
+                      ) : (
+                        paymentMethodsList.map((pm, idx) => (
+                          <div key={pm.id || idx} style={{
+                            background: "rgba(255, 255, 255, 0.02)",
+                            border: "1px solid rgba(255, 255, 255, 0.05)",
+                            borderRadius: "12px",
+                            padding: "12px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px"
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: "0.82rem", color: "#22d3ee", fontWeight: "800" }}>طريقة الدفع #{idx + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPaymentMethodsList(prev => prev.filter((_, i) => i !== idx));
+                                }}
+                                style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                              >
+                                حذف ×
+                              </button>
+                            </div>
+                            
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الطريقة (مثلاً: إنستاباي):</span>
+                                <input
+                                  type="text"
+                                  value={pm.name}
+                                  onChange={(e) => {
+                                    const updated = [...paymentMethodsList];
+                                    updated[idx].name = e.target.value;
+                                    setPaymentMethodsList(updated);
+                                  }}
+                                  placeholder="مثال: محفظة فودافون كاش أو إنستاباي"
+                                  style={{
+                                    padding: "8px 12px",
+                                    borderRadius: "10px",
+                                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                                    background: "rgba(13, 18, 36, 0.7)",
+                                    color: "#ffffff",
+                                    fontSize: "0.85rem",
+                                    outline: "none"
+                                  }}
+                                  required
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>الرقم أو العنوان للتحويل إليه:</span>
+                                <input
+                                  type="text"
+                                  value={pm.value}
+                                  onChange={(e) => {
+                                    const updated = [...paymentMethodsList];
+                                    updated[idx].value = e.target.value;
+                                    setPaymentMethodsList(updated);
+                                  }}
+                                  placeholder="مثال: 01026785879 أو example@instapay"
+                                  style={{
+                                    padding: "8px 12px",
+                                    borderRadius: "10px",
+                                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                                    background: "rgba(13, 18, 36, 0.7)",
+                                    color: "#ffffff",
+                                    fontSize: "0.85rem",
+                                    outline: "none"
+                                  }}
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "10px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>وصف / تعليمات التحويل للعميل:</span>
+                                <textarea
+                                  value={pm.description}
+                                  onChange={(e) => {
+                                    const updated = [...paymentMethodsList];
+                                    updated[idx].description = e.target.value;
+                                    setPaymentMethodsList(updated);
+                                  }}
+                                  placeholder="مثال: بعد التحويل اكتب الرقم المحول منه للتحقق..."
+                                  rows="2"
+                                  style={{
+                                    padding: "8px 12px",
+                                    borderRadius: "10px",
+                                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                                    background: "rgba(13, 18, 36, 0.7)",
+                                    color: "#ffffff",
+                                    fontSize: "0.85rem",
+                                    outline: "none"
+                                  }}
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
                   {errorMsg && (
                     <div style={{ color: "#f87171", fontSize: "0.85rem", fontWeight: "600" }}>
                       ⚠️ {errorMsg}
@@ -3281,6 +3448,75 @@ export default function AdminDashboard() {
                     حفظ التغييرات وإعادة التحميل
                   </button>
                 </form>
+
+                <hr style={{ opacity: 0.1, margin: "30px 0" }} />
+                <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "20px", borderRadius: "18px", background: "rgba(255, 255, 255, 0.01)" }}>
+                  <h3 style={{ fontWeight: 800, fontSize: "1.1rem", marginBottom: "15px", color: "#ffffff" }}>تغيير بيانات تسجيل دخول لوحة التحكم</h3>
+                  <form onSubmit={handleUpdateCredentials} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div className="form-group">
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#cbd5e1", fontSize: "0.85rem" }}>اسم المستخدم المسؤول الجديد:</label>
+                      <input
+                        type="text"
+                        className="search-input-premium"
+                        value={newAdminUsername}
+                        onChange={(e) => setNewAdminUsername(e.target.value)}
+                        placeholder="مثال: admin"
+                        required
+                        style={{ padding: "10px 14px !important", fontSize: "0.9rem !important" }}
+                      />
+                    </div>
+                    
+                    <div className="form-group" style={{ position: "relative" }}>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#cbd5e1", fontSize: "0.85rem" }}>كلمة المرور الجديدة (أتركها فارغة إذا لم ترغب بتغييرها):</label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type={showAdminPassword ? "text" : "password"}
+                          className="search-input-premium"
+                          value={newAdminPassword}
+                          onChange={(e) => setNewAdminPassword(e.target.value)}
+                          placeholder="كلمة مرور جديدة (الحد الأدنى 6 أحرف)"
+                          style={{ padding: "10px 45px 10px 14px !important", fontSize: "0.9rem !important", width: "100%" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminPassword(!showAdminPassword)}
+                          style={{
+                            position: "absolute",
+                            left: "12px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            background: "none",
+                            border: "none",
+                            color: "#94a3b8",
+                            cursor: "pointer",
+                            fontSize: "0.95rem",
+                            zIndex: 10,
+                            userSelect: "none"
+                          }}
+                          title={showAdminPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                        >
+                          {showAdminPassword ? "👀" : "👁️"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {credentialsErrorMsg && (
+                      <div style={{ color: "#f87171", fontSize: "0.82rem", fontWeight: "600" }}>
+                        ⚠️ {credentialsErrorMsg}
+                      </div>
+                    )}
+
+                    {credentialsSuccessMsg && (
+                      <div style={{ color: "#34d399", fontSize: "0.82rem", fontWeight: "600" }}>
+                        ✓ {credentialsSuccessMsg}
+                      </div>
+                    )}
+
+                    <button type="submit" className="action-btn btn-success-premium" style={{ width: "100%", padding: "12px", justifyContent: "center", borderRadius: "10px", fontSize: "0.9rem" }}>
+                      تحديث بيانات تسجيل الدخول
+                    </button>
+                  </form>
+                </div>
               </div>
             )}
           </>

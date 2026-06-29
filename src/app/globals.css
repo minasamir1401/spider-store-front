@@ -2085,15 +2085,58 @@ button, input, textarea, select {
   background: var(--primary-light);
   border: 1px solid rgba(0, 180, 216, 0.2);
   border-radius: 16px;
-  padding: 12px 20px;
+  padding: 12px 0; /* padding on top/bottom, 0 on sides to allow ticker overflow */
   display: flex;
-  align-items: center;
-  gap: 12px;
+  overflow: hidden;
+  position: relative;
   margin-bottom: 24px;
   font-weight: 700;
   font-size: 0.92rem;
   color: var(--text-main);
-  direction: rtl;
+  direction: ltr; /* LTR container for consistent leftwards scrolling */
+}
+
+.announcement-ticker-wrapper {
+  display: flex;
+  animation: ticker-scroll 22s linear infinite;
+  width: max-content;
+  will-change: transform;
+}
+
+.announcement-ticker-wrapper:hover {
+  animation-play-state: paused;
+}
+
+.announcement-ticker-content {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  direction: rtl; /* RTL content for Arabic text */
+  padding-left: 60px; /* Gap between repetitions */
+  gap: 40px;
+}
+
+.announcement-ticker-link {
+  color: var(--primary-color) !important;
+  text-decoration: underline;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s ease;
+}
+
+.announcement-ticker-link:hover {
+  opacity: 0.85;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 /* Centered Search Bar */

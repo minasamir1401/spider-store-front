@@ -8,7 +8,7 @@ if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host.includes("localhost") || host.includes("127.0.0.1")) {
       apiBaseUrl = "http://localhost:5000";
-    } else if (host.includes("spider-store.vercel.app")) {
+    } else if (host.includes("spider-store.vercel.app") || host.includes("arab-tech1.online")) {
       apiBaseUrl = "https://spider-store-api.duckdns.org";
     } else {
       // If deployed elsewhere or custom domain, default to the production backend
@@ -18,7 +18,7 @@ if (typeof window !== "undefined") {
 }
 
 export const API_BASE_URL = apiBaseUrl;
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://spider-store.vercel.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://arab-tech1.online";
 
 export async function fetchWithTimeout(url, options = {}, timeout = 8000) {
   const controller = new AbortController();

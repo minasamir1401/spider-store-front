@@ -5,7 +5,7 @@ import { API_BASE_URL } from "@/config";
 import Link from "next/link";
 
 export default function Footer() {
-  const [settings, setSettings] = useState({ site_name: "متجر سبايدر", site_logo: "default" });
+  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings`)

@@ -2,6 +2,6 @@
   "buildCommand": "npm run build",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://spider-store-api.duckdns.org",
-    "NEXT_PUBLIC_SITE_URL": "https://spider-store.vercel.app"
+    "NEXT_PUBLIC_SITE_URL": "https://arab-tech1.online"
   }
 }

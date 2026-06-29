@@ -11,7 +11,7 @@ export default function MainLayout({ children }) {
   
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [settings, setSettings] = useState({ site_name: "متجر سبايدر", site_logo: "default" });
+  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings`)
@@ -28,6 +28,7 @@ export default function MainLayout({ children }) {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
 
   // Fetch customer profile
@@ -183,15 +184,15 @@ export default function MainLayout({ children }) {
             </Link>
           ))}
           
-          <a 
-            href="https://wa.me/message/7J7PQMKIB2G7O1" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button 
+            type="button"
+            onClick={() => setSupportModalOpen(true)}
             className="sidebar-nav-item"
+            style={{ width: "100%", background: "none", border: "none", textAlign: "right", cursor: "pointer", display: "flex", alignItems: "center" }}
           >
             <span className="sidebar-nav-icon">💬</span>
             <span>الدعم الفني</span>
-          </a>
+          </button>
         </nav>
 
         <div className="sidebar-footer" style={{ display: "flex", flexDirection: "column", gap: "10px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "15px" }}>
@@ -305,6 +306,14 @@ export default function MainLayout({ children }) {
         <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🛒 الخدمات المتاحة</Link>
         <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>📦 تتبع الطلبات</Link>
         {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
+        <button 
+          type="button" 
+          onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }} 
+          className="mobile-drawer-link"
+          style={{ width: "100%", textAlign: "right", border: "none", display: "flex", alignItems: "center" }}
+        >
+          💬 الدعم الفني
+        </button>
         
         <div className="mobile-drawer-divider" />
 
@@ -557,6 +566,232 @@ export default function MainLayout({ children }) {
           <span className="bottom-nav-label">حسابي</span>
         </Link>
       </nav>
+
+      {/* Support Channels Modal */}
+      {supportModalOpen && (
+        <div 
+          onClick={() => setSupportModalOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(4, 6, 14, 0.8)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            animation: "fadeIn 0.2s ease"
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "rgba(17, 22, 45, 0.95)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "24px",
+              padding: "25px",
+              maxWidth: "480px",
+              width: "100%",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
+              direction: "rtl"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 900, color: "#ffffff", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>💬</span> الدعم الفني وتواصل الإدارة
+              </h3>
+              <button 
+                onClick={() => setSupportModalOpen(false)}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "32px",
+                  height: "32px",
+                  color: "#cbd5e1",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.9rem"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginTop: 0, marginBottom: "20px", lineHeight: "1.5" }}>
+              اختر أحد قنوات الدعم الفني الرسمية للتواصل معنا أو الانضمام إلى مجتمعنا:
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* WhatsApp Support 1 */}
+              <a 
+                href="https://wa.me/16728972935" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(34, 211, 238, 0.1)",
+                  border: "1px solid rgba(34, 211, 238, 0.15)",
+                  borderRadius: "14px",
+                  color: "#22d3ee",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>🟢</span>
+                  <span>واتساب الدعم (1) +1 (672) 897-2935</span>
+                </div>
+                <span style={{ color: "#22d3ee" }}>←</span>
+              </a>
+
+              {/* WhatsApp Support 2 */}
+              <a 
+                href="https://wa.me/201552672948" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(34, 211, 238, 0.1)",
+                  border: "1px solid rgba(34, 211, 238, 0.15)",
+                  borderRadius: "14px",
+                  color: "#22d3ee",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>🟢</span>
+                  <span>واتساب الدعم (2) +20 15 52672948</span>
+                </div>
+                <span style={{ color: "#22d3ee" }}>←</span>
+              </a>
+
+              {/* WhatsApp Community */}
+              <a 
+                href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(52, 211, 153, 0.08)",
+                  border: "1px solid rgba(52, 211, 153, 0.15)",
+                  borderRadius: "14px",
+                  color: "#34d399",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>💬</span>
+                  <span>مجتمع واتساب عرب تك</span>
+                </div>
+                <span style={{ color: "#34d399" }}>←</span>
+              </a>
+
+              {/* WhatsApp Channel */}
+              <a 
+                href="https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(52, 211, 153, 0.08)",
+                  border: "1px solid rgba(52, 211, 153, 0.15)",
+                  borderRadius: "14px",
+                  color: "#34d399",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>📢</span>
+                  <span>قناة واتساب عرب تك</span>
+                </div>
+                <span style={{ color: "#34d399" }}>←</span>
+              </a>
+
+              {/* Telegram Channel */}
+              <a 
+                href="https://t.me/ARABTECSUPPURT" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(96, 165, 250, 0.08)",
+                  border: "1px solid rgba(96, 165, 250, 0.15)",
+                  borderRadius: "14px",
+                  color: "#60a5fa",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>✈️</span>
+                  <span>قناة تلجرام عرب تك</span>
+                </div>
+                <span style={{ color: "#60a5fa" }}>←</span>
+              </a>
+
+              {/* Facebook Page */}
+              <a 
+                href="https://www.facebook.com/share/1Ehtc4bMXy/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(24, 119, 242, 0.08)",
+                  border: "1px solid rgba(24, 119, 242, 0.15)",
+                  borderRadius: "14px",
+                  color: "#478bfb",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>📘</span>
+                  <span>صفحة فيسبوك عرب تك</span>
+                </div>
+                <span style={{ color: "#478bfb" }}>←</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

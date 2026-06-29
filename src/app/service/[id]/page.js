@@ -112,7 +112,7 @@ async function getSiteName() {
   } catch (err) {
     console.error("Error fetching site name in metadata:", err);
   }
-  return "متجر سبايدر";
+  return "عرب تك سيرفر";
 }
 
 export async function generateMetadata({ params }) {

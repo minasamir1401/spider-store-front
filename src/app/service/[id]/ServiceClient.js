@@ -24,6 +24,7 @@ export default function ServiceDetail({ params }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [senderPhone, setSenderPhone] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const transferNumber = "01026785879";
 
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
@@ -44,9 +45,22 @@ export default function ServiceDetail({ params }) {
       setIsCustomerLoggedIn(true);
       setCustomerUser(JSON.parse(userStr));
       setPaymentMethod("wallet");
-    } else {
-      setPaymentMethod("transfer");
     }
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.payment_methods) {
+          setPaymentMethods(data.payment_methods);
+          const token = localStorage.getItem("customer_token");
+          if (!token && data.payment_methods.length > 0) {
+            setPaymentMethod(data.payment_methods[0].id);
+          }
+        }
+      })
+      .catch(err => console.error("Error fetching settings:", err));
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -234,8 +248,8 @@ export default function ServiceDetail({ params }) {
       return;
     }
 
-    if (paymentMethod === "transfer" && !senderPhone.trim()) {
-      setErrorMessage("يرجى إدخال الرقم الذي تم التحويل منه.");
+    if (paymentMethod !== "wallet" && !senderPhone.trim()) {
+      setErrorMessage("يرجى إدخال البيانات أو الرقم الذي تم التحويل منه.");
       return;
     }
 
@@ -275,9 +289,9 @@ export default function ServiceDetail({ params }) {
           phone: formData.phone || "",
           package_name: computedPackageName,
           package_price: computedPrice,
-          payment_method: paymentMethod,
+          payment_method: paymentMethod === "wallet" ? "wallet" : "transfer",
           sender_phone: senderPhone,
-          transfer_to: transferNumber,
+          transfer_to: paymentMethod === "wallet" ? "" : (paymentMethods.find(pm => pm.id === paymentMethod)?.value || ""),
           custom_fields: formData,
           quantity: isDynamic ? customQuantity : 1
         })
@@ -617,69 +631,81 @@ export default function ServiceDetail({ params }) {
                 <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "wallet" ? "1px solid rgba(34,197,94,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "wallet" ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.03)", opacity: isCustomerLoggedIn ? 1 : 0.65 }}>
                   <input type="radio" name="paymentMethod" value="wallet" checked={paymentMethod === "wallet"} onChange={() => setPaymentMethod("wallet")} disabled={!isCustomerLoggedIn} />
                   <span>
-                    <strong>المحفظة</strong>
+                    <strong>المحفظة الرقمية للموقع</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
                       الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
                 </label>
 
-                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "transfer" ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "transfer" ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.03)" }}>
-                  <input type="radio" name="paymentMethod" value="transfer" checked={paymentMethod === "transfer"} onChange={() => setPaymentMethod("transfer")} />
-                  <span>
-                    <strong>تحويل إلى {transferNumber}</strong>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      بعد التحويل اكتب الرقم الذي تم التحويل منه حتى يظهر للأدمن.
-                    </div>
-                  </span>
-                </label>
+                {paymentMethods.map((pm) => {
+                  const isSelected = paymentMethod === pm.id;
+                  return (
+                    <label key={pm.id} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", padding: "12px 14px", borderRadius: "12px", border: isSelected ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: isSelected ? "rgba(59, 130, 246, 0.08)" : "rgba(255,255,255,0.03)" }}>
+                      <input type="radio" name="paymentMethod" value={pm.id} checked={isSelected} onChange={() => setPaymentMethod(pm.id)} />
+                      <span>
+                        <strong>تحويل يدوي: {pm.name}</strong>
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                          {pm.description}
+                        </div>
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
 
-              {paymentMethod === "transfer" && (
-                <div className="form-group" style={{ marginTop: "14px" }}>
-                  <label htmlFor="senderPhone">الرقم الذي تم التحويل منه:</label>
-                  <input
-                    id="senderPhone"
-                    type="tel"
-                    placeholder="مثال: 01023456789"
-                    value={senderPhone}
-                    onChange={(e) => setSenderPhone(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "14px 18px",
-                      fontSize: "0.95rem",
-                      borderRadius: "12px",
-                      border: "2px solid #3b82f6",
-                      background: "#ffffff",
-                      color: "#000000",
-                      outline: "none"
-                    }}
-                  />
-                  <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>رقم الاستلام: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{transferNumber}</strong></span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(transferNumber);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      style={{
-                        background: copied ? "#10b981" : "#3b82f6",
-                        color: "#ffffff",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "4px 8px",
-                        fontSize: "0.75rem",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
-                    </button>
-                  </div>
-                </div>
+              {paymentMethod !== "wallet" && (
+                (() => {
+                  const currentPM = paymentMethods.find(pm => pm.id === paymentMethod) || paymentMethods[0];
+                  if (!currentPM) return null;
+                  return (
+                    <div className="form-group" style={{ marginTop: "14px" }}>
+                      <label htmlFor="senderPhone">الرقم أو اسم الحساب الذي تم التحويل منه:</label>
+                      <input
+                        id="senderPhone"
+                        type="text"
+                        placeholder="مثال: 01023456789 أو اسم حسابك المحول منه"
+                        value={senderPhone}
+                        onChange={(e) => setSenderPhone(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "14px 18px",
+                          fontSize: "0.95rem",
+                          borderRadius: "12px",
+                          border: "2px solid #3b82f6",
+                          background: "#ffffff",
+                          color: "#000000",
+                          outline: "none"
+                        }}
+                        required
+                      />
+                      <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span>بيانات الاستلام للتحويل: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{currentPM.value}</strong></span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(currentPM.value);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          style={{
+                            background: copied ? "#10b981" : "#3b82f6",
+                            color: "#ffffff",
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "4px 8px",
+                            fontSize: "0.75rem",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          {copied ? "تم النسخ! ✓" : "نسخ 📋"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()
               )}
             </div>
 
