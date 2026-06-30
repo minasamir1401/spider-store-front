@@ -8,6 +8,7 @@ import { API_BASE_URL } from "@/config";
 export default function CustomerLogin() {
   const [activeTab, setActiveTab] = useState("login"); // login, register
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -51,28 +52,40 @@ export default function CustomerLogin() {
     setError("");
     setSuccess("");
 
-    if (!username.trim() || !password) {
-      setError("البريد الإلكتروني وكلمة المرور مطلوبان.");
-      return;
-    }
-
     if (activeTab === "register") {
+      if (!username.trim() || !email.trim() || !password) {
+        setError("جميع الحقول المطلوبة (اسم المستخدم، البريد الإلكتروني، كلمة المرور) يجب ملؤها.");
+        return;
+      }
+
+      if (username.trim().length < 3) {
+        setError("يجب أن يكون اسم المستخدم 3 أحرف على الأقل.");
+        return;
+      }
+
       const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-      if (!emailRegex.test(username.trim().toLowerCase())) {
+      if (!emailRegex.test(email.trim().toLowerCase())) {
         setError("يجب إدخال بريد إلكتروني Gmail صحيح (ينتهي بـ @gmail.com).");
         return;
       }
-    }
 
-    if (activeTab === "register" && password !== confirmPassword) {
-      setError("كلمتا المرور غير متطابقتين.");
-      return;
+      if (password !== confirmPassword) {
+        setError("كلمتا المرور غير متطابقتين.");
+        return;
+      }
+    } else {
+      if (!username.trim() || !password) {
+        setError("البريد الإلكتروني/اسم المستخدم وكلمة المرور مطلوبان.");
+        return;
+      }
     }
 
     setSubmitting(true);
 
     const endpoint = activeTab === "login" ? "login" : "register";
-    const bodyObj = activeTab === "login" ? { username, password } : { username, password, phone };
+    const bodyObj = activeTab === "login" 
+      ? { username, password } 
+      : { username, email, password, phone };
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/customer/${endpoint}`, {
@@ -169,19 +182,44 @@ export default function CustomerLogin() {
           }
         `}</style>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="username">
-              {activeTab === "login" ? "البريد الإلكتروني (الجميل) أو اسم المستخدم:" : "البريد الإلكتروني (الجميل - Gmail):"}
-            </label>
-            <input
-              id="username"
-              type="text"
-              placeholder="example@gmail.com"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
+          {activeTab === "login" ? (
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label htmlFor="username">البريد الإلكتروني (الجميل) أو اسم المستخدم:</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+          ) : (
+            <>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="username">اسم المستخدم:</label>
+                <input
+                  id="username"
+                  type="text"
+                  placeholder="مثال: zoom_player"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="email">البريد الإلكتروني (الجميل - Gmail):</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </>
+          )}
 
           {activeTab === "register" && (
             <>
