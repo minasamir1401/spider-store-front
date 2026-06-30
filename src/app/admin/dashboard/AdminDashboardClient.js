@@ -3323,7 +3323,7 @@ export default function AdminDashboard() {
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                       {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                         <span key={pkg.id || pkg.name} className="pkg-tag">
-                                          {pkg.name} ({pkg.price} ج.م)
+                                          {pkg.name} ({parentCat && parentCat.currency === 'USD' ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
                                         </span>
                                       ))}
                                       {parsedPackages && parsedPackages.length > 3 && (
@@ -3337,7 +3337,7 @@ export default function AdminDashboard() {
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                     {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                       <span key={pkg.id || pkg.name} className="pkg-tag">
-                                        {pkg.name} ({pkg.price} ج.م)
+                                        {pkg.name} ({parentCat && parentCat.currency === 'USD' ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
                                       </span>
                                     ))}
                                     {parsedPackages && parsedPackages.length > 3 && (
@@ -3349,7 +3349,9 @@ export default function AdminDashboard() {
                                 )}
                               </td>
                               <td data-label="السعر الابتدائي" style={{ fontWeight: 800, color: "#34d399" }}>
-                                {service.price_type === "dynamic" ? (
+                                {parentCat && parentCat.currency === 'USD' ? (
+                                  `$ ${Number(parsedPackages && parsedPackages.length > 0 ? (parsedPackages[0].usd_price || parsedPackages[0].price) : service.price).toFixed(2)}`
+                                ) : service.price_type === "dynamic" ? (
                                   `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency} / 1000`
                                 ) : service.price_type === "both" ? (
                                   `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency} / 1000`
