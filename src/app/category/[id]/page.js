@@ -1,5 +1,6 @@
 import CategoryClient from "./CategoryClient";
 import { API_BASE_URL, SITE_URL } from "@/config";
+import { cache } from "react";
 
 const categoryNamesMap = {
   1: "قسم الالعاب",
@@ -16,7 +17,7 @@ const categoryNamesMap = {
   12: "إعلانات ممولة"
 };
 
-async function getCategoryData(id) {
+const getCategoryData = cache(async function getCategoryData(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/categories`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error();
@@ -27,9 +28,9 @@ async function getCategoryData(id) {
     console.error("Error fetching category in metadata:", err);
   }
   return { id: Number(id), name: categoryNamesMap[id] || "الخدمات المتاحة" };
-}
+});
 
-async function getCategoryServices(catId) {
+const getCategoryServices = cache(async function getCategoryServices(catId) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/services`, { next: { revalidate: 3600 } });
     if (res.ok) {
@@ -40,9 +41,9 @@ async function getCategoryServices(catId) {
     console.error("Error fetching services in metadata:", err);
   }
   return [];
-}
+});
 
-async function getSiteName() {
+const getSiteName = cache(async function getSiteName() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
     if (res.ok) {
@@ -52,8 +53,8 @@ async function getSiteName() {
   } catch (err) {
     console.error("Error fetching site name in metadata:", err);
   }
-  return "عرب تك سيرفر";
-}
+  return "عرب تيك سيرفر";
+});
 
 export async function generateMetadata({ params }) {
   const unwrappedParams = await params;
@@ -61,8 +62,8 @@ export async function generateMetadata({ params }) {
   const category = await getCategoryData(id);
   const siteName = await getSiteName();
 
-  const title = `قسم ${category.name} شحن تلقائي فوري بأفضل الأسعار | ${siteName}`;
-  const description = `تصفح جميع خدمات شحن وتفعيل ${category.name} الفورية. أفضل العروض والأسعار الحصرية على متجر ${siteName} لشحن الألعاب والخدمات الرقمية والبطاقات.`;
+  const title = `قسم ${category.name} تفعيل فوري بأفضل الأسعار | ${siteName}`;
+  const description = `تصفح جميع خدمات شحن وتفعيل ${category.name} الفورية. أفضل العروض والأسعار الحصرية على سيرفر ${siteName} لخدمات وبرامج السوفت وير.`;
 
   return {
     title,
@@ -146,7 +147,7 @@ export default async function Page({ params }) {
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": `قسم ${category.name} - شحن فوري تلقائي`,
+    "name": `قسم ${category.name} - تفعيل فوري تلقائي`,
     "description": `تصفح جميع خدمات شحن وتفعيل ${category.name} الفورية. أفضل العروض والأسعار الحصرية.`,
     "url": `${SITE_URL}/category/${id}`,
     "mainEntity": {

@@ -7,6 +7,8 @@ export default function robots() {
       allow: "/",
       disallow: [
         "/admin/",
+        "/admin/login",
+        "/api/",
         "/orders/",
         "/wallet/"
       ],
@@ -14,4 +16,3 @@ export default function robots() {
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
-

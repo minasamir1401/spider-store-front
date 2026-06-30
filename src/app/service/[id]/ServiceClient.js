@@ -27,6 +27,8 @@ export default function ServiceDetail({ params }) {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [receiptImage, setReceiptImage] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
+  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [hideManualTransfersSetting, setHideManualTransfersSetting] = useState(false);
   const transferNumber = "01026785879";
 
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
@@ -46,21 +48,29 @@ export default function ServiceDetail({ params }) {
     if (token && userStr) {
       setIsCustomerLoggedIn(true);
       setCustomerUser(JSON.parse(userStr));
-      setPaymentMethod("wallet");
     } else {
       router.push(`/login?redirectTo=/service/${serviceId}`);
     }
   }, [serviceId, router]);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data && data.payment_methods) {
-          setPaymentMethods(data.payment_methods);
-          const token = localStorage.getItem("customer_token");
-          if (!token && data.payment_methods.length > 0) {
-            setPaymentMethod(data.payment_methods[0].id);
+        if (data) {
+          const hideManual = !!data.hide_wallet_payment;
+          setHideManualTransfersSetting(hideManual);
+          if (data.payment_methods) {
+            setPaymentMethods(data.payment_methods);
+            const token = localStorage.getItem("customer_token");
+            if (hideManual || token) {
+              setPaymentMethod("wallet");
+            } else if (data.payment_methods.length > 0) {
+              setPaymentMethod(data.payment_methods[0].id);
+            }
+          }
+          if (data.base_currency) {
+            setBaseCurrency(data.base_currency);
           }
         }
       })
@@ -431,7 +441,7 @@ export default function ServiceDetail({ params }) {
                 <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
 
                 <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
+                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} {baseCurrency}</span>
                   <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
                     {Number(originalPrice).toFixed(2)}
                   </span>
@@ -450,7 +460,7 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
+        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} {baseCurrency} (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -490,7 +500,7 @@ export default function ServiceDetail({ params }) {
           placeholder="أدخل الكمية هنا (مثال: 5000)"
         />
         <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} {baseCurrency}</strong>
         </div>
       </div>
     </div>
@@ -552,7 +562,7 @@ export default function ServiceDetail({ params }) {
               <span>أنت تقوم بالشراء بحساب: <strong>{customerUser.username}</strong></span>
               {typeof customerUser.balance === "number" && (
                 <span style={{ marginInlineStart: "auto", background: "rgba(34, 197, 94, 0.15)", color: "#4ade80", padding: "4px 10px", borderRadius: "8px", fontWeight: "bold", fontSize: "0.82rem" }}>
-                  رصيد محفظتك: {customerUser.balance.toFixed(2)} ج.م
+                  رصيد محفظتك: {customerUser.balance.toFixed(2)} {baseCurrency}
                 </span>
               )}
             </div>
@@ -709,7 +719,7 @@ export default function ServiceDetail({ params }) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} {baseCurrency}
                 </span>
               </div>
 
@@ -719,12 +729,12 @@ export default function ServiceDetail({ params }) {
                   <span>
                     <strong>المحفظة الرقمية للموقع</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
+                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
                 </label>
 
-                {paymentMethods.map((pm) => {
+                {!hideManualTransfersSetting && paymentMethods.map((pm) => {
                   const isSelected = paymentMethod === pm.id;
                   return (
                     <label key={pm.id} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", padding: "12px 14px", borderRadius: "12px", border: isSelected ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: isSelected ? "rgba(59, 130, 246, 0.08)" : "rgba(255,255,255,0.03)" }}>
@@ -767,7 +777,7 @@ export default function ServiceDetail({ params }) {
                       />
 
                       <div style={{ marginTop: "14px" }}>
-                        <label htmlFor="transferAmount">المبلغ الذي قمت بتحويله فعلياً (ج.م) *إجباري*:</label>
+                        <label htmlFor="transferAmount">المبلغ الذي قمت بتحويله فعلياً ({baseCurrency}) *إجباري*:</label>
                         <input
                           id="transferAmount"
                           type="number"
@@ -925,7 +935,7 @@ export default function ServiceDetail({ params }) {
                 </div>
                 <div className="summary-row">
                   <span className="summary-label">سعر الـ 1000 وحدة</span>
-                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
+                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} {baseCurrency}</span>
                 </div>
               </>
             ) : (
@@ -937,7 +947,7 @@ export default function ServiceDetail({ params }) {
                   </div>
                   <div className="summary-row">
                     <span className="summary-label">سعر الباقة</span>
-                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} ج.م</span>
+                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} {baseCurrency}</span>
                   </div>
                 </>
               )
@@ -955,7 +965,7 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} {baseCurrency}
               </span>
             </div>
 
@@ -1024,7 +1034,7 @@ export default function ServiceDetail({ params }) {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
-                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>{Number(successData.package_price).toFixed(2)} ج.م</strong>
+                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>{Number(successData.package_price).toFixed(2)} {baseCurrency}</strong>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
                   <span style={{ color: "#94a3b8" }}>حساب الشحن (Player ID):</span>
@@ -1053,7 +1063,7 @@ export default function ServiceDetail({ params }) {
                 {typeof successData.customer_balance === "number" && (
                   <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                     <span style={{ color: "#94a3b8" }}>الرصيد المتبقي:</span>
-                    <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</strong>
+                     <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} {baseCurrency}</strong>
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>

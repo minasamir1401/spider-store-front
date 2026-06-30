@@ -25,7 +25,7 @@ export default function Home() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   // Settings state
-  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
+  const [settings, setSettings] = useState({ site_name: "عرب تيك سيرفر", site_logo: "/logo.jpg" });
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
@@ -445,7 +445,7 @@ export default function Home() {
           <details className="faq-item">
             <summary className="faq-question">ما هو {settings.site_name}؟</summary>
             <p className="faq-answer">
-              {settings.site_name} هو منصة متكاملة ومطورة (PWA) مخصصة لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج والاشتراكات الرقمية بأسرع تنفيذ تلقائي وأفضل الأسعار.
+              {settings.site_name} هو منصة متكاملة ومطورة (PWA) مخصصة لخدمات وبرامج السوفت وير بأسرع تنفيذ تلقائي وأفضل الأسعار.
             </p>
           </details>
 

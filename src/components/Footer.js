@@ -8,7 +8,7 @@ export default function Footer() {
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {

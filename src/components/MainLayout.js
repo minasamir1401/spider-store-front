@@ -14,7 +14,7 @@ export default function MainLayout({ children }) {
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
@@ -29,6 +29,7 @@ export default function MainLayout({ children }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
+  const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
 
 
   // Fetch customer profile
@@ -108,6 +109,86 @@ export default function MainLayout({ children }) {
     setIsCustomerLoggedIn(false);
     setCustomerUser(null);
     router.push("/login");
+  };
+
+  const renderBalanceDropdownAndValue = (user) => {
+    if (!user) return null;
+    const baseCurr = settings.base_currency || "ج.م";
+    const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
+    
+    // Always include all supported currencies so the user can switch between them,
+    // but filter out duplicate Egyptian currency symbols (e.g. "EGP" if base is "ج.م" or vice-versa).
+    const availableCurrencies = [baseCurr];
+    if (settings && settings.supported_currencies && Array.isArray(settings.supported_currencies)) {
+      settings.supported_currencies.forEach(c => {
+        if (!availableCurrencies.includes(c)) {
+          const isBaseEGP = (baseCurr.toUpperCase() === "EGP" || baseCurr === "ج.م");
+          const isCurrEGP = (c.toUpperCase() === "EGP" || c === "ج.م");
+          if (isBaseEGP && isCurrEGP) return;
+          availableCurrencies.push(c);
+        }
+      });
+    }
+
+    const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
+      ? selectedBalanceCurrency
+      : baseCurr;
+
+    let balanceVal = 0;
+    if (activeCurrency === baseCurr) {
+      balanceVal = Number(user.balance || 0);
+    } else {
+      const rate = Number(settings.exchange_rates?.[activeCurrency] || 0);
+      const hasSpecificBalance = userBalances[activeCurrency] !== undefined && Number(userBalances[activeCurrency]) > 0;
+      if (hasSpecificBalance) {
+        balanceVal = Number(userBalances[activeCurrency]);
+      } else if (rate > 0) {
+        // rate = "1 foreign currency = rate base currency", so divide to convert base -> foreign
+        balanceVal = Number(user.balance || 0) / rate;
+      } else {
+        balanceVal = 0;
+      }
+    }
+
+    // If only one currency is configured, show it as plain text without a dropdown
+    if (availableCurrencies.length === 1) {
+      return (
+        <span style={{ fontWeight: 900, color: "var(--primary-color)" }}>
+          الرصيد: {balanceVal.toFixed(2)} {baseCurr}
+        </span>
+      );
+    }
+
+    return (
+      <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }} onClick={(e) => e.stopPropagation()}>
+        <span>الرصيد:</span>
+        <span style={{ fontWeight: 900, color: "var(--primary-color)" }}>
+          {balanceVal.toFixed(2)}
+        </span>
+        <select
+          value={activeCurrency}
+          onChange={(e) => setSelectedBalanceCurrency(e.target.value)}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: "rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "6px",
+            color: "var(--primary-color)",
+            fontWeight: "bold",
+            padding: "2px 4px",
+            fontSize: "0.78rem",
+            outline: "none",
+            cursor: "pointer"
+          }}
+        >
+          {availableCurrencies.map(curr => (
+            <option key={curr} value={curr} style={{ background: "var(--bg-main)", color: "#ffffff" }}>
+              {curr}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
   };
 
   const handleInstallClick = async () => {
@@ -239,7 +320,7 @@ export default function MainLayout({ children }) {
               <div style={{ padding: "12px", borderRadius: "12px", background: "var(--bg-glass-hover)", border: "var(--border-glass)", fontSize: "0.85rem" }}>
                 <div style={{ fontWeight: 800 }}>👤 {customerUser.username}</div>
                 <div style={{ color: "var(--primary-color)", fontWeight: 800, marginTop: "4px" }}>
-                  الرصيد: {Number(customerUser.balance || 0).toFixed(2)} ج.م
+                  {renderBalanceDropdownAndValue(customerUser)}
                 </div>
               </div>
               <button 
@@ -291,7 +372,9 @@ export default function MainLayout({ children }) {
         {isCustomerLoggedIn && customerUser ? (
           <div className="mobile-drawer-user-card" style={{ marginBottom: "10px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
             <div>مرحباً، {customerUser.username}</div>
-            <div style={{ fontSize: "0.8rem", color: "var(--primary-color)", fontWeight: "bold" }}>الرصيد: {Number(customerUser.balance || 0).toFixed(2)} ج.م</div>
+            <div style={{ fontSize: "0.8rem", color: "var(--primary-color)", fontWeight: "bold" }}>
+              {renderBalanceDropdownAndValue(customerUser)}
+            </div>
           </div>
         ) : (
           <Link href="/login" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
@@ -517,7 +600,7 @@ export default function MainLayout({ children }) {
                 <div style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", marginBottom: "4px" }}>
                   <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "var(--text-main)" }}>👤 {customerUser.username}</div>
                   <div style={{ color: "var(--primary-color)", fontWeight: 800, fontSize: "0.82rem", marginTop: "2px" }}>
-                    الرصيد: {Number(customerUser.balance || 0).toFixed(2)} ج.م
+                    {renderBalanceDropdownAndValue(customerUser)}
                   </div>
                 </div>
                 <Link href="/orders" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
@@ -703,7 +786,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>💬</span>
-                  <span>مجتمع واتساب عرب تك</span>
+                  <span>مجتمع واتساب عرب تيك</span>
                 </div>
                 <span style={{ color: "#34d399" }}>←</span>
               </a>
@@ -730,7 +813,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>📢</span>
-                  <span>قناة واتساب عرب تك</span>
+                  <span>قناة واتساب عرب تيك</span>
                 </div>
                 <span style={{ color: "#34d399" }}>←</span>
               </a>
@@ -757,7 +840,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>✈️</span>
-                  <span>قناة تلجرام عرب تك</span>
+                  <span>قناة تلجرام عرب تيك</span>
                 </div>
                 <span style={{ color: "#60a5fa" }}>←</span>
               </a>
@@ -784,7 +867,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>📘</span>
-                  <span>صفحة فيسبوك عرب تك</span>
+                  <span>صفحة فيسبوك عرب تيك</span>
                 </div>
                 <span style={{ color: "#478bfb" }}>←</span>
               </a>
@@ -811,7 +894,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>🎵</span>
-                  <span>حساب تيك توك عرب تك</span>
+                  <span>حساب تيك توك عرب تيك</span>
                 </div>
                 <span style={{ color: "#fe2c55" }}>←</span>
               </a>

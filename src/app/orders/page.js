@@ -12,6 +12,7 @@ export default function OrdersHistory() {
   const [customerUserStr, setCustomerUserStr] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [baseCurrency, setBaseCurrency] = useState("ج.م");
 
   // Guest tracking states
   const [trackId, setTrackId] = useState("");
@@ -34,6 +35,15 @@ export default function OrdersHistory() {
     setHydrated(true);
     setToken(localStorage.getItem("customer_token") || "");
     setCustomerUserStr(localStorage.getItem("customer_user") || "");
+
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.base_currency) {
+          setBaseCurrency(data.base_currency);
+        }
+      })
+      .catch(err => console.error("Error loading settings in orders page:", err));
   }, []);
 
   async function fetchCustomerOrders(currentToken) {
@@ -167,7 +177,7 @@ export default function OrdersHistory() {
                       </div>
                       <h3 style={{ fontWeight: 800, fontSize: "1.2rem", marginTop: "4px" }}>{order.service_name}</h3>
                       <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                        الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} ج.م</strong>
+                        الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</strong>
                       </p>
                       <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                         حساب الشحن (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
@@ -287,7 +297,7 @@ export default function OrdersHistory() {
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>القيمة الإجمالية:</span>
-                      <strong style={{ color: "#34d399" }}>{Number(singleOrder.package_price || 0).toFixed(2)} ج.م</strong>
+                      <strong style={{ color: "#34d399" }}>{Number(singleOrder.package_price || 0).toFixed(2)} {baseCurrency}</strong>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>تاريخ الطلب:</span>

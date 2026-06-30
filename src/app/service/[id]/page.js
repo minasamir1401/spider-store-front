@@ -1,5 +1,6 @@
 import ServiceClient from "./ServiceClient";
 import { API_BASE_URL, SITE_URL } from "@/config";
+import { cache } from "react";
 
 const staticServices = [
   {
@@ -89,7 +90,7 @@ const staticServices = [
   }
 ];
 
-async function getServiceData(id) {
+const getServiceData = cache(async function getServiceData(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/services/${id}`, { next: { revalidate: 3600 } });
     if (res.ok) {
@@ -100,31 +101,32 @@ async function getServiceData(id) {
   }
   const fallback = staticServices.find(s => s.id === Number(id));
   return fallback || null;
-}
+});
 
-async function getSiteName() {
+const getSettings = cache(async function getSettings() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
     if (res.ok) {
-      const settings = await res.json();
-      if (settings.site_name) return settings.site_name;
+      return await res.json();
     }
   } catch (err) {
-    console.error("Error fetching site name in metadata:", err);
+    console.error("Error fetching settings in metadata:", err);
   }
-  return "عرب تك سيرفر";
-}
+  return null;
+});
 
 export async function generateMetadata({ params }) {
   const unwrappedParams = await params;
   const id = unwrappedParams.id;
   const service = await getServiceData(id);
-  const siteName = await getSiteName();
+  const settings = await getSettings();
+  const siteName = settings?.site_name || "عرب تيك سيرفر";
+  const baseCurrency = settings?.base_currency || "ج.م";
 
   if (!service) {
     return {
       title: `الخدمة غير متوفرة | ${siteName}`,
-      description: `الخدمة المطلوبة غير متوفرة حالياً في متجر ${siteName}.`
+      description: `الخدمة المطلوبة غير متوفرة حالياً في سيرفر ${siteName}.`
     };
   }
 
@@ -149,11 +151,11 @@ export async function generateMetadata({ params }) {
   if (service.packages && service.packages.length > 0) {
     const prices = service.packages.map(p => p.price);
     const minPrice = Math.min(...prices);
-    priceText = ` بأسعار تبدأ من ${minPrice.toFixed(2)} ج.م`;
+    priceText = ` بأسعار تبدأ من ${minPrice.toFixed(2)} ${baseCurrency}`;
   }
 
-  const title = `شحن ${service.name} تلقائي ${priceText} - قسم ${categoryName} | ${siteName}`;
-  const description = `اشحن ${service.name} فوراً بأفضل الأسعار. ${service.description} شحن تلقائي آمن وموثوق 100% عبر متجر ${siteName} لشحن الألعاب والخدمات الرقمية.`;
+  const title = `تفعيل ${service.name} تلقائي ${priceText} - قسم ${categoryName} | ${siteName}`;
+  const description = `تفعيل ${service.name} فوراً بأفضل الأسعار. ${service.description} تفعيل تلقائي آمن وموثوق 100% عبر سيرفر ${siteName} لخدمات وبرامج السوفت وير.`;
 
   return {
     title,
@@ -166,7 +168,7 @@ export async function generateMetadata({ params }) {
       `${service.name} id`,
       `باقات ${service.name}`,
       siteName,
-      `${siteName} لشحن الألعاب`,
+      `${siteName} لخدمات السوفت وير`,
       categoryName,
       `شحن ${categoryName}`
     ],

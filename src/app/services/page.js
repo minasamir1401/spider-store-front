@@ -1,7 +1,8 @@
 import ServicesClient from "./ServicesClient";
 import { API_BASE_URL, SITE_URL } from "@/config";
+import { cache } from "react";
 
-async function getSiteName() {
+const getSiteName = cache(async function getSiteName() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
     if (res.ok) {
@@ -12,9 +13,9 @@ async function getSiteName() {
     console.error("Error fetching site name in metadata:", err);
   }
   return "عرب تك سيرفر";
-}
+});
 
-async function getCategoriesAndServices() {
+const getCategoriesAndServices = cache(async function getCategoriesAndServices() {
   try {
     const [catRes, serviceRes] = await Promise.all([
       fetch(`${API_BASE_URL}/api/categories`, { next: { revalidate: 3600 } }),
@@ -30,7 +31,7 @@ async function getCategoriesAndServices() {
     console.error("Error fetching categories and services for schema:", e);
   }
   return { categories: [], services: [] };
-}
+});
 
 export async function generateMetadata() {
   const siteName = await getSiteName();

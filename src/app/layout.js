@@ -2,12 +2,13 @@ import "./globals.css";
 import ContactFloatingButton from "../components/ContactFloatingButton";
 import MainLayout from "../components/MainLayout";
 import { API_BASE_URL, SITE_URL, fetchWithTimeout } from "../config";
+import { cache } from "react";
 
 // Skip API fetch during Vercel build when the API is not reachable
 const isBuildTime = typeof window === "undefined" && (API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1"));
 
-export async function generateMetadata() {
-  let siteName = "عرب تك سيرفر";
+const getSiteSettings = cache(async () => {
+  let siteName = "عرب تيك سيرفر";
   let siteLogo = "/logo.jpg";
   let siteFavicon = "/favicon.png";
 
@@ -25,11 +26,17 @@ export async function generateMetadata() {
     }
   }
 
+  return { siteName, siteLogo, siteFavicon };
+});
+
+export async function generateMetadata() {
+  const { siteName, siteLogo, siteFavicon } = await getSiteSettings();
+
   const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
   const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
 
-  const titleText = `${siteName} | لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج`;
-  const descText = `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`;
+  const titleText = `${siteName} | لخدمات وبرامج السوفت وير`;
+  const descText = `سيرفر ${siteName} لخدمات وبرامج السوفت وير. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -40,15 +47,16 @@ export async function generateMetadata() {
     },
     keywords: [
       siteName,
-      `${siteName} لشحن الالعاب`,
-      `متجر ${siteName}`,
-      "شحن شدات ببجي",
-      "شحن جواهر فري فاير",
+      `${siteName} سوفت وير`,
+      `سيرفر ${siteName}`,
+      "تفعيل برامج سوفت وير",
+      "خدمات سوفت وير",
+      "تفعيل دونجلات سوفت وير",
+      "تفعيل بوكسات سوفت وير",
       "شحن USDT",
       "تفعيل كانفا برو",
       "تفعيل نتفليكس",
-      "شحن فودافون كاش",
-      "متجر شحن ألعاب"
+      "سيرفر خدمات رقمية"
     ],
     alternates: {
       canonical: SITE_URL,
@@ -63,7 +71,7 @@ export async function generateMetadata() {
           url: siteLogoUrl,
           width: 1200,
           height: 630,
-          alt: `${siteName} - شحن الألعاب والخدمات الرقمية`
+          alt: `${siteName} - لخدمات وبرامج السوفت وير`
         }
       ],
       locale: "ar_EG",
@@ -77,12 +85,13 @@ export async function generateMetadata() {
     },
     icons: {
       icon: [
+        { url: "/favicon.ico", sizes: "any" },
         { url: siteFaviconUrl, type: "image/png" }
       ],
       apple: [
         { url: siteLogoUrl, type: "image/png" }
       ],
-      shortcut: siteFaviconUrl,
+      shortcut: [siteFaviconUrl],
     }
   };
 }
@@ -93,23 +102,7 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  let siteName = "عرب تك سيرفر";
-  let siteLogo = "/logo.jpg";
-  let siteFavicon = "/favicon.png";
-
-  if (!isBuildTime) {
-    try {
-      const res = await fetchWithTimeout(`${API_BASE_URL}/api/settings`, { next: { revalidate: 10 } });
-      if (res.ok) {
-        const settings = await res.json();
-        if (settings.site_name) siteName = settings.site_name;
-        if (settings.site_logo && settings.site_logo !== "default") siteLogo = settings.site_logo;
-        if (settings.site_favicon && settings.site_favicon !== "default") siteFavicon = settings.site_favicon;
-      }
-    } catch (error) {
-      console.error("Failed to fetch settings in layout:", error);
-    }
-  }
+  const { siteName, siteLogo, siteFavicon } = await getSiteSettings();
 
   const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
   const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
@@ -129,14 +122,14 @@ export default async function RootLayout({ children }) {
           "url": siteLogoUrl,
           "caption": `${siteName} Logo`
         },
-        "description": `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`
+        "description": `سيرفر ${siteName} لخدمات وبرامج السوفت وير. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`
       },
       {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         "url": SITE_URL,
-        "name": `${siteName} | لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج`,
-        "description": `سيرفر ${siteName} لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`,
+        "name": `${siteName} | لخدمات وبرامج السوفت وير`,
+        "description": `سيرفر ${siteName} لخدمات وبرامج السوفت وير. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`,
         "publisher": {
           "@id": `${SITE_URL}/#organization`
         },
@@ -159,7 +152,7 @@ export default async function RootLayout({ children }) {
             "name": `ما هو متجر ${siteName}؟`,
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": `سيرفر ${siteName} هو منصة متكاملة لخدمات السوفت وير والخدمات الإلكترونية وشحن البرامج والاشتراكات الرقمية بأسرع تنفيذ تلقائي وأفضل الأسعار.`
+              "text": `سيرفر ${siteName} هو منصة متكاملة لخدمات وبرامج السوفت وير بأسرع تنفيذ تلقائي وأفضل الأسعار.`
             }
           },
           {
@@ -204,6 +197,7 @@ export default async function RootLayout({ children }) {
         <link rel="apple-touch-icon" href={siteLogoUrl} />
 
         {/* Favicon / Tab Icon */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href={siteFaviconUrl} />
         <link rel="shortcut icon" href={siteFaviconUrl} />
         
