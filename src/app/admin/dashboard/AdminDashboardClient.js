@@ -1884,6 +1884,7 @@ export default function AdminDashboard() {
           flex-direction: column;
           gap: 16px;
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          overflow-y: auto;
         }
 
         .mobile-drawer.open {
@@ -2216,6 +2217,7 @@ export default function AdminDashboard() {
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "العملاء والمحفظة" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
+          { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
         ].map(item => (
           <button key={item.tab}
             className={`mobile-drawer-link ${activeTab === item.tab ? "active" : ""}`}
