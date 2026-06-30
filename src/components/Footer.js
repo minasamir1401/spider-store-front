@@ -63,6 +63,8 @@ export default function Footer() {
             <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer">💬 واتساب الدعم</a>
             <a href="https://t.me/ARABTECSUPPURT" target="_blank" rel="noopener noreferrer">✈️ تلجرام الدعم</a>
             <a href="https://tiktok.com/@arabtechsuppurt" target="_blank" rel="noopener noreferrer">🎵 تيك توك عرب تك</a>
+            <a href="mailto:arab.tech.services1@gmail.com">📧 البريد الإلكتروني (1)</a>
+            <a href="mailto:Hemdanm666@gmail.com">📧 البريد الإلكتروني (2)</a>
           </div>
         </div>
       </div>

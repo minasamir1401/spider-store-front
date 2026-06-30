@@ -107,6 +107,24 @@ export default function ContactFloatingButton() {
           >
             🎵 حساب تيك توك عرب تيك
           </a>
+
+          {/* Email Support 1 */}
+          <a
+            href="mailto:arab.tech.services1@gmail.com"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", color: "#f87171" }}
+          >
+            📧 البريد الإلكتروني (1)
+          </a>
+
+          {/* Email Support 2 */}
+          <a
+            href="mailto:Hemdanm666@gmail.com"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", color: "#f87171" }}
+          >
+            📧 البريد الإلكتروني (2)
+          </a>
         </div>
       )}
 
