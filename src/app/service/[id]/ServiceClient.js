@@ -408,7 +408,7 @@ export default function ServiceDetail({ params }) {
         <div className="packages-selector">
           {service.packages.map((pkg, idx) => {
             const simulatedDiscount = 2 + (idx % 4);
-            const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
+            const originalPrice = (service.category_currency === 'USD' ? (pkg.usd_price || pkg.price) : pkg.price) / (1 - simulatedDiscount / 100);
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
             return (
               <div
@@ -441,9 +441,13 @@ export default function ServiceDetail({ params }) {
                 <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
 
                 <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} {baseCurrency}</span>
+                  <span className="package-price" style={{ fontSize: "1.1rem" }}>
+                    {service.category_currency === 'USD' 
+                      ? `$ ${Number(pkg.usd_price || pkg.price).toFixed(2)}` 
+                      : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
+                  </span>
                   <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                    {Number(originalPrice).toFixed(2)}
+                    {service.category_currency === 'USD' ? '$' : ''}{Number(originalPrice).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
                   </span>
                 </div>
               </div>
@@ -719,7 +723,7 @@ export default function ServiceDetail({ params }) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} {baseCurrency}
+                  المبلغ: {service.category_currency === 'USD' ? '$' : ''}{((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage ? (service.category_currency === 'USD' ? (selectedPackage.usd_price || selectedPackage.price) : selectedPackage.price) : 0)).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
                 </span>
               </div>
 
@@ -947,7 +951,11 @@ export default function ServiceDetail({ params }) {
                   </div>
                   <div className="summary-row">
                     <span className="summary-label">سعر الباقة</span>
-                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} {baseCurrency}</span>
+                    <span className="summary-value">
+                      {service.category_currency === 'USD' 
+                        ? `$ ${Number(selectedPackage.usd_price || selectedPackage.price).toFixed(2)}` 
+                        : `${Number(selectedPackage.price).toFixed(2)} ${baseCurrency}`}
+                    </span>
                   </div>
                 </>
               )
@@ -965,7 +973,7 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} {baseCurrency}
+                {service.category_currency === 'USD' ? '$' : ''}{((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage ? (service.category_currency === 'USD' ? (selectedPackage.usd_price || selectedPackage.price) : selectedPackage.price) : 0)).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
               </span>
             </div>
 
@@ -1034,7 +1042,11 @@ export default function ServiceDetail({ params }) {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
-                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>{Number(successData.package_price).toFixed(2)} {baseCurrency}</strong>
+                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
+                    {service.category_currency === 'USD' 
+                      ? `$ ${Number(selectedPackage?.usd_price || selectedPackage?.price || successData.package_price).toFixed(2)}` 
+                      : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`}
+                  </strong>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
                   <span style={{ color: "#94a3b8" }}>حساب الشحن (Player ID):</span>
