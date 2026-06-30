@@ -52,13 +52,16 @@ export default function CustomerLogin() {
     setSuccess("");
 
     if (!username.trim() || !password) {
-      setError("جميع الحقول مطلوبة.");
+      setError("البريد الإلكتروني وكلمة المرور مطلوبان.");
       return;
     }
 
-    if (activeTab === "register" && !phone.trim()) {
-      setError("رقم الهاتف مطلوب.");
-      return;
+    if (activeTab === "register") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (!emailRegex.test(username.trim().toLowerCase())) {
+        setError("يجب إدخال بريد إلكتروني Gmail صحيح (ينتهي بـ @gmail.com).");
+        return;
+      }
     }
 
     if (activeTab === "register" && password !== confirmPassword) {
@@ -167,11 +170,13 @@ export default function CustomerLogin() {
         `}</style>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="username">اسم المستخدم:</label>
+            <label htmlFor="username">
+              {activeTab === "login" ? "البريد الإلكتروني (الجميل) أو اسم المستخدم:" : "البريد الإلكتروني (الجميل - Gmail):"}
+            </label>
             <input
               id="username"
               type="text"
-              placeholder="مثال: zoom_player"
+              placeholder="example@gmail.com"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -253,14 +258,13 @@ export default function CustomerLogin() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="phone">رقم الهاتف (واتساب):</label>
+                <label htmlFor="phone">رقم الهاتف (واتساب) - اختياري:</label>
                 <input
                   id="phone"
                   type="tel"
                   placeholder="مثال: 01023456789"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
                 />
               </div>
             </>
