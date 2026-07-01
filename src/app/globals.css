@@ -2207,13 +2207,13 @@ button, input, textarea, select {
   gap: 12px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08); /* lightened glass background */
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-glass);
+  border: var(--border-glass);
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  color: inherit;
+  color: var(--text-main);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   min-height: 76px;
   height: auto;
@@ -2234,7 +2234,7 @@ button, input, textarea, select {
 .scc-card:hover {
   transform: translateY(-2px);
   border-color: var(--scc-ac, #6366f1);
-  background: rgba(255, 255, 255, 0.15); /* lightened hover background */
+  background: var(--bg-glass-hover);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
