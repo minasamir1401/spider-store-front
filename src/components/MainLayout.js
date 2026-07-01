@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { API_BASE_URL } from "@/config";
@@ -32,6 +32,16 @@ export default function MainLayout({ children }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const unlocked = sessionStorage.getItem("site_unlocked") === "true";
+      if (!unlocked) {
+        setIsUnlocked(false);
+      }
+    }
+  }, []);
 
 
   // Fetch customer profile
@@ -235,6 +245,30 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="app-layout">
+      {!isUnlocked && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(10, 15, 30, 0.96)",
+          backdropFilter: "blur(16px)",
+          zIndex: 999999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px"
+        }}>
+          <SliderCaptcha onSuccess={() => {
+            sessionStorage.setItem("site_unlocked", "true");
+            setTimeout(() => {
+              setIsUnlocked(true);
+            }, 800);
+          }} />
+        </div>
+      )}
+
       {/* Desktop Sidebar (RTL Right Side) */}
       <aside className="app-sidebar">
         <div className="sidebar-logo-section" style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
@@ -910,3 +944,157 @@ export default function MainLayout({ children }) {
     </div>
   );
 }
+
+const SliderCaptcha = ({ onSuccess }) => {
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const trackRef = useRef(null);
+  const [maxDrag, setMaxDrag] = useState(240); // default fallback
+
+  useEffect(() => {
+    if (trackRef.current) {
+      // Handle width is 50px
+      setMaxDrag(trackRef.current.clientWidth - 50);
+    }
+  }, []);
+
+  const handleStart = (e) => {
+    if (isSuccess) return;
+    setIsDragging(true);
+  };
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      if (!isDragging || isSuccess) return;
+      const track = trackRef.current;
+      if (!track) return;
+      const rect = track.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      let x = clientX - rect.left - 25; // 25 is half of handle width
+      if (x < 0) x = 0;
+      if (x > maxDrag) x = maxDrag;
+      setDragX(x);
+
+      if (x >= maxDrag - 5) {
+        setIsSuccess(true);
+        setIsDragging(false);
+        onSuccess();
+      }
+    };
+
+    const handleEnd = () => {
+      if (!isDragging) return;
+      setIsDragging(false);
+      if (!isSuccess) {
+        // Reset position with animation
+        setDragX(0);
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleEnd);
+      window.addEventListener("touchmove", handleMove);
+      window.addEventListener("touchend", handleEnd);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("touchmove", handleMove);
+      window.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging, isSuccess, maxDrag, onSuccess]);
+
+  return (
+    <div style={{
+      background: "rgba(255, 255, 255, 0.03)",
+      border: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRadius: "24px",
+      padding: "30px 24px",
+      width: "100%",
+      maxWidth: "360px",
+      textAlign: "center",
+      boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+      backdropFilter: "blur(20px)"
+    }}>
+      <div style={{ fontSize: "2.5rem", marginBottom: "15px" }}>🔒</div>
+      <h3 style={{ fontWeight: 800, color: "#fff", marginBottom: "8px", fontSize: "1.2rem" }}>تحقق الأمان</h3>
+      <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "25px", lineHeight: "1.5" }}>
+        يرجى سحب الشريط المنزلق لفتح الموقع وتصفح الخدمات
+      </p>
+
+      {/* Slider Track */}
+      <div 
+        ref={trackRef}
+        style={{
+          position: "relative",
+          height: "50px",
+          background: "rgba(255, 255, 255, 0.05)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "25px",
+          overflow: "hidden",
+          userSelect: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        {/* Background text */}
+        <span style={{ 
+          fontSize: "0.85rem", 
+          color: "#64748b", 
+          pointerEvents: "none",
+          zIndex: 1,
+          opacity: isSuccess ? 0 : 1,
+          transition: "opacity 0.2s"
+        }}>
+          اسحب للتحقق وتأكيد الدخول →
+        </span>
+
+        {/* Dynamic filled background */}
+        <div style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: `${dragX + 25}px`,
+          background: isSuccess 
+            ? "linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.4) 100%)" 
+            : "linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.3) 100%)",
+          transition: isDragging ? "none" : "width 0.3s ease",
+          zIndex: 0
+        }} />
+
+        {/* Handle */}
+        <div 
+          onMouseDown={handleStart}
+          onTouchStart={handleStart}
+          style={{
+            position: "absolute",
+            left: `${dragX}px`,
+            width: "50px",
+            height: "48px",
+            background: isSuccess ? "#22c55e" : "#4f46e5",
+            borderRadius: "50%",
+            cursor: isSuccess ? "default" : "grab",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: isSuccess 
+              ? "0 0 15px rgba(34, 197, 94, 0.6)" 
+              : "0 0 15px rgba(79, 70, 229, 0.6)",
+            transition: isDragging ? "none" : "left 0.3s ease, background-color 0.3s",
+            zIndex: 2,
+            color: "#fff",
+            fontSize: "1.1rem",
+            fontWeight: "bold"
+          }}
+        >
+          {isSuccess ? "✓" : "→"}
+        </div>
+      </div>
+    </div>
+  );
+};
