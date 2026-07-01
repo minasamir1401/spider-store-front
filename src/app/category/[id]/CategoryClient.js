@@ -152,6 +152,7 @@ export default function CategoryServices({ params }) {
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
   const [theme, setTheme] = useState("dark");
+  const [serviceSearchTerm, setServiceSearchTerm] = useState("");
 
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
@@ -259,89 +260,150 @@ export default function CategoryServices({ params }) {
           <Link href="/" className="glass-btn glass-btn-primary">العودة للرئيسية</Link>
         </div>
       ) : (
-        <div className="scc-grid">
-          {services.map((service) => {
-            const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
-            
-            // Premium colors per category
-            const categoryColors = {
-              1: '#6366f1', // games
-              2: '#eab308', // live apps
-              3: '#a855f7', // cards
-              4: '#06b6d4', // balances/currencies
-              5: '#ec4899', // social media
-              6: '#10b981', // server services
-              7: '#d946ef', // subscriptions
-              8: '#eab308', // AI
-              9: '#6366f1', // numbers
-              10: '#6366f1', // programming/design
-              11: '#eab308', // ready accounts
-              12: '#ec4899'  // ads
-            };
-            const catColor = categoryColors[service.category_id] || '#6366f1';
-            
-            const hexToRgb = (hex) => {
-              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-              return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
-            };
-            const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
+        <>
+          {/* Category Services Search Bar */}
+          {services.length > 2 && (
+            <div style={{ marginBottom: "20px", position: "relative", width: "100%" }}>
+              <input
+                type="text"
+                placeholder="البحث عن خدمة في هذا القسم..."
+                value={serviceSearchTerm}
+                onChange={(e) => setServiceSearchTerm(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 42px 12px 15px",
+                  fontSize: "0.95rem",
+                  borderRadius: "12px",
+                  border: "1px solid var(--border-glass)",
+                  background: "var(--bg-glass)",
+                  color: "var(--text-main)",
+                  outline: "none",
+                  transition: "border-color 0.2s"
+                }}
+              />
+              <span style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", opacity: 0.6, fontSize: "1rem" }}>🔍</span>
+              {serviceSearchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setServiceSearchTerm("")}
+                  style={{
+                    position: "absolute",
+                    left: "14px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--text-muted)",
+                    cursor: "pointer",
+                    fontSize: "1.1rem"
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          )}
 
-            const imgSrc = isCustomImg
-              ? (service.image.startsWith("http") || service.image.startsWith("data:") 
-                  ? service.image 
-                  : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
-              : null;
+          {(() => {
+            const filteredServices = services.filter(service => 
+              service.name.toLowerCase().includes(serviceSearchTerm.toLowerCase())
+            );
+
+            if (filteredServices.length === 0) {
+              return (
+                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", background: "var(--bg-glass)", borderRadius: "16px", border: "var(--border-glass)" }}>
+                  لا تتوفر خدمات مطابقة للبحث في هذا القسم.
+                </div>
+              );
+            }
 
             return (
-              <div className="scc-wrap" key={service.id}>
-                <Link 
-                  href={`/service/${service.id}`} 
-                  className="scc-card" 
-                  dir="rtl" 
-                  style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
-                >
-                  <div className="scc-side-line"></div>
-                  <div className="scc-img-ring">
-                    <div className="scc-img-inner">
-                      {imgSrc ? (
-                        <img 
-                          src={imgSrc} 
-                          alt={service.name} 
-                          loading="lazy" 
-                          className="scc-img" 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            const parent = e.target.parentElement;
-                            if (parent) {
-                              const span = document.createElement('span');
-                              span.style.fontSize = '1.2rem';
-                              span.innerText = getFallbackEmoji(service.name, service.image);
-                              parent.appendChild(span);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
-                      )}
+              <div className="scc-grid">
+                {filteredServices.map((service) => {
+                  const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
+                  
+                  // Premium colors per category
+                  const categoryColors = {
+                    1: '#6366f1', // games
+                    2: '#eab308', // live apps
+                    3: '#a855f7', // cards
+                    4: '#06b6d4', // balances/currencies
+                    5: '#ec4899', // social media
+                    6: '#10b981', // server services
+                    7: '#d946ef', // subscriptions
+                    8: '#eab308', // AI
+                    9: '#6366f1', // numbers
+                    10: '#6366f1', // programming/design
+                    11: '#eab308', // ready accounts
+                    12: '#ec4899'  // ads
+                  };
+                  const catColor = categoryColors[service.category_id] || '#6366f1';
+                  
+                  const hexToRgb = (hex) => {
+                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
+                  };
+                  const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
+
+                  const imgSrc = isCustomImg
+                    ? (service.image.startsWith("http") || service.image.startsWith("data:") 
+                        ? service.image 
+                        : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
+                    : null;
+
+                  return (
+                    <div className="scc-wrap" key={service.id}>
+                      <Link 
+                        href={`/service/${service.id}`} 
+                        className="scc-card" 
+                        dir="rtl" 
+                        style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
+                      >
+                        <div className="scc-side-line"></div>
+                        <div className="scc-img-ring">
+                          <div className="scc-img-inner">
+                            {imgSrc ? (
+                              <img 
+                                src={imgSrc} 
+                                alt={service.name} 
+                                loading="lazy" 
+                                className="scc-img" 
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  const parent = e.target.parentElement;
+                                  if (parent) {
+                                    const span = document.createElement('span');
+                                    span.style.fontSize = '1.2rem';
+                                    span.innerText = getFallbackEmoji(service.name, service.image);
+                                    parent.appendChild(span);
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="scc-content">
+                          <span className="scc-name">{service.name}</span>
+                          <div className="scc-meta">
+                            <div className="scc-dot"></div>
+                            <span>اضغط للعرض</span>
+                          </div>
+                        </div>
+                        <div className="scc-arrow">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+                            <path d="m15 18-6-6 6-6"></path>
+                          </svg>
+                        </div>
+                      </Link>
                     </div>
-                  </div>
-                  <div className="scc-content">
-                    <span className="scc-name">{service.name}</span>
-                    <div className="scc-meta">
-                      <div className="scc-dot"></div>
-                      <span>اضغط للعرض</span>
-                    </div>
-                  </div>
-                  <div className="scc-arrow">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                      <path d="m15 18-6-6 6-6"></path>
-                    </svg>
-                  </div>
-                </Link>
+                  );
+                })}
               </div>
             );
-          })}
-        </div>
+          })()}
+        </>
       )}
     </>
   );
