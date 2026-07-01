@@ -32,16 +32,16 @@ const getSiteSettings = cache(async () => {
 export async function generateMetadata() {
   const { siteName, siteLogo, siteFavicon } = await getSiteSettings();
 
-  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") 
-    ? siteLogo 
-    : (siteLogo.includes("uploads") 
-        ? `${API_BASE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}` 
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:")
+    ? siteLogo
+    : (siteLogo.includes("uploads")
+        ? `${API_BASE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}`
         : `${SITE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}`);
 
-  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") 
-    ? siteFavicon 
-    : (siteFavicon.includes("uploads") 
-        ? `${API_BASE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}` 
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:")
+    ? siteFavicon
+    : (siteFavicon.includes("uploads")
+        ? `${API_BASE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}`
         : `${SITE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}`);
 
   const titleText = `${siteName} | لخدمات وبرامج السوفت وير`;
@@ -95,12 +95,17 @@ export async function generateMetadata() {
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
+        { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
+        { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
+        { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
+        { url: "/icons/icon-96.png", sizes: "96x96", type: "image/png" },
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
         { url: siteFaviconUrl, type: "image/png" }
       ],
       apple: [
-        { url: siteLogoUrl, type: "image/png" }
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }
       ],
-      shortcut: [siteFaviconUrl],
+      shortcut: ["/icons/icon-48.png"],
     }
   };
 }
@@ -205,11 +210,15 @@ export default async function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href={siteLogoUrl} />
 
-        {/* Favicon / Tab Icon */}
+        {/* Favicon / Tab Icon - Multiple sizes for Google crawler */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" href={siteFaviconUrl} />
-        <link rel="shortcut icon" href={siteFaviconUrl} />
-        
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+        <link rel="shortcut icon" href="/icons/icon-48.png" type="image/png" />
+
         {/* SEO Structured Data */}
         <script
           type="application/ld+json"

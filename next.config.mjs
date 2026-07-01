@@ -56,6 +56,18 @@ const nextConfig = {
           { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
         ],
       },
+      {
+        source: '/favicon.ico',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, must-revalidate' },
+        ],
+      },
+      {
+        source: '/icons/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, must-revalidate' },
+        ],
+      },
     ];
   },
 };
