@@ -32,8 +32,17 @@ const getSiteSettings = cache(async () => {
 export async function generateMetadata() {
   const { siteName, siteLogo, siteFavicon } = await getSiteSettings();
 
-  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
-  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") 
+    ? siteLogo 
+    : (siteLogo.includes("uploads") 
+        ? `${API_BASE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}` 
+        : `${SITE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}`);
+
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") 
+    ? siteFavicon 
+    : (siteFavicon.includes("uploads") 
+        ? `${API_BASE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}` 
+        : `${SITE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}`);
 
   const titleText = `${siteName} | لخدمات وبرامج السوفت وير`;
   const descText = `سيرفر ${siteName} لخدمات وبرامج السوفت وير. شحن وتفعيل تلقائي فوري بأفضل الأسعار.`;

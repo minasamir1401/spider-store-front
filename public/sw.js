@@ -73,6 +73,8 @@ self.addEventListener('fetch', (event) => {
           if (event.request.mode === 'navigate') {
             return caches.match('/');
           }
+          // Return a fallback offline response instead of undefined to prevent TypeError
+          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
         });
       })
   );

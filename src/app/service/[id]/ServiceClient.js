@@ -16,6 +16,8 @@ export default function ServiceDetail({ params }) {
   const [customQuantity, setCustomQuantity] = useState(1000);
   const [copied, setCopied] = useState(false);
   const [customerPricingMode, setCustomerPricingMode] = useState("packages");
+  const [packageSearchTerm, setPackageSearchTerm] = useState("");
+  const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
   
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
@@ -71,6 +73,9 @@ export default function ServiceDetail({ params }) {
           }
           if (data.base_currency) {
             setBaseCurrency(data.base_currency);
+          }
+          if (data.exchange_rates) {
+            setExchangeRates(data.exchange_rates);
           }
         }
       })
@@ -302,9 +307,24 @@ export default function ServiceDetail({ params }) {
 
     setSubmitting(true);
 
-    const computedPrice = isDynamic 
-      ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
-      : selectedPackage.price;
+    let computedPrice = 0;
+    if (isDynamic) {
+      const usdPrice = (customQuantity / 1000) * (service.price_per_thousand || 0);
+      if (service.category_currency === 'USD') {
+        const usdRate = Number(exchangeRates?.["USD"] || 50);
+        computedPrice = Number((usdPrice * usdRate).toFixed(2));
+      } else {
+        computedPrice = Number(usdPrice.toFixed(2));
+      }
+    } else {
+      if (service.category_currency === 'USD') {
+        const usdPrice = selectedPackage.usd_price || selectedPackage.price;
+        const usdRate = Number(exchangeRates?.["USD"] || 50);
+        computedPrice = Number((usdPrice * usdRate).toFixed(2));
+      } else {
+        computedPrice = selectedPackage.price;
+      }
+    }
     const computedPackageName = isDynamic
       ? `كمية: ${customQuantity}`
       : selectedPackage.name;
@@ -366,11 +386,40 @@ export default function ServiceDetail({ params }) {
     }
   };
 
-  const getServiceIcon = (image) => {
-    if (!image) return "⚡";
-    if (image.startsWith("data:image") || image.startsWith("http") || image.startsWith("/uploads")) {
-      const src = image.startsWith("/uploads") ? `${API_BASE_URL}${image}` : image;
-      return <img src={src} alt="Service Icon" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }} />;
+  const getFallbackEmoji = (name = "", image = "") => {
+    const lowerName = (name || "").toLowerCase();
+    const lowerImg = (image || "").toLowerCase();
+    
+    if (lowerImg.includes("pubg") || lowerName.includes("pubg") || lowerName.includes("ببجي")) return "🔫";
+    if (lowerImg.includes("freefire") || lowerImg.includes("free fire") || lowerName.includes("فري فاير") || lowerName.includes("free fire") || lowerName.includes("freefire")) return "🔥";
+    if (lowerImg.includes("bigo") || lowerName.includes("بيجو")) return "💬";
+    if (lowerImg.includes("vodafone") || lowerName.includes("فودافون")) return "📱";
+    if (lowerImg.includes("usdt") || lowerName.includes("usdt") || lowerName.includes("عملة") || lowerName.includes("أرصدة")) return "🪙";
+    if (lowerImg.includes("canva") || lowerName.includes("كانفا")) return "🎨";
+    if (lowerImg.includes("netflix") || lowerName.includes("نتفليكس")) return "🎬";
+    if (lowerName.includes("ايفون") || lowerName.includes("iphone") || lowerName.includes("ipad") || lowerName.includes("ايباد") || lowerName.includes("bypass") || lowerName.includes("تخط") || lowerName.includes("icloud") || lowerName.includes("ايكلاود") || lowerName.includes("hello") || lowerName.includes("removal") || lowerName.includes("hfz") || lowerName.includes("smd") || lowerName.includes("otix")) return "📱";
+    
+    return "⚡";
+  };
+
+  const getServiceIcon = (image, name = "") => {
+    if (!image) return getFallbackEmoji(name, image);
+    if (image.startsWith("data:image") || image.startsWith("http") || image.includes("uploads")) {
+      const src = image.startsWith("http") || image.startsWith("data:") 
+        ? image 
+        : (image.startsWith("/") ? `${API_BASE_URL}${image}` : `${API_BASE_URL}/${image}`);
+      return <img 
+        src={src} 
+        alt="Service Icon" 
+        onError={(e) => {
+          e.target.style.display = 'none';
+          const parent = e.target.parentElement;
+          if (parent) {
+            parent.innerText = getFallbackEmoji(name, image);
+          }
+        }}
+        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }} 
+      />;
     }
     if (image.includes("pubg")) return "🔫";
     if (image.includes("freefire")) return "🔥";
@@ -401,14 +450,71 @@ export default function ServiceDetail({ params }) {
     );
   }
 
+  const filteredPackages = useMemo(() => {
+    if (!service?.packages) return [];
+    if (!packageSearchTerm.trim()) return service.packages;
+    return service.packages.filter(pkg => 
+      pkg.name.toLowerCase().includes(packageSearchTerm.toLowerCase())
+    );
+  }, [service?.packages, packageSearchTerm]);
+
   const packagesSection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
-      {service.packages && service.packages.length > 0 ? (
+      
+      {service.packages && service.packages.length > 3 && (
+        <div style={{ marginBottom: "15px", position: "relative" }}>
+          <input
+            type="text"
+            placeholder="البحث عن باقة..."
+            value={packageSearchTerm}
+            onChange={(e) => setPackageSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px 40px 12px 15px",
+              fontSize: "0.95rem",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              background: "rgba(255, 255, 255, 0.05)",
+              color: "var(--text-main)",
+              outline: "none",
+              transition: "border-color 0.2s"
+            }}
+          />
+          <span style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", opacity: 0.6, fontSize: "1rem" }}>🔍</span>
+          {packageSearchTerm && (
+            <button
+              onClick={() => setPackageSearchTerm("")}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "transparent",
+                border: "none",
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                fontSize: "1.1rem"
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
+      {filteredPackages && filteredPackages.length > 0 ? (
         <div className="packages-selector">
-          {service.packages.map((pkg, idx) => {
+          {filteredPackages.map((pkg, idx) => {
             const simulatedDiscount = 2 + (idx % 4);
-            const originalPrice = (service.category_currency === 'USD' ? (pkg.usd_price || pkg.price) : pkg.price) / (1 - simulatedDiscount / 100);
+            const isUsd = service.category_currency === 'USD';
+            const usdPrice = pkg.usd_price || pkg.price;
+            const originalUsdPrice = usdPrice / (1 - simulatedDiscount / 100);
+            
+            const usdRate = Number(exchangeRates?.["USD"] || 50);
+            const egpPrice = usdPrice * usdRate;
+            const originalEgpPrice = originalUsdPrice * usdRate;
+
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
             return (
               <div
@@ -420,6 +526,14 @@ export default function ServiceDetail({ params }) {
                     setCustomerPricingMode("packages");
                   }
                   setSelectedPackage(pkg);
+                  
+                  // Scroll to form smoothly
+                  setTimeout(() => {
+                    const formEl = document.getElementById("payment-form-section");
+                    if (formEl) {
+                      formEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }, 50);
                 }}
                 style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px", cursor: "pointer" }}
               >
@@ -437,25 +551,32 @@ export default function ServiceDetail({ params }) {
                 }}>
                   -{simulatedDiscount}%
                 </span>
-
+ 
                 <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
-
-                <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                  <span className="package-price" style={{ fontSize: "1.1rem" }}>
-                    {service.category_currency === 'USD' 
-                      ? `$ ${Number(pkg.usd_price || pkg.price).toFixed(2)}` 
-                      : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
-                  </span>
-                  <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                    {service.category_currency === 'USD' ? '$' : ''}{Number(originalPrice).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
-                  </span>
+ 
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
+                    <span className="package-price" style={{ fontSize: "1.1rem" }}>
+                      {isUsd 
+                        ? `$ ${usdPrice.toFixed(2)}` 
+                        : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
+                    </span>
+                    <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                      {isUsd ? '$' : ''}{isUsd ? originalUsdPrice.toFixed(2) : Number(pkg.price / (1 - simulatedDiscount / 100)).toFixed(2)}{isUsd ? '' : ` ${baseCurrency}`}
+                    </span>
+                  </div>
+                  {isUsd && (
+                    <span style={{ fontSize: "0.78rem", color: "var(--primary-color)", fontWeight: "bold" }}>
+                      ما يعادل {egpPrice.toFixed(2)} {baseCurrency}
+                    </span>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
+        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات مطابقة للبحث.</div>
       )}
     </div>
   );
@@ -464,7 +585,9 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} {baseCurrency} (أقل كمية: 100)
+        سعر الـ 1000 وحدة هو: {service.category_currency === 'USD'
+          ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
+          : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`} (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -504,7 +627,17 @@ export default function ServiceDetail({ params }) {
           placeholder="أدخل الكمية هنا (مثال: 5000)"
         />
         <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} {baseCurrency}</strong>
+          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>
+            {(() => {
+              const usdPrice = ((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0);
+              if (service.category_currency === 'USD') {
+                const egpPrice = usdPrice * Number(exchangeRates?.["USD"] || 50);
+                return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
+              } else {
+                return `${usdPrice.toFixed(2)} ${baseCurrency}`;
+              }
+            })()}
+          </strong>
         </div>
       </div>
     </div>
@@ -575,7 +708,7 @@ export default function ServiceDetail({ params }) {
           {/* Header of service */}
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
-              {getServiceIcon(service.image)}
+              {getServiceIcon(service.image, service.name)}
             </div>
             <div>
               <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
@@ -669,7 +802,7 @@ export default function ServiceDetail({ params }) {
 
           {/* Form fields - Dynamic */}
           <form onSubmit={handleSubmit}>
-            <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
+            <h3 id="payment-form-section" style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
             
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx}>
@@ -722,8 +855,36 @@ export default function ServiceDetail({ params }) {
             <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: {service.category_currency === 'USD' ? '$' : ''}{((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage ? (service.category_currency === 'USD' ? (selectedPackage.usd_price || selectedPackage.price) : selectedPackage.price) : 0)).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
+                <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: "bold" }}>
+                  المبلغ: {(() => {
+                    const isUsd = service.category_currency === 'USD';
+                    let usdPrice = 0;
+                    let egpPrice = 0;
+                    const usdRate = Number(exchangeRates?.["USD"] || 50);
+
+                    if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
+                      const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
+                      if (isUsd) {
+                        usdPrice = computedUsd;
+                        egpPrice = usdPrice * usdRate;
+                      } else {
+                        egpPrice = computedUsd;
+                      }
+                    } else if (selectedPackage) {
+                      if (isUsd) {
+                        usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                        egpPrice = usdPrice * usdRate;
+                      } else {
+                        egpPrice = selectedPackage.price;
+                      }
+                    }
+
+                    if (isUsd) {
+                      return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
+                    } else {
+                      return `${egpPrice.toFixed(2)} ${baseCurrency}`;
+                    }
+                  })()}
                 </span>
               </div>
 
@@ -973,7 +1134,35 @@ export default function ServiceDetail({ params }) {
             <div className="summary-row" style={{ alignItems: "center" }}>
               <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {service.category_currency === 'USD' ? '$' : ''}{((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage ? (service.category_currency === 'USD' ? (selectedPackage.usd_price || selectedPackage.price) : selectedPackage.price) : 0)).toFixed(2)}{service.category_currency === 'USD' ? '' : ` ${baseCurrency}`}
+                {(() => {
+                  const isUsd = service.category_currency === 'USD';
+                  let usdPrice = 0;
+                  let egpPrice = 0;
+                  const usdRate = Number(exchangeRates?.["USD"] || 50);
+
+                  if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
+                    const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
+                    if (isUsd) {
+                      usdPrice = computedUsd;
+                      egpPrice = usdPrice * usdRate;
+                    } else {
+                      egpPrice = computedUsd;
+                    }
+                  } else if (selectedPackage) {
+                    if (isUsd) {
+                      usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                      egpPrice = usdPrice * usdRate;
+                    } else {
+                      egpPrice = selectedPackage.price;
+                    }
+                  }
+
+                  if (isUsd) {
+                    return `$ ${usdPrice.toFixed(2)} (${egpPrice.toFixed(2)} ${baseCurrency})`;
+                  } else {
+                    return `${egpPrice.toFixed(2)} ${baseCurrency}`;
+                  }
+                })()}
               </span>
             </div>
 
@@ -1040,11 +1229,11 @@ export default function ServiceDetail({ params }) {
                   <span style={{ color: "#94a3b8" }}>الباقة / الكمية:</span>
                   <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
                   <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
                     {service.category_currency === 'USD' 
-                      ? `$ ${Number(selectedPackage?.usd_price || selectedPackage?.price || successData.package_price).toFixed(2)}` 
+                      ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
                       : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`}
                   </strong>
                 </div>

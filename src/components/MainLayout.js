@@ -12,6 +12,7 @@ export default function MainLayout({ children }) {
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
+  const [logoFailed, setLogoFailed] = useState(false);
   
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
@@ -19,6 +20,7 @@ export default function MainLayout({ children }) {
       .then(data => {
         if (data) {
           setSettings(data);
+          setLogoFailed(false);
         }
       })
       .catch(err => console.error("Failed to fetch settings", err));
@@ -236,10 +238,11 @@ export default function MainLayout({ children }) {
       {/* Desktop Sidebar (RTL Right Side) */}
       <aside className="app-sidebar">
         <div className="sidebar-logo-section" style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-          {settings.site_logo && settings.site_logo !== "default" ? (
+          {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
             <img 
               src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
               alt={settings.site_name} 
+              onError={() => setLogoFailed(true)}
               style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover" }} 
             />
           ) : (
@@ -353,10 +356,11 @@ export default function MainLayout({ children }) {
       <div className={`mobile-drawer ${menuOpen ? "open" : "closed"}`}>
         <div className="mobile-drawer-header">
           <span className="mobile-drawer-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {settings.site_logo && settings.site_logo !== "default" ? (
+            {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
               <img 
                 src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
                 alt={settings.site_name} 
+                onError={() => setLogoFailed(true)}
                 style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} 
               />
             ) : (
@@ -515,10 +519,11 @@ export default function MainLayout({ children }) {
 
             {/* Logo Link (shown on mobile, hidden on desktop) */}
             <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none", minWidth: 0, flex: 1 }}>
-              {settings.site_logo && settings.site_logo !== "default" ? (
+              {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
                 <img 
                   src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
                   alt={settings.site_name} 
+                  onError={() => setLogoFailed(true)}
                   style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} 
                 />
               ) : (

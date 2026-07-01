@@ -95,7 +95,7 @@ export default async function Page() {
           "@type": "CollectionPage",
           "name": cat.name,
           "url": `${SITE_URL}/category/${cat.id}`,
-          "image": cat.image && cat.image.startsWith("http") ? cat.image : `${SITE_URL}/logo.jpg`
+          "image": cat.image ? (cat.image.startsWith("http") ? cat.image : `${API_BASE_URL}${cat.image.startsWith("/") ? cat.image : `/${cat.image}`}`) : `${SITE_URL}/logo.jpg`
         }
       }))
     }

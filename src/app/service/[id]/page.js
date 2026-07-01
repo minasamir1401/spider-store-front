@@ -193,8 +193,8 @@ export async function generateMetadata({ params }) {
       siteName: siteName,
       images: [
         {
-          url: service.image && service.image.startsWith("http")
-            ? service.image
+          url: service.image 
+            ? (service.image.startsWith("http") ? service.image : `${API_BASE_URL}${service.image.startsWith("/") ? service.image : `/${service.image}`}`) 
             : `${SITE_URL}/uploads/og-image.png`,
           alt: service.name
         }
@@ -206,8 +206,8 @@ export async function generateMetadata({ params }) {
       title,
       description,
       images: [
-        service.image && service.image.startsWith("http")
-          ? service.image
+        service.image 
+          ? (service.image.startsWith("http") ? service.image : `${API_BASE_URL}${service.image.startsWith("/") ? service.image : `/${service.image}`}`) 
           : `${SITE_URL}/uploads/og-image.png`
       ],
     }
@@ -255,8 +255,8 @@ export default async function Page({ params }) {
       "@type": "Product",
       "name": service.name,
       "description": service.description,
-      "image": service.image && service.image.startsWith("http")
-        ? service.image
+      "image": service.image 
+        ? (service.image.startsWith("http") ? service.image : `${API_BASE_URL}${service.image.startsWith("/") ? service.image : `/${service.image}`}`) 
         : `${SITE_URL}/icons/icon-192.png`,
       "offers": {
         "@type": "AggregateOffer",

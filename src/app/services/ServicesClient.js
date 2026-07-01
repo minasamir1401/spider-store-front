@@ -116,11 +116,40 @@ export default function ServicesClient() {
       });
   }, []);
 
-  const getServiceIcon = (image) => {
-    if (!image) return "⚡";
-    if (image.startsWith("data:image") || image.startsWith("http") || image.startsWith("/uploads")) {
-      const src = image.startsWith("/uploads") ? `${API_BASE_URL}${image}` : image;
-      return <img src={src} alt="Service Icon" style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "8px" }} />;
+  const getFallbackEmoji = (name = "", image = "") => {
+    const lowerName = (name || "").toLowerCase();
+    const lowerImg = (image || "").toLowerCase();
+    
+    if (lowerImg.includes("pubg") || lowerName.includes("pubg") || lowerName.includes("ببجي")) return "🔫";
+    if (lowerImg.includes("freefire") || lowerImg.includes("free fire") || lowerName.includes("فري فاير") || lowerName.includes("free fire") || lowerName.includes("freefire")) return "🔥";
+    if (lowerImg.includes("bigo") || lowerName.includes("بيجو")) return "💬";
+    if (lowerImg.includes("vodafone") || lowerName.includes("فودافون")) return "📱";
+    if (lowerImg.includes("usdt") || lowerName.includes("usdt") || lowerName.includes("عملة") || lowerName.includes("أرصدة")) return "🪙";
+    if (lowerImg.includes("canva") || lowerName.includes("كانفا")) return "🎨";
+    if (lowerImg.includes("netflix") || lowerName.includes("نتفليكس")) return "🎬";
+    if (lowerName.includes("ايفون") || lowerName.includes("iphone") || lowerName.includes("ipad") || lowerName.includes("ايباد") || lowerName.includes("bypass") || lowerName.includes("تخط") || lowerName.includes("icloud") || lowerName.includes("ايكلاود") || lowerName.includes("hello") || lowerName.includes("removal") || lowerName.includes("hfz") || lowerName.includes("smd") || lowerName.includes("otix")) return "📱";
+    
+    return "⚡";
+  };
+
+  const getServiceIcon = (image, name = "") => {
+    if (!image) return getFallbackEmoji(name, image);
+    if (image.startsWith("data:image") || image.startsWith("http") || image.includes("uploads")) {
+      const src = image.startsWith("http") || image.startsWith("data:") 
+        ? image 
+        : (image.startsWith("/") ? `${API_BASE_URL}${image}` : `${API_BASE_URL}/${image}`);
+      return <img 
+        src={src} 
+        alt="Service Icon" 
+        onError={(e) => {
+          e.target.style.display = 'none';
+          const parent = e.target.parentElement;
+          if (parent) {
+            parent.innerText = getFallbackEmoji(name, image);
+          }
+        }}
+        style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "8px" }} 
+      />;
     }
     if (image.includes("pubg")) return "🔫";
     if (image.includes("freefire")) return "🔥";
@@ -253,7 +282,7 @@ export default function ServicesClient() {
                 {/* Sub Services Grid */}
                 <div className="scc-grid">
                   {catServices.map((service) => {
-                    const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
+                    const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
                     
                     const categoryColors = {
                       1: '#6366f1', // games
@@ -278,7 +307,9 @@ export default function ServicesClient() {
                     const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
 
                     const imgSrc = isCustomImg
-                      ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
+                      ? (service.image.startsWith("http") || service.image.startsWith("data:") 
+                          ? service.image 
+                          : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
                       : null;
 
                     return (
@@ -293,9 +324,24 @@ export default function ServicesClient() {
                           <div className="scc-img-ring">
                             <div className="scc-img-inner">
                               {imgSrc ? (
-                                <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
+                                <img 
+                                  src={imgSrc} 
+                                  alt={service.name} 
+                                  loading="lazy" 
+                                  className="scc-img" 
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    const parent = e.target.parentElement;
+                                    if (parent) {
+                                      const span = document.createElement('span');
+                                      span.style.fontSize = '1.2rem';
+                                      span.innerText = getFallbackEmoji(service.name, service.image);
+                                      parent.appendChild(span);
+                                    }
+                                  }}
+                                />
                               ) : (
-                                <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                                <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
                               )}
                             </div>
                           </div>
@@ -359,11 +405,13 @@ export default function ServicesClient() {
 
               <div className="scc-grid">
                 {uncategorizedServices.map((service) => {
-                  const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
+                  const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
                   const catColor = '#6366f1';
                   const catGlow = 'rgba(99, 102, 241, 0.35)';
                   const imgSrc = isCustomImg
-                    ? (service.image.startsWith("/uploads") ? `${API_BASE_URL}${service.image}` : service.image)
+                    ? (service.image.startsWith("http") || service.image.startsWith("data:") 
+                        ? service.image 
+                        : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
                     : null;
 
                   return (
@@ -378,9 +426,24 @@ export default function ServicesClient() {
                         <div className="scc-img-ring">
                           <div className="scc-img-inner">
                             {imgSrc ? (
-                              <img src={imgSrc} alt={service.name} loading="lazy" className="scc-img" />
+                              <img 
+                                src={imgSrc} 
+                                alt={service.name} 
+                                loading="lazy" 
+                                className="scc-img" 
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  const parent = e.target.parentElement;
+                                  if (parent) {
+                                    const span = document.createElement('span');
+                                    span.style.fontSize = '1.2rem';
+                                    span.innerText = getFallbackEmoji(service.name, service.image);
+                                    parent.appendChild(span);
+                                  }
+                                }}
+                              />
                             ) : (
-                              <span style={{ fontSize: "1.2rem" }}>⚡</span>
+                              <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
                             )}
                           </div>
                         </div>

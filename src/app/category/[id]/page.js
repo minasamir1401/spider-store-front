@@ -98,8 +98,8 @@ export async function generateMetadata({ params }) {
       siteName: siteName,
       images: [
         {
-          url: category.image && category.image.startsWith("http") 
-            ? category.image 
+          url: category.image 
+            ? (category.image.startsWith("http") ? category.image : `${API_BASE_URL}${category.image.startsWith("/") ? category.image : `/${category.image}`}`) 
             : `${SITE_URL}/uploads/og-image.png`,
           alt: category.name
         }
@@ -111,8 +111,8 @@ export async function generateMetadata({ params }) {
       title,
       description,
       images: [
-        category.image && category.image.startsWith("http") 
-          ? category.image 
+        category.image 
+          ? (category.image.startsWith("http") ? category.image : `${API_BASE_URL}${category.image.startsWith("/") ? category.image : `/${category.image}`}`) 
           : `${SITE_URL}/uploads/og-image.png`
       ],
     }
@@ -161,7 +161,9 @@ export default async function Page({ params }) {
           "name": s.name,
           "description": s.description,
           "url": `${SITE_URL}/service/${s.id}`,
-          "image": s.image && s.image.startsWith("http") ? s.image : `${SITE_URL}/logo.jpg`
+          "image": s.image 
+            ? (s.image.startsWith("http") ? s.image : `${API_BASE_URL}${s.image.startsWith("/") ? s.image : `/${s.image}`}`) 
+            : `${SITE_URL}/logo.jpg`
         }
       }))
     }
