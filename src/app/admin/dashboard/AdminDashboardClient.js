@@ -134,6 +134,11 @@ export default function AdminDashboard() {
   const [credentialsErrorMsg, setCredentialsErrorMsg] = useState("");
   const [credentialsSuccessMsg, setCredentialsSuccessMsg] = useState("");
 
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [codeModalOrder, setCodeModalOrder] = useState(null);
+  const [codeValue, setCodeValue] = useState("");
+  const [codeModalStatusToUpdate, setCodeModalStatusToUpdate] = useState(null);
+
   const [errorMsg, setErrorMsg] = useState("");
   const [addCurrencySelect, setAddCurrencySelect] = useState("USD");
   const [addCurrencyCustomCode, setAddCurrencyCustomCode] = useState("");
@@ -351,6 +356,52 @@ export default function AdminDashboard() {
     } catch (err) {
       alert("فشل تحديث حالة الطلب.");
     }
+  };
+
+  const updateOrderCodeAndStatus = async (orderId, newStatus, newCode) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          status: newStatus || undefined, 
+          code: newCode 
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+
+      // Update locally
+      setOrders(prev => prev.map(o => o.id === orderId ? { 
+        ...o, 
+        status: newStatus || o.status, 
+        code: newCode 
+      } : o));
+    } catch (err) {
+      alert(err.message || "فشل تحديث الطلب.");
+    }
+  };
+
+  const handleOpenCodeModal = (order, statusToUpdate = null) => {
+    setCodeModalOrder(order);
+    setCodeValue(order.code || "");
+    setCodeModalStatusToUpdate(statusToUpdate);
+    setShowCodeModal(true);
+  };
+
+  const handleSubmitCodeModal = async (e) => {
+    e.preventDefault();
+    if (!codeModalOrder) return;
+    
+    await updateOrderCodeAndStatus(codeModalOrder.id, codeModalStatusToUpdate, codeValue);
+    setShowCodeModal(false);
+    setCodeModalOrder(null);
+    setCodeValue("");
+    setCodeModalStatusToUpdate(null);
   };
 
   const deleteOrder = async (orderId) => {
@@ -2673,6 +2724,24 @@ export default function AdminDashboard() {
                             <td data-label="الخدمة / التصنيف">
                               <div style={{ fontWeight: 700 }}>{order.service_name}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.category_name}</div>
+                              {order.code && (
+                                <div style={{ 
+                                  fontSize: "0.72rem", 
+                                  color: "#c084fc", 
+                                  marginTop: "4px", 
+                                  background: "rgba(168, 85, 247, 0.1)", 
+                                  padding: "2px 6px", 
+                                  borderRadius: "6px", 
+                                  border: "1px solid rgba(168, 85, 247, 0.15)", 
+                                  display: "inline-block",
+                                  maxWidth: "180px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap"
+                                }} title={order.code}>
+                                  🔑 {order.code}
+                                </div>
+                              )}
                             </td>
                             <td data-label="الباقة المطلوبة" style={{ fontWeight: 700, color: "#f8fafc" }}>
                               {order.package_name} 
@@ -2743,7 +2812,7 @@ export default function AdminDashboard() {
                               {order.status === "pending" ? (
                                 <>
                                   <button
-                                    onClick={() => updateOrderStatus(order.id, "completed")}
+                                    onClick={() => handleOpenCodeModal(order, "completed")}
                                     className="action-btn btn-success-premium"
                                   >
                                     <span>تم الشحن</span>
@@ -2758,6 +2827,14 @@ export default function AdminDashboard() {
                               ) : (
                                 <span style={{ color: "#475569", fontSize: "0.85rem", fontWeight: 600 }}>منتهي</span>
                               )}
+                              <button
+                                onClick={() => handleOpenCodeModal(order, null)}
+                                className="action-btn btn-edit-premium"
+                                style={{ background: "rgba(168, 85, 247, 0.12)", border: "1px solid rgba(168, 85, 247, 0.2)", color: "#c084fc" }}
+                                title="إرسال/تعديل كود التفعيل"
+                              >
+                                <span>🔑 كود</span>
+                              </button>
                               <button
                                 onClick={() => deleteOrder(order.id)}
                                 className="action-btn btn-danger-premium"
@@ -5683,6 +5760,80 @@ export default function AdminDashboard() {
                 </button>
                 <button type="submit" className="btn-add-premium">
                   حفظ التعديلات
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showCodeModal && codeModalOrder && (
+        <div className="premium-overlay" onClick={() => setShowCodeModal(false)}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "500px", maxHeight: "85vh", overflowY: "auto" }}>
+            <div className="premium-modal-header">
+              <h3 className="premium-modal-title">
+                {codeModalStatusToUpdate === "completed" 
+                  ? `إتمام الشحن وإرسال كود التفعيل للطلب #${codeModalOrder.id}` 
+                  : `تعديل كود التفعيل للطلب #${codeModalOrder.id}`}
+              </h3>
+              <button className="close-btn-premium" onClick={() => setShowCodeModal(false)}>×</button>
+            </div>
+            
+            <form onSubmit={handleSubmitCodeModal} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "0.85rem", color: "#cbd5e1" }}>
+                <div>الخدمة: <strong>{codeModalOrder.service_name}</strong></div>
+                <div style={{ marginTop: "4px" }}>الباقة: <strong>{codeModalOrder.package_name}</strong></div>
+                <div style={{ marginTop: "4px" }}>معرف الحساب (ID): <strong style={{ color: "#c084fc" }}>{codeModalOrder.player_id}</strong></div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>كود التفعيل أو رسالة الشحن للعميل:</label>
+                <textarea
+                  placeholder="أدخل كود التفعيل، كود البطاقة، أو أي رسالة توضيحية للعميل هنا..."
+                  rows="4"
+                  value={codeValue}
+                  onChange={(e) => setCodeValue(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    fontFamily: "monospace"
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+                <button 
+                  type="button" 
+                  className="action-btn btn-danger-premium" 
+                  onClick={() => setShowCodeModal(false)}
+                >
+                  إلغاء
+                </button>
+                
+                {codeModalStatusToUpdate === "completed" && (
+                  <button 
+                    type="button" 
+                    className="action-btn btn-edit-premium"
+                    style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)" }}
+                    onClick={async () => {
+                      await updateOrderStatus(codeModalOrder.id, "completed");
+                      setShowCodeModal(false);
+                      setCodeModalOrder(null);
+                      setCodeValue("");
+                    }}
+                  >
+                    شحن بدون كود
+                  </button>
+                )}
+
+                <button type="submit" className="btn-add-premium">
+                  {codeModalStatusToUpdate === "completed" ? "إتمام الشحن وحفظ الكود" : "حفظ الكود"}
                 </button>
               </div>
             </form>

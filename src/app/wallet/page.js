@@ -232,9 +232,9 @@ export default function WalletPage() {
                   style={{
                     padding: "8px 14px",
                     borderRadius: "10px",
-                    background: selectedMethodId === pm.id ? "linear-gradient(135deg, #ef4444 0%, #8b5cf6 100%)" : "rgba(255,255,255,0.03)",
-                    color: "#ffffff",
-                    border: selectedMethodId === pm.id ? "none" : "1px solid rgba(255,255,255,0.08)",
+                    background: selectedMethodId === pm.id ? "linear-gradient(135deg, #ef4444 0%, #8b5cf6 100%)" : "rgba(128, 128, 128, 0.05)",
+                    color: selectedMethodId === pm.id ? "#ffffff" : "var(--text-main, #000000)",
+                    border: selectedMethodId === pm.id ? "none" : "1px solid rgba(128, 128, 128, 0.2)",
                     fontSize: "0.85rem",
                     cursor: "pointer",
                     fontWeight: "bold",

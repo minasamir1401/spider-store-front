@@ -182,6 +182,61 @@ export default function OrdersHistory() {
                       <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                         حساب الشحن (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
                       </p>
+                      {order.code && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
+                          <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الشحن:</span>
+                          <div style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: "space-between", 
+                            gap: "12px", 
+                            background: "rgba(10, 12, 26, 0.4)", 
+                            padding: "10px 14px", 
+                            borderRadius: "10px", 
+                            border: "1px solid rgba(255, 255, 255, 0.06)" 
+                          }}>
+                            <span style={{ 
+                              fontFamily: "monospace", 
+                              fontWeight: "bold", 
+                              fontSize: "1.1rem", 
+                              color: "#ffffff", 
+                              whiteSpace: "pre-wrap", 
+                              wordBreak: "break-all",
+                              direction: "ltr",
+                              textAlign: "left"
+                            }}>
+                              {order.code}
+                            </span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(order.code);
+                                alert("تم نسخ الكود بنجاح! 📋");
+                              }}
+                              style={{
+                                background: "rgba(255, 255, 255, 0.05)",
+                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                borderRadius: "6px",
+                                color: "#cbd5e1",
+                                padding: "4px 10px",
+                                fontSize: "0.75rem",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.target.style.color = "#ffffff";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.background = "rgba(255, 255, 255, 0.05)";
+                                e.target.style.color = "#cbd5e1";
+                              }}
+                            >
+                              نسخ 📋
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
@@ -303,6 +358,61 @@ export default function OrdersHistory() {
                       <span style={{ color: "#cbd5e1" }}>تاريخ الطلب:</span>
                       <span style={{ color: "#f8fafc" }}>{new Date(singleOrder.created_at).toLocaleString("ar-EG")}</span>
                     </div>
+                    {singleOrder.code && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
+                        <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الشحن:</span>
+                        <div style={{ 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: "space-between", 
+                          gap: "12px", 
+                          background: "rgba(10, 12, 26, 0.4)", 
+                          padding: "10px 14px", 
+                          borderRadius: "10px", 
+                          border: "1px solid rgba(255, 255, 255, 0.06)" 
+                        }}>
+                          <span style={{ 
+                            fontFamily: "monospace", 
+                            fontWeight: "bold", 
+                            fontSize: "1.1rem", 
+                            color: "#ffffff", 
+                            whiteSpace: "pre-wrap", 
+                            wordBreak: "break-all",
+                            direction: "ltr",
+                            textAlign: "left"
+                          }}>
+                            {singleOrder.code}
+                          </span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(singleOrder.code);
+                              alert("تم نسخ الكود بنجاح! 📋");
+                            }}
+                            style={{
+                              background: "rgba(255, 255, 255, 0.05)",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              borderRadius: "6px",
+                              color: "#cbd5e1",
+                              padding: "4px 10px",
+                              fontSize: "0.75rem",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                              transition: "all 0.2s"
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = "rgba(255, 255, 255, 0.1)";
+                              e.target.style.color = "#ffffff";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = "rgba(255, 255, 255, 0.05)";
+                              e.target.style.color = "#cbd5e1";
+                            }}
+                          >
+                            نسخ 📋
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {singleOrder.status === "pending" && (
