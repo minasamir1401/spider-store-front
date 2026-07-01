@@ -433,6 +433,14 @@ export default function ServiceDetail({ params }) {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const filteredPackages = useMemo(() => {
+    if (!service?.packages) return [];
+    if (!packageSearchTerm.trim()) return service.packages;
+    return service.packages.filter(pkg => 
+      pkg.name.toLowerCase().includes(packageSearchTerm.toLowerCase())
+    );
+  }, [service?.packages, packageSearchTerm]);
+
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "80px" }}>
@@ -449,14 +457,6 @@ export default function ServiceDetail({ params }) {
       </div>
     );
   }
-
-  const filteredPackages = useMemo(() => {
-    if (!service?.packages) return [];
-    if (!packageSearchTerm.trim()) return service.packages;
-    return service.packages.filter(pkg => 
-      pkg.name.toLowerCase().includes(packageSearchTerm.toLowerCase())
-    );
-  }, [service?.packages, packageSearchTerm]);
 
   const packagesSection = (
     <div>
