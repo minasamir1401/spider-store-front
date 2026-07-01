@@ -32,16 +32,7 @@ export default function MainLayout({ children }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
-  const [isUnlocked, setIsUnlocked] = useState(true);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const unlocked = sessionStorage.getItem("site_unlocked") === "true";
-      if (!unlocked) {
-        setIsUnlocked(false);
-      }
-    }
-  }, []);
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
 
   // Fetch customer profile
@@ -261,7 +252,6 @@ export default function MainLayout({ children }) {
           padding: "20px"
         }}>
           <SliderCaptcha onSuccess={() => {
-            sessionStorage.setItem("site_unlocked", "true");
             setTimeout(() => {
               setIsUnlocked(true);
             }, 800);
@@ -1022,7 +1012,7 @@ const SliderCaptcha = ({ onSuccess }) => {
       <div style={{ fontSize: "2.5rem", marginBottom: "15px" }}>🔒</div>
       <h3 style={{ fontWeight: 800, color: "#fff", marginBottom: "8px", fontSize: "1.2rem" }}>تحقق الأمان</h3>
       <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "25px", lineHeight: "1.5" }}>
-        يرجى سحب الشريط المنزلق لفتح الموقع وتصفح الخدمات
+        اسحب للتأكيد أنك إنسان لست روبوت
       </p>
 
       {/* Slider Track */}
@@ -1050,7 +1040,7 @@ const SliderCaptcha = ({ onSuccess }) => {
           opacity: isSuccess ? 0 : 1,
           transition: "opacity 0.2s"
         }}>
-          اسحب للتحقق وتأكيد الدخول →
+          اسحب للتأكيد →
         </span>
 
         {/* Dynamic filled background */}
