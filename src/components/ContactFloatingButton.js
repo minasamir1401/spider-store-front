@@ -8,7 +8,7 @@ const WHATSAPP_SUPPORT_2 = "https://wa.me/201552672948";
 const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5";
 const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H";
 const TELEGRAM_CHANNEL = "https://t.me/ARABTECSUPPURT";
-const FACEBOOK_PAGE = "https://www.facebook.com/share/1Ehtc4bMXy/";
+const FACEBOOK_PAGE = "https://www.facebook.com/ARABTECHSERVEROnline";
 const TIKTOK_ACCOUNT = "https://tiktok.com/@arabtechsuppurt";
 
 export default function ContactFloatingButton() {
