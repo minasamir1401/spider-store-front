@@ -440,6 +440,31 @@ export default function ServiceDetail({ params }) {
     );
   }, [service?.packages, packageSearchTerm]);
 
+  if (loading || !service) {
+    return (
+      <>
+        <style>{`
+          .spinner-loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin-loader 0.8s linear infinite;
+            display: inline-block;
+          }
+          @keyframes spin-loader {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px", flexDirection: "column", gap: "20px" }}>
+          <div className="spinner-loader"></div>
+          <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>جاري تحميل تفاصيل الخدمة...</p>
+        </div>
+      </>
+    );
+  }
+
   const packagesSection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>1. اختر الباقة المطلوبة:</h3>
