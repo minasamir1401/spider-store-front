@@ -274,7 +274,7 @@ export default function CategoryServices({ params }) {
                   padding: "12px 42px 12px 15px",
                   fontSize: "0.95rem",
                   borderRadius: "12px",
-                  border: "1px solid var(--border-glass)",
+                  border: theme === "light" ? "1.5px solid #000000" : "1px solid var(--border-glass)",
                   background: "var(--bg-glass)",
                   color: "var(--text-main)",
                   outline: "none",
