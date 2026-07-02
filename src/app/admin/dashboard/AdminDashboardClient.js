@@ -138,6 +138,8 @@ export default function AdminDashboard() {
   const [codeModalOrder, setCodeModalOrder] = useState(null);
   const [codeValue, setCodeValue] = useState("");
   const [codeModalStatusToUpdate, setCodeModalStatusToUpdate] = useState(null);
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
+  const [orderDetailsData, setOrderDetailsData] = useState(null);
 
   const [errorMsg, setErrorMsg] = useState("");
   const [addCurrencySelect, setAddCurrencySelect] = useState("USD");
@@ -2684,170 +2686,84 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Table */}
-                <div className="premium-table-wrapper">
-                  <table className="premium-table">
-                    <thead>
-                      <tr>
-                        <th>رقم الطلب</th>
-                        <th>حساب العميل</th>
-                        <th>الخدمة / التصنيف</th>
-                        <th>الباقة المطلوبة</th>
-                        <th>معرّف الحساب (ID)</th>
-                        <th>رقم الهاتف</th>
-                        <th>طريقة الدفع</th>
-                        <th>رقم التحويل</th>
-                        <th>تاريخ الطلب</th>
-                        <th>الحالة</th>
-                        <th style={{ textAlign: "center" }}>الإجراءات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredOrders.length === 0 ? (
-                        <tr>
-                          <td colSpan="11" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-                            لا توجد أي طلبات شحن تطابق معايير البحث.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredOrders.map((order) => (
-                          <tr key={order.id}>
-                            <td data-label="رقم الطلب" style={{ fontWeight: 800, color: "#38bdf8" }}>#{order.id}</td>
-                            <td data-label="حساب العميل" style={{ fontWeight: 700 }}>
-                              <div style={{ color: order.customer_username && order.customer_username.includes("زائر") ? "#94a3b8" : "#fbbf24" }}>
-                                {order.customer_username || "زائر (بدون حساب)"}
-                              </div>
-                              {order.customer_id && (
-                                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "normal" }}>ID: {order.customer_id}</div>
-                              )}
-                            </td>
-                            <td data-label="الخدمة / التصنيف">
-                              <div style={{ fontWeight: 700 }}>{order.service_name}</div>
-                              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.category_name}</div>
-                              {order.code && (
-                                <div style={{ 
-                                  fontSize: "0.72rem", 
-                                  color: "#c084fc", 
-                                  marginTop: "4px", 
-                                  background: "rgba(168, 85, 247, 0.1)", 
-                                  padding: "2px 6px", 
-                                  borderRadius: "6px", 
-                                  border: "1px solid rgba(168, 85, 247, 0.15)", 
-                                  display: "inline-block",
-                                  maxWidth: "180px",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap"
-                                }} title={order.code}>
-                                  🔑 {order.code}
-                                </div>
-                              )}
-                            </td>
-                            <td data-label="الباقة المطلوبة" style={{ fontWeight: 700, color: "#f8fafc" }}>
-                              {order.package_name} 
-                              {order.quantity && order.quantity > 1 && (
-                                <div style={{ fontSize: "0.8rem", color: "#c084fc", marginTop: "2px" }}>
-                                  الكمية: {order.quantity}
-                                </div>
-                              )}
-                              <span style={{ color: "#34d399", marginRight: "6px", fontSize: "0.8rem" }}>
-                                ({Number(order.package_price || 0).toFixed(2)} {baseCurrency})
-                              </span>
-                            </td>
-                            <td data-label="معرّف الحساب (ID)" style={{ direction: "ltr", fontWeight: 700, color: "#c084fc", textAlign: "right" }}>
-                              {order.player_id}
-                            </td>
-                            <td data-label="رقم الهاتف">{order.phone}</td>
-                            <td data-label="طريقة الدفع" style={{ fontWeight: 700, color: order.payment_method === "wallet" ? "#34d399" : "#38bdf8" }}>
-                              {order.payment_method === "wallet" && "المحفظة"}
-                              {order.payment_method === "transfer" && `تحويل إلى ${order.transfer_to || "01026785879"}`}
-                              {!order.payment_method && "غير محدد"}
-                            </td>
-                            <td data-label="رقم التحويل" style={{ direction: "ltr", fontWeight: 700, color: "#f8fafc" }}>
-                              {order.payment_method === "transfer" ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
-                                  {order.sender_phone && <span>{order.sender_phone}</span>}
-                                  {Number(order.transfer_amount || 0) > 0 && (
-                                    <span style={{ fontSize: "0.78rem", color: "#38bdf8", background: "rgba(56, 189, 248, 0.1)", padding: "2px 6px", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.2)" }}>
-                                      مبلغ: {Number(order.transfer_amount).toFixed(2)} {baseCurrency}
-                                    </span>
-                                  )}
-                                  {order.receipt_image && (
-                                    <a 
-                                      href={`${API_BASE_URL}${order.receipt_image}`} 
-                                      className="action-btn"
-                                      style={{ 
-                                        padding: "4px 8px", 
-                                        fontSize: "0.75rem", 
-                                        background: "rgba(34, 197, 94, 0.2)", 
-                                        color: "#4ade80", 
-                                        border: "1px solid rgba(34, 197, 94, 0.3)", 
-                                        borderRadius: "6px", 
-                                        textDecoration: "none",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                        fontWeight: "bold"
-                                      }}
-                                    >
-                                      📸 إيصال التحويل
-                                    </a>
-                                  )}
-                                  {!order.sender_phone && !order.receipt_image && <span>-</span>}
-                                </div>
-                              ) : "-"}
-                            </td>
-                            <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-                              {new Date(order.created_at).toLocaleString("ar-EG")}
-                            </td>
-                            <td data-label="الحالة">
-                              <span className={`premium-badge premium-badge-${order.status}`}>
-                                <span className="badge-dot" />
-                                {order.status === "pending" && "انتظار"}
-                                {order.status === "completed" && "مكتمل"}
-                                {order.status === "cancelled" && "ملغي"}
-                              </span>
-                            </td>
-                            <td data-label="الإجراءات" style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                              {order.status === "pending" ? (
-                                <>
-                                  <button
-                                    onClick={() => handleOpenCodeModal(order, "completed")}
-                                    className="action-btn btn-success-premium"
-                                  >
-                                    <span>تم الشحن</span>
-                                  </button>
-                                  <button
-                                    onClick={() => updateOrderStatus(order.id, "cancelled")}
-                                    className="action-btn btn-danger-premium"
-                                  >
-                                    <span>إلغاء</span>
-                                  </button>
-                                </>
-                              ) : (
-                                <span style={{ color: "#475569", fontSize: "0.85rem", fontWeight: 600 }}>منتهي</span>
-                              )}
-                              <button
-                                onClick={() => handleOpenCodeModal(order, null)}
-                                className="action-btn btn-edit-premium"
-                                style={{ background: "rgba(168, 85, 247, 0.12)", border: "1px solid rgba(168, 85, 247, 0.2)", color: "#c084fc" }}
-                                title="إرسال/تعديل كود التفعيل"
-                              >
-                                <span>🔑 كود</span>
+                {/* Orders Cards (Mobile-Friendly, No Scroll) */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {filteredOrders.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "48px", color: "#64748b", fontSize: "1rem", fontWeight: 600, background: "rgba(255,255,255,0.02)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                      لا توجد أي طلبات شحن تطابق معايير البحث.
+                    </div>
+                  ) : (
+                    filteredOrders.map((order) => (
+                      <div key={order.id} style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        borderRadius: "16px",
+                        padding: "14px 16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        transition: "border-color 0.2s"
+                      }}>
+                        {/* Row 1: Order # + Status + Date */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                          <span style={{ fontWeight: 900, color: "#38bdf8", fontSize: "1rem" }}>#{order.id}</span>
+                          <span className={`premium-badge premium-badge-${order.status}`}>
+                            <span className="badge-dot" />
+                            {order.status === "pending" && "انتظار"}
+                            {order.status === "completed" && "مكتمل"}
+                            {order.status === "cancelled" && "ملغي"}
+                          </span>
+                          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>{new Date(order.created_at).toLocaleString("ar-EG")}</span>
+                        </div>
+
+                        {/* Row 2: Customer + Service */}
+                        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                          <div style={{ flex: 1, minWidth: "120px" }}>
+                            <div style={{ fontSize: "0.73rem", color: "#64748b", marginBottom: "2px" }}>العميل</div>
+                            <div style={{ fontWeight: 700, color: order.customer_username && order.customer_username.includes("زائر") ? "#94a3b8" : "#fbbf24", fontSize: "0.9rem" }}>
+                              {order.customer_username || "زائر"}
+                            </div>
+                          </div>
+                          <div style={{ flex: 2, minWidth: "140px" }}>
+                            <div style={{ fontSize: "0.73rem", color: "#64748b", marginBottom: "2px" }}>الخدمة</div>
+                            <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{order.service_name}</div>
+                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.package_name} • <span style={{ color: "#34d399" }}>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</span></div>
+                          </div>
+                        </div>
+
+                        {/* Row 3: Actions */}
+                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: "10px" }}>
+                          <button
+                            onClick={() => { setOrderDetailsData(order); setShowOrderDetailsModal(true); }}
+                            className="action-btn btn-edit-premium"
+                            style={{ fontSize: "0.8rem", padding: "6px 14px" }}
+                          >
+                            📋 تفاصيل
+                          </button>
+                          {order.status === "pending" && (
+                            <>
+                              <button onClick={() => handleOpenCodeModal(order, "completed")} className="action-btn btn-success-premium">
+                                ✅ تم الشحن
                               </button>
-                              <button
-                                onClick={() => deleteOrder(order.id)}
-                                className="action-btn btn-danger-premium"
-                                style={{ background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.2)" }}
-                              >
-                                <span>حذف</span>
+                              <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium">
+                                ❌ إلغاء
                               </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleOpenCodeModal(order, null)}
+                            className="action-btn btn-edit-premium"
+                            style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.2)", color: "#c084fc" }}
+                          >
+                            🔑 كود
+                          </button>
+                          <button onClick={() => deleteOrder(order.id)} className="action-btn btn-danger-premium">
+                            🗑️ حذف
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
@@ -5763,6 +5679,105 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {showOrderDetailsModal && orderDetailsData && (
+        <div className="premium-overlay" onClick={() => setShowOrderDetailsModal(false)}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "540px", maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="premium-modal-header">
+              <h3 className="premium-modal-title">📋 تفاصيل الطلب #{orderDetailsData.id}</h3>
+              <button className="close-btn-premium" onClick={() => setShowOrderDetailsModal(false)}>×</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* Status */}
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <span className={`premium-badge premium-badge-${orderDetailsData.status}`} style={{ fontSize: "0.9rem", padding: "6px 18px" }}>
+                  <span className="badge-dot" />
+                  {orderDetailsData.status === "pending" && "قيد الانتظار"}
+                  {orderDetailsData.status === "completed" && "مكتمل"}
+                  {orderDetailsData.status === "cancelled" && "ملغي"}
+                </span>
+              </div>
+
+              {/* Details Grid */}
+              {[
+                { label: "رقم الطلب", value: `#${orderDetailsData.id}`, color: "#38bdf8" },
+                { label: "حساب العميل", value: `${orderDetailsData.customer_username || "زائر"}${orderDetailsData.customer_id ? ` (ID: ${orderDetailsData.customer_id})` : ""}`, color: "#fbbf24" },
+                { label: "الخدمة", value: orderDetailsData.service_name },
+                { label: "التصنيف", value: orderDetailsData.category_name },
+                { label: "الباقة", value: `${orderDetailsData.package_name}${orderDetailsData.quantity > 1 ? ` × ${orderDetailsData.quantity}` : ""}` },
+                { label: "السعر", value: `${Number(orderDetailsData.package_price || 0).toFixed(2)} ${baseCurrency}`, color: "#34d399" },
+                { label: "معرّف الحساب (ID)", value: orderDetailsData.player_id, color: "#c084fc", ltr: true },
+                { label: "رقم الهاتف", value: orderDetailsData.phone, ltr: true },
+                { label: "طريقة الدفع", value: orderDetailsData.payment_method === "wallet" ? "المحفظة 💳" : orderDetailsData.payment_method === "transfer" ? `تحويل إلى ${orderDetailsData.transfer_to || ""}` : "غير محدد", color: orderDetailsData.payment_method === "wallet" ? "#34d399" : "#38bdf8" },
+                ...(orderDetailsData.payment_method === "transfer" ? [
+                  { label: "رقم المحول", value: orderDetailsData.sender_phone || "-", ltr: true },
+                  { label: "مبلغ التحويل", value: Number(orderDetailsData.transfer_amount || 0) > 0 ? `${Number(orderDetailsData.transfer_amount).toFixed(2)} ${baseCurrency}` : "-" },
+                ] : []),
+                { label: "تاريخ الطلب", value: new Date(orderDetailsData.created_at).toLocaleString("ar-EG"), color: "#94a3b8" },
+              ].map((row, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.04)", gap: "12px", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "0.82rem", color: "#64748b", fontWeight: 700, flexShrink: 0 }}>{row.label}</span>
+                  <span style={{ fontSize: "0.88rem", fontWeight: 800, color: row.color || "#cbd5e1", direction: row.ltr ? "ltr" : "rtl", textAlign: "left", wordBreak: "break-all" }}>{row.value || "-"}</span>
+                </div>
+              ))}
+
+              {/* Receipt Image */}
+              {orderDetailsData.receipt_image && (
+                <a
+                  href={`${API_BASE_URL}${orderDetailsData.receipt_image}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-add-premium"
+                  style={{ textAlign: "center", textDecoration: "none", display: "block", padding: "10px", borderRadius: "12px", background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80", fontWeight: 800 }}
+                >
+                  📸 عرض إيصال التحويل
+                </a>
+              )}
+
+              {/* Code */}
+              {orderDetailsData.code && (
+                <div style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "12px 14px" }}>
+                  <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px", fontWeight: 700 }}>🔑 كود التفعيل / رسالة الشحن</div>
+                  <div style={{ fontFamily: "monospace", fontSize: "0.95rem", color: "#c084fc", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>{orderDetailsData.code}</div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+                {orderDetailsData.status === "pending" && (
+                  <>
+                    <button
+                      onClick={() => { setShowOrderDetailsModal(false); handleOpenCodeModal(orderDetailsData, "completed"); }}
+                      className="btn-add-premium"
+                      style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#34d399" }}
+                    >
+                      ✅ تم الشحن
+                    </button>
+                    <button
+                      onClick={() => { updateOrderStatus(orderDetailsData.id, "cancelled"); setShowOrderDetailsModal(false); }}
+                      className="action-btn btn-danger-premium"
+                    >
+                      ❌ إلغاء
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => { setShowOrderDetailsModal(false); handleOpenCodeModal(orderDetailsData, null); }}
+                  className="action-btn btn-edit-premium"
+                  style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.2)", color: "#c084fc" }}
+                >
+                  🔑 تعديل الكود
+                </button>
+                <button onClick={() => setShowOrderDetailsModal(false)} className="action-btn btn-edit-premium">
+                  إغلاق
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

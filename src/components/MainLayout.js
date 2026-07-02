@@ -33,6 +33,14 @@ export default function MainLayout({ children }) {
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // Check if already unlocked in this session
+    const alreadyUnlocked = sessionStorage.getItem("captcha_unlocked") === "true";
+    if (alreadyUnlocked) setIsUnlocked(true);
+    setIsMounted(true);
+  }, []);
 
 
   // Fetch customer profile
@@ -236,7 +244,7 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="app-layout">
-      {!isUnlocked && (
+      {isMounted && !isUnlocked && (
         <div style={{
           position: "fixed",
           top: 0,
@@ -253,6 +261,7 @@ export default function MainLayout({ children }) {
         }}>
           <SliderCaptcha onSuccess={() => {
             setTimeout(() => {
+              sessionStorage.setItem("captcha_unlocked", "true");
               setIsUnlocked(true);
             }, 800);
           }} />

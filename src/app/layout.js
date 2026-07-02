@@ -95,6 +95,7 @@ export async function generateMetadata() {
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon.png", type: "image/png" },
         { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
         { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
         { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
@@ -105,7 +106,7 @@ export async function generateMetadata() {
       apple: [
         { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }
       ],
-      shortcut: ["/icons/icon-48.png"],
+      shortcut: ["/favicon.ico"],
     }
   };
 }
@@ -118,8 +119,17 @@ export const viewport = {
 export default async function RootLayout({ children }) {
   const { siteName, siteLogo, siteFavicon } = await getSiteSettings();
 
-  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:") ? siteLogo : (siteLogo.startsWith("/") ? `${SITE_URL}${siteLogo}` : `${API_BASE_URL}${siteLogo}`);
-  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:") ? siteFavicon : (siteFavicon.startsWith("/") ? `${SITE_URL}${siteFavicon}` : `${API_BASE_URL}${siteFavicon}`);
+  const siteLogoUrl = siteLogo.startsWith("http") || siteLogo.startsWith("data:")
+    ? siteLogo
+    : (siteLogo.includes("uploads")
+        ? `${API_BASE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}`
+        : `${SITE_URL}${siteLogo.startsWith("/") ? siteLogo : `/${siteLogo}`}`);
+
+  const siteFaviconUrl = siteFavicon.startsWith("http") || siteFavicon.startsWith("data:")
+    ? siteFavicon
+    : (siteFavicon.includes("uploads")
+        ? `${API_BASE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}`
+        : `${SITE_URL}${siteFavicon.startsWith("/") ? siteFavicon : `/${siteFavicon}`}`);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -212,12 +222,13 @@ export default async function RootLayout({ children }) {
 
         {/* Favicon / Tab Icon - Multiple sizes for Google crawler */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
         <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png" />
         <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-        <link rel="shortcut icon" href="/icons/icon-48.png" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
         {/* SEO Structured Data */}
         <script
