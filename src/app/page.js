@@ -229,8 +229,9 @@ export default function Home() {
 
   const getCategoryIcon = (imageType) => {
     if (!imageType) return "📁";
-    if (imageType.startsWith("data:image") || imageType.startsWith("http") || imageType.startsWith("/uploads")) {
-      const src = imageType.startsWith("/uploads") ? `${API_BASE_URL}${imageType}` : imageType;
+    if (imageType.startsWith("data:") || imageType.startsWith("http") || imageType.includes("uploads") || imageType.startsWith("/")) {
+      const cleanPath = imageType.startsWith("/") ? imageType : `/${imageType}`;
+      const src = (imageType.startsWith("http") || imageType.startsWith("data:")) ? imageType : `${API_BASE_URL}${cleanPath}`;
       return <img src={src} alt="Category Icon" style={{ width: "48px", height: "48px", objectFit: "contain", borderRadius: "8px" }} />;
     }
     switch (imageType) {
@@ -421,9 +422,15 @@ export default function Home() {
               const color = cat.color || "#6366f1";
               const glowColor = color + "73";
               const iconType = cat.icon || "credit-card";
-              const imgSrc = cat.image && (cat.image.startsWith("http") || cat.image.startsWith("/uploads"))
-                ? (cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image)
-                : null;
+              let imgSrc = null;
+              if (cat.image) {
+                if (cat.image.startsWith("http") || cat.image.startsWith("data:")) {
+                  imgSrc = cat.image;
+                } else {
+                  const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
+                  imgSrc = `${API_BASE_URL}${cleanPath}`;
+                }
+              }
               // Preload first 4 images for faster LCP
               const isPriority = cat.id <= 4;
 

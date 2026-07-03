@@ -23,6 +23,8 @@ export default function ServicesClient() {
     { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
     { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
     { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
+    { id: 13, name: "خدمات APPLE",          image: null,                                color: "#a855f7", icon: "credit-card"  },
+    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null,                                color: "#10b981", icon: "credit-card"  },
   ];
 
   const staticServices = [
@@ -94,10 +96,28 @@ export default function ServicesClient() {
         return res.json();
       })
       .then((data) => {
-        setCategories(data);
+        const sorted = [...data].sort((a, b) => {
+          const idA = Number(a.id);
+          const idB = Number(b.id);
+          if (idA === 14) return -1;
+          if (idB === 14) return 1;
+          if (idA === 13) return -1;
+          if (idB === 13) return 1;
+          return 0;
+        });
+        setCategories(sorted);
       })
       .catch(() => {
-        setCategories(staticCategories);
+        const sortedStatic = [...staticCategories].sort((a, b) => {
+          const idA = Number(a.id);
+          const idB = Number(b.id);
+          if (idA === 14) return -1;
+          if (idB === 14) return 1;
+          if (idA === 13) return -1;
+          if (idB === 13) return 1;
+          return 0;
+        });
+        setCategories(sortedStatic);
       });
 
     // Fetch services
@@ -259,9 +279,11 @@ export default function ServicesClient() {
                     justifyContent: "center",
                     overflow: "hidden"
                   }}>
-                    {cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads")) ? (
-                      <img src={cat.image.startsWith("/uploads") ? `${API_BASE_URL}${cat.image}` : cat.image} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                    ) : (
+                    {cat.image ? (() => {
+                      const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
+                      const src = (cat.image.startsWith("http") || cat.image.startsWith("data:")) ? cat.image : `${API_BASE_URL}${cleanPath}`;
+                      return <img src={src} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />;
+                    })() : (
                       <span style={{ fontSize: "1.2rem" }}>📁</span>
                     )}
                   </div>
