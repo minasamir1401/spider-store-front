@@ -12,7 +12,7 @@ export default function OrdersHistory() {
   const [customerUserStr, setCustomerUserStr] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [baseCurrency, setBaseCurrency] = useState("USD");
 
   // Guest tracking states
   const [trackId, setTrackId] = useState("");

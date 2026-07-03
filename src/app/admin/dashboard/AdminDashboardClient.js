@@ -2930,7 +2930,14 @@ export default function AdminDashboard() {
                               <div style={{ fontWeight: 700 }}>{request.customer_username}</div>
                               <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ID: {request.customer_id}</div>
                             </td>
-                            <td data-label="المبلغ" style={{ fontWeight: 800, color: "#34d399" }}>{Number(request.amount).toFixed(2)} {request.currency || baseCurrency}</td>
+                            <td data-label="المبلغ" style={{ fontWeight: 800, color: "#34d399" }}>
+                              $ {Number(request.amount).toFixed(2)} USD
+                              {request.currency && request.currency !== 'USD' && (
+                                <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "2px" }}>
+                                  الدفع: {request.currency}
+                                </div>
+                              )}
+                            </td>
                             <td data-label="رقم التحويل" style={{ direction: "ltr" }}>{request.sender_phone || "-"}</td>
                             <td data-label="ملاحظات" style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes || "-"}</td>
                             <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>

@@ -23,10 +23,11 @@ export default function WalletPage() {
   const [copied, setCopied] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedMethodId, setSelectedMethodId] = useState("");
-  const [globalCurrencies, setGlobalCurrencies] = useState(["USD", "USDT"]);
-  const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
-  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [globalCurrencies, setGlobalCurrencies] = useState(["EGP", "SDG"]);
+  const [selectedCurrency, setSelectedCurrency] = useState("EGP");
+  const [exchangeRates, setExchangeRates] = useState({ "EGP": 50, "SDG": 600 });
+  const [baseCurrency, setBaseCurrency] = useState("USD");
+  const [loadingRates, setLoadingRates] = useState(true);
   const [whatsappNumbers, setWhatsappNumbers] = useState([]);
   const [receiptImageFile, setReceiptImageFile] = useState(null);
   const [receiptImagePreview, setReceiptImagePreview] = useState("");
@@ -46,22 +47,30 @@ export default function WalletPage() {
               setSelectedMethodId(data.payment_methods[0].id);
             }
           }
-          if (data.supported_currencies) {
-            setGlobalCurrencies(data.supported_currencies);
-          }
-          if (data.exchange_rates) {
-            setExchangeRates(data.exchange_rates);
-          }
-          if (data.base_currency) {
-            setBaseCurrency(data.base_currency);
-            setSelectedCurrency(prev => prev || data.base_currency);
-          }
           if (data.whatsapp_numbers && Array.isArray(data.whatsapp_numbers)) {
             setWhatsappNumbers(data.whatsapp_numbers);
           }
         }
       })
       .catch(err => console.error("Error loading settings in wallet page:", err));
+
+    // Fetch live exchange rates from ExchangeRate-API
+    setLoadingRates(true);
+    fetch("https://v6.exchangerate-api.com/v6/182089caed1406b0fb1aa9e6/latest/USD")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.result === "success" && data.conversion_rates) {
+          setExchangeRates({
+            EGP: data.conversion_rates.EGP || 50,
+            SDG: data.conversion_rates.SDG || 600
+          });
+        }
+        setLoadingRates(false);
+      })
+      .catch(err => {
+        console.error("Error fetching live rates:", err);
+        setLoadingRates(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -131,6 +140,9 @@ export default function WalletPage() {
         });
       }
 
+      const transferVal = (parsedAmount * (exchangeRates[selectedCurrency] || 50)).toFixed(2);
+      const formattedNotes = `[تم تحويل: ${transferVal} ${selectedCurrency} بسعر صرف: 1 USD = ${exchangeRates[selectedCurrency] || 50} ${selectedCurrency}] ${notes}`;
+
       const response = await fetch(`${API_BASE_URL}/api/customer/wallet-requests`, {
         method: "POST",
         headers: {
@@ -141,7 +153,7 @@ export default function WalletPage() {
           amount: parsedAmount,
           currency: selectedCurrency,
           sender_phone: senderPhone,
-          notes,
+          notes: formattedNotes,
           receipt_image: receiptBase64  // sent to backend for auto WhatsApp delivery
         })
       });
@@ -156,7 +168,9 @@ export default function WalletPage() {
       const waText = [
         `💳 طلب شحن رصيد #${requestId}`,
         `👤 الاسم: ${customerName}`,
-        `💰 المبلغ: ${parsedAmount} ${selectedCurrency}`,
+        `💰 القيمة المطلوبة: $${parsedAmount} USD`,
+        `💵 عملة التحويل: ${selectedCurrency}`,
+        `💸 المبلغ المطلوب تحويله: ${transferVal} ${selectedCurrency}`,
         `📞 رقم التحويل: ${senderPhone}`,
         notes ? `📝 ملاحظات: ${notes}` : "",
         `\nالرجاء مراجعة وصل التحويل المرفق والتأكد من اعتماده.`
@@ -303,30 +317,17 @@ export default function WalletPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(139, 92, 246, 0.08)", border: "1px solid rgba(139, 92, 246, 0.15)", gridColumn: "span 2" }}>
-              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "8px" }}>الرصيد الحالي</div>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "8px" }}>الرصيد الحالي للمحفظة (USD)</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", alignItems: "center" }}>
-                <div style={{ fontSize: "1.8rem", fontWeight: 900 }}>
-                  {Number(customer?.balance || 0).toFixed(2)} {baseCurrency}
+                <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#22c55e" }}>
+                  $ {Number(customer?.balance || 0).toFixed(2)} USD
                 </div>
-                {globalCurrencies.filter(curr => {
-                  const isBaseEGP = (baseCurrency.toUpperCase() === "EGP" || baseCurrency === "ج.م");
-                  const isCurrEGP = (curr.toUpperCase() === "EGP" || curr === "ج.م");
-                  return !(isBaseEGP && isCurrEGP);
-                }).map((curr) => {
-                  let val = 0;
-                  const customerBalances = customer?.balances ? (typeof customer.balances === 'string' ? JSON.parse(customer.balances) : customer.balances) : {};
-                  if (customerBalances && customerBalances[curr] !== undefined && Number(customerBalances[curr]) > 0) {
-                    val = Number(customerBalances[curr]);
-                  } else {
-                    const rate = Number(exchangeRates[curr] || 50);
-                    val = rate > 0 ? (Number(customer?.balance || 0) / rate) : 0;
-                  }
-                  return (
-                    <div key={curr} style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--primary-color)", padding: "4px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                      {Number(val).toFixed(2)} {curr}
-                    </div>
-                  );
-                })}
+                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#38bdf8", padding: "4px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  {Number((customer?.balance || 0) * (exchangeRates["EGP"] || 50)).toFixed(2)} EGP 🇪🇬
+                </div>
+                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#eab308", padding: "4px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  {Number((customer?.balance || 0) * (exchangeRates["SDG"] || 600)).toFixed(2)} SDG 🇸🇩
+                </div>
               </div>
             </div>
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)" }}>
@@ -339,7 +340,7 @@ export default function WalletPage() {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label>العملة المراد شحنها في محفظتك:</label>
+              <label>عملة التحويل والدفع:</label>
               <select
                 value={selectedCurrency}
                 onChange={(e) => setSelectedCurrency(e.target.value)}
@@ -354,37 +355,39 @@ export default function WalletPage() {
                   fontSize: "0.95rem"
                 }}
               >
-                <option value={baseCurrency} style={{ background: "var(--bg-color)" }}>{baseCurrency}</option>
-                {globalCurrencies.filter(curr => curr !== baseCurrency).map(curr => (
-                  <option key={curr} value={curr} style={{ background: "var(--bg-color)" }}>{curr}</option>
-                ))}
+                <option value="EGP" style={{ background: "var(--bg-color)" }}>EGP (الجنيه المصري 🇪🇬)</option>
+                <option value="SDG" style={{ background: "var(--bg-color)" }}>SDG (الجنيه السوداني 🇸🇩)</option>
               </select>
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label>{selectedCurrency === baseCurrency ? `المبلغ المطلوب شحنه بـ (${baseCurrency}):` : `المبلغ المطلوب شحنه بـ (${selectedCurrency}):`}</label>
+              <label>المبلغ المطلوب إضافته للمحفظة بالدولار (USD):</label>
               <input
                 type="number"
                 min="0.01"
                 step="0.01"
-                placeholder="مثال: 50"
+                placeholder="مثال: 10"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
               />
-              {selectedCurrency !== baseCurrency && amount && (
+              {amount && (
                 <div style={{ marginTop: "10px", padding: "12px", background: "rgba(96, 165, 250, 0.08)", borderRight: "4px solid var(--primary-color)", borderRadius: "8px", fontSize: "0.88rem", color: "#60a5fa", display: "flex", flexDirection: "column", gap: "4px" }}>
                   <div>
-                    💵 قيمة الشحن: <strong>{Number(amount).toFixed(2)} {selectedCurrency}</strong>
+                    💵 المبلغ بالدولار: <strong>$ {Number(amount).toFixed(2)} USD</strong>
                   </div>
                   <div>
-                    💰 المبلغ المطلوب تحويله: <strong style={{ color: "#34d399" }}>{(() => {
+                    💰 المبلغ المطلوب تحويله بالعملة المختارة: <strong style={{ color: "#34d399" }}>{(() => {
                       const rate = Number(exchangeRates[selectedCurrency] || 50);
                       return (Number(amount) * rate).toFixed(2);
-                    })()} {baseCurrency}</strong>
+                    })()} {selectedCurrency}</strong>
                   </div>
                   <div style={{ fontSize: "0.76rem", color: "var(--text-muted)", marginTop: "2px" }}>
-                    (سعر الصرف المعتمد: 1 {selectedCurrency} = {exchangeRates[selectedCurrency] || 50} {baseCurrency})
+                    {loadingRates ? (
+                      <span>⏳ جاري تحديث أسعار الصرف الحية...</span>
+                    ) : (
+                      <span>🔄 سعر الصرف المعتمد (لايف): 1 دولار = {exchangeRates[selectedCurrency]} {selectedCurrency}</span>
+                    )}
                   </div>
                 </div>
               )}
@@ -556,10 +559,11 @@ export default function WalletPage() {
                     </span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-                    <div>المبلغ: <strong style={{ color: "white" }}>{Number(request.amount).toFixed(2)} {request.currency || baseCurrency}</strong></div>
+                    <div>المبلغ المطلوب شحنه: <strong style={{ color: "white" }}>$ {Number(request.amount).toFixed(2)} USD</strong></div>
+                    <div>عملة التحويل: <strong style={{ color: "white" }}>{request.currency || "USD"}</strong></div>
                     <div>رقم التحويل: <strong style={{ color: "white" }}>{request.sender_phone || "-"}</strong></div>
                     <div>التاريخ: <strong style={{ color: "white" }}>{new Date(request.created_at).toLocaleString("ar-EG")}</strong></div>
-                    <div>الملاحظة: <strong style={{ color: "white" }}>{request.notes || "-"}</strong></div>
+                    <div style={{ gridColumn: "span 2" }}>الملاحظة: <strong style={{ color: "white" }}>{request.notes || "-"}</strong></div>
                   </div>
                 </div>
               ))}

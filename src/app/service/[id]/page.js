@@ -121,7 +121,7 @@ export async function generateMetadata({ params }) {
   const service = await getServiceData(id);
   const settings = await getSettings();
   const siteName = settings?.site_name || "عرب تيك سيرفر";
-  const baseCurrency = settings?.base_currency || "ج.م";
+  const baseCurrency = settings?.base_currency || "USD";
 
   if (!service) {
     return {
@@ -260,7 +260,7 @@ export default async function Page({ params }) {
         : `${SITE_URL}/icons/icon-192.png`,
       "offers": {
         "@type": "AggregateOffer",
-        "priceCurrency": "EGP",
+        "priceCurrency": "USD",
         "lowPrice": minPrice.toFixed(2),
         "highPrice": maxPrice.toFixed(2),
         "offerCount": service.packages.length,
@@ -268,7 +268,7 @@ export default async function Page({ params }) {
           "@type": "Offer",
           "name": pkg.name,
           "price": Number(pkg.price || 0).toFixed(2),
-          "priceCurrency": "EGP",
+          "priceCurrency": "USD",
           "availability": "https://schema.org/InStock",
           "url": `${SITE_URL}/service/${id}`
         }))

@@ -584,11 +584,13 @@ export default function ServiceDetail({ params }) {
                     <span className="scc-name">{pkg.name}</span>
                     <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
                       <span style={{ color: isSelected ? "#fff" : "var(--primary-color)", fontWeight: "bold" }}>
-                        {isUsd 
-                          ? `$ ${usdPrice.toFixed(2)}` 
-                          : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
+                        {baseCurrency === 'USD'
+                          ? `$ ${usdPrice.toFixed(2)}`
+                          : (isUsd 
+                              ? `$ ${usdPrice.toFixed(2)}` 
+                              : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`)}
                       </span>
-                      {isUsd && (
+                      {isUsd && baseCurrency !== 'USD' && (
                         <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                           ({egpPrice.toFixed(2)} {baseCurrency})
                         </span>
@@ -621,9 +623,11 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        سعر الـ 1000 وحدة هو: {service.category_currency === 'USD'
-          ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
-          : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`} (أقل كمية: 100)
+        سعر الـ 1000 وحدة هو: {baseCurrency === 'USD'
+          ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)}`
+          : (service.category_currency === 'USD'
+              ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
+              : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -666,6 +670,9 @@ export default function ServiceDetail({ params }) {
           السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>
             {(() => {
               const usdPrice = ((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0);
+              if (baseCurrency === 'USD') {
+                return `$ ${usdPrice.toFixed(2)}`;
+              }
               if (service.category_currency === 'USD') {
                 const egpPrice = usdPrice * Number(exchangeRates?.["USD"] || 50);
                 return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
@@ -795,7 +802,7 @@ export default function ServiceDetail({ params }) {
               </h3>
               <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "bold" }}>
                 المبلغ المستحق: {(() => {
-                  const isUsd = service.category_currency === 'USD';
+                  const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
                   let usdPrice = 0;
                   let egpPrice = 0;
                   const usdRate = Number(exchangeRates?.["USD"] || 50);
@@ -817,6 +824,9 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
+                  if (baseCurrency === 'USD') {
+                    return `$ ${usdPrice.toFixed(2)}`;
+                  }
                   if (isUsd) {
                     return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
                   } else {
@@ -1020,7 +1030,7 @@ export default function ServiceDetail({ params }) {
               <span style={{ fontSize: "0.95rem", fontWeight: "bold", color: "var(--text-main)" }}>الإجمالي المستحق</span>
               <strong style={{ fontSize: "1.1rem", color: "#22c55e" }}>
                 {(() => {
-                  const isUsd = service.category_currency === 'USD';
+                  const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
                   let usdPrice = 0;
                   let egpPrice = 0;
                   const usdRate = Number(exchangeRates?.["USD"] || 50);
@@ -1042,6 +1052,9 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
+                  if (baseCurrency === 'USD') {
+                    return `$ ${usdPrice.toFixed(2)}`;
+                  }
                   if (isUsd) {
                     return `$ ${usdPrice.toFixed(2)} (${egpPrice.toFixed(2)} ${baseCurrency})`;
                   } else {
@@ -1278,7 +1291,7 @@ export default function ServiceDetail({ params }) {
               >
                 <span>المتابعة للدفع وإتمام الطلب {isContinueEnabled && (
                   <span>({(() => {
-                    const isUsd = service.category_currency === 'USD';
+                    const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
                     let usdPrice = 0;
                     let egpPrice = 0;
                     const usdRate = Number(exchangeRates?.["USD"] || 50);
@@ -1300,6 +1313,9 @@ export default function ServiceDetail({ params }) {
                       }
                     }
 
+                    if (baseCurrency === 'USD') {
+                      return `$ ${usdPrice.toFixed(2)}`;
+                    }
                     if (isUsd) {
                       return `$ ${usdPrice.toFixed(2)} - ${egpPrice.toFixed(2)} ج.م`;
                     } else {
@@ -1375,13 +1391,15 @@ export default function ServiceDetail({ params }) {
                   <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
                 </div>
                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                  <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
-                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
-                    {service.category_currency === 'USD' 
-                      ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
-                      : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`}
-                  </strong>
-                </div>
+                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
+                   <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
+                     {baseCurrency === 'USD'
+                       ? `$ ${Number(successData.package_price).toFixed(2)}`
+                       : (service.category_currency === 'USD' 
+                           ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
+                           : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
+                   </strong>
+                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
                   <span style={{ color: "#94a3b8" }}>حساب الشحن (Player ID):</span>
                   <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>

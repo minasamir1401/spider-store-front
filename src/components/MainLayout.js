@@ -124,22 +124,10 @@ export default function MainLayout({ children }) {
 
   const renderBalanceDropdownAndValue = (user) => {
     if (!user) return null;
-    const baseCurr = settings.base_currency || "ج.م";
+    const baseCurr = settings.base_currency || "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
     
-    // Always include all supported currencies so the user can switch between them,
-    // but filter out duplicate Egyptian currency symbols (e.g. "EGP" if base is "ج.م" or vice-versa).
-    const availableCurrencies = [baseCurr];
-    if (settings && settings.supported_currencies && Array.isArray(settings.supported_currencies)) {
-      settings.supported_currencies.forEach(c => {
-        if (!availableCurrencies.includes(c)) {
-          const isBaseEGP = (baseCurr.toUpperCase() === "EGP" || baseCurr === "ج.م");
-          const isCurrEGP = (c.toUpperCase() === "EGP" || c === "ج.م");
-          if (isBaseEGP && isCurrEGP) return;
-          availableCurrencies.push(c);
-        }
-      });
-    }
+    const availableCurrencies = ["USD", "EGP", "SDG"];
 
     const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
       ? selectedBalanceCurrency
@@ -149,32 +137,23 @@ export default function MainLayout({ children }) {
     if (activeCurrency === baseCurr) {
       balanceVal = Number(user.balance || 0);
     } else {
-      const rate = Number(settings.exchange_rates?.[activeCurrency] || 0);
+      const rate = Number(settings.exchange_rates?.[activeCurrency] || (activeCurrency === "EGP" ? 50 : 600));
       const hasSpecificBalance = userBalances[activeCurrency] !== undefined && Number(userBalances[activeCurrency]) > 0;
       if (hasSpecificBalance) {
         balanceVal = Number(userBalances[activeCurrency]);
       } else if (rate > 0) {
-        // rate = "1 foreign currency = rate base currency", so divide to convert base -> foreign
-        balanceVal = Number(user.balance || 0) / rate;
+        // Multiply USD balance by foreign rate to get target currency amount
+        balanceVal = Number(user.balance || 0) * rate;
       } else {
         balanceVal = 0;
       }
-    }
-
-    // If only one currency is configured, show it as plain text without a dropdown
-    if (availableCurrencies.length === 1) {
-      return (
-        <span style={{ fontWeight: 900, color: "var(--primary-color)" }}>
-          الرصيد: {balanceVal.toFixed(2)} {baseCurr}
-        </span>
-      );
     }
 
     return (
       <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }} onClick={(e) => e.stopPropagation()}>
         <span>الرصيد:</span>
         <span style={{ fontWeight: 900, color: "var(--primary-color)" }}>
-          {balanceVal.toFixed(2)}
+          {activeCurrency === "USD" ? `$ ${balanceVal.toFixed(2)}` : `${balanceVal.toFixed(2)}`}
         </span>
         <select
           value={activeCurrency}
@@ -194,7 +173,7 @@ export default function MainLayout({ children }) {
         >
           {availableCurrencies.map(curr => (
             <option key={curr} value={curr} style={{ background: "var(--bg-main)", color: "#ffffff" }}>
-              {curr}
+              {curr} {curr === "USD" ? "🇺🇸" : curr === "EGP" ? "🇪🇬" : "🇸🇩"}
             </option>
           ))}
         </select>
