@@ -41,33 +41,38 @@ export default function Home() {
     { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
     { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
     { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
+    { id: 13, name: "خدمات APPLE",          image: null,                                color: "#a855f7", icon: "credit-card"  },
+    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null,                                color: "#10b981", icon: "credit-card"  },
   ];
 
 
   const defaultSlides = [
+    {
+      title: "قسم خدمات سيرفر والأدوات",
+      highlight: "Server & Tools",
+      desc: "كافة خدمات السيرفر، تفعيل الأدوات، البوكسات الرقمية والدعم الفني بأفضل الأسعار المتاحة.",
+      badge: "القسم الأساسي",
+      color: "#10b981",
+      icon: "🛠️",
+      link: "/category/14"
+    },
+    {
+      title: "أحدث خدمات وأكواد APPLE",
+      highlight: "Apple Services",
+      desc: "تفعيل اشتراكات آبل، بطاقات الهدايا، وخدمات الدعم المباشر وحلول الحسابات الرسمية.",
+      badge: "مميز وحصري",
+      color: "#a855f7",
+      icon: "🍏",
+      link: "/category/13"
+    },
     {
       title: "صرف USDT بأفضل سعر",
       highlight: "Zoom USDT",
       desc: "كافة طرق الدفع متاحة | عمولة صفر | تنفيذ تلقائي فوري 100% وآمن تماماً.",
       badge: "عرض خاص",
       color: "#00b4d8",
-      icon: "🪙"
-    },
-    {
-      title: "شدات ببجي موبايل بأقل الأسعار",
-      highlight: "PUBG Mobile UC",
-      desc: "شحن مباشر وسريع في حسابك عبر الآيدي ID على مدار 24 ساعة.",
-      badge: "الأكثر مبيعاً",
-      color: "#00b4d8",
-      icon: "🎮"
-    },
-    {
-      title: "تفعيل اشتراكات برامج التصميم والـ AI",
-      highlight: "Canva & ChatGPT",
-      desc: "حسابات كانفا برو وشات جي بي تي بلس بتفعيل فوري ومضمون.",
-      badge: "الجديد كلياً",
-      color: "#00b4d8",
-      icon: "🚀"
+      icon: "🪙",
+      link: "/wallet"
     }
   ];
 
@@ -130,12 +135,30 @@ export default function Home() {
         return res.json();
       })
       .then((data) => {
-        setCategories(data);
+        const sorted = [...data].sort((a, b) => {
+          const idA = Number(a.id);
+          const idB = Number(b.id);
+          if (idA === 14) return -1;
+          if (idB === 14) return 1;
+          if (idA === 13) return -1;
+          if (idB === 13) return 1;
+          return 0;
+        });
+        setCategories(sorted);
         setLoading(false);
       })
       .catch((err) => {
         console.warn("Using fallback categories:", err.message);
-        setCategories(staticCategories);
+        const sortedStatic = [...staticCategories].sort((a, b) => {
+          const idA = Number(a.id);
+          const idB = Number(b.id);
+          if (idA === 14) return -1;
+          if (idB === 14) return 1;
+          if (idA === 13) return -1;
+          if (idB === 13) return 1;
+          return 0;
+        });
+        setCategories(sortedStatic);
         setLoading(false);
       });
 
@@ -147,11 +170,14 @@ export default function Home() {
       })
       .then((data) => {
         if (data && data.length > 0) {
-          setSlides(data);
+          setSlides([...defaultSlides, ...data]);
+        } else {
+          setSlides(defaultSlides);
         }
       })
       .catch((err) => {
         console.warn("Using default static banners:", err);
+        setSlides(defaultSlides);
       });
 
     // Fetch settings from backend
@@ -279,6 +305,41 @@ export default function Home() {
                 </span>
               </h1>
               <p className="banner-desc">{slide.desc}</p>
+              {slide.link && (
+                <Link
+                  href={slide.link}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "15px",
+                    padding: "8px 20px",
+                    borderRadius: "100px",
+                    border: `1px solid ${slide.color}`,
+                    background: `${slide.color}22`,
+                    color: "#ffffff",
+                    fontSize: "0.85rem",
+                    fontWeight: "bold",
+                    textDecoration: "none",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    alignSelf: "flex-start",
+                    width: "fit-content",
+                    boxShadow: `0 4px 15px ${slide.color}22`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = slide.color;
+                    e.currentTarget.style.boxShadow = `0 0 15px ${slide.color}`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = `${slide.color}22`;
+                    e.currentTarget.style.boxShadow = `0 4px 15px ${slide.color}22`;
+                  }}
+                >
+                  <span>دخول القسم الآن</span>
+                  <span>←</span>
+                </Link>
+              )}
             </div>
             <div className="banner-graphic">
               {slide.icon && (slide.icon.startsWith("data:image") || slide.icon.startsWith("http") || slide.icon.startsWith("/uploads")) ? (
