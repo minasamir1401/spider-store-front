@@ -653,9 +653,9 @@ export default function ServiceDetail({ params }) {
             fontSize: "1.2rem",
             fontWeight: "bold",
             borderRadius: "14px",
-            border: (service.price_type !== "both" || customerPricingMode === "dynamic") ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
-            background: "#ffffff",
-            color: "#000000",
+            border: (service.price_type !== "both" || customerPricingMode === "dynamic") ? "2px solid #3b82f6" : "var(--border-glass)",
+            background: "var(--input-bg)",
+            color: "var(--text-main)",
             width: "100%",
             boxSizing: "border-box",
             outline: "none"
@@ -685,15 +685,17 @@ export default function ServiceDetail({ params }) {
 
   const checkoutPage = (
     <div className="glass-panel" style={{
-      background: "#ffffff",
-      border: "1px solid #e2e8f0",
+      background: "var(--bg-glass)",
+      border: "var(--border-glass)",
       borderRadius: "16px",
       padding: "clamp(12px, 3vw, 20px)",
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
-      color: "#1e293b",
+      boxShadow: "var(--shadow-glass)",
+      color: "var(--text-main)",
       width: "100%",
       maxWidth: "1000px",
-      margin: "0 auto"
+      margin: "0 auto",
+      backdropFilter: "blur(24px)",
+      WebkitBackdropFilter: "blur(24px)"
     }}>
       {/* Back button */}
       <button 
@@ -717,12 +719,12 @@ export default function ServiceDetail({ params }) {
       </button>
 
       {/* Header */}
-      <div style={{ marginBottom: "12px", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
-        <h2 style={{ fontSize: "1.2rem", fontWeight: "900", color: "#0f172a", margin: 0 }}>
+      <div style={{ marginBottom: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "8px" }}>
+        <h2 style={{ fontSize: "1.2rem", fontWeight: "900", color: "var(--text-main)", margin: 0 }}>
           إتمام الدفع وتأكيد الطلب
         </h2>
-        <p style={{ fontSize: "0.9rem", color: "#475569", marginTop: "4px", marginBottom: 0 }}>
-          الخدمة المختارة: <strong style={{ color: "#2563eb", fontWeight: "800" }}>{service.name}</strong>
+        <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginTop: "4px", marginBottom: 0 }}>
+          الخدمة المختارة: <strong style={{ color: "var(--primary-color)", fontWeight: "800" }}>{service.name}</strong>
         </p>
       </div>
 
@@ -730,13 +732,13 @@ export default function ServiceDetail({ params }) {
         
         <div className="checkout-main-section">
           {/* Step 1: Account Details */}
-          <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-            <h3 style={{ fontWeight: 800, marginBottom: "10px", marginTop: 0, fontSize: "0.95rem", color: "#0f172a" }}>
+          <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "12px", border: "var(--border-glass)" }}>
+            <h3 style={{ fontWeight: 800, marginBottom: "10px", marginTop: 0, fontSize: "0.95rem", color: "var(--text-main)" }}>
               1. بيانات الحساب المراد شحنه:
             </h3>
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx} style={{ marginBottom: "10px" }}>
-                <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "#334155" }}>
+                <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "var(--text-muted)" }}>
                   {field.label}:
                 </label>
                 {field.type === "select" && field.options ? (
@@ -750,15 +752,15 @@ export default function ServiceDetail({ params }) {
                       padding: "10px 12px",
                       fontSize: "0.88rem",
                       borderRadius: "8px",
-                      border: "1.5px solid #cbd5e1",
-                      background: "#ffffff",
-                      color: "#0f172a",
+                      border: "var(--border-glass)",
+                      background: "var(--input-bg)",
+                      color: "var(--text-main)",
                       outline: "none"
                     }}
                   >
-                    <option value="" style={{ color: "#0f172a", background: "#ffffff" }}>-- اختر --</option>
+                    <option value="" style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>-- اختر --</option>
                     {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
-                      <option key={i} value={opt.trim()} style={{ color: "#0f172a", background: "#ffffff" }}>{opt.trim()}</option>
+                      <option key={i} value={opt.trim()} style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>{opt.trim()}</option>
                     ))}
                   </select>
                 ) : (
@@ -774,9 +776,9 @@ export default function ServiceDetail({ params }) {
                       padding: "10px 12px",
                       fontSize: "0.88rem",
                       borderRadius: "8px",
-                      border: "1.5px solid #cbd5e1",
-                      background: "#ffffff",
-                      color: "#0f172a",
+                      border: "var(--border-glass)",
+                      background: "var(--input-bg)",
+                      color: "var(--text-main)",
                       outline: "none"
                     }}
                   />
@@ -786,12 +788,12 @@ export default function ServiceDetail({ params }) {
           </div>
 
           {/* Step 2: Payment Method */}
-          <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+          <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "12px", border: "var(--border-glass)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
-              <h3 style={{ fontWeight: 800, margin: 0, fontSize: "0.95rem", color: "#0f172a" }}>
+              <h3 style={{ fontWeight: 800, margin: 0, fontSize: "0.95rem", color: "var(--text-main)" }}>
                 2. طريقة الدفع:
               </h3>
-              <span style={{ fontSize: "0.85rem", color: "#2563eb", fontWeight: "bold" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "bold" }}>
                 المبلغ المستحق: {(() => {
                   const isUsd = service.category_currency === 'USD';
                   let usdPrice = 0;
@@ -825,11 +827,11 @@ export default function ServiceDetail({ params }) {
             </div>
 
             <div style={{ display: "grid", gap: "6px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", padding: "8px 12px", borderRadius: "8px", border: paymentMethod === "wallet" ? "2px solid #22c55e" : "1px solid #cbd5e1", background: paymentMethod === "wallet" ? "rgba(34,197,94,0.05)" : "#ffffff", opacity: isCustomerLoggedIn ? 1 : 0.65 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", padding: "8px 12px", borderRadius: "8px", border: paymentMethod === "wallet" ? "2px solid #22c55e" : "var(--border-glass)", background: paymentMethod === "wallet" ? "rgba(34,197,94,0.08)" : "var(--input-bg)", opacity: isCustomerLoggedIn ? 1 : 0.65 }}>
                 <input type="radio" name="paymentMethod" value="wallet" checked={paymentMethod === "wallet"} onChange={() => setPaymentMethod("wallet")} disabled={!isCustomerLoggedIn} style={{ width: "16px", height: "16px" }} />
                 <span>
-                  <strong style={{ color: "#0f172a", fontSize: "0.88rem" }}>المحفظة الرقمية للموقع</strong>
-                  <div style={{ fontSize: "0.72rem", color: "#475569" }}>
+                  <strong style={{ color: "var(--text-main)", fontSize: "0.88rem" }}>المحفظة الرقمية للموقع</strong>
+                  <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
                     الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}` : "يتطلب تسجيل الدخول."}
                   </div>
                 </span>
@@ -838,11 +840,11 @@ export default function ServiceDetail({ params }) {
               {!hideManualTransfersSetting && paymentMethods.map((pm) => {
                 const isSelected = paymentMethod === pm.id;
                 return (
-                  <label key={pm.id} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", padding: "8px 12px", borderRadius: "8px", border: isSelected ? "2px solid #2563eb" : "1px solid #cbd5e1", background: isSelected ? "rgba(37,99,235,0.05)" : "#ffffff" }}>
+                  <label key={pm.id} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", padding: "8px 12px", borderRadius: "8px", border: isSelected ? "2px solid #2563eb" : "var(--border-glass)", background: isSelected ? "rgba(37,99,235,0.08)" : "var(--input-bg)" }}>
                     <input type="radio" name="paymentMethod" value={pm.id} checked={isSelected} onChange={() => setPaymentMethod(pm.id)} style={{ width: "16px", height: "16px" }} />
                     <span>
-                      <strong style={{ color: "#0f172a", fontSize: "0.88rem" }}>تحويل يدوي: {pm.name}</strong>
-                      <div style={{ fontSize: "0.72rem", color: "#475569" }}>
+                      <strong style={{ color: "var(--text-main)", fontSize: "0.88rem" }}>تحويل يدوي: {pm.name}</strong>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
                         {pm.description}
                       </div>
                     </span>
@@ -856,11 +858,11 @@ export default function ServiceDetail({ params }) {
                 const currentPM = paymentMethods.find(pm => pm.id === paymentMethod) || paymentMethods[0];
                 if (!currentPM) return null;
                 return (
-                  <div style={{ marginTop: "12px", borderTop: "1px solid #cbd5e1", paddingTop: "12px" }}>
+                  <div style={{ marginTop: "12px", borderTop: "var(--border-glass)", paddingTop: "12px" }}>
                     
                     {/* Clipboard copy box */}
-                    <div style={{ marginBottom: "8px", padding: "8px 12px", borderRadius: "8px", background: "rgba(37,99,235,0.05)", border: "1px solid rgba(37,99,235,0.15)", color: "#1e3a8a", fontSize: "0.82rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
-                      <span>بيانات الاستلام للتحويل: <strong style={{ color: "#0f172a", direction: "ltr", display: "inline-block", fontSize: "0.92rem", userSelect: "all" }}>{currentPM.value}</strong></span>
+                    <div style={{ marginBottom: "8px", padding: "8px 12px", borderRadius: "8px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", color: "#38bdf8", fontSize: "0.82rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                      <span>بيانات الاستلام للتحويل: <strong style={{ color: "var(--text-main)", direction: "ltr", display: "inline-block", fontSize: "0.92rem", userSelect: "all" }}>{currentPM.value}</strong></span>
                       <button
                         type="button"
                         onClick={() => {
@@ -885,7 +887,7 @@ export default function ServiceDetail({ params }) {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: "8px" }}>
-                      <label htmlFor="senderPhone" style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "#334155" }}>
+                      <label htmlFor="senderPhone" style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "var(--text-muted)" }}>
                         الرقم أو اسم الحساب الذي تم التحويل منه *إجباري*:
                       </label>
                       <input
@@ -899,9 +901,9 @@ export default function ServiceDetail({ params }) {
                           padding: "8px 12px",
                           fontSize: "0.85rem",
                           borderRadius: "8px",
-                          border: "1.5px solid #cbd5e1",
-                          background: "#ffffff",
-                          color: "#0f172a",
+                          border: "var(--border-glass)",
+                          background: "var(--input-bg)",
+                          color: "var(--text-main)",
                           outline: "none"
                         }}
                         required
@@ -909,7 +911,7 @@ export default function ServiceDetail({ params }) {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: "8px" }}>
-                      <label htmlFor="transferAmount" style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "#334155" }}>
+                      <label htmlFor="transferAmount" style={{ display: "block", marginBottom: "4px", fontSize: "0.8rem", fontWeight: "bold", color: "var(--text-muted)" }}>
                         المبلغ الذي قمت بتحويله فعلياً ({baseCurrency}) *إجباري*:
                       </label>
                       <input
@@ -924,9 +926,9 @@ export default function ServiceDetail({ params }) {
                           padding: "8px 12px",
                           fontSize: "0.85rem",
                           borderRadius: "8px",
-                          border: "1.5px solid #cbd5e1",
-                          background: "#ffffff",
-                          color: "#0f172a",
+                          border: "var(--border-glass)",
+                          background: "var(--input-bg)",
+                          color: "var(--text-main)",
                           outline: "none"
                         }}
                         required
@@ -934,7 +936,7 @@ export default function ServiceDetail({ params }) {
                     </div>
                     
                     <div className="form-group" style={{ marginBottom: "8px" }}>
-                      <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold", color: "#334155", fontSize: "0.8rem" }}>
+                      <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold", color: "var(--text-muted)", fontSize: "0.8rem" }}>
                         ارفع صورة إيصال التحويل (لقطة شاشة) *إجباري*:
                       </label>
                       <input
@@ -946,15 +948,15 @@ export default function ServiceDetail({ params }) {
                           padding: "6px 10px",
                           fontSize: "0.8rem",
                           borderRadius: "8px",
-                          border: "1px solid #cbd5e1",
-                          background: "#ffffff",
-                          color: "#0f172a"
+                          border: "var(--border-glass)",
+                          background: "var(--input-bg)",
+                          color: "var(--text-main)"
                         }}
                       />
                       {receiptImage && (
                         <div style={{ marginTop: "6px" }}>
                           <p style={{ fontSize: "0.75rem", color: "#22c55e", marginBottom: "4px" }}>✓ تم تحميل الصورة بنجاح:</p>
-                          <img src={receiptImage} alt="Receipt Preview" style={{ maxWidth: "100%", maxHeight: "80px", borderRadius: "8px", border: "1px solid #cbd5e1" }} />
+                          <img src={receiptImage} alt="Receipt Preview" style={{ maxWidth: "100%", maxHeight: "80px", borderRadius: "8px", border: "var(--border-glass)" }} />
                         </div>
                       )}
                     </div>
@@ -967,37 +969,37 @@ export default function ServiceDetail({ params }) {
 
         <div className="checkout-side-section">
           {/* Step 3: Summary Box */}
-          <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-            <h3 style={{ fontWeight: 800, borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", marginTop: 0, fontSize: "0.95rem", color: "#0f172a" }}>
+          <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "12px", border: "var(--border-glass)" }}>
+            <h3 style={{ fontWeight: 800, borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "6px", marginTop: 0, fontSize: "0.95rem", color: "var(--text-main)" }}>
               تفاصيل الطلب:
             </h3>
             
-            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-              <span style={{ color: "#475569" }}>الخدمة</span>
-              <strong style={{ color: "#0f172a" }}>{service.name}</strong>
+            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+              <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
+              <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
             </div>
 
             {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
               <>
-                <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-                  <span style={{ color: "#475569" }}>الكمية المطلوبة</span>
-                  <strong style={{ color: "#0f172a" }}>{customQuantity} وحدة</strong>
+                <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+                  <span style={{ color: "var(--text-muted)" }}>الكمية المطلوبة</span>
+                  <strong style={{ color: "var(--text-main)" }}>{customQuantity} وحدة</strong>
                 </div>
-                <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-                  <span style={{ color: "#475569" }}>سعر الـ 1000 وحدة</span>
-                  <strong style={{ color: "#0f172a" }}>{Number(service.price_per_thousand || 0).toFixed(2)} {baseCurrency}</strong>
+                <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+                  <span style={{ color: "var(--text-muted)" }}>سعر الـ 1000 وحدة</span>
+                  <strong style={{ color: "var(--text-main)" }}>{Number(service.price_per_thousand || 0).toFixed(2)} {baseCurrency}</strong>
                 </div>
               </>
             ) : (
               selectedPackage && (
                 <>
-                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-                    <span style={{ color: "#475569" }}>الباقة المختارة</span>
-                    <strong style={{ color: "#0f172a" }}>{selectedPackage.name}</strong>
+                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+                    <span style={{ color: "var(--text-muted)" }}>الباقة المختارة</span>
+                    <strong style={{ color: "var(--text-main)" }}>{selectedPackage.name}</strong>
                   </div>
-                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-                    <span style={{ color: "#475569" }}>سعر الباقة</span>
-                    <strong style={{ color: "#0f172a" }}>
+                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+                    <span style={{ color: "var(--text-muted)" }}>سعر الباقة</span>
+                    <strong style={{ color: "var(--text-main)" }}>
                       {service.category_currency === 'USD' 
                         ? `$ ${Number(selectedPackage.usd_price || selectedPackage.price).toFixed(2)}` 
                         : `${Number(selectedPackage.price).toFixed(2)} ${baseCurrency}`}
@@ -1008,15 +1010,15 @@ export default function ServiceDetail({ params }) {
             )}
 
             {activeFields.map((field, idx) => (
-              <div className="summary-row" key={field.name || idx} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed #e2e8f0", paddingBottom: "5px", fontSize: "0.88rem" }}>
-                <span style={{ color: "#475569" }}>{field.label}</span>
-                <strong style={{ color: "#0f172a", wordBreak: "break-all" }}>{formData[field.name] || "---"}</strong>
+              <div className="summary-row" key={field.name || idx} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "5px", fontSize: "0.88rem" }}>
+                <span style={{ color: "var(--text-muted)" }}>{field.label}</span>
+                <strong style={{ color: "var(--text-main)", wordBreak: "break-all" }}>{formData[field.name] || "---"}</strong>
               </div>
             ))}
 
-            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "10px 0 0 0", paddingTop: "8px", borderTop: "2px solid #e2e8f0", alignItems: "center" }}>
-              <span style={{ fontSize: "0.95rem", fontWeight: "bold", color: "#0f172a" }}>الإجمالي المستحق</span>
-              <strong style={{ fontSize: "1.1rem", color: "#16a34a" }}>
+            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", margin: "10px 0 0 0", paddingTop: "8px", borderTop: "2px solid rgba(255, 255, 255, 0.12)", alignItems: "center" }}>
+              <span style={{ fontSize: "0.95rem", fontWeight: "bold", color: "var(--text-main)" }}>الإجمالي المستحق</span>
+              <strong style={{ fontSize: "1.1rem", color: "#22c55e" }}>
                 {(() => {
                   const isUsd = service.category_currency === 'USD';
                   let usdPrice = 0;
@@ -1049,13 +1051,13 @@ export default function ServiceDetail({ params }) {
               </strong>
             </div>
 
-            <div style={{ marginTop: "8px", fontSize: "0.72rem", color: "#475569", lineHeight: "1.5", background: "#f1f5f9", padding: "6px 10px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+            <div style={{ marginTop: "8px", fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: "1.5", background: "rgba(255, 255, 255, 0.01)", padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
               📢 بمجرد إتمام الطلب، سيتم مراجعة الدفع وتحويل الشحنة لحسابك في غضون 5 إلى 15 دقيقة فقط كحد أقصى.
             </div>
           </div>
 
           {errorMessage && (
-            <div style={{ padding: "10px", background: "#fef2f2", borderRight: "4px solid #ef4444", color: "#b91c1c", borderRadius: "8px", fontSize: "0.82rem", fontWeight: "bold" }}>
+            <div style={{ padding: "10px", background: "rgba(239, 68, 68, 0.08)", borderRight: "4px solid #ef4444", color: "#f87171", borderRadius: "8px", fontSize: "0.82rem", fontWeight: "bold" }}>
               ⚠️ {errorMessage}
             </div>
           )}

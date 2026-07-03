@@ -266,11 +266,11 @@ export default function WalletPage() {
                   </p>
                 </div>
 
-                <div style={{ padding: "16px", borderRadius: "16px", background: "#f1f5f9", border: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800, marginBottom: "4px", color: "#475569" }}>رقم أو عنوان التحويل:</div>
-                    <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", direction: "ltr", userSelect: "all", wordBreak: "break-all" }}>{currentPM.value}</div>
-                    <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "4px" }}>
+                    <div style={{ fontWeight: 800, marginBottom: "4px", color: "var(--text-muted)" }}>رقم أو عنوان التحويل:</div>
+                    <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "var(--text-main)", direction: "ltr", userSelect: "all", wordBreak: "break-all" }}>{currentPM.value}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>
                       تأكد من كتابة الرقم/اسم الحساب الذي حولت منه بدقة بالأسفل.
                     </div>
                   </div>
@@ -354,9 +354,9 @@ export default function WalletPage() {
                   fontSize: "0.95rem"
                 }}
               >
-                <option value={baseCurrency} style={{ background: "#1e293b" }}>{baseCurrency}</option>
+                <option value={baseCurrency} style={{ background: "var(--bg-color)" }}>{baseCurrency}</option>
                 {globalCurrencies.filter(curr => curr !== baseCurrency).map(curr => (
-                  <option key={curr} value={curr} style={{ background: "#1e293b" }}>{curr}</option>
+                  <option key={curr} value={curr} style={{ background: "var(--bg-color)" }}>{curr}</option>
                 ))}
               </select>
             </div>
