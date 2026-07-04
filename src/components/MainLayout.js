@@ -57,7 +57,13 @@ export default function MainLayout({ children }) {
           Authorization: `Bearer ${token}`
         }
       })
-        .then((res) => (res.ok ? res.json() : null))
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            handleCustomerLogout();
+            return null;
+          }
+          return res.ok ? res.json() : null;
+        })
         .then((profile) => {
           if (profile) {
             setCustomerUser(profile);

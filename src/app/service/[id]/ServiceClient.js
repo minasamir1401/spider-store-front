@@ -228,10 +228,25 @@ export default function ServiceDetail({ params }) {
   // Parse dynamic fields from service
   const serviceFields = useMemo(() => {
     if (!service) return [];
-    if (Array.isArray(service.fields)) return service.fields;
-    if (typeof service.fields === 'string') {
-      try { return JSON.parse(service.fields); } catch { return []; }
+    
+    // Check service fields first
+    let sFields = [];
+    if (Array.isArray(service.fields)) sFields = service.fields;
+    else if (typeof service.fields === 'string') {
+      try { sFields = JSON.parse(service.fields); } catch {}
     }
+    
+    if (sFields && sFields.length > 0) return sFields;
+    
+    // Fallback to category fields
+    let catFields = [];
+    if (Array.isArray(service.category_fields)) catFields = service.category_fields;
+    else if (typeof service.category_fields === 'string') {
+      try { catFields = JSON.parse(service.category_fields); } catch {}
+    }
+    
+    if (catFields && catFields.length > 0) return catFields;
+    
     return [];
   }, [service]);
 
@@ -241,7 +256,24 @@ export default function ServiceDetail({ params }) {
     { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
   ];
 
-  const activeFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+  const activeFields = useMemo(() => {
+    const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+    return rawFields.map(f => ({
+      ...f,
+      name: f.name || f.id || ""
+    }));
+  }, [serviceFields, defaultFields]);
+
+  const fieldsSectionTitle = useMemo(() => {
+    if (!service) return "بيانات الحساب المراد شحنه";
+    if (service.fields_title && service.fields_title.trim()) {
+      return service.fields_title.trim();
+    }
+    if (service.category_fields_title && service.category_fields_title.trim()) {
+      return service.category_fields_title.trim();
+    }
+    return "بيانات الحساب المراد شحنه";
+  }, [service]);
 
   const handleFieldChange = (fieldName, value) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
@@ -346,7 +378,7 @@ export default function ServiceDetail({ params }) {
         body: JSON.stringify({
           service_id: service.id,
           player_id: formData.player_id || formData[activeFields[0]?.name] || "",
-          phone: formData.phone || "",
+          phone: formData.phone || formData[activeFields[1]?.name] || formData[activeFields[0]?.name] || "",
           package_name: computedPackageName,
           package_price: computedPrice,
           payment_method: paymentMethod === "wallet" ? "wallet" : "transfer",
@@ -741,7 +773,7 @@ export default function ServiceDetail({ params }) {
           {/* Step 1: Account Details */}
           <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "12px", border: "var(--border-glass)" }}>
             <h3 style={{ fontWeight: 800, marginBottom: "10px", marginTop: 0, fontSize: "0.95rem", color: "var(--text-main)" }}>
-              1. بيانات الحساب المراد شحنه:
+              1. {fieldsSectionTitle}:
             </h3>
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx} style={{ marginBottom: "10px" }}>

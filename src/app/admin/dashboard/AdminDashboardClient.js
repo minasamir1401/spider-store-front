@@ -13,6 +13,11 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("orders"); // orders, categories, services, banners, wallet, customers
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
 
+  const defaultFields = [
+    { id: "player_id", label: "معرّف اللاعب / حساب الشحن (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true },
+    { id: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", placeholder: "مثال: 01023456789 أو +96651234567", type: "tel", required: true }
+  ];
+
   // Data states
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -30,6 +35,8 @@ export default function AdminDashboard() {
   const [newCatName, setNewCatName] = useState("");
   const [newCatImage, setNewCatImage] = useState("games");
   const [catUploadedFile, setCatUploadedFile] = useState(null);
+  const [newCatFields, setNewCatFields] = useState(defaultFields);
+  const [newCatFieldsTitle, setNewCatFieldsTitle] = useState("بيانات الحساب المراد شحنه");
 
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [newServiceName, setNewServiceName] = useState("");
@@ -46,11 +53,8 @@ export default function AdminDashboard() {
     { name: "", price: 0 }
   ]);
 
-  const defaultFields = [
-    { id: "player_id", label: "معرّف اللاعب / حساب الشحن (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true },
-    { id: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", placeholder: "مثال: 01023456789 أو +96651234567", type: "tel", required: true }
-  ];
   const [newServiceFields, setNewServiceFields] = useState(defaultFields);
+  const [newServiceFieldsTitle, setNewServiceFieldsTitle] = useState("");
 
   // Edit Category Modal / Form states
   const [showEditCatModal, setShowEditCatModal] = useState(false);
@@ -58,6 +62,9 @@ export default function AdminDashboard() {
   const [editCatName, setEditCatName] = useState("");
   const [editCatImage, setEditCatImage] = useState("games");
   const [editCatUploadedFile, setEditCatUploadedFile] = useState(null);
+  const [editCatFields, setEditCatFields] = useState(defaultFields);
+  const [editCatFieldsTitle, setEditCatFieldsTitle] = useState("بيانات الحساب المراد شحنه");
+  const [applyToServices, setApplyToServices] = useState(false);
 
   // Edit Service Modal / Form states
   const [showEditServiceModal, setShowEditServiceModal] = useState(false);
@@ -71,6 +78,7 @@ export default function AdminDashboard() {
   const [editServiceFields, setEditServiceFields] = useState(defaultFields);
   const [editServicePriceType, setEditServicePriceType] = useState("fixed");
   const [editServicePricePerThousand, setEditServicePricePerThousand] = useState(0);
+  const [editServiceFieldsTitle, setEditServiceFieldsTitle] = useState("");
 
   // Banners data & form states
   const [banners, setBanners] = useState([]);
@@ -87,6 +95,7 @@ export default function AdminDashboard() {
   const [showEditCustomerModal, setShowEditCustomerModal] = useState(false);
   const [editCustomerId, setEditCustomerId] = useState(null);
   const [editCustomerUsername, setEditCustomerUsername] = useState("");
+  const [editCustomerEmail, setEditCustomerEmail] = useState("");
   const [editCustomerPhone, setEditCustomerPhone] = useState("");
   const [editCustomerBalance, setEditCustomerBalance] = useState("");
   const [editCustomerBalances, setEditCustomerBalances] = useState({});
@@ -430,6 +439,7 @@ export default function AdminDashboard() {
   const handleOpenEditCustomer = (customer) => {
     setEditCustomerId(customer.id);
     setEditCustomerUsername(customer.username || "");
+    setEditCustomerEmail(customer.email || "");
     setEditCustomerPhone(customer.phone || "");
     setEditCustomerBalance(Number(customer.balance || 0).toFixed(2));
     setEditCustomerBalances(customer.balances ? (typeof customer.balances === 'string' ? JSON.parse(customer.balances) : customer.balances) : {});
@@ -449,6 +459,7 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({
           username: editCustomerUsername,
+          email: editCustomerEmail,
           phone: editCustomerPhone,
           balance: editCustomerBalance,
           balances: editCustomerBalances,
@@ -461,7 +472,7 @@ export default function AdminDashboard() {
 
       setCustomers(prev => prev.map((customer) =>
         customer.id === editCustomerId
-          ? { ...customer, username: data.customer.username, phone: data.customer.phone, balance: data.customer.balance, balances: data.customer.balances }
+          ? { ...customer, username: data.customer.username, email: data.customer.email, phone: data.customer.phone, balance: data.customer.balance, balances: data.customer.balances, password_masked: data.customer.password_masked }
           : customer
       ));
 
@@ -474,6 +485,37 @@ export default function AdminDashboard() {
       setEditCustomerNewPassword("");
     } catch (err) {
       alert(err.message || "فشل تحديث بيانات العميل.");
+    }
+  };
+
+  const handleDeleteCustomer = async (customerId) => {
+    if (!window.confirm("هل أنت متأكد من رغبتك في حذف هذا العميل نهائياً؟ سيتم حذف كافة حركات حسابه ورصيده ولا يمكن التراجع عن هذا الإجراء!")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/admin/${customerId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل حذف العميل.");
+
+      // Remove customer from state
+      setCustomers(prev => prev.filter(c => c.id !== customerId));
+      
+      // Clear selected customer details if they were deleted
+      if (selectedCustomerId === customerId) {
+        setSelectedCustomerId(null);
+        setSelectedCustomerTransactions([]);
+      }
+
+      alert("تم حذف العميل والبيانات المرتبطة به بنجاح.");
+    } catch (err) {
+      alert(err.message || "فشل حذف العميل.");
     }
   };
 
@@ -514,7 +556,7 @@ export default function AdminDashboard() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ name: newCatName, image: catUploadedFile || newCatImage })
+        body: JSON.stringify({ name: newCatName, image: catUploadedFile || newCatImage, fields: newCatFields, fields_title: newCatFieldsTitle })
       });
 
       const data = await response.json();
@@ -527,6 +569,8 @@ export default function AdminDashboard() {
       setNewCatName("");
       setNewCatImage("games");
       setCatUploadedFile(null);
+      setNewCatFields(defaultFields);
+      setNewCatFieldsTitle("بيانات الحساب المراد شحنه");
       setShowCatModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -651,7 +695,8 @@ export default function AdminDashboard() {
           packages: validPackages,
           fields: newServiceFields,
           price_type: newServicePriceType,
-          price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0
+          price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0,
+          fields_title: newServiceFieldsTitle
         })
       });
 
@@ -671,6 +716,7 @@ export default function AdminDashboard() {
       setServiceUploadedFile(null);
       setNewServicePackages([{ name: "", price: 0 }]);
       setNewServiceFields(defaultFields);
+      setNewServiceFieldsTitle("");
       setNewServicePriceType("fixed");
       setNewServicePricePerThousand(0);
       setShowServiceModal(false);
@@ -712,6 +758,19 @@ export default function AdminDashboard() {
       setEditCatUploadedFile(null);
       setEditCatImage(cat.image || "games");
     }
+    
+    // Parse and set edit fields
+    let parsedFields = [];
+    try {
+      parsedFields = typeof cat.fields === 'string'
+        ? JSON.parse(cat.fields)
+        : cat.fields;
+    } catch (e) {
+      parsedFields = cat.fields || [];
+    }
+    setEditCatFields(parsedFields && parsedFields.length > 0 ? parsedFields : defaultFields);
+    setEditCatFieldsTitle(cat.fields_title || "بيانات الحساب المراد شحنه");
+    
     setShowEditCatModal(true);
   };
 
@@ -732,7 +791,13 @@ export default function AdminDashboard() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ name: editCatName, image: editCatUploadedFile || editCatImage })
+        body: JSON.stringify({
+          name: editCatName,
+          image: editCatUploadedFile || editCatImage,
+          fields: editCatFields,
+          fields_title: editCatFieldsTitle,
+          apply_to_services: applyToServices
+        })
       });
 
       const data = await response.json();
@@ -741,7 +806,16 @@ export default function AdminDashboard() {
         throw new Error(data.message || "فشل تعديل القسم.");
       }
 
-      setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image } : c));
+      setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image, fields: data.fields, fields_title: data.fields_title } : c));
+      
+      if (applyToServices) {
+        setServices(prev => prev.map(s => Number(s.category_id) === Number(editCatId) ? {
+          ...s,
+          fields: editCatFields,
+          fields_title: editCatFieldsTitle
+        } : s));
+      }
+      setApplyToServices(false);
       setShowEditCatModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -786,6 +860,7 @@ export default function AdminDashboard() {
     setEditServiceFields(parsedFields.length > 0 ? parsedFields : defaultFields);
     setEditServicePriceType(service.price_type || "fixed");
     setEditServicePricePerThousand(service.price_per_thousand || 0);
+    setEditServiceFieldsTitle(service.fields_title || "");
 
     setShowEditServiceModal(true);
   };
@@ -827,6 +902,41 @@ export default function AdminDashboard() {
           ...f,
           [field]: value
         };
+      }
+      return f;
+    }));
+  };
+
+  // Category Fields helpers
+  const handleAddCatField = () => {
+    setNewCatFields(prev => [...prev, { id: `field_${Date.now()}`, label: "", placeholder: "", type: "text", required: true }]);
+  };
+
+  const handleRemoveCatField = (index) => {
+    setNewCatFields(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleCatFieldChange = (index, field, value) => {
+    setNewCatFields(prev => prev.map((f, i) => {
+      if (i === index) {
+        return { ...f, [field]: value };
+      }
+      return f;
+    }));
+  };
+
+  const handleAddEditCatField = () => {
+    setEditCatFields(prev => [...prev, { id: `field_${Date.now()}`, label: "", placeholder: "", type: "text", required: true }]);
+  };
+
+  const handleRemoveEditCatField = (index) => {
+    setEditCatFields(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditCatFieldChange = (index, field, value) => {
+    setEditCatFields(prev => prev.map((f, i) => {
+      if (i === index) {
+        return { ...f, [field]: value };
       }
       return f;
     }));
@@ -886,7 +996,8 @@ export default function AdminDashboard() {
           packages: validPackages,
           fields: editServiceFields,
           price_type: editServicePriceType,
-          price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
+          price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
+          fields_title: editServiceFieldsTitle
         })
       });
 
@@ -905,6 +1016,7 @@ export default function AdminDashboard() {
         image: data.image,
         packages: validPackages,
         fields: data.fields,
+        fields_title: data.fields_title,
         price_type: editServicePriceType,
         price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
       } : s));
@@ -2372,7 +2484,7 @@ export default function AdminDashboard() {
           { tab: "services", icon: "⚡", label: "إدارة الخدمات" },
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
-          { tab: "customers", icon: "👥", label: "العملاء والمحفظة" },
+          { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
           { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
         ].map(item => (
@@ -2459,7 +2571,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab("customers")}
             >
               <span className="nav-icon">👥</span>
-              <span>العملاء والمحفظة</span>
+              <span>إدارة المستخدمين</span>
             </div>
 
             <div
@@ -2517,7 +2629,7 @@ export default function AdminDashboard() {
                 {activeTab === "services" && "الخدمات والمنتجات"}
                 {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
                 {activeTab === "wallets" && "طلبات شحن الرصيد"}
-                {activeTab === "customers" && "العملاء، الرصيد، وسجل المعاملات"}
+                {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
                 {activeTab === "settings" && "إعدادات معلومات الموقع"}
                 {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
                 {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
@@ -2528,7 +2640,7 @@ export default function AdminDashboard() {
                 {activeTab === "services" && "إدارة خدمات الشحن وتفاصيل حزم التسعير والباقات"}
                 {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
-                {activeTab === "customers" && "استعراض الحسابات المسجلة، رصيد كل محفظة، وسجل الحركات المرتبط بكل عميل"}
+                {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
                 {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
                 {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
                 {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
@@ -3057,6 +3169,7 @@ export default function AdminDashboard() {
                         <tr>
                           <th>رقم العميل</th>
                           <th>اسم المستخدم</th>
+                          <th>البريد الإلكتروني</th>
                           <th>الهاتف</th>
                           <th>كلمة المرور</th>
                           <th>الرصيد</th>
@@ -3067,7 +3180,7 @@ export default function AdminDashboard() {
                       <tbody>
                         {filteredCustomers.length === 0 ? (
                           <tr>
-                            <td colSpan="7" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                            <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
                               لا يوجد عملاء يطابقون البحث.
                             </td>
                           </tr>
@@ -3076,6 +3189,7 @@ export default function AdminDashboard() {
                             <tr key={customer.id}>
                               <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
                               <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>{customer.username}</td>
+                              <td data-label="البريد الإلكتروني" style={{ fontWeight: 700 }}>{customer.email || "-"}</td>
                               <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
                               <td data-label="كلمة المرور" style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
                               <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} {baseCurrency}</td>
@@ -3100,6 +3214,13 @@ export default function AdminDashboard() {
                                     onClick={() => handleOpenEditCustomer(customer)}
                                   >
                                     تعديل
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn btn-danger-premium"
+                                    onClick={() => handleDeleteCustomer(customer.id)}
+                                  >
+                                    حذف
                                   </button>
                                 </div>
                               </td>
@@ -4379,7 +4500,7 @@ export default function AdminDashboard() {
       {/* Add Category Modal */}
       {showCatModal && (
         <div className="premium-overlay" onClick={() => setShowCatModal(false)}>
-          <div className="premium-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}>
             <div className="premium-modal-header">
               <h3 className="premium-modal-title">إضافة قسم جديد</h3>
               <button className="close-btn-premium" onClick={() => setShowCatModal(false)}>×</button>
@@ -4463,6 +4584,112 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                 )}
+              </div>
+
+              <div className="form-group" style={{ marginBottom: "14px" }}>
+                <label>عنوان قسم بيانات الشحن (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
+                <input
+                  type="text"
+                  placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
+                  value={newCatFieldsTitle}
+                  onChange={(e) => setNewCatFieldsTitle(e.target.value)}
+                  className="search-input-premium"
+                  style={{ padding: "12px 16px !important" }}
+                />
+              </div>
+
+              {/* Custom Fields Builder for Category */}
+              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                  <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل عند الشراء:</h4>
+                  <button 
+                    type="button" 
+                    onClick={handleAddCatField} 
+                    className="action-btn"
+                    style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
+                  >
+                    + إضافة حقل
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {newCatFields.map((f, idx) => (
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#22d3ee", fontWeight: "800" }}>الحقل المطلوب #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCatField(idx)}
+                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                        >
+                          حذف الحقل ×
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف الحقل (ID):</span>
+                          <input
+                            type="text"
+                            placeholder="معرّف الحقل (ID مثل: player_id)"
+                            value={f.id}
+                            onChange={(e) => handleCatFieldChange(idx, "id", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الحقل بالعربية:</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الحقل بالعربية"
+                            value={f.label}
+                            onChange={(e) => handleCatFieldChange(idx, "label", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نص تلميح تلميحي:</span>
+                          <input
+                            type="text"
+                            placeholder="نص تلميح تلميحي"
+                            value={f.placeholder || ""}
+                            onChange={(e) => handleCatFieldChange(idx, "placeholder", e.target.value)}
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نوع المدخل:</span>
+                          <select
+                            value={f.type}
+                            onChange={(e) => handleCatFieldChange(idx, "type", e.target.value)}
+                            style={{
+                              padding: "8px 12px",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.06)",
+                              background: "rgba(13, 18, 36, 0.7)",
+                              color: "#ffffff",
+                              fontSize: "0.85rem",
+                              width: "100%",
+                              boxSizing: "border-box"
+                            }}
+                          >
+                            <option value="text">نص (text)</option>
+                            <option value="tel">هاتف (tel)</option>
+                            <option value="number">رقم (number)</option>
+                            <option value="email">إيميل (email)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {errorMsg && (
@@ -4718,6 +4945,18 @@ export default function AdminDashboard() {
                 </div>
               )}
 
+              <div className="form-group" style={{ marginBottom: "14px" }}>
+                <label>عنوان قسم بيانات الشحن (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <input
+                  type="text"
+                  placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
+                  value={newServiceFieldsTitle}
+                  onChange={(e) => setNewServiceFieldsTitle(e.target.value)}
+                  className="search-input-premium"
+                  style={{ padding: "12px 16px !important" }}
+                />
+              </div>
+
               {/* Custom Fields Builder */}
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
@@ -4829,7 +5068,7 @@ export default function AdminDashboard() {
       {/* Edit Category Modal */}
       {showEditCatModal && (
         <div className="premium-overlay" onClick={() => setShowEditCatModal(false)}>
-          <div className="premium-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}>
             <div className="premium-modal-header">
               <h3 className="premium-modal-title">تعديل القسم</h3>
               <button className="close-btn-premium" onClick={() => setShowEditCatModal(false)}>×</button>
@@ -4915,11 +5154,130 @@ export default function AdminDashboard() {
                 )}
               </div>
 
+              <div className="form-group" style={{ marginBottom: "14px" }}>
+                <label>عنوان قسم بيانات الشحن (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
+                <input
+                  type="text"
+                  placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
+                  value={editCatFieldsTitle}
+                  onChange={(e) => setEditCatFieldsTitle(e.target.value)}
+                  className="search-input-premium"
+                  style={{ padding: "12px 16px !important" }}
+                />
+              </div>
+
+              {/* Custom Fields Builder for Edit Category */}
+              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                  <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل عند الشراء:</h4>
+                  <button 
+                    type="button" 
+                    onClick={handleAddEditCatField} 
+                    className="action-btn"
+                    style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
+                  >
+                    + إضافة حقل
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {editCatFields.map((f, idx) => (
+                    <div key={idx} style={{
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.82rem", color: "#22d3ee", fontWeight: "800" }}>الحقل المطلوب #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditCatField(idx)}
+                          style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.82rem", cursor: "pointer", fontWeight: "bold" }}
+                        >
+                          حذف الحقل ×
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف الحقل (ID):</span>
+                          <input
+                            type="text"
+                            placeholder="معرّف الحقل (ID مثل: player_id)"
+                            value={f.id}
+                            onChange={(e) => handleEditCatFieldChange(idx, "id", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الحقل بالعربية:</span>
+                          <input
+                            type="text"
+                            placeholder="اسم الحقل بالعربية"
+                            value={f.label}
+                            onChange={(e) => handleEditCatFieldChange(idx, "label", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نص تلميح تلميحي:</span>
+                          <input
+                            type="text"
+                            placeholder="نص تلميح تلميحي"
+                            value={f.placeholder || ""}
+                            onChange={(e) => handleEditCatFieldChange(idx, "placeholder", e.target.value)}
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>نوع المدخل:</span>
+                          <select
+                            value={f.type}
+                            onChange={(e) => handleEditCatFieldChange(idx, "type", e.target.value)}
+                            style={{
+                              padding: "8px 12px",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.06)",
+                              background: "rgba(13, 18, 36, 0.7)",
+                              color: "#ffffff",
+                              fontSize: "0.85rem",
+                              width: "100%",
+                              boxSizing: "border-box"
+                            }}
+                          >
+                            <option value="text">نص (text)</option>
+                            <option value="tel">هاتف (tel)</option>
+                            <option value="number">رقم (number)</option>
+                            <option value="email">إيميل (email)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {errorMsg && (
                 <div style={{ color: "#f87171", fontSize: "0.85rem", fontWeight: "600" }}>
                   ⚠️ {errorMsg}
                 </div>
               )}
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "6px 0 12px 0" }}>
+                <input
+                  type="checkbox"
+                  id="apply_to_services_checkbox"
+                  checked={applyToServices}
+                  onChange={(e) => setApplyToServices(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
+                <label htmlFor="apply_to_services_checkbox" style={{ fontSize: "0.85rem", cursor: "pointer", color: "var(--text-muted)", userSelect: "none", textAlign: "right", flex: 1 }}>
+                  تطبيق هذه الحقول والعنوان المخصص على جميع الخدمات الحالية في هذا القسم
+                </label>
+              </div>
 
               <button type="submit" className="btn-add-premium" style={{ width: "100%", padding: "14px" }}>
                 حفظ وتعديل القسم
@@ -5174,6 +5532,18 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+
+              <div className="form-group" style={{ marginBottom: "14px" }}>
+                <label>عنوان قسم بيانات الشحن (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <input
+                  type="text"
+                  placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
+                  value={editServiceFieldsTitle}
+                  onChange={(e) => setEditServiceFieldsTitle(e.target.value)}
+                  className="search-input-premium"
+                  style={{ padding: "12px 16px !important" }}
+                />
+              </div>
 
               {/* Custom Fields Builder */}
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
@@ -5612,6 +5982,17 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>البريد الإلكتروني:</label>
+                <input
+                  type="email"
+                  value={editCustomerEmail}
+                  onChange={(e) => setEditCustomerEmail(e.target.value)}
+                  className="search-input-premium"
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>رقم الهاتف:</label>
                 <input
                   type="tel"
@@ -5666,7 +6047,7 @@ export default function AdminDashboard() {
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>كلمة مرور جديدة (اختياري):</label>
                 <input
-                  type="password"
+                  type="text"
                   placeholder="اتركها فارغة إذا لا تريد تغييرها"
                   value={editCustomerNewPassword}
                   onChange={(e) => setEditCustomerNewPassword(e.target.value)}

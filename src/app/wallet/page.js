@@ -376,19 +376,6 @@ export default function WalletPage() {
                   <div>
                     💵 المبلغ بالدولار: <strong>$ {Number(amount).toFixed(2)} USD</strong>
                   </div>
-                  <div>
-                    💰 المبلغ المطلوب تحويله بالعملة المختارة: <strong style={{ color: "#34d399" }}>{(() => {
-                      const rate = Number(exchangeRates[selectedCurrency] || 50);
-                      return (Number(amount) * rate).toFixed(2);
-                    })()} {selectedCurrency}</strong>
-                  </div>
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-muted)", marginTop: "2px" }}>
-                    {loadingRates ? (
-                      <span>⏳ جاري تحديث أسعار الصرف الحية...</span>
-                    ) : (
-                      <span>🔄 سعر الصرف المعتمد (لايف): 1 دولار = {exchangeRates[selectedCurrency]} {selectedCurrency}</span>
-                    )}
-                  </div>
                 </div>
               )}
             </div>
@@ -467,56 +454,56 @@ export default function WalletPage() {
         {/* WhatsApp Confirmation Modal */}
         {pendingWhatsapp && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-            <div style={{ background: "var(--bg-card)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "28px", maxWidth: "480px", width: "100%", display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div style={{ background: "var(--bg-card)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "18px", padding: "18px", maxWidth: "380px", width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "3rem" }}>{pendingWhatsapp.autoSent ? "🤖" : "✅"}</div>
-                <h3 style={{ fontWeight: 900, marginTop: "8px" }}>تم تسجيل طلبك بنجاح!</h3>
-                <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "4px" }}>
+                <div style={{ fontSize: "2.5rem" }}>{pendingWhatsapp.autoSent ? "🤖" : "✅"}</div>
+                <h3 style={{ fontWeight: 900, marginTop: "6px", fontSize: "1.1rem" }}>تم تسجيل طلبك بنجاح!</h3>
+                <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "2px" }}>
                   رقم الطلب: <strong style={{ color: "var(--primary-color)" }}>#{pendingWhatsapp.requestId}</strong>
                 </div>
               </div>
 
               {pendingWhatsapp.autoSent ? (
                 /* WhatsApp Bot connected — auto sent */
-                <div style={{ background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: "14px", padding: "18px", textAlign: "center" }}>
-                  <div style={{ fontSize: "2rem", marginBottom: "8px" }}>💬✓</div>
-                  <div style={{ color: "#34d399", fontWeight: "bold", fontSize: "0.95rem" }}>
+                <div style={{ background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: "12px", padding: "14px", textAlign: "center" }}>
+                  <div style={{ fontSize: "1.6rem", marginBottom: "6px" }}>💬✓</div>
+                  <div style={{ color: "#34d399", fontWeight: "bold", fontSize: "0.88rem" }}>
                     تم إرسال الطلب وصورة الوصل تلقائياً للأدمن عبر واتساب!
                   </div>
-                  <div style={{ color: "#64748b", fontSize: "0.78rem", marginTop: "6px" }}>
+                  <div style={{ color: "#64748b", fontSize: "0.75rem", marginTop: "4px" }}>
                     لا تحتاج لفعل أي شيء — انتظر تأكيد الأدمن
                   </div>
                 </div>
               ) : (
                 /* WhatsApp Bot not connected — manual fallback */
                 <>
-                  <div style={{ background: "rgba(37,211,102,0.08)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: "12px", padding: "14px", fontSize: "0.85rem", whiteSpace: "pre-wrap", color: "#cbd5e1", direction: "rtl" }}>
+                  <div style={{ background: "rgba(37,211,102,0.08)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: "10px", padding: "10px", fontSize: "0.8rem", whiteSpace: "pre-wrap", color: "#cbd5e1", direction: "rtl", maxHeight: "140px", overflowY: "auto" }}>
                     {pendingWhatsapp.text}
                   </div>
 
-                  <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "10px", padding: "12px", fontSize: "0.82rem", color: "#fbbf24" }}>
+                  <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "10px", padding: "10px", fontSize: "0.78rem", color: "#fbbf24" }}>
                     📎 <strong>يرجى إرسال الوصل يدوياً:</strong> اضغط الزر أدناه ثم أرفق صورة وصل التحويل في واتساب
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {whatsappNumbers.length > 0 ? whatsappNumbers.map((num, i) => (
                       <button
                         key={i}
                         onClick={() => { openWhatsapp(num); setWhatsappSent(true); }}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "14px", background: "linear-gradient(135deg, #25d366, #128c7e)", border: "none", borderRadius: "12px", color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer" }}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", background: "linear-gradient(135deg, #25d366, #128c7e)", border: "none", borderRadius: "10px", color: "#fff", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer" }}
                       >
-                        <span style={{ fontSize: "1.4rem" }}>💬</span>
+                        <span style={{ fontSize: "1.2rem" }}>💬</span>
                         إرسال الوصل عبر واتساب {whatsappNumbers.length > 1 ? `(${i + 1})` : ""}
                       </button>
                     )) : (
-                      <div style={{ color: "var(--text-muted)", textAlign: "center", fontSize: "0.85rem" }}>
+                      <div style={{ color: "var(--text-muted)", textAlign: "center", fontSize: "0.8rem" }}>
                         ⚠️ واتساب البوت غير متصل — تواصل مع الأدمن
                       </div>
                     )}
                   </div>
 
                   {whatsappSent && (
-                    <div style={{ color: "#10b981", fontWeight: "bold", textAlign: "center", fontSize: "0.85rem" }}>
+                    <div style={{ color: "#10b981", fontWeight: "bold", textAlign: "center", fontSize: "0.8rem" }}>
                       ✓ تم فتح واتساب — لا تنسَ إرفاق صورة الوصل
                     </div>
                   )}
@@ -526,7 +513,7 @@ export default function WalletPage() {
 
               <button
                 onClick={() => setPendingWhatsapp(null)}
-                style={{ padding: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", color: "var(--text-muted)", cursor: "pointer", fontWeight: "bold" }}
+                style={{ padding: "8px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "var(--text-muted)", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}
               >
                 إغلاق
               </button>
