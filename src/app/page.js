@@ -252,9 +252,9 @@ export default function Home() {
     }
   };
 
-  // Filter categories by search term
+  // Filter categories by search term (only root categories on home page)
   const filteredCategories = categories.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+    !c.parent_id && c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

@@ -14,6 +14,7 @@ export default function CategoryServices({ params }) {
   const [categoryName, setCategoryName] = useState("");
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [allCategories, setAllCategories] = useState([]);
 
   // Backup static services if backend is unreachable
   const staticServices = [
@@ -117,11 +118,12 @@ export default function CategoryServices({ params }) {
   useEffect(() => {
     setLoading(true);
 
-    // Fetch category name
+    // Fetch category name and all categories
     fetchWithTimeout(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(cats => {
-        const cat = cats.find(c => c.id === Number(categoryId));
+        setAllCategories(cats || []);
+        const cat = (cats || []).find(c => c.id === Number(categoryId));
         if (cat) setCategoryName(cat.name);
         else setCategoryName(categoryNamesMap[categoryId] || "الخدمات المتاحة");
       })
@@ -237,8 +239,21 @@ export default function CategoryServices({ params }) {
     return "⚡";
   };
 
+  const currentCategory = allCategories.find(c => c.id === Number(categoryId));
+  const parentCategory = currentCategory?.parent_id ? allCategories.find(c => c.id === Number(currentCategory.parent_id)) : null;
+  const subCategories = allCategories.filter(c => Number(c.parent_id) === Number(categoryId));
+
   return (
     <>
+      {/* Breadcrumb if subcategory */}
+      {parentCategory && (
+        <div style={{ marginBottom: "15px" }}>
+          <Link href={`/category/${parentCategory.id}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--primary-color)", textDecoration: "none", fontWeight: "600", fontSize: "0.9rem", background: "var(--bg-glass)", padding: "8px 16px", borderRadius: "100px", border: "var(--border-glass)", transition: "all 0.2s" }}>
+            ← العودة إلى قسم {parentCategory.name}
+          </Link>
+        </div>
+      )}
+
       {/* Page Title */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", gap: "12px", flexWrap: "wrap" }}>
         <h2 className="section-title" style={{ margin: 0 }}>قسم {categoryName}</h2>
@@ -247,18 +262,79 @@ export default function CategoryServices({ params }) {
         </span>
       </div>
 
+      {/* Subcategories Grid if any */}
+      {subCategories.length > 0 && (
+        <div style={{ marginBottom: "40px" }}>
+          <h3 className="section-title" style={{ fontSize: "1.25rem", marginBottom: "18px" }}>الأقسام الفرعية</h3>
+          <div className="cc-grid">
+            {subCategories.map((cat) => {
+              const color = cat.color || "#6366f1";
+              const glowColor = color + "73";
+              let imgSrc = null;
+              if (cat.image && cat.image !== "default" && cat.image !== "null") {
+                if (cat.image.startsWith("http") || cat.image.startsWith("data:")) {
+                  imgSrc = cat.image;
+                } else {
+                  const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
+                  imgSrc = `${API_BASE_URL}${cleanPath}`;
+                }
+              }
+              return (
+                <div className="cc-wrap" key={cat.id}>
+                  <Link
+                    className="cc-card"
+                    dir="rtl"
+                    href={`/category/${cat.id}`}
+                    style={{ "--cc-ac": color, "--cc-gl": glowColor }}
+                  >
+                    <div className="cc-img-wrap">
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={cat.name}
+                          loading="lazy"
+                          className="cc-img"
+                          onError={e => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="cc-img-placeholder">{cat.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <div className="cc-tint"></div>
+                    <div className="cc-overlay-bottom"></div>
+                    <div className="cc-shimmer"></div>
+                    <div className="cc-name-area">
+                      <span className="cc-name">{cat.name}</span>
+                      <span className="cc-enter">
+                        دخول
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m15 18-6-6 6-6"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="cc-bottom-glow"></div>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Services Grid (Subcategories scc-grid) */}
       {loading ? (
         <div style={{ textAlign: "center", padding: "40px", fontSize: "1.2rem", fontWeight: 700 }}>
           جاري تحميل الخدمات...
         </div>
       ) : services.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: "center", padding: "40px" }}>
-          <span style={{ fontSize: "3rem" }}>📭</span>
-          <h3 style={{ margin: "15px 0 10px 0" }}>لا تتوفر خدمات في هذا القسم حالياً</h3>
-          <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>سندرج خدمات جديدة قريباً جداً، ترقبوا التحديثات!</p>
-          <Link href="/" className="glass-btn glass-btn-primary">العودة للرئيسية</Link>
-        </div>
+        subCategories.length === 0 ? (
+          <div className="glass-panel" style={{ textAlign: "center", padding: "40px" }}>
+            <span style={{ fontSize: "3rem" }}>📭</span>
+            <h3 style={{ margin: "15px 0 10px 0" }}>لا تتوفر خدمات في هذا القسم حالياً</h3>
+            <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>سندرج خدمات جديدة قريباً جداً، ترقبوا التحديثات!</p>
+            <Link href="/" className="glass-btn glass-btn-primary">العودة للرئيسية</Link>
+          </div>
+        ) : null
       ) : (
         <>
           {/* Category Services Search Bar */}

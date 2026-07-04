@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [catUploadedFile, setCatUploadedFile] = useState(null);
   const [newCatFields, setNewCatFields] = useState(defaultFields);
   const [newCatFieldsTitle, setNewCatFieldsTitle] = useState("بيانات الحساب المراد شحنه");
+  const [newCatParentId, setNewCatParentId] = useState("");
 
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [newServiceName, setNewServiceName] = useState("");
@@ -65,6 +66,7 @@ export default function AdminDashboard() {
   const [editCatFields, setEditCatFields] = useState(defaultFields);
   const [editCatFieldsTitle, setEditCatFieldsTitle] = useState("بيانات الحساب المراد شحنه");
   const [applyToServices, setApplyToServices] = useState(false);
+  const [editCatParentId, setEditCatParentId] = useState("");
 
   // Edit Service Modal / Form states
   const [showEditServiceModal, setShowEditServiceModal] = useState(false);
@@ -556,7 +558,7 @@ export default function AdminDashboard() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ name: newCatName, image: catUploadedFile || newCatImage, fields: newCatFields, fields_title: newCatFieldsTitle })
+        body: JSON.stringify({ name: newCatName, image: catUploadedFile || newCatImage, fields: newCatFields, fields_title: newCatFieldsTitle, parent_id: newCatParentId || null })
       });
 
       const data = await response.json();
@@ -571,6 +573,7 @@ export default function AdminDashboard() {
       setCatUploadedFile(null);
       setNewCatFields(defaultFields);
       setNewCatFieldsTitle("بيانات الحساب المراد شحنه");
+      setNewCatParentId("");
       setShowCatModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -591,7 +594,12 @@ export default function AdminDashboard() {
 
       if (!response.ok) throw new Error();
 
-      setCategories(prev => prev.filter(c => c.id !== id));
+      setCategories(prev => prev.filter(c => c.id !== id).map(c => {
+        if (Number(c.parent_id) === Number(id)) {
+          return { ...c, parent_id: null };
+        }
+        return c;
+      }));
       // Filter out deleted services
       setServices(prev => prev.filter(s => s.category_id !== id));
     } catch (err) {
@@ -770,6 +778,7 @@ export default function AdminDashboard() {
     }
     setEditCatFields(parsedFields && parsedFields.length > 0 ? parsedFields : defaultFields);
     setEditCatFieldsTitle(cat.fields_title || "بيانات الحساب المراد شحنه");
+    setEditCatParentId(cat.parent_id || "");
     
     setShowEditCatModal(true);
   };
@@ -796,7 +805,8 @@ export default function AdminDashboard() {
           image: editCatUploadedFile || editCatImage,
           fields: editCatFields,
           fields_title: editCatFieldsTitle,
-          apply_to_services: applyToServices
+          apply_to_services: applyToServices,
+          parent_id: editCatParentId || null
         })
       });
 
@@ -806,7 +816,7 @@ export default function AdminDashboard() {
         throw new Error(data.message || "فشل تعديل القسم.");
       }
 
-      setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image, fields: data.fields, fields_title: data.fields_title } : c));
+      setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image, fields: data.fields, fields_title: data.fields_title, parent_id: data.parent_id } : c));
       
       if (applyToServices) {
         setServices(prev => prev.map(s => Number(s.category_id) === Number(editCatId) ? {
@@ -816,6 +826,7 @@ export default function AdminDashboard() {
         } : s));
       }
       setApplyToServices(false);
+      setEditCatParentId("");
       setShowEditCatModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -3332,6 +3343,15 @@ export default function AdminDashboard() {
                       <span className="category-slug">
                         أيقونة: {cat.image && (cat.image.startsWith("data:image") || cat.image.startsWith("http") || cat.image.startsWith("/uploads")) ? "صورة مخصصة" : cat.image}
                       </span>
+                      {cat.parent_id ? (
+                        <span style={{ display: "inline-block", marginTop: "6px", padding: "4px 10px", borderRadius: "100px", background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", fontSize: "0.8rem", fontWeight: "600", border: "1px solid rgba(99, 102, 241, 0.3)" }}>
+                          🏷️ قسم فرعي من: {categories.find(c => c.id === Number(cat.parent_id))?.name || "قسم رئيسي"}
+                        </span>
+                      ) : (
+                        <span style={{ display: "inline-block", marginTop: "6px", padding: "4px 10px", borderRadius: "100px", background: "rgba(16, 185, 129, 0.15)", color: "#34d399", fontSize: "0.8rem", fontWeight: "600", border: "1px solid rgba(16, 185, 129, 0.3)" }}>
+                          📁 قسم رئيسي
+                        </span>
+                      )}
                       
                       <div style={{ marginTop: "15px", display: "flex", gap: "8px" }}>
                         <button
@@ -4521,6 +4541,29 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>القسم الرئيسي (اختياري - لجعله قسماً فرعياً):</label>
+                <select 
+                  value={newCatParentId || ""} 
+                  onChange={(e) => setNewCatParentId(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                >
+                  <option value="">-- قسم رئيسي (بدون قسم أب) --</option>
+                  {categories.filter(c => !c.parent_id).map(c => (
+                    <option key={c.id} value={c.id}>📁 {c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>أيقونة القسم التعبيرية (الافتراضية):</label>
                 <select 
                   value={newCatImage} 
@@ -4731,9 +4774,14 @@ export default function AdminDashboard() {
                     outline: "none"
                   }}
                 >
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {categories.map(c => {
+                    const parent = categories.find(p => p.id === Number(c.parent_id));
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {parent ? `↳ ${parent.name} > ${c.name}` : `📁 ${c.name}`}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -5089,6 +5137,29 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>القسم الرئيسي (اختياري - لجعله قسماً فرعياً):</label>
+                <select 
+                  value={editCatParentId || ""} 
+                  onChange={(e) => setEditCatParentId(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                >
+                  <option value="">-- قسم رئيسي (بدون قسم أب) --</option>
+                  {categories.filter(c => !c.parent_id && c.id !== editCatId).map(c => (
+                    <option key={c.id} value={c.id}>📁 {c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>أيقونة القسم التعبيرية (الافتراضية):</label>
                 <select 
                   value={editCatImage} 
@@ -5319,9 +5390,14 @@ export default function AdminDashboard() {
                     outline: "none"
                   }}
                 >
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {categories.map(c => {
+                    const parent = categories.find(p => p.id === Number(c.parent_id));
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {parent ? `↳ ${parent.name} > ${c.name}` : `📁 ${c.name}`}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
