@@ -25,7 +25,7 @@ export default function Home() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   // Settings state
-  const [settings, setSettings] = useState({ site_name: "عرب تيك سيرفر", site_logo: "/logo.jpg" });
+  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
@@ -423,7 +423,7 @@ export default function Home() {
               const glowColor = color + "73";
               const iconType = cat.icon || "credit-card";
               let imgSrc = null;
-              if (cat.image) {
+              if (cat.image && cat.image !== "default" && cat.image !== "null") {
                 if (cat.image.startsWith("http") || cat.image.startsWith("data:")) {
                   imgSrc = cat.image;
                 } else {
@@ -451,8 +451,6 @@ export default function Home() {
                           fetchPriority={isPriority ? "high" : "auto"}
                           decoding="async"
                           className="cc-img"
-                          style={{ opacity: 0, transition: "opacity 0.35s ease" }}
-                          onLoad={e => { e.target.style.opacity = 1; }}
                           onError={e => { e.target.style.display = 'none'; }}
                         />
                       ) : (

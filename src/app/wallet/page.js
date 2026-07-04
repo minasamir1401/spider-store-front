@@ -23,8 +23,8 @@ export default function WalletPage() {
   const [copied, setCopied] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedMethodId, setSelectedMethodId] = useState("");
-  const [globalCurrencies, setGlobalCurrencies] = useState(["EGP", "SDG"]);
-  const [selectedCurrency, setSelectedCurrency] = useState("EGP");
+  const [globalCurrencies, setGlobalCurrencies] = useState(["USD"]);
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
   const [exchangeRates, setExchangeRates] = useState({ "EGP": 50, "SDG": 600 });
   const [baseCurrency, setBaseCurrency] = useState("USD");
   const [loadingRates, setLoadingRates] = useState(true);
@@ -322,12 +322,6 @@ export default function WalletPage() {
                 <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#22c55e" }}>
                   $ {Number(customer?.balance || 0).toFixed(2)} USD
                 </div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#38bdf8", padding: "4px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  {Number((customer?.balance || 0) * (exchangeRates["EGP"] || 50)).toFixed(2)} EGP 🇪🇬
-                </div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#eab308", padding: "4px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  {Number((customer?.balance || 0) * (exchangeRates["SDG"] || 600)).toFixed(2)} SDG 🇸🇩
-                </div>
               </div>
             </div>
             <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)" }}>
@@ -355,8 +349,7 @@ export default function WalletPage() {
                   fontSize: "0.95rem"
                 }}
               >
-                <option value="EGP" style={{ background: "var(--bg-color)" }}>EGP (الجنيه المصري 🇪🇬)</option>
-                <option value="SDG" style={{ background: "var(--bg-color)" }}>SDG (الجنيه السوداني 🇸🇩)</option>
+                <option value="USD" style={{ background: "var(--bg-color)" }}>USD (الدولار الأمريكي 🇺🇸)</option>
               </select>
             </div>
 

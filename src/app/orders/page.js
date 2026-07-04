@@ -180,11 +180,11 @@ export default function OrdersHistory() {
                         الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</strong>
                       </p>
                       <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                        حساب الشحن (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
+                        حساب الخدمة (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
                       </p>
                       {order.code && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
-                          <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الشحن:</span>
+                          <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
                           <div style={{ 
                             display: "flex", 
                             alignItems: "center", 
@@ -244,15 +244,26 @@ export default function OrdersHistory() {
                         {new Date(order.created_at).toLocaleString("ar-EG")}
                       </span>
                       {order.status === "pending" && (
-                        <a
-                          href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلبي رقم #${order.id} لشحن ${order.service_name}`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="glass-btn"
-                          style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
-                        >
-                          ⚡ تسريع الشحن (واتساب)
-                        </a>
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                          <a
+                            href={`https://wa.me/16728972935?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلبي رقم #${order.id} للخدمة ${order.service_name}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass-btn"
+                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
+                          >
+                            ⚡ تسريع الخدمة (1)
+                          </a>
+                          <a
+                            href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلبي رقم #${order.id} للخدمة ${order.service_name}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass-btn"
+                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
+                          >
+                            ⚡ تسريع الخدمة (2)
+                          </a>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -267,9 +278,9 @@ export default function OrdersHistory() {
             {/* Form Column */}
             <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <div>
-                <h2 style={{ fontWeight: 900 }}>تتبع حالة طلب الشحن</h2>
+                <h2 style={{ fontWeight: 900 }}>تتبع حالة طلب الخدمة</h2>
                 <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "4px" }}>
-                  أدخل رقم الطلب ورقم الهاتف الذي استخدمته عند الشحن لمعرفة حالة طلبك فوراً.
+                  أدخل رقم الطلب ورقم الهاتف الذي استخدمته عند طلب الخدمة لمعرفة حالة طلبك فوراً.
                 </p>
               </div>
 
@@ -329,7 +340,7 @@ export default function OrdersHistory() {
                     <div style={{ display: "inline-block", marginTop: "10px" }}>
                       <span className={`badge badge-${singleOrder.status}`} style={{ fontSize: "0.9rem", padding: "6px 16px" }}>
                         {singleOrder.status === "pending" && "طلبك قيد الانتظار"}
-                        {singleOrder.status === "completed" && "تم شحن طلبك بنجاح ✅"}
+                        {singleOrder.status === "completed" && "تم تنفيذ طلبك بنجاح ✅"}
                         {singleOrder.status === "cancelled" && "تم إلغاء الطلب ❌"}
                       </span>
                     </div>
@@ -360,7 +371,7 @@ export default function OrdersHistory() {
                     </div>
                     {singleOrder.code && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
-                        <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الشحن:</span>
+                        <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
                         <div style={{ 
                           display: "flex", 
                           alignItems: "center", 
@@ -416,15 +427,26 @@ export default function OrdersHistory() {
                   </div>
 
                   {singleOrder.status === "pending" && (
-                    <a
-                      href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم Spider Store، أريد تسريع طلب الشحن رقم #${singleOrder.id}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="glass-btn"
-                      style={{ padding: "10px", width: "100%", borderRadius: "10px", marginTop: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
-                    >
-                      💬 تواصل مع الدعم الفني لتسريع الشحن
-                    </a>
+                    <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexDirection: "column" }}>
+                      <a
+                        href={`https://wa.me/16728972935?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلب الخدمة رقم #${singleOrder.id}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="glass-btn"
+                        style={{ padding: "10px", width: "100%", borderRadius: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
+                      >
+                        💬 تواصل مع الدعم (1) لتسريع الخدمة
+                      </a>
+                      <a
+                        href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلب الخدمة رقم #${singleOrder.id}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="glass-btn"
+                        style={{ padding: "10px", width: "100%", borderRadius: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
+                      >
+                        💬 تواصل مع الدعم (2) لتسريع الخدمة
+                      </a>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -433,7 +455,7 @@ export default function OrdersHistory() {
                   <span style={{ fontSize: "3.5rem" }}>🔑</span>
                   <h3 style={{ fontWeight: 900, margin: "15px 0" }}>تسجيل الدخول لتتبع أسهل</h3>
                   <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: "1.7", marginBottom: "20px" }}>
-                    عند تسجيل حساب جديد، ستتمكن من مراجعة وتتبع جميع طلبات الشحن السابقة الخاصة بك في مكان واحد ودون الحاجة لإدخال أرقام الهواتف أو أرقام الطلبات يدوياً في كل مرة.
+                    عند تسجيل حساب جديد، ستتمكن من مراجعة وتتبع جميع طلبات الخدمات السابقة الخاصة بك في مكان واحد ودون الحاجة لإدخال أرقام الهواتف أو أرقام الطلبات يدوياً في كل مرة.
                   </p>
                   <Link href="/login" className="glass-btn glass-btn-primary" style={{ width: "100%", padding: "12px", borderRadius: "12px" }}>
                     تسجيل الدخول / إنشاء حساب

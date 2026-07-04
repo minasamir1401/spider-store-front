@@ -279,7 +279,7 @@ export default function ServicesClient() {
                     justifyContent: "center",
                     overflow: "hidden"
                   }}>
-                    {cat.image ? (() => {
+                    {cat.image && cat.image !== "default" && cat.image !== "null" ? (() => {
                       const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
                       const src = (cat.image.startsWith("http") || cat.image.startsWith("data:")) ? cat.image : `${API_BASE_URL}${cleanPath}`;
                       return <img src={src} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />;

@@ -1,7 +1,7 @@
 {
-  "name": "عرب تيك سيرفر",
-  "short_name": "عرب تيك سيرفر",
-  "description": "سيرفر عرب تيك لخدمات وبرامج السوفت وير",
+  "name": "عرب تك سيرفر",
+  "short_name": "عرب تك سيرفر",
+  "description": "سيرفر عرب تك لخدمات وبرامج السوفت وير",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#141a28",

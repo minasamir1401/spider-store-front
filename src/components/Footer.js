@@ -57,7 +57,7 @@ export default function Footer() {
         <div className="footer-column">
           <h4 className="footer-title">الدعم الفني والمساعدة</h4>
           <p className="footer-desc">
-            فريق الدعم الفني متواجد لمساعدتكم 24 ساعة طوال أيام الأسبوع لحل أي مشكلة تتعلق بالشحن أو الدفع.
+            فريق الدعم الفني متواجد لمساعدتكم 24 ساعة طوال أيام الأسبوع لحل أي مشكلة تتعلق بالخدمات أو الدفع.
           </p>
           <div className="footer-links" style={{ marginTop: "5px" }}>
             <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer">💬 واتساب الدعم</a>

@@ -61,7 +61,7 @@ export default function ContactFloatingButton() {
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(52, 211, 153, 0.1)", borderColor: "rgba(52, 211, 153, 0.2)", color: "#34d399" }}
           >
-            💬 مجتمع واتساب عرب تيك
+            💬 مجتمع واتساب عرب تك
           </a>
 
           {/* WhatsApp Channel */}
@@ -72,7 +72,7 @@ export default function ContactFloatingButton() {
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(52, 211, 153, 0.1)", borderColor: "rgba(52, 211, 153, 0.2)", color: "#34d399" }}
           >
-            📢 قناة واتساب عرب تيك
+            📢 قناة واتساب عرب تك
           </a>
 
           {/* Telegram Channel */}
@@ -83,7 +83,7 @@ export default function ContactFloatingButton() {
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(37, 99, 235, 0.16)", borderColor: "rgba(37, 99, 235, 0.28)", color: "#60a5fa" }}
           >
-            ✈️ قناة تلجرام عرب تيك
+            ✈️ قناة تلجرام عرب تك
           </a>
 
           {/* Facebook Page */}
@@ -94,7 +94,7 @@ export default function ContactFloatingButton() {
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(24, 119, 242, 0.1)", borderColor: "rgba(24, 119, 242, 0.2)", color: "#478bfb" }}
           >
-            📘 صفحة فيسبوك عرب تيك
+            📘 صفحة فيسبوك عرب تك
           </a>
 
           {/* TikTok Account */}
@@ -105,7 +105,7 @@ export default function ContactFloatingButton() {
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(254, 44, 85, 0.1)", borderColor: "rgba(254, 44, 85, 0.2)", color: "#fe2c55" }}
           >
-            🎵 حساب تيك توك عرب تيك
+            🎵 حساب تيك توك عرب تك
           </a>
 
           {/* Email Support 1 */}

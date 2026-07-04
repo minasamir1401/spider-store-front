@@ -133,7 +133,7 @@ export default function MainLayout({ children }) {
     const baseCurr = settings.base_currency || "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
     
-    const availableCurrencies = ["USD", "EGP", "SDG"];
+    const availableCurrencies = ["USD"];
 
     const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
       ? selectedBalanceCurrency
@@ -809,7 +809,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>💬</span>
-                  <span>مجتمع واتساب عرب تيك</span>
+                  <span>مجتمع واتساب عرب تك</span>
                 </div>
                 <span style={{ color: "#34d399" }}>←</span>
               </a>
@@ -836,7 +836,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>📢</span>
-                  <span>قناة واتساب عرب تيك</span>
+                  <span>قناة واتساب عرب تك</span>
                 </div>
                 <span style={{ color: "#34d399" }}>←</span>
               </a>
@@ -863,7 +863,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>✈️</span>
-                  <span>قناة تلجرام عرب تيك</span>
+                  <span>قناة تلجرام عرب تك</span>
                 </div>
                 <span style={{ color: "#60a5fa" }}>←</span>
               </a>
@@ -890,7 +890,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>📘</span>
-                  <span>صفحة فيسبوك عرب تيك</span>
+                  <span>صفحة فيسبوك عرب تك</span>
                 </div>
                 <span style={{ color: "#478bfb" }}>←</span>
               </a>
@@ -917,7 +917,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>🎵</span>
-                  <span>حساب تيك توك عرب تيك</span>
+                  <span>حساب تيك توك عرب تك</span>
                 </div>
                 <span style={{ color: "#fe2c55" }}>←</span>
               </a>

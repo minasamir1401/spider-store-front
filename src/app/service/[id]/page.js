@@ -120,7 +120,7 @@ export async function generateMetadata({ params }) {
   const id = unwrappedParams.id;
   const service = await getServiceData(id);
   const settings = await getSettings();
-  const siteName = settings?.site_name || "عرب تيك سيرفر";
+  const siteName = settings?.site_name || "عرب تك سيرفر";
   const baseCurrency = settings?.base_currency || "USD";
 
   if (!service) {

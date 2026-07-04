@@ -53,7 +53,7 @@ const getSiteName = cache(async function getSiteName() {
   } catch (err) {
     console.error("Error fetching site name in metadata:", err);
   }
-  return "عرب تيك سيرفر";
+  return "عرب تك سيرفر";
 });
 
 export async function generateMetadata({ params }) {

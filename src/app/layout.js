@@ -8,7 +8,7 @@ import { cache } from "react";
 const isBuildTime = typeof window === "undefined" && (API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1"));
 
 const getSiteSettings = cache(async () => {
-  let siteName = "عرب تيك سيرفر";
+  let siteName = "عرب تك سيرفر";
   let siteLogo = "/logo.jpg";
   let siteFavicon = "/favicon.png";
 

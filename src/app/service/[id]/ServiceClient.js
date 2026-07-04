@@ -252,8 +252,8 @@ export default function ServiceDetail({ params }) {
 
   // Fallback fields if none configured
   const defaultFields = [
-    { name: "player_id", label: "معرّف اللاعب / حساب الشحن (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true },
-    { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
+    { name: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true },
+    { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الخدمة (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
   ];
 
   const activeFields = useMemo(() => {
@@ -301,7 +301,7 @@ export default function ServiceDetail({ params }) {
     const isDynamic = service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic");
 
     if (!isDynamic && !selectedPackage) {
-      setErrorMessage("من فضلك حدد باقة الشحن المطلوبة.");
+      setErrorMessage("من فضلك حدد الباقة المطلوبة.");
       return;
     }
 
@@ -1097,7 +1097,7 @@ export default function ServiceDetail({ params }) {
             </div>
 
             <div style={{ marginTop: "8px", fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: "1.5", background: "rgba(255, 255, 255, 0.01)", padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-              📢 بمجرد إتمام الطلب، سيتم مراجعة الدفع وتحويل الشحنة لحسابك في غضون 5 إلى 15 دقيقة فقط كحد أقصى.
+              📢 بمجرد إتمام الطلب، سيتم مراجعة الدفع وتنفيذ الخدمة في حسابك في غضون 5 إلى 15 دقيقة فقط كحد أقصى.
             </div>
           </div>
 
@@ -1134,7 +1134,7 @@ export default function ServiceDetail({ params }) {
                 <span>جاري إرسال طلبك...</span>
               </>
             ) : (
-              "تأكيد وإرسال طلب الشحن"
+              "تأكيد وإرسال طلب الخدمة"
             )}
           </button>
         </div>
@@ -1388,7 +1388,7 @@ export default function ServiceDetail({ params }) {
             
             <h2 style={{ fontWeight: 800, fontSize: "1.8rem", color: "#ffffff", marginBottom: "10px" }}>تم استلام طلبك بنجاح!</h2>
             <p style={{ margin: "0 auto 30px auto", maxWidth: "480px", lineHeight: "1.6", color: "#94a3b8", fontSize: "0.95rem" }}>
-              شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>Spider Store</strong>. تم استلام وتسجيل طلب الشحن الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
+              شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>عرب تك</strong>. تم استلام وتسجيل طلب الخدمة الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
             </p>
             
             <div style={{ 
@@ -1402,7 +1402,7 @@ export default function ServiceDetail({ params }) {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", marginBottom: "16px" }}>
                 <span style={{ fontSize: "1.2rem" }}>📄</span>
-                <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الشحن</strong>
+                <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الخدمة</strong>
               </div>
               
               <div style={{ 
@@ -1433,7 +1433,7 @@ export default function ServiceDetail({ params }) {
                    </strong>
                  </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
-                  <span style={{ color: "#94a3b8" }}>حساب الشحن (Player ID):</span>
+                  <span style={{ color: "#94a3b8" }}>حساب الخدمة (Player ID):</span>
                   <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>
                 </div>
                 {successData.sender_phone && (
@@ -1464,7 +1464,7 @@ export default function ServiceDetail({ params }) {
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                   <span style={{ color: "#94a3b8" }}>الحالة:</span>
-                  <span style={{ color: "#4ade80", background: "rgba(74, 222, 128, 0.1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "bold" }}>قيد الانتظار (سيتم الشحن فوراً)</span>
+                  <span style={{ color: "#4ade80", background: "rgba(74, 222, 128, 0.1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "bold" }}>قيد الانتظار (سيتم التنفيذ فوراً)</span>
                 </div>
               </div>
 

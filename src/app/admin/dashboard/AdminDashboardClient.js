@@ -14,8 +14,8 @@ export default function AdminDashboard() {
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
 
   const defaultFields = [
-    { id: "player_id", label: "معرّف اللاعب / حساب الشحن (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true },
-    { id: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", placeholder: "مثال: 01023456789 أو +96651234567", type: "tel", required: true }
+    { id: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true },
+    { id: "phone", label: "رقم الهاتف للتواصل وتأكيد الخدمة (واتساب)", placeholder: "مثال: 01023456789 أو +96651234567", type: "tel", required: true }
   ];
 
   // Data states
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
       const settingsRes = await fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`);
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
-        setSiteName(settingsData.site_name || "عرب تيك سيرفر");
+        setSiteName(settingsData.site_name || "عرب تك سيرفر");
         setSiteLogo(settingsData.site_logo || "default");
         setSiteFavicon(settingsData.site_favicon || "default");
         setPaymentMethodsList(settingsData.payment_methods || []);
@@ -2479,7 +2479,7 @@ export default function AdminDashboard() {
         </div>
         <div className="mobile-drawer-divider" />
         {[
-          { tab: "orders", icon: "📥", label: "طلبات الشحن" },
+          { tab: "orders", icon: "📥", label: "طلبات الخدمات" },
           { tab: "categories", icon: "📁", label: "إدارة الأقسام" },
           { tab: "services", icon: "⚡", label: "إدارة الخدمات" },
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
@@ -2531,7 +2531,7 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab("orders")}
           >
             <span className="nav-icon">📥</span>
-            <span>طلبات الشحن</span>
+            <span>طلبات الخدمات</span>
           </div>
           
           <div
@@ -2624,7 +2624,7 @@ export default function AdminDashboard() {
           <button className="admin-burger-btn" onClick={() => setAdminDrawerOpen(true)}>☰</button>
           <div className="header-title-section">
             <h1>
-              {activeTab === "orders" && "طلبات الشحن"}
+              {activeTab === "orders" && "طلبات الخدمات"}
               {activeTab === "categories" && "الأقسام والتبويبات"}
                 {activeTab === "services" && "الخدمات والمنتجات"}
                 {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
@@ -2637,7 +2637,7 @@ export default function AdminDashboard() {
               <p>
                 {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
                 {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
-                {activeTab === "services" && "إدارة خدمات الشحن وتفاصيل حزم التسعير والباقات"}
+                {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
                 {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
                 {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
@@ -3616,7 +3616,7 @@ export default function AdminDashboard() {
                         style={{ padding: "12px 16px !important" }}
                         value={siteName}
                         onChange={(e) => setSiteName(e.target.value)}
-                        placeholder="مثال: عرب تيك لخدمات الإلكترونية"
+                        placeholder="مثال: عرب تك لخدمات الإلكترونية"
                         required
                       />
                     </div>
@@ -4587,7 +4587,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الشحن (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
+                <label>عنوان قسم بيانات الحساب (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
@@ -4880,7 +4880,7 @@ export default function AdminDashboard() {
                 /* Package Builder List */
                 <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
+                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>الباقات المتوفرة (الحزم):</h4>
                     <button 
                       type="button" 
                       onClick={handleAddPkgInput} 
@@ -4946,7 +4946,7 @@ export default function AdminDashboard() {
               )}
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الشحن (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
@@ -5155,7 +5155,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الشحن (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
+                <label>عنوان قسم بيانات الحساب (اختياري - الافتراضي: "بيانات الحساب المراد شحنه"):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
@@ -5468,7 +5468,7 @@ export default function AdminDashboard() {
                 /* Package Builder List */
                 <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>باقات الشحن المتوفرة (الحزم):</h4>
+                    <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>الباقات المتوفرة (الحزم):</h4>
                     <button 
                       type="button" 
                       onClick={handleAddEditPkgInput} 
@@ -5534,7 +5534,7 @@ export default function AdminDashboard() {
               )}
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الشحن (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الحساب المراد شحنه، بيانات لاعب ببجي"
@@ -6130,7 +6130,7 @@ export default function AdminDashboard() {
               {/* Code */}
               {orderDetailsData.code && (
                 <div style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "12px 14px" }}>
-                  <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px", fontWeight: 700 }}>🔑 كود التفعيل / رسالة الشحن</div>
+                  <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px", fontWeight: 700 }}>🔑 كود التفعيل / رسالة الخدمة</div>
                   <div style={{ fontFamily: "monospace", fontSize: "0.95rem", color: "#c084fc", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>{orderDetailsData.code}</div>
                 </div>
               )}
@@ -6176,7 +6176,7 @@ export default function AdminDashboard() {
             <div className="premium-modal-header">
               <h3 className="premium-modal-title">
                 {codeModalStatusToUpdate === "completed" 
-                  ? `إتمام الشحن وإرسال كود التفعيل للطلب #${codeModalOrder.id}` 
+                  ? `إتمام التنفيذ وإرسال كود التفعيل للطلب #${codeModalOrder.id}` 
                   : `تعديل كود التفعيل للطلب #${codeModalOrder.id}`}
               </h3>
               <button className="close-btn-premium" onClick={() => setShowCodeModal(false)}>×</button>
@@ -6190,7 +6190,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label>كود التفعيل أو رسالة الشحن للعميل:</label>
+                <label>كود التفعيل أو رسالة الخدمة للعميل:</label>
                 <textarea
                   placeholder="أدخل كود التفعيل، كود البطاقة، أو أي رسالة توضيحية للعميل هنا..."
                   rows="4"
@@ -6236,7 +6236,7 @@ export default function AdminDashboard() {
                 )}
 
                 <button type="submit" className="btn-add-premium">
-                  {codeModalStatusToUpdate === "completed" ? "إتمام الشحن وحفظ الكود" : "حفظ الكود"}
+                  {codeModalStatusToUpdate === "completed" ? "إتمام التنفيذ وحفظ الكود" : "حفظ الكود"}
                 </button>
               </div>
             </form>
