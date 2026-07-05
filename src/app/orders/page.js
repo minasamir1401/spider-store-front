@@ -237,6 +237,41 @@ export default function OrdersHistory() {
                           </div>
                         </div>
                       )}
+                      {order.download_link && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
+                          <span style={{ color: "#38bdf8", fontSize: "0.85rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة / التطبيق:</span>
+                          <a 
+                            href={order.download_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              justifyContent: "center", 
+                              gap: "8px", 
+                              background: "rgba(56, 189, 248, 0.1)", 
+                              padding: "12px 18px", 
+                              borderRadius: "12px", 
+                              border: "1px solid rgba(56, 189, 248, 0.25)",
+                              color: "#38bdf8",
+                              fontWeight: "bold",
+                              textDecoration: "none",
+                              transition: "all 0.2s",
+                              textAlign: "center"
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = "rgba(56, 189, 248, 0.2)";
+                              e.target.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = "rgba(56, 189, 248, 0.1)";
+                              e.target.style.borderColor = "rgba(56, 189, 248, 0.25)";
+                            }}
+                          >
+                            📥 {order.download_link_title || "تحميل الأداة"}
+                          </a>
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
@@ -422,6 +457,41 @@ export default function OrdersHistory() {
                             نسخ 📋
                           </button>
                         </div>
+                      </div>
+                    )}
+                    {singleOrder.download_link && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
+                        <span style={{ color: "#38bdf8", fontSize: "0.85rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة / التطبيق:</span>
+                        <a 
+                          href={singleOrder.download_link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ 
+                            display: "inline-flex", 
+                            alignItems: "center", 
+                            justifyContent: "center", 
+                            gap: "8px", 
+                            background: "rgba(56, 189, 248, 0.1)", 
+                            padding: "12px 18px", 
+                            borderRadius: "12px", 
+                            border: "1px solid rgba(56, 189, 248, 0.25)",
+                            color: "#38bdf8",
+                            fontWeight: "bold",
+                            textDecoration: "none",
+                            transition: "all 0.2s",
+                            textAlign: "center"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = "rgba(56, 189, 248, 0.2)";
+                            e.target.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = "rgba(56, 189, 248, 0.1)";
+                            e.target.style.borderColor = "rgba(56, 189, 248, 0.25)";
+                          }}
+                        >
+                          📥 {singleOrder.download_link_title || "تحميل الأداة"}
+                        </a>
                       </div>
                     )}
                   </div>

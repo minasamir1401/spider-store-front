@@ -1217,6 +1217,44 @@ export default function ServiceDetail({ params }) {
 
             <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
 
+            {service.download_link && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px" }}>
+                <span style={{ color: "var(--text-muted)", fontSize: "0.85rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة / التطبيق الخاص بالخدمة:</span>
+                <div>
+                  <a 
+                    href={service.download_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ 
+                      display: "inline-flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      gap: "8px", 
+                      background: "rgba(56, 189, 248, 0.1)", 
+                      padding: "10px 18px", 
+                      borderRadius: "12px", 
+                      border: "1px solid rgba(56, 189, 248, 0.25)",
+                      color: "#38bdf8",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                      transition: "all 0.2s",
+                      textAlign: "center"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = "rgba(56, 189, 248, 0.2)";
+                      e.target.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = "rgba(56, 189, 248, 0.1)";
+                      e.target.style.borderColor = "rgba(56, 189, 248, 0.25)";
+                    }}
+                  >
+                    📥 {service.download_link_title || "تحميل الأداة"}
+                  </a>
+                </div>
+              </div>
+            )}
+
             <hr style={{ opacity: 0.1 }} />
 
             <div>

@@ -56,6 +56,8 @@ export default function AdminDashboard() {
 
   const [newServiceFields, setNewServiceFields] = useState(defaultFields);
   const [newServiceFieldsTitle, setNewServiceFieldsTitle] = useState("");
+  const [newServiceDownloadLink, setNewServiceDownloadLink] = useState("");
+  const [newServiceDownloadLinkTitle, setNewServiceDownloadLinkTitle] = useState("تحميل الأداة");
 
   // Edit Category Modal / Form states
   const [showEditCatModal, setShowEditCatModal] = useState(false);
@@ -81,6 +83,8 @@ export default function AdminDashboard() {
   const [editServicePriceType, setEditServicePriceType] = useState("fixed");
   const [editServicePricePerThousand, setEditServicePricePerThousand] = useState(0);
   const [editServiceFieldsTitle, setEditServiceFieldsTitle] = useState("");
+  const [editServiceDownloadLink, setEditServiceDownloadLink] = useState("");
+  const [editServiceDownloadLinkTitle, setEditServiceDownloadLinkTitle] = useState("تحميل الأداة");
 
   // Banners data & form states
   const [banners, setBanners] = useState([]);
@@ -149,6 +153,8 @@ export default function AdminDashboard() {
   const [codeModalOrder, setCodeModalOrder] = useState(null);
   const [codeValue, setCodeValue] = useState("");
   const [codeModalStatusToUpdate, setCodeModalStatusToUpdate] = useState(null);
+  const [orderDownloadLinkValue, setOrderDownloadLinkValue] = useState("");
+  const [orderDownloadLinkTitleValue, setOrderDownloadLinkTitleValue] = useState("");
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
   const [orderDetailsData, setOrderDetailsData] = useState(null);
 
@@ -371,7 +377,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const updateOrderCodeAndStatus = async (orderId, newStatus, newCode) => {
+  const updateOrderCodeAndStatus = async (orderId, newStatus, newCode, newDownloadLink, newDownloadLinkTitle) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
         method: "PUT",
@@ -381,7 +387,9 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({ 
           status: newStatus || undefined, 
-          code: newCode 
+          code: newCode,
+          download_link: newDownloadLink,
+          download_link_title: newDownloadLinkTitle
         })
       });
 
@@ -392,7 +400,9 @@ export default function AdminDashboard() {
       setOrders(prev => prev.map(o => o.id === orderId ? { 
         ...o, 
         status: newStatus || o.status, 
-        code: newCode 
+        code: newCode,
+        download_link: newDownloadLink,
+        download_link_title: newDownloadLinkTitle
       } : o));
     } catch (err) {
       alert(err.message || "فشل تحديث الطلب.");
@@ -402,6 +412,12 @@ export default function AdminDashboard() {
   const handleOpenCodeModal = (order, statusToUpdate = null) => {
     setCodeModalOrder(order);
     setCodeValue(order.code || "");
+    const service = services.find(s => s.id === order.service_id);
+    const defaultLink = service ? (service.download_link || "") : "";
+    const defaultLinkTitle = service ? (service.download_link_title || "تحميل الأداة") : "تحميل الأداة";
+
+    setOrderDownloadLinkValue(order.download_link || defaultLink);
+    setOrderDownloadLinkTitleValue(order.download_link_title || defaultLinkTitle);
     setCodeModalStatusToUpdate(statusToUpdate);
     setShowCodeModal(true);
   };
@@ -410,10 +426,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!codeModalOrder) return;
     
-    await updateOrderCodeAndStatus(codeModalOrder.id, codeModalStatusToUpdate, codeValue);
+    await updateOrderCodeAndStatus(codeModalOrder.id, codeModalStatusToUpdate, codeValue, orderDownloadLinkValue, orderDownloadLinkTitleValue);
     setShowCodeModal(false);
     setCodeModalOrder(null);
     setCodeValue("");
+    setOrderDownloadLinkValue("");
+    setOrderDownloadLinkTitleValue("");
     setCodeModalStatusToUpdate(null);
   };
 
@@ -704,7 +722,9 @@ export default function AdminDashboard() {
           fields: newServiceFields,
           price_type: newServicePriceType,
           price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0,
-          fields_title: newServiceFieldsTitle
+          fields_title: newServiceFieldsTitle,
+          download_link: newServiceDownloadLink,
+          download_link_title: newServiceDownloadLinkTitle
         })
       });
 
@@ -727,6 +747,8 @@ export default function AdminDashboard() {
       setNewServiceFieldsTitle("");
       setNewServicePriceType("fixed");
       setNewServicePricePerThousand(0);
+      setNewServiceDownloadLink("");
+      setNewServiceDownloadLinkTitle("تحميل الأداة");
       setShowServiceModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -872,6 +894,8 @@ export default function AdminDashboard() {
     setEditServicePriceType(service.price_type || "fixed");
     setEditServicePricePerThousand(service.price_per_thousand || 0);
     setEditServiceFieldsTitle(service.fields_title || "");
+    setEditServiceDownloadLink(service.download_link || "");
+    setEditServiceDownloadLinkTitle(service.download_link_title || "تحميل الأداة");
 
     setShowEditServiceModal(true);
   };
@@ -1008,7 +1032,9 @@ export default function AdminDashboard() {
           fields: editServiceFields,
           price_type: editServicePriceType,
           price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
-          fields_title: editServiceFieldsTitle
+          fields_title: editServiceFieldsTitle,
+          download_link: editServiceDownloadLink,
+          download_link_title: editServiceDownloadLinkTitle
         })
       });
 
@@ -1029,7 +1055,9 @@ export default function AdminDashboard() {
         fields: data.fields,
         fields_title: data.fields_title,
         price_type: editServicePriceType,
-        price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
+        price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
+        download_link: data.download_link,
+        download_link_title: data.download_link_title
       } : s));
       
       setShowEditServiceModal(false);
@@ -4993,6 +5021,48 @@ export default function AdminDashboard() {
                 </div>
               )}
 
+              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
+                <h4 style={{ fontWeight: 800, fontSize: "0.9rem", marginBottom: "14px" }}>رابط تحميل الأداة (اختياري):</h4>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>رابط التحميل (مثال: https://...):</span>
+                    <input
+                      type="text"
+                      placeholder="رابط التحميل"
+                      value={newServiceDownloadLink}
+                      onChange={(e) => setNewServiceDownloadLink(e.target.value)}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>عنوان زر التحميل:</span>
+                    <input
+                      type="text"
+                      placeholder="مثال: تحميل الأداة"
+                      value={newServiceDownloadLinkTitle}
+                      onChange={(e) => setNewServiceDownloadLinkTitle(e.target.value)}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="form-group" style={{ marginBottom: "14px" }}>
                 <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
                 <input
@@ -5608,6 +5678,48 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+
+              <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
+                <h4 style={{ fontWeight: 800, fontSize: "0.9rem", marginBottom: "14px" }}>رابط تحميل الأداة (اختياري):</h4>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>رابط التحميل (مثال: https://...):</span>
+                    <input
+                      type="text"
+                      placeholder="رابط التحميل"
+                      value={editServiceDownloadLink}
+                      onChange={(e) => setEditServiceDownloadLink(e.target.value)}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>عنوان زر التحميل:</span>
+                    <input
+                      type="text"
+                      placeholder="مثال: تحميل الأداة"
+                      value={editServiceDownloadLinkTitle}
+                      onChange={(e) => setEditServiceDownloadLinkTitle(e.target.value)}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background: "rgba(13, 18, 36, 0.7)",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
                 <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
@@ -6286,6 +6398,44 @@ export default function AdminDashboard() {
                 />
               </div>
 
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>رابط تحميل الأداة أو التطبيق للعميل (اختياري):</label>
+                <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
+                  <input
+                    type="text"
+                    placeholder="رابط التحميل (مثال: https://...)"
+                    value={orderDownloadLinkValue}
+                    onChange={(e) => setOrderDownloadLinkValue(e.target.value)}
+                    style={{
+                      flex: 2,
+                      padding: "10px 14px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(13, 18, 36, 0.7)",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      outline: "none"
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="عنوان زر التحميل (مثال: تحميل الأداة)"
+                    value={orderDownloadLinkTitleValue}
+                    onChange={(e) => setOrderDownloadLinkTitleValue(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: "10px 14px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(13, 18, 36, 0.7)",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+              </div>
+
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
                 <button 
                   type="button" 
@@ -6301,10 +6451,12 @@ export default function AdminDashboard() {
                     className="action-btn btn-edit-premium"
                     style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)" }}
                     onClick={async () => {
-                      await updateOrderStatus(codeModalOrder.id, "completed");
+                      await updateOrderCodeAndStatus(codeModalOrder.id, "completed", "", orderDownloadLinkValue, orderDownloadLinkTitleValue);
                       setShowCodeModal(false);
                       setCodeModalOrder(null);
                       setCodeValue("");
+                      setOrderDownloadLinkValue("");
+                      setOrderDownloadLinkTitleValue("");
                     }}
                   >
                     شحن بدون كود
