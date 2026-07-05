@@ -173,6 +173,7 @@ export default function AdminDashboard() {
   const [excelFrpUploadMsg, setExcelFrpUploadMsg] = useState("");
   const [excelUploadLoading, setExcelUploadLoading] = useState(false);
   const [unlockerApiKey, setUnlockerApiKey] = useState("");
+  const [unlockerUsername, setUnlockerUsername] = useState("");
   const [unlockerApiUrl, setUnlockerApiUrl] = useState("");
   const [unlockerExchangeRate, setUnlockerExchangeRate] = useState(50);
   const [unlockerMarkupPercent, setUnlockerMarkupPercent] = useState(10);
@@ -328,6 +329,7 @@ export default function AdminDashboard() {
         const unlockerSettingsData = await unlockerSettingsRes.json();
         setUnlockerApiKey(unlockerSettingsData.api_key || "");
         setUnlockerApiUrl(unlockerSettingsData.api_url || "");
+        setUnlockerUsername(unlockerSettingsData.username || "");
       }
     } catch (err) {
       console.error("Error fetching admin data:", err);
@@ -380,7 +382,8 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({
           api_key: unlockerApiKey,
-          api_url: unlockerApiUrl
+          api_url: unlockerApiUrl,
+          username: unlockerUsername
         })
       });
       const data = await response.json();
@@ -4722,7 +4725,19 @@ const handleLogout = () => {
                     <span>⚙️</span> إعدادات الاتصال ببوابة Amrr Unlocker
                   </h3>
                   
-                  <form onSubmit={saveUnlockerSettings} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
+                  <form onSubmit={saveUnlockerSettings} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", alignItems: "end" }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>اسم المستخدم (Username):</label>
+                      <input 
+                        type="text" 
+                        value={unlockerUsername} 
+                        onChange={(e) => setUnlockerUsername(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px" }}
+                        placeholder="أدخل اسم المستخدم هنا"
+                        required
+                      />
+                    </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>API access key:</label>
                       <input 
@@ -4747,7 +4762,7 @@ const handleLogout = () => {
                         required
                       />
                     </div>
-                    <div style={{ gridColumn: "span 2", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: "14px", marginTop: "4px" }}>
+                    <div style={{ gridColumn: "span 3", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: "14px", marginTop: "4px" }}>
                       <span style={{ fontSize: "0.82rem", color: "#e2e8f0" }}>{unlockerSettingsMsg}</span>
                       <button type="submit" className="action-btn btn-success-premium" style={{ padding: "8px 24px", fontSize: "0.88rem" }}>
                         💾 حفظ الإعدادات
