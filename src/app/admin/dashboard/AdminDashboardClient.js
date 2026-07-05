@@ -172,6 +172,16 @@ export default function AdminDashboard() {
   const [excelAppleUploadMsg, setExcelAppleUploadMsg] = useState("");
   const [excelFrpUploadMsg, setExcelFrpUploadMsg] = useState("");
   const [excelUploadLoading, setExcelUploadLoading] = useState(false);
+  const [unlockerApiKey, setUnlockerApiKey] = useState("");
+  const [unlockerApiUrl, setUnlockerApiUrl] = useState("");
+  const [unlockerExchangeRate, setUnlockerExchangeRate] = useState(50);
+  const [unlockerMarkupPercent, setUnlockerMarkupPercent] = useState(10);
+  const [unlockerServices, setUnlockerServices] = useState([]);
+  const [unlockerLoading, setUnlockerLoading] = useState(false);
+  const [unlockerSearch, setUnlockerSearch] = useState("");
+  const [selectedUnlockerServices, setSelectedUnlockerServices] = useState([]);
+  const [unlockerSettingsMsg, setUnlockerSettingsMsg] = useState("");
+  const [unlockerSyncMsg, setUnlockerSyncMsg] = useState("");
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -312,6 +322,13 @@ export default function AdminDashboard() {
           setExcelFrpMarkup(excelSettingsData.frp_markup);
         }
       }
+      // Fetch Unlocker settings
+      const unlockerSettingsRes = await fetch(`${API_BASE_URL}/api/unlocker/settings`, { headers });
+      if (unlockerSettingsRes.ok) {
+        const unlockerSettingsData = await unlockerSettingsRes.json();
+        setUnlockerApiKey(unlockerSettingsData.api_key || "");
+        setUnlockerApiUrl(unlockerSettingsData.api_url || "");
+      }
     } catch (err) {
       console.error("Error fetching admin data:", err);
       setErrorMsg("حدث خطأ أثناء تحميل البيانات من الخادم.");
@@ -350,7 +367,130 @@ export default function AdminDashboard() {
     loadCustomerTransactions();
   }, [token, selectedCustomerId]);
 
-  const handleLogout = () => {
+  
+  const saveUnlockerSettings = async (e) => {
+    e.preventDefault();
+    setUnlockerSettingsMsg("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          api_key: unlockerApiKey,
+          api_url: unlockerApiUrl
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل تحديث الإعدادات.");
+      setUnlockerSettingsMsg("✅ تم حفظ إعدادات البوابة بنجاح!");
+      setTimeout(() => setUnlockerSettingsMsg(""), 3000);
+    } catch (err) {
+      setUnlockerSettingsMsg(`❌ خطأ: ${err.message}`);
+    }
+  };
+
+  const fetchUnlockerServices = async () => {
+    setUnlockerLoading(true);
+    setUnlockerSyncMsg("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/fetch-services`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل جلب الخدمات.");
+      setUnlockerServices(data.services || []);
+      setUnlockerSyncMsg(`✅ تم جلب عدد ${data.services.length} خدمة بنجاح من المزود.`);
+      setSelectedUnlockerServices([]);
+    } catch (err) {
+      setUnlockerSyncMsg(`❌ فشل الاتصال: ${err.message}`);
+    } finally {
+      setUnlockerLoading(false);
+    }
+  };
+
+  const importSelectedUnlockerServices = async () => {
+    if (selectedUnlockerServices.length === 0) {
+      alert("يرجى تحديد خدمة واحدة على الأقل للاستيراد.");
+      return;
+    }
+    
+    setUnlockerLoading(true);
+    setUnlockerSyncMsg("");
+    
+    try {
+      const servicesToImport = unlockerServices.filter(s => selectedUnlockerServices.includes(s.id));
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/import-services`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          services: servicesToImport,
+          exchange_rate: parseFloat(unlockerExchangeRate) || 50,
+          markup_percent: parseFloat(unlockerMarkupPercent) || 0
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل استيراد الخدمات.");
+      
+      setUnlockerSyncMsg(`✅ ${data.message}`);
+      setSelectedUnlockerServices([]);
+      void fetchData();
+    } catch (err) {
+      setUnlockerSyncMsg(`❌ فشل الاستيراد: ${err.message}`);
+    } finally {
+      setUnlockerLoading(false);
+    }
+  };
+
+  const triggerUnlockerOrderApproval = async (orderId) => {
+    if (!confirm("هل أنت متأكد من تفعيل هذا الطلب وإرساله إلى Amrr Unlocker؟")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/place-order/${orderId}`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل إرسال الطلب لـ API.");
+      
+      alert(data.message);
+      void fetchData();
+    } catch (err) {
+      alert(`خطأ: ${err.message}`);
+    }
+  };
+
+  const checkUnlockerOrderStatus = async (orderId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/check-status/${orderId}`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل تحديث حالة الطلب.");
+      
+      alert(data.message);
+      void fetchData();
+    } catch (err) {
+      alert(`خطأ: ${err.message}`);
+    }
+  };
+
+const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
     router.push("/admin/login");
@@ -2526,6 +2666,7 @@ export default function AdminDashboard() {
           { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
           { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
+          { tab: "amrr_unlocker", icon: "🔓", label: "بوابة Amrr Unlocker" },
         ].map(item => (
           <button key={item.tab}
             className={`mobile-drawer-link ${activeTab === item.tab ? "active" : ""}`}
@@ -2639,6 +2780,15 @@ export default function AdminDashboard() {
               <span>أسعار أقسام السيرفر</span>
             </div>
 
+            <div
+              className={`nav-item-premium ${activeTab === "amrr_unlocker" ? "active" : ""}`}
+              onClick={() => setActiveTab("amrr_unlocker")}
+              style={{ background: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.1)" : "", borderColor: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.3)" : "" }}
+            >
+              <span className="nav-icon">🔓</span>
+              <span>بوابة Amrr Unlocker</span>
+            </div>
+
             <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
@@ -2672,6 +2822,7 @@ export default function AdminDashboard() {
                 {activeTab === "settings" && "إعدادات معلومات الموقع"}
                 {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
                 {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
+              {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
               </h1>
               <p>
                 {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
@@ -2683,6 +2834,7 @@ export default function AdminDashboard() {
                 {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
                 {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
                 {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
+              {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
               </p>
             </div>
 
@@ -2879,6 +3031,12 @@ export default function AdminDashboard() {
                             <div style={{ fontSize: "0.73rem", color: "#64748b", marginBottom: "2px" }}>الخدمة</div>
                             <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{order.service_name}</div>
                             <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.package_name} • <span style={{ color: "#34d399" }}>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</span></div>
+                            {order.api_order_id && (
+                              <div style={{ fontSize: "0.75rem", background: "rgba(14,165,233,0.12)", color: "#38bdf8", padding: "4px 10px", borderRadius: "8px", display: "inline-flex", gap: "6px", alignItems: "center", marginTop: "6px", fontWeight: "bold" }}>
+                                <span>🔓 طلب API خارجي: #{order.api_order_id}</span>
+                                <span style={{ opacity: 0.85 }}>({order.api_status || 'Pending'})</span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -2893,13 +3051,24 @@ export default function AdminDashboard() {
                           </button>
                           {order.status === "pending" && (
                             <>
-                              <button onClick={() => handleOpenCodeModal(order, "completed")} className="action-btn btn-success-premium">
-                                ✅ تم الشحن
-                              </button>
+                              {order.api_source === "amrr-unlocker" ? (
+                                <button onClick={() => triggerUnlockerOrderApproval(order.id)} className="action-btn" style={{ background: "rgba(14,165,233,0.18)", border: "1px solid rgba(14,165,233,0.3)", color: "#0ea5e9", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
+                                  ⚡ تفعيل Amrr Unlocker
+                                </button>
+                              ) : (
+                                <button onClick={() => handleOpenCodeModal(order, "completed")} className="action-btn btn-success-premium">
+                                  ✅ تم الشحن
+                                </button>
+                              )}
                               <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium">
                                 ❌ إلغاء
                               </button>
                             </>
+                          )}
+                          {order.status === "processing" && order.api_source === "amrr-unlocker" && (
+                            <button onClick={() => checkUnlockerOrderStatus(order.id)} className="action-btn" style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
+                              🔄 تحديث حالة API
+                            </button>
                           )}
                           <button
                             onClick={() => handleOpenCodeModal(order, null)}
@@ -4543,7 +4712,200 @@ export default function AdminDashboard() {
 
               </div>
             )}
-      </main>
+      
+            {activeTab === "amrr_unlocker" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                
+                {/* 1. API Credentials & Connection settings */}
+                <div className="premium-card-solid" style={{ padding: "20px" }}>
+                  <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 800, color: "#38bdf8", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>⚙️</span> إعدادات الاتصال ببوابة Amrr Unlocker
+                  </h3>
+                  
+                  <form onSubmit={saveUnlockerSettings} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>API access key:</label>
+                      <input 
+                        type="text" 
+                        value={unlockerApiKey} 
+                        onChange={(e) => setUnlockerApiKey(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px" }}
+                        placeholder="أدخل مفتاح الـ API هنا"
+                        required
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>رابط الـ API الافتراضي:</label>
+                      <input 
+                        type="url" 
+                        value={unlockerApiUrl} 
+                        onChange={(e) => setUnlockerApiUrl(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px" }}
+                        placeholder="مثال: https://amrr-unlocker.com/api/index.php"
+                        required
+                      />
+                    </div>
+                    <div style={{ gridColumn: "span 2", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: "14px", marginTop: "4px" }}>
+                      <span style={{ fontSize: "0.82rem", color: "#e2e8f0" }}>{unlockerSettingsMsg}</span>
+                      <button type="submit" className="action-btn btn-success-premium" style={{ padding: "8px 24px", fontSize: "0.88rem" }}>
+                        💾 حفظ الإعدادات
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* 2. Services Sync Controls */}
+                <div className="premium-card-solid" style={{ padding: "20px" }}>
+                  <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 800, color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>🔄</span> مزامنة واستيراد الخدمات
+                  </h3>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>سعر صرف الدولار (EGP / USD):</label>
+                      <input 
+                        type="number" 
+                        value={unlockerExchangeRate} 
+                        onChange={(e) => setUnlockerExchangeRate(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px" }}
+                        min="1"
+                        step="0.1"
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>هامش الربح (%):</label>
+                      <input 
+                        type="number" 
+                        value={unlockerMarkupPercent} 
+                        onChange={(e) => setUnlockerMarkupPercent(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px" }}
+                        min="0"
+                        step="0.5"
+                      />
+                    </div>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "end" }}>
+                      <button 
+                        onClick={fetchUnlockerServices} 
+                        className="action-btn btn-edit-premium"
+                        style={{ flex: 1, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                        disabled={unlockerLoading}
+                      >
+                        🔍 {unlockerLoading ? "جاري الاتصال..." : "جلب الخدمات"}
+                      </button>
+                      <button 
+                        onClick={importSelectedUnlockerServices} 
+                        className="action-btn btn-success-premium"
+                        style={{ flex: 1, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                        disabled={unlockerLoading || selectedUnlockerServices.length === 0}
+                      >
+                        📥 استيراد المحددة ({selectedUnlockerServices.length})
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: "0.88rem", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", marginBottom: "16px", color: "#cbd5e1" }}>
+                    {unlockerSyncMsg || "اضغط على زر (جلب الخدمات) لعرض الخدمات المتاحة وتحديد المطلوب استيرادها للموقع."}
+                  </div>
+
+                  {unlockerServices.length > 0 && (
+                    <>
+                      {/* Search Bar for remote services */}
+                      <div style={{ marginBottom: "12px" }}>
+                        <input 
+                          type="text" 
+                          placeholder="ابحث عن خدمة أو قسم..." 
+                          value={unlockerSearch} 
+                          onChange={(e) => setUnlockerSearch(e.target.value)} 
+                          className="search-input-premium" 
+                          style={{ padding: "10px 14px", fontSize: "0.88rem" }}
+                        />
+                      </div>
+
+                      {/* Remote Services list table */}
+                      <div className="premium-table-wrapper" style={{ maxHeight: "400px", overflowY: "auto", marginBottom: 0 }}>
+                        <table className="premium-table">
+                          <thead>
+                            <tr>
+                              <th style={{ width: "40px", textAlign: "center" }}>
+                                <input 
+                                  type="checkbox" 
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      const filtered = unlockerServices
+                                        .filter(s => s.name.toLowerCase().includes(unlockerSearch.toLowerCase()) || s.category.toLowerCase().includes(unlockerSearch.toLowerCase()))
+                                        .map(s => s.id);
+                                      setSelectedUnlockerServices(filtered);
+                                    } else {
+                                      setSelectedUnlockerServices([]);
+                                    }
+                                  }}
+                                  checked={selectedUnlockerServices.length > 0 && selectedUnlockerServices.length === unlockerServices.length}
+                                />
+                              </th>
+                              <th>ID الخدمة</th>
+                              <th>اسم الخدمة</th>
+                              <th>القسم (المجموعة)</th>
+                              <th>سعر المزود (USD)</th>
+                              <th>السعر المحلي المتوقع (EGP)</th>
+                              <th>حالة الاستيراد</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {unlockerServices
+                              .filter(s => s.name.toLowerCase().includes(unlockerSearch.toLowerCase()) || s.category.toLowerCase().includes(unlockerSearch.toLowerCase()))
+                              .map((s) => {
+                                const isSelected = selectedUnlockerServices.includes(s.id);
+                                const estPrice = Math.ceil((parseFloat(s.price) * (parseFloat(unlockerExchangeRate) || 50)) * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100));
+                                const isAlreadyImported = services.some(local => local.api_service_id === s.id.toString() && local.api_source === 'amrr-unlocker');
+                                
+                                return (
+                                  <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : "" }}>
+                                    <td style={{ textAlign: "center" }}>
+                                      <input 
+                                        type="checkbox" 
+                                        checked={isSelected}
+                                        onChange={() => {
+                                          if (isSelected) {
+                                            setSelectedUnlockerServices(prev => prev.filter(id => id !== s.id));
+                                          } else {
+                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                          }
+                                        }}
+                                      />
+                                    </td>
+                                    <td data-label="ID الخدمة" style={{ fontWeight: "bold", color: "#64748b" }}>{s.id}</td>
+                                    <td data-label="اسم الخدمة" style={{ fontWeight: 700 }}>{s.name}</td>
+                                    <td data-label="القسم">{s.category}</td>
+                                    <td data-label="السعر (USD)" style={{ color: "#38bdf8", fontWeight: "bold" }}>\${parseFloat(s.price).toFixed(2)}</td>
+                                    <td data-label="السعر المتوقع" style={{ color: "#34d399", fontWeight: "bold" }}>{estPrice.toFixed(2)} {baseCurrency}</td>
+                                    <td data-label="حالة الاستيراد">
+                                      {isAlreadyImported ? (
+                                        <span style={{ color: "#4ade80", fontSize: "0.8rem", background: "rgba(34,197,94,0.12)", padding: "4px 8px", borderRadius: "6px", fontWeight: "bold" }}>
+                                          ✓ مستورد مسبقاً
+                                        </span>
+                                      ) : (
+                                        <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+                                          جاهز للاستيراد
+                                        </span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+              </div>
+            )}
+</main>
 
       {/* Add Category Modal */}
       {showCatModal && (
