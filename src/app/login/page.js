@@ -311,14 +311,37 @@ export default function CustomerLogin() {
           {activeTab === "login" && (
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label htmlFor="password">كلمة المرور:</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="أدخل كلمة المرور"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="أدخل كلمة المرور"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ width: "100%", paddingLeft: "48px" }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                  style={{
+                    position: "absolute",
+                    left: "8px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    color: "#fff",
+                    borderRadius: "10px",
+                    padding: "6px 10px",
+                    cursor: "pointer",
+                    fontSize: "0.8rem"
+                  }}
+                >
+                  {showPassword ? "إخفاء" : "إظهار"}
+                </button>
+              </div>
             </div>
           )}
 
