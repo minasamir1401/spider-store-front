@@ -1377,7 +1377,6 @@ export default function ServiceDetail({ params }) {
               )}
               <div>
                 <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>شحن فوري ومضمون 100%</p>
               </div>
             </div>
 
