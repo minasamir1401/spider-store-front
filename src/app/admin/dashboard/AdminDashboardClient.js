@@ -14,8 +14,7 @@ export default function AdminDashboard() {
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
 
   const defaultFields = [
-    { id: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true },
-    { id: "phone", label: "رقم الهاتف للتواصل وتأكيد الخدمة (واتساب)", placeholder: "مثال: 01023456789 أو +96651234567", type: "tel", required: true }
+    { id: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", type: "text", required: true }
   ];
 
   // Data states
@@ -194,6 +193,7 @@ export default function AdminDashboard() {
   const [unlockerBalance, setUnlockerBalance] = useState(null);
   const [unlockerBalanceLoading, setUnlockerBalanceLoading] = useState(false);
   const [unlockerBalanceEmail, setUnlockerBalanceEmail] = useState("");
+  const [unlockerCurrency, setUnlockerCurrency] = useState("USD");
 
   const fetchUnlockerBalance = useCallback(async () => {
     if (!token) return;
@@ -208,6 +208,9 @@ export default function AdminDashboard() {
       if (response.ok && data.success) {
         setUnlockerBalance(data.credit);
         setUnlockerBalanceEmail(data.email);
+        if (data.currency) {
+          setUnlockerCurrency(data.currency);
+        }
       } else {
         console.warn("Failed to fetch unlocker balance:", data.message);
       }
@@ -5026,7 +5029,7 @@ const handleLogout = () => {
                               <th>ID الخدمة</th>
                               <th>اسم الخدمة</th>
                               <th>القسم (المجموعة)</th>
-                              <th>سعر المزود (USD)</th>
+                              <th>سعر المزود ({unlockerCurrency})</th>
                               <th>سعر البيع المقترح</th>
                               <th>الخصم (%) (اختياري)</th>
                               <th>حالة الاستيراد</th>
@@ -5041,9 +5044,13 @@ const handleLogout = () => {
                                 const apiPriceUsd = parseFloat(s.price) || 0;
                                 const isTargetCatUsd = (categories.find(c => c.id === Number(unlockerImportTargetCat))?.currency === 'USD');
                                 
-                                const estPrice = isTargetCatUsd
-                                  ? apiPriceUsd * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100)
-                                  : (apiPriceUsd * (parseFloat(unlockerExchangeRate) || 50)) * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
+                                let multiplier = 1;
+                                 if (unlockerCurrency === 'USD' && !isTargetCatUsd) {
+                                   multiplier = parseFloat(unlockerExchangeRate) || 50;
+                                 } else if (unlockerCurrency === 'EGP' && isTargetCatUsd) {
+                                   multiplier = 1 / (parseFloat(unlockerExchangeRate) || 50);
+                                 }
+                                 const estPrice = apiPriceUsd * multiplier * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
                                 
                                 const pricePlaceholder = isTargetCatUsd
                                   ? `$ ${estPrice.toFixed(2)}`
@@ -5067,7 +5074,9 @@ const handleLogout = () => {
                                     <td data-label="ID الخدمة" style={{ fontWeight: "bold", color: "#64748b" }}>{s.id}</td>
                                     <td data-label="اسم الخدمة" style={{ fontWeight: 700 }}>{s.name}</td>
                                     <td data-label="القسم">{s.category}</td>
-                                    <td data-label="سعر المزود (USD)" style={{ color: "#38bdf8", fontWeight: "bold" }}>${apiPriceUsd.toFixed(2)}</td>
+                                    <td data-label={`سعر المزود (${unlockerCurrency})`} style={{ color: "#38bdf8", fontWeight: "bold" }}>
+                                       {unlockerCurrency === 'USD' ? '$' : ''}{apiPriceUsd.toFixed(2)}{unlockerCurrency !== 'USD' ? ' ' + unlockerCurrency : ''}
+                                     </td>
                                     <td data-label="سعر البيع">
                                       <input 
                                         type="number" 

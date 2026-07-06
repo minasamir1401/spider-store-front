@@ -160,7 +160,7 @@ export default function OrdersHistory() {
                 <span style={{ fontSize: "3.5rem" }}>🛍️</span>
                 <h3 style={{ margin: "15px 0" }}>لم تقم بأي عمليات شراء بعد!</h3>
                 <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>تصفح أقسام الألعاب والتطبيقات واشحن حسابك فوراً.</p>
-                <Link href="/" className="glass-btn glass-btn-primary">شحن ألعاب الآن</Link>
+                <Link href="/" className="glass-btn glass-btn-primary">قم بطلب خدمة</Link>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

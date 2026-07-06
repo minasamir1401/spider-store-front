@@ -261,16 +261,17 @@ export default function ServiceDetail({ params }) {
 
   // Fallback fields if none configured
   const defaultFields = [
-    { name: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true },
-    { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الخدمة (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
+    { name: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true }
   ];
 
   const activeFields = useMemo(() => {
     const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
-    return rawFields.map(f => ({
-      ...f,
-      name: f.name || f.id || ""
-    }));
+    return rawFields
+      .filter(f => (f.name || f.id) !== "phone")
+      .map(f => ({
+        ...f,
+        name: f.name || f.id || ""
+      }));
   }, [serviceFields, defaultFields]);
 
   const fieldsSectionTitle = useMemo(() => {
@@ -1193,14 +1194,7 @@ export default function ServiceDetail({ params }) {
                     <span style={{ color: "var(--text-muted)" }}>الباقة المختارة</span>
                     <strong style={{ color: "var(--text-main)", maxWidth: "160px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }} title={selectedPackage.name}>{selectedPackage.name}</strong>
                   </div>
-                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
-                    <span style={{ color: "var(--text-muted)" }}>سعر الباقة</span>
-                    <strong style={{ color: "var(--text-main)" }}>
-                      {service.category_currency === 'USD' 
-                        ? `$ ${Number(selectedPackage.usd_price || selectedPackage.price).toFixed(2)}` 
-                        : `${Number(selectedPackage.price).toFixed(2)} ${baseCurrency}`}
-                    </strong>
-                  </div>
+                  {/* سعر الباقة removed as requested */}
                 </>
               )
             )}
