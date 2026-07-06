@@ -3346,7 +3346,7 @@ const handleLogout = () => {
                               )}
                             </td>
                             <td data-label="رقم التحويل" style={{ direction: "ltr" }}>{request.sender_phone || "-"}</td>
-                            <td data-label="ملاحظات" style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes || "-"}</td>
+                            <td data-label="ملاحظات" style={{ maxWidth: "220px", color: "#cbd5e1" }}>{request.notes ? request.notes.replace(/^\[تم تحويل:[^\]]+\]\s*/, "") : "-"}</td>
                             <td data-label="تاريخ الطلب" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
                               {new Date(request.created_at).toLocaleString("ar-EG")}
                             </td>

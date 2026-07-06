@@ -50,6 +50,18 @@ export default function WalletPage() {
           if (data.whatsapp_numbers && Array.isArray(data.whatsapp_numbers)) {
             setWhatsappNumbers(data.whatsapp_numbers);
           }
+          if (data.supported_currencies && Array.isArray(data.supported_currencies)) {
+            setGlobalCurrencies(data.supported_currencies);
+            if (data.supported_currencies.length > 0) {
+              setSelectedCurrency(data.supported_currencies[0]);
+            }
+          }
+          if (data.exchange_rates) {
+            setExchangeRates(prev => ({ ...prev, ...data.exchange_rates }));
+          }
+          if (data.base_currency) {
+            setBaseCurrency(data.base_currency);
+          }
         }
       })
       .catch(err => console.error("Error loading settings in wallet page:", err));
@@ -140,8 +152,7 @@ export default function WalletPage() {
         });
       }
 
-      const transferVal = (parsedAmount * (exchangeRates[selectedCurrency] || 50)).toFixed(2);
-      const formattedNotes = `[تم تحويل: ${transferVal} ${selectedCurrency} بسعر صرف: 1 USD = ${exchangeRates[selectedCurrency] || 50} ${selectedCurrency}] ${notes}`;
+      const formattedNotes = notes;
 
       const response = await fetch(`${API_BASE_URL}/api/customer/wallet-requests`, {
         method: "POST",
@@ -170,7 +181,6 @@ export default function WalletPage() {
         `👤 الاسم: ${customerName}`,
         `💰 القيمة المطلوبة: $${parsedAmount} USD`,
         `💵 عملة التحويل: ${selectedCurrency}`,
-        `💸 المبلغ المطلوب تحويله: ${transferVal} ${selectedCurrency}`,
         `📞 رقم التحويل: ${senderPhone}`,
         notes ? `📝 ملاحظات: ${notes}` : "",
         `\nالرجاء مراجعة وصل التحويل المرفق والتأكد من اعتماده.`
@@ -349,7 +359,11 @@ export default function WalletPage() {
                   fontSize: "0.95rem"
                 }}
               >
-                <option value="USD" style={{ background: "var(--bg-color)" }}>USD (الدولار الأمريكي 🇺🇸)</option>
+                {globalCurrencies.map((curr) => (
+                  <option key={curr} value={curr} style={{ background: "var(--bg-color)" }}>
+                    {curr} {curr === "USD" ? "(الدولار الأمريكي 🇺🇸)" : curr === "EGP" ? "(الجنيه المصري 🇪🇬)" : curr === "SDG" ? "(الجنيه السوداني 🇸🇩)" : curr === "USDT" ? "(تيزر 🟢)" : ""}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -367,8 +381,13 @@ export default function WalletPage() {
               {amount && (
                 <div style={{ marginTop: "10px", padding: "12px", background: "rgba(96, 165, 250, 0.08)", borderRight: "4px solid var(--primary-color)", borderRadius: "8px", fontSize: "0.88rem", color: "#60a5fa", display: "flex", flexDirection: "column", gap: "4px" }}>
                   <div>
-                    💵 المبلغ بالدولار: <strong>$ {Number(amount).toFixed(2)} USD</strong>
+                    💵 المبلغ المطلوب إضافته للمحفظة: <strong>$ {Number(amount).toFixed(2)} USD</strong>
                   </div>
+                  {selectedCurrency !== baseCurrency && (
+                    <div>
+                      💸 المبلغ المطلوب تحويله: <strong>{Number(Number(amount) * (selectedCurrency === baseCurrency ? 1 : (exchangeRates[selectedCurrency] || 50))).toFixed(2)} {selectedCurrency}</strong> (بسعر صرف: 1 {baseCurrency} = {selectedCurrency === baseCurrency ? 1 : (exchangeRates[selectedCurrency] || 50)} {selectedCurrency})
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -543,7 +562,7 @@ export default function WalletPage() {
                     <div>عملة التحويل: <strong style={{ color: "white" }}>{request.currency || "USD"}</strong></div>
                     <div>رقم التحويل: <strong style={{ color: "white" }}>{request.sender_phone || "-"}</strong></div>
                     <div>التاريخ: <strong style={{ color: "white" }}>{new Date(request.created_at).toLocaleString("ar-EG")}</strong></div>
-                    <div style={{ gridColumn: "span 2" }}>الملاحظة: <strong style={{ color: "white" }}>{request.notes || "-"}</strong></div>
+                    <div style={{ gridColumn: "span 2" }}>الملاحظة: <strong style={{ color: "white" }}>{request.notes ? request.notes.replace(/^\[تم تحويل:[^\]]+\]\s*/, "") : "-"}</strong></div>
                   </div>
                 </div>
               ))}
