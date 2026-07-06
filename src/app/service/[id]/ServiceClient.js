@@ -471,9 +471,10 @@ export default function ServiceDetail({ params }) {
 
   const filteredPackages = useMemo(() => {
     if (!service?.packages) return [];
-    if (!packageSearchTerm.trim()) return service.packages;
+    const query = (packageSearchTerm || "").trim().toLowerCase();
+    if (!query) return service.packages;
     return service.packages.filter(pkg => 
-      pkg.name.toLowerCase().includes(packageSearchTerm.toLowerCase())
+      (pkg.name || "").toLowerCase().includes(query)
     );
   }, [service?.packages, packageSearchTerm]);
 
@@ -624,18 +625,11 @@ export default function ServiceDetail({ params }) {
                   <div className="scc-content" style={{ paddingRight: hasImage ? "0px" : "4px" }}>
                     <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "800" }}>{pkg.name}</span>
                     <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "6px" }}>
-                      <span style={{ color: isSelected ? "#fff" : "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
-                        {baseCurrency === 'USD'
+                      <span style={{ color: "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
+                        {baseCurrency === 'USD' || isUsd
                           ? `$ ${usdPrice.toFixed(2)}`
-                          : (isUsd 
-                              ? `$ ${usdPrice.toFixed(2)}` 
-                              : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`)}
+                          : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
                       </span>
-                      {isUsd && baseCurrency !== 'USD' && (
-                        <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: "500" }}>
-                          ({egpPrice.toFixed(2)} {baseCurrency})
-                        </span>
-                      )}
                       {simulatedDiscount > 0 && (
                         <span style={{ background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
                           خصم {simulatedDiscount}%
@@ -914,11 +908,8 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
-                  if (baseCurrency === 'USD') {
+                  if (baseCurrency === 'USD' || isUsd) {
                     return `$ ${usdPrice.toFixed(2)}`;
-                  }
-                  if (isUsd) {
-                    return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
                   } else {
                     return `${egpPrice.toFixed(2)} ${baseCurrency}`;
                   }
@@ -1247,11 +1238,8 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
-                  if (baseCurrency === 'USD') {
+                  if (baseCurrency === 'USD' || isUsd) {
                     return `$ ${usdPrice.toFixed(2)}`;
-                  }
-                  if (isUsd) {
-                    return `$ ${usdPrice.toFixed(2)} (${egpPrice.toFixed(2)} ${baseCurrency})`;
                   } else {
                     return `${egpPrice.toFixed(2)} ${baseCurrency}`;
                   }
@@ -1543,11 +1531,8 @@ export default function ServiceDetail({ params }) {
                       }
                     }
 
-                    if (baseCurrency === 'USD') {
+                    if (baseCurrency === 'USD' || isUsd) {
                       return `$ ${usdPrice.toFixed(2)}`;
-                    }
-                    if (isUsd) {
-                      return `$ ${usdPrice.toFixed(2)} - ${egpPrice.toFixed(2)} ج.م`;
                     } else {
                       return `${egpPrice.toFixed(2)} ج.م`;
                     }

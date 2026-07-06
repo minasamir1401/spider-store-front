@@ -6,8 +6,12 @@ if (typeof window !== "undefined") {
     apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
   } else {
     const host = window.location.hostname;
-    if (host.includes("localhost") || host.includes("127.0.0.1")) {
-      apiBaseUrl = "http://localhost:5000";
+    const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || 
+                    host.startsWith("192.168.") || host.startsWith("10.") || 
+                    (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)) || 
+                    window.location.port === "3000";
+    if (isLocal) {
+      apiBaseUrl = `http://${host}:5000`;
     } else if (host.includes("spider-store.vercel.app") || host.includes("arab-tech1.online")) {
       apiBaseUrl = "https://spider-store-api.duckdns.org";
     } else {

@@ -180,9 +180,77 @@ export default function AdminDashboard() {
   const [unlockerServices, setUnlockerServices] = useState([]);
   const [unlockerLoading, setUnlockerLoading] = useState(false);
   const [unlockerSearch, setUnlockerSearch] = useState("");
+  const [unlockerCategoryFilter, setUnlockerCategoryFilter] = useState("ALL");
+  const [unlockerPage, setUnlockerPage] = useState(1);
+  const [unlockerPageSize, setUnlockerPageSize] = useState(50);
+  const [unlockerImportTargetCat, setUnlockerImportTargetCat] = useState("auto");
+  const [unlockerNewCatName, setUnlockerNewCatName] = useState("");
   const [selectedUnlockerServices, setSelectedUnlockerServices] = useState([]);
   const [unlockerSettingsMsg, setUnlockerSettingsMsg] = useState("");
   const [unlockerSyncMsg, setUnlockerSyncMsg] = useState("");
+  const [unlockerGroupAsPackages, setUnlockerGroupAsPackages] = useState(true);
+  const [unlockerCustomPrices, setUnlockerCustomPrices] = useState({});
+  const [unlockerCustomDiscounts, setUnlockerCustomDiscounts] = useState({});
+  const [unlockerBalance, setUnlockerBalance] = useState(null);
+  const [unlockerBalanceLoading, setUnlockerBalanceLoading] = useState(false);
+  const [unlockerBalanceEmail, setUnlockerBalanceEmail] = useState("");
+
+  const fetchUnlockerBalance = useCallback(async () => {
+    if (!token) return;
+    setUnlockerBalanceLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/balance`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setUnlockerBalance(data.credit);
+        setUnlockerBalanceEmail(data.email);
+      } else {
+        console.warn("Failed to fetch unlocker balance:", data.message);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch unlocker balance:", err.message);
+    } finally {
+      setUnlockerBalanceLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (activeTab === "amrr_unlocker" && token) {
+      void fetchUnlockerBalance();
+    }
+  }, [activeTab, token, fetchUnlockerBalance]);
+
+  const unlockerCategories = useMemo(() => {
+    return ["ALL", ...Array.from(new Set(unlockerServices.map(s => s.category))).sort()];
+  }, [unlockerServices]);
+
+  const importedUnlockerServiceIds = useMemo(() => {
+    return new Set(services.filter(s => s.api_source === 'amrr-unlocker').map(s => String(s.api_service_id)));
+  }, [services]);
+
+  const filteredUnlockerServices = useMemo(() => {
+    const query = (unlockerSearch || "").trim().toLowerCase();
+    return unlockerServices.filter(s => {
+      const name = s.name || "";
+      const category = s.category || "";
+      const matchSearch = !query || 
+                          name.toLowerCase().includes(query) || 
+                          category.toLowerCase().includes(query) ||
+                          String(s.id).includes(query);
+      const matchCat = unlockerCategoryFilter === "ALL" || s.category === unlockerCategoryFilter;
+      return matchSearch && matchCat;
+    });
+  }, [unlockerServices, unlockerSearch, unlockerCategoryFilter]);
+
+  const totalUnlockerPages = Math.max(1, Math.ceil(filteredUnlockerServices.length / unlockerPageSize));
+  const paginatedUnlockerServices = useMemo(() => {
+    const start = (unlockerPage - 1) * unlockerPageSize;
+    return filteredUnlockerServices.slice(start, start + unlockerPageSize);
+  }, [filteredUnlockerServices, unlockerPage, unlockerPageSize]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -410,6 +478,8 @@ export default function AdminDashboard() {
       setUnlockerServices(data.services || []);
       setUnlockerSyncMsg(`✅ تم جلب عدد ${data.services.length} خدمة بنجاح من المزود.`);
       setSelectedUnlockerServices([]);
+      setUnlockerPage(1);
+      setUnlockerCategoryFilter("ALL");
     } catch (err) {
       setUnlockerSyncMsg(`❌ فشل الاتصال: ${err.message}`);
     } finally {
@@ -427,7 +497,13 @@ export default function AdminDashboard() {
     setUnlockerSyncMsg("");
     
     try {
-      const servicesToImport = unlockerServices.filter(s => selectedUnlockerServices.includes(s.id));
+      const servicesToImport = unlockerServices
+        .filter(s => selectedUnlockerServices.includes(s.id))
+        .map(s => ({
+          ...s,
+          custom_price: unlockerCustomPrices[s.id] !== undefined && unlockerCustomPrices[s.id] !== "" ? parseFloat(unlockerCustomPrices[s.id]) : null,
+          custom_discount: unlockerCustomDiscounts[s.id] !== undefined && unlockerCustomDiscounts[s.id] !== "" ? parseFloat(unlockerCustomDiscounts[s.id]) : null
+        }));
       const response = await fetch(`${API_BASE_URL}/api/unlocker/import-services`, {
         method: "POST",
         headers: {
@@ -437,7 +513,10 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           services: servicesToImport,
           exchange_rate: parseFloat(unlockerExchangeRate) || 50,
-          markup_percent: parseFloat(unlockerMarkupPercent) || 0
+          markup_percent: parseFloat(unlockerMarkupPercent) || 0,
+          local_category_id: unlockerImportTargetCat,
+          custom_category_name: unlockerNewCatName,
+          group_as_packages: unlockerGroupAsPackages
         })
       });
       
@@ -1535,28 +1614,33 @@ const handleLogout = () => {
 
   // Filtering Logic
   const filteredOrders = Array.isArray(orders) ? orders.filter(o => {
+    const query = (orderSearch || "").trim().toLowerCase();
+    if (!query) return orderFilter === "all" ? true : o.status === orderFilter;
     const matchesSearch = 
-      o.id.toString().includes(orderSearch) ||
-      o.service_name.toLowerCase().includes(orderSearch.toLowerCase()) ||
-      o.player_id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-      o.phone.includes(orderSearch) ||
-      (o.payment_method || "").toLowerCase().includes(orderSearch.toLowerCase()) ||
-      (o.sender_phone || "").includes(orderSearch) ||
-      (o.transfer_to || "").includes(orderSearch);
+      o.id.toString().includes(query) ||
+      (o.service_name || "").toLowerCase().includes(query) ||
+      (o.player_id || "").toLowerCase().includes(query) ||
+      (o.phone || "").includes(query) ||
+      (o.payment_method || "").toLowerCase().includes(query) ||
+      (o.sender_phone || "").includes(query) ||
+      (o.transfer_to || "").includes(query);
     
     const matchesStatus = orderFilter === "all" ? true : o.status === orderFilter;
     return matchesSearch && matchesStatus;
   }) : [];
 
-  const filteredCategories = Array.isArray(categories) ? categories.filter(c => 
-    c.name.toLowerCase().includes(catSearch.toLowerCase())
-  ) : [];
+  const filteredCategories = Array.isArray(categories) ? categories.filter(c => {
+    const query = (catSearch || "").trim().toLowerCase();
+    return (c.name || "").toLowerCase().includes(query);
+  }) : [];
 
   const filteredServices = Array.isArray(services) ? services.filter(s => {
     const parentCat = Array.isArray(categories) ? categories.find(c => c.id === s.category_id) : null;
     const catName = parentCat ? parentCat.name : "";
-    return s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || 
-           catName.toLowerCase().includes(serviceSearch.toLowerCase());
+    const query = (serviceSearch || "").trim().toLowerCase();
+    return (s.name || "").toLowerCase().includes(query) || 
+           catName.toLowerCase().includes(query) ||
+           String(s.id).includes(query);
   }) : [];
 
   const filteredWalletRequests = Array.isArray(walletRequests) ? walletRequests.filter((request) => {
@@ -4727,9 +4811,27 @@ const handleLogout = () => {
                   <p style={{ color: "#94a3b8", fontSize: "0.88rem", margin: 0, lineHeight: "1.6" }}>
                     تم ربط وتهيئة اتصال لوحة التحكم ببوابة الخدمات الخارجية تلقائياً بشكل آمن وجاهز للتشغيل.
                   </p>
-                  <div style={{ display: "flex", gap: "24px", marginTop: "12px", fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.02)", padding: "10px 14px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", marginTop: "12px", fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.02)", padding: "12px 16px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)", alignItems: "center" }}>
                     <div><strong>اسم المستخدم:</strong> <span style={{ color: "#38bdf8" }}>Hassen1990</span></div>
+                    {unlockerBalanceEmail && (
+                      <div><strong>بريد الحساب:</strong> <span style={{ color: "#e2e8f0" }}>{unlockerBalanceEmail}</span></div>
+                    )}
                     <div><strong>حالة الاتصال:</strong> <span style={{ color: "#34d399", fontWeight: "bold" }}>● متصل بالخدمة</span></div>
+                    
+                    <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيدك لدى المزود:</span>
+                      <span style={{ fontSize: "1.15rem", fontWeight: "900", color: "#fbbf24", background: "rgba(251, 191, 36, 0.1)", padding: "4px 12px", borderRadius: "6px", border: "1px solid rgba(251, 191, 36, 0.2)", display: "inline-flex", direction: "ltr" }}>
+                        {unlockerBalanceLoading ? "جاري التحميل..." : (unlockerBalance || "غير متوفر")}
+                      </span>
+                      <button 
+                        onClick={fetchUnlockerBalance} 
+                        disabled={unlockerBalanceLoading}
+                        style={{ background: "rgba(56, 189, 248, 0.12)", border: "1px solid rgba(56, 189, 248, 0.3)", color: "#38bdf8", padding: "4px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "0.78rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.2s" }}
+                        title="تحديث الرصيد"
+                      >
+                        {unlockerBalanceLoading ? "انتظر..." : "🔄 تحديث"}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -4739,7 +4841,7 @@ const handleLogout = () => {
                     <span>🔄</span> مزامنة واستيراد الخدمات
                   </h3>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "20px" }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>سعر صرف الدولار (EGP / USD):</label>
                       <input 
@@ -4747,7 +4849,7 @@ const handleLogout = () => {
                         value={unlockerExchangeRate} 
                         onChange={(e) => setUnlockerExchangeRate(e.target.value)} 
                         className="search-input-premium" 
-                        style={{ padding: "10px 14px" }}
+                        style={{ padding: "10px 14px", width: "100%" }}
                         min="1"
                         step="0.1"
                       />
@@ -4759,29 +4861,72 @@ const handleLogout = () => {
                         value={unlockerMarkupPercent} 
                         onChange={(e) => setUnlockerMarkupPercent(e.target.value)} 
                         className="search-input-premium" 
-                        style={{ padding: "10px 14px" }}
+                        style={{ padding: "10px 14px", width: "100%" }}
                         min="0"
                         step="0.5"
                       />
                     </div>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "end" }}>
-                      <button 
-                        onClick={fetchUnlockerServices} 
-                        className="action-btn btn-edit-premium"
-                        style={{ flex: 1, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
-                        disabled={unlockerLoading}
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>📥 استيراد إلى القسم المحلي:</label>
+                      <select 
+                        value={unlockerImportTargetCat} 
+                        onChange={(e) => setUnlockerImportTargetCat(e.target.value)} 
+                        className="search-input-premium" 
+                        style={{ padding: "10px 14px", width: "100%", height: "42px", background: "rgba(15,23,42,0.8)" }}
                       >
-                        🔍 {unlockerLoading ? "جاري الاتصال..." : "جلب الخدمات"}
-                      </button>
-                      <button 
-                        onClick={importSelectedUnlockerServices} 
-                        className="action-btn btn-success-premium"
-                        style={{ flex: 1, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
-                        disabled={unlockerLoading || selectedUnlockerServices.length === 0}
-                      >
-                        📥 استيراد المحددة ({selectedUnlockerServices.length})
-                      </button>
+                        <option value="auto">📂 نفس اسم القسم في المزود (تلقائي)</option>
+                        <option value="new">🆕 إنشاء قسم جديد باسم مخصص...</option>
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>📁 {c.name}</option>
+                        ))}
+                      </select>
                     </div>
+
+                    {unlockerImportTargetCat === "new" && (
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ color: "#38bdf8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>✨ اسم القسم الجديد:</label>
+                        <input 
+                          type="text" 
+                          placeholder="أدخل اسم القسم الجديد" 
+                          value={unlockerNewCatName} 
+                          onChange={(e) => setUnlockerNewCatName(e.target.value)} 
+                          className="search-input-premium" 
+                          style={{ padding: "10px 14px", width: "100%" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "14px 0 20px 0", padding: "10px 14px", background: "rgba(139, 92, 246, 0.05)", borderRadius: "10px", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
+                    <input 
+                      type="checkbox" 
+                      id="group_as_packages" 
+                      checked={unlockerGroupAsPackages} 
+                      onChange={(e) => setUnlockerGroupAsPackages(e.target.checked)}
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
+                    <label htmlFor="group_as_packages" style={{ fontSize: "0.85rem", color: "#e9d5ff", cursor: "pointer", fontWeight: "bold", userSelect: "none" }}>
+                      📦 دمج الخدمات المحددة في منتج واحد يحتوي على باقات (موصى به للألعاب كـ PUBG وشحن الرصيد)
+                    </label>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginBottom: "20px" }}>
+                    <button 
+                      onClick={fetchUnlockerServices} 
+                      className="action-btn btn-edit-premium"
+                      style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                      disabled={unlockerLoading}
+                    >
+                      🔍 {unlockerLoading ? "جاري الاتصال..." : "جلب الخدمات"}
+                    </button>
+                    <button 
+                      onClick={importSelectedUnlockerServices} 
+                      className="action-btn btn-success-premium"
+                      style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                      disabled={unlockerLoading || selectedUnlockerServices.length === 0}
+                    >
+                      📥 استيراد المحددة ({selectedUnlockerServices.length})
+                    </button>
                   </div>
 
                   <div style={{ fontSize: "0.88rem", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", marginBottom: "16px", color: "#cbd5e1" }}>
@@ -4790,20 +4935,75 @@ const handleLogout = () => {
 
                   {unlockerServices.length > 0 && (
                     <>
-                      {/* Search Bar for remote services */}
-                      <div style={{ marginBottom: "12px" }}>
-                        <input 
-                          type="text" 
-                          placeholder="ابحث عن خدمة أو قسم..." 
-                          value={unlockerSearch} 
-                          onChange={(e) => setUnlockerSearch(e.target.value)} 
-                          className="search-input-premium" 
-                          style={{ padding: "10px 14px", fontSize: "0.88rem" }}
-                        />
+                      {/* Search & Filter Bar for remote services */}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "16px", background: "rgba(15, 23, 42, 0.4)", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔍 بحث بالاسم أو ID:</label>
+                          <input 
+                            type="text" 
+                            placeholder="ابحث عن خدمة أو قسم أو رقم ID..." 
+                            value={unlockerSearch} 
+                            onChange={(e) => { setUnlockerSearch(e.target.value); setUnlockerPage(1); }} 
+                            className="search-input-premium" 
+                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📂 تصفية حسب القسم:</label>
+                          <select 
+                            value={unlockerCategoryFilter} 
+                            onChange={(e) => { setUnlockerCategoryFilter(e.target.value); setUnlockerPage(1); }} 
+                            className="search-input-premium" 
+                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                          >
+                            <option value="ALL">🌐 جميع الأقسام ({unlockerServices.length})</option>
+                            {unlockerCategories.filter(c => c !== "ALL").map(cat => {
+                              const count = unlockerServices.filter(s => s.category === cat).length;
+                              return <option key={cat} value={cat}>{cat} ({count})</option>;
+                            })}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📊 عدد النتائج بالصفحة:</label>
+                          <select 
+                            value={unlockerPageSize} 
+                            onChange={(e) => { setUnlockerPageSize(Number(e.target.value)); setUnlockerPage(1); }} 
+                            className="search-input-premium" 
+                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                          >
+                            <option value={25}>25 خدمة في الصفحة</option>
+                            <option value={50}>50 خدمة في الصفحة</option>
+                            <option value={100}>100 خدمة في الصفحة</option>
+                            <option value={250}>250 خدمة في الصفحة</option>
+                            <option value={500}>500 خدمة في الصفحة</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Selection Summary */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", background: "rgba(56, 189, 248, 0.08)", padding: "10px 16px", borderRadius: "8px", border: "1px solid rgba(56, 189, 248, 0.2)", fontSize: "0.88rem", flexWrap: "wrap", gap: "8px" }}>
+                        <div>
+                          <span style={{ color: "#38bdf8", fontWeight: "bold" }}>تم العثور على: </span>
+                          <span style={{ color: "#fff", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> من أصل <span style={{ color: "#94a3b8" }}>{unlockerServices.length}</span> خدمة
+                        </div>
+                        <div>
+                          <span style={{ color: "#38bdf8", fontWeight: "bold" }}>المحدد للاستيراد: </span>
+                          <span style={{ color: "#4ade80", fontWeight: "bold", fontSize: "0.95rem" }}>{selectedUnlockerServices.length}</span> خدمة
+                          {selectedUnlockerServices.length > 0 && (
+                            <button 
+                              onClick={() => setSelectedUnlockerServices([])} 
+                              style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.82rem", marginRight: "10px", textDecoration: "underline" }}
+                            >
+                              إلغاء التحديد
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Remote Services list table */}
-                      <div className="premium-table-wrapper" style={{ maxHeight: "400px", overflowY: "auto", marginBottom: 0 }}>
+                      <div className="premium-table-wrapper" style={{ maxHeight: "500px", overflowY: "auto", marginBottom: "16px" }}>
                         <table className="premium-table">
                           <thead>
                             <tr>
@@ -4812,35 +5012,45 @@ const handleLogout = () => {
                                   type="checkbox" 
                                   onChange={(e) => {
                                     if (e.target.checked) {
-                                      const filtered = unlockerServices
-                                        .filter(s => s.name.toLowerCase().includes(unlockerSearch.toLowerCase()) || s.category.toLowerCase().includes(unlockerSearch.toLowerCase()))
-                                        .map(s => s.id);
-                                      setSelectedUnlockerServices(filtered);
+                                      const filteredIds = filteredUnlockerServices.map(s => s.id);
+                                      setSelectedUnlockerServices(prev => Array.from(new Set([...prev, ...filteredIds])));
                                     } else {
-                                      setSelectedUnlockerServices([]);
+                                      const filteredIdsSet = new Set(filteredUnlockerServices.map(s => s.id));
+                                      setSelectedUnlockerServices(prev => prev.filter(id => !filteredIdsSet.has(id)));
                                     }
                                   }}
-                                  checked={selectedUnlockerServices.length > 0 && selectedUnlockerServices.length === unlockerServices.length}
+                                  checked={filteredUnlockerServices.length > 0 && filteredUnlockerServices.every(s => selectedUnlockerServices.includes(s.id))}
+                                  title="تحديد الكل في القائمة المصفاة حالياً"
                                 />
                               </th>
                               <th>ID الخدمة</th>
                               <th>اسم الخدمة</th>
                               <th>القسم (المجموعة)</th>
                               <th>سعر المزود (USD)</th>
-                              <th>السعر المحلي المتوقع (EGP)</th>
+                              <th>سعر البيع المقترح</th>
+                              <th>الخصم (%) (اختياري)</th>
                               <th>حالة الاستيراد</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {unlockerServices
-                              .filter(s => s.name.toLowerCase().includes(unlockerSearch.toLowerCase()) || s.category.toLowerCase().includes(unlockerSearch.toLowerCase()))
-                              .map((s) => {
+                            {paginatedUnlockerServices.length > 0 ? (
+                              paginatedUnlockerServices.map((s) => {
                                 const isSelected = selectedUnlockerServices.includes(s.id);
-                                const estPrice = Math.ceil((parseFloat(s.price) * (parseFloat(unlockerExchangeRate) || 50)) * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100));
-                                const isAlreadyImported = services.some(local => local.api_service_id === s.id.toString() && local.api_source === 'amrr-unlocker');
+                                const isAlreadyImported = importedUnlockerServiceIds.has(String(s.id));
                                 
+                                const apiPriceUsd = parseFloat(s.price) || 0;
+                                const isTargetCatUsd = (categories.find(c => c.id === Number(unlockerImportTargetCat))?.currency === 'USD');
+                                
+                                const estPrice = isTargetCatUsd
+                                  ? apiPriceUsd * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100)
+                                  : (apiPriceUsd * (parseFloat(unlockerExchangeRate) || 50)) * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
+                                
+                                const pricePlaceholder = isTargetCatUsd
+                                  ? `$ ${estPrice.toFixed(2)}`
+                                  : `${Math.ceil(estPrice)} ج.م`;
+
                                 return (
-                                  <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : "" }}>
+                                  <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : isSelected ? "rgba(56, 189, 248, 0.08)" : "" }}>
                                     <td style={{ textAlign: "center" }}>
                                       <input 
                                         type="checkbox" 
@@ -4857,8 +5067,40 @@ const handleLogout = () => {
                                     <td data-label="ID الخدمة" style={{ fontWeight: "bold", color: "#64748b" }}>{s.id}</td>
                                     <td data-label="اسم الخدمة" style={{ fontWeight: 700 }}>{s.name}</td>
                                     <td data-label="القسم">{s.category}</td>
-                                    <td data-label="السعر (USD)" style={{ color: "#38bdf8", fontWeight: "bold" }}>\${parseFloat(s.price).toFixed(2)}</td>
-                                    <td data-label="السعر المتوقع" style={{ color: "#34d399", fontWeight: "bold" }}>{estPrice.toFixed(2)} {baseCurrency}</td>
+                                    <td data-label="سعر المزود (USD)" style={{ color: "#38bdf8", fontWeight: "bold" }}>${apiPriceUsd.toFixed(2)}</td>
+                                    <td data-label="سعر البيع">
+                                      <input 
+                                        type="number" 
+                                        step="0.01"
+                                        placeholder={pricePlaceholder}
+                                        value={unlockerCustomPrices[s.id] || ""} 
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          setUnlockerCustomPrices(prev => ({ ...prev, [s.id]: val }));
+                                          if (!isSelected) {
+                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                          }
+                                        }}
+                                        style={{ width: "100px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
+                                      />
+                                    </td>
+                                    <td data-label="الخصم (%)">
+                                      <input 
+                                        type="number" 
+                                        placeholder="0"
+                                        min="0"
+                                        max="99"
+                                        value={unlockerCustomDiscounts[s.id] || ""} 
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          setUnlockerCustomDiscounts(prev => ({ ...prev, [s.id]: val }));
+                                          if (!isSelected) {
+                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                          }
+                                        }}
+                                        style={{ width: "70px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
+                                      />
+                                    </td>
                                     <td data-label="حالة الاستيراد">
                                       {isAlreadyImported ? (
                                         <span style={{ color: "#4ade80", fontSize: "0.8rem", background: "rgba(34,197,94,0.12)", padding: "4px 8px", borderRadius: "6px", fontWeight: "bold" }}>
@@ -4872,10 +5114,63 @@ const handleLogout = () => {
                                     </td>
                                   </tr>
                                 );
-                              })}
+                              })
+                            ) : (
+                              <tr>
+                                <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#94a3b8" }}>
+                                  لا توجد خدمات مطابقة للبحث أو التصفية الحالية.
+                                </td>
+                              </tr>
+                            )}
                           </tbody>
                         </table>
                       </div>
+
+                      {/* Pagination Controls */}
+                      {totalUnlockerPages > 1 && (
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(15, 23, 42, 0.6)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: "10px" }}>
+                          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+                            عرض من <span style={{ color: "#fff", fontWeight: "bold" }}>{(unlockerPage - 1) * unlockerPageSize + 1}</span> إلى <span style={{ color: "#fff", fontWeight: "bold" }}>{Math.min(unlockerPage * unlockerPageSize, filteredUnlockerServices.length)}</span> من إجمالي <span style={{ color: "#38bdf8", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> خدمة
+                          </div>
+                          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                            <button 
+                              onClick={() => setUnlockerPage(1)} 
+                              disabled={unlockerPage === 1}
+                              className="btn-premium"
+                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
+                            >
+                              « الأولى
+                            </button>
+                            <button 
+                              onClick={() => setUnlockerPage(p => Math.max(1, p - 1))} 
+                              disabled={unlockerPage === 1}
+                              className="btn-premium"
+                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
+                            >
+                              ‹ السابقة
+                            </button>
+                            <span style={{ padding: "4px 12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", borderRadius: "6px", fontWeight: "bold", fontSize: "0.88rem" }}>
+                              صفحة {unlockerPage} من {totalUnlockerPages}
+                            </span>
+                            <button 
+                              onClick={() => setUnlockerPage(p => Math.min(totalUnlockerPages, p + 1))} 
+                              disabled={unlockerPage === totalUnlockerPages}
+                              className="btn-premium"
+                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
+                            >
+                              التالية ›
+                            </button>
+                            <button 
+                              onClick={() => setUnlockerPage(totalUnlockerPages)} 
+                              disabled={unlockerPage === totalUnlockerPages}
+                              className="btn-premium"
+                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
+                            >
+                              الأخيرة »
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -6628,6 +6923,22 @@ const handleLogout = () => {
                 { label: "السعر", value: `${Number(orderDetailsData.package_price || 0).toFixed(2)} ${baseCurrency}`, color: "#34d399" },
                 { label: "معرّف الحساب (ID)", value: orderDetailsData.player_id, color: "#c084fc", ltr: true },
                 { label: "رقم الهاتف", value: orderDetailsData.phone, ltr: true },
+                // Custom fields mapping
+                ...(() => {
+                  if (!orderDetailsData.custom_fields) return [];
+                  try {
+                    const parsed = typeof orderDetailsData.custom_fields === 'string' ? JSON.parse(orderDetailsData.custom_fields) : orderDetailsData.custom_fields;
+                    return Object.entries(parsed)
+                      .filter(([key]) => key.startsWith('custom_'))
+                      .map(([key, val]) => ({
+                        label: key.replace('custom_', ''),
+                        value: String(val),
+                        color: "#22d3ee"
+                      }));
+                  } catch {
+                    return [];
+                  }
+                })(),
                 { label: "طريقة الدفع", value: orderDetailsData.payment_method === "wallet" ? "المحفظة 💳" : orderDetailsData.payment_method === "transfer" ? `تحويل إلى ${orderDetailsData.transfer_to || ""}` : "غير محدد", color: orderDetailsData.payment_method === "wallet" ? "#34d399" : "#38bdf8" },
                 ...(orderDetailsData.payment_method === "transfer" ? [
                   { label: "رقم المحول", value: orderDetailsData.sender_phone || "-", ltr: true },
