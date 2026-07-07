@@ -144,6 +144,7 @@ export default function AdminDashboard() {
 
   const [newAdminUsername, setNewAdminUsername] = useState("");
   const [globalMarkupPercent, setGlobalMarkupPercent] = useState(0);
+  const [savingMarkup, setSavingMarkup] = useState(false);
   const [unlockerSortOrder, setUnlockerSortOrder] = useState("original"); // original or alphabetical
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
@@ -1520,6 +1521,36 @@ const handleLogout = () => {
       window.location.reload();
     } catch (err) {
       setErrorMsg(err.message);
+    }
+  };
+
+  const handleSaveGlobalMarkup = async (e) => {
+    if (e) e.preventDefault();
+    setSavingMarkup(true);
+    setErrorMsg("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          global_markup_percent: parseFloat(globalMarkupPercent) || 0
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "فشل تحديث هامش الربح.");
+      }
+
+      alert("تم تحديث هامش الربح العام بنجاح!");
+      void fetchData();
+    } catch (err) {
+      alert("خطأ: " + err.message);
+    } finally {
+      setSavingMarkup(false);
     }
   };
 
@@ -3712,7 +3743,7 @@ const handleLogout = () => {
             {/* Services Section */}
             {activeTab === "services" && (
               <>
-                <div className="table-filter-bar" style={{ justifyContent: "flex-start" }}>
+                <div className="table-filter-bar" style={{ justifyContent: "flex-start", gap: "20px", flexWrap: "wrap", alignItems: "center" }}>
                   <div className="search-input-wrapper">
                     <input
                       type="text"
@@ -3723,6 +3754,37 @@ const handleLogout = () => {
                     />
                     <span className="search-input-icon">🔍</span>
                   </div>
+
+                  <form onSubmit={handleSaveGlobalMarkup} style={{ display: "flex", alignItems: "center", gap: "10px", marginRight: "auto" }}>
+                    <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#94a3b8", whiteSpace: "nowrap" }}>
+                      هامش الربح العام للكل (%):
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      className="search-input-premium"
+                      style={{ width: "90px", textAlign: "center", padding: "8px !important" }}
+                      placeholder="0.0"
+                      value={globalMarkupPercent}
+                      onChange={(e) => setGlobalMarkupPercent(e.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      className="action-btn"
+                      disabled={savingMarkup}
+                      style={{
+                        background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+                        color: "#ffffff",
+                        boxShadow: "0 0 15px rgba(239, 68, 68, 0.3)",
+                        padding: "8px 16px",
+                        borderRadius: "10px",
+                        fontWeight: "800",
+                        fontSize: "0.85rem"
+                      }}
+                    >
+                      {savingMarkup ? "جاري الحفظ..." : "حفظ الهامش"}
+                    </button>
+                  </form>
                 </div>
 
                 <div className="premium-table-wrapper">
