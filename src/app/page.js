@@ -398,14 +398,17 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="cc-grid">
+          <div className="scc-grid">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div className="cc-wrap" key={i}>
-                <div className="cc-card cc-skeleton-card" style={{ "--cc-ac": "#6366f1", "--cc-gl": "#6366f173" }}>
-                  <div className="cc-img-wrap" style={{ animation: "cc-skeleton-pulse 1.6s infinite linear" }} />
-                  <div className="cc-name-area">
-                    <div style={{ height: "12px", borderRadius: "6px", background: "rgba(255,255,255,0.08)", width: "70%", marginBottom: "4px" }} />
-                    <div style={{ height: "10px", borderRadius: "6px", background: "rgba(255,255,255,0.05)", width: "40%" }} />
+              <div className="scc-wrap" key={i}>
+                <div className="scc-card" style={{ "--scc-ac": "#6366f1", "--scc-gl": "rgba(99, 102, 241, 0.15)", opacity: 0.6 }}>
+                  <div className="scc-side-line"></div>
+                  <div className="scc-img-ring" style={{ borderColor: "rgba(255, 255, 255, 0.05)", background: "rgba(255, 255, 255, 0.03)" }}>
+                    <div className="scc-img-inner" style={{ animation: "cc-skeleton-pulse 1.6s infinite linear", background: "rgba(255, 255, 255, 0.05)", width: "100%", height: "100%" }}></div>
+                  </div>
+                  <div className="scc-content">
+                    <div style={{ height: "12px", borderRadius: "6px", background: "rgba(255,255,255,0.08)", width: "60%", marginBottom: "6px" }} />
+                    <div style={{ height: "8px", borderRadius: "4px", background: "rgba(255,255,255,0.04)", width: "30%" }} />
                   </div>
                 </div>
               </div>
@@ -416,11 +419,9 @@ export default function Home() {
             لا توجد أقسام مطابقة للبحث.
           </div>
         ) : (
-          <div className="cc-grid">
-            {/* Skeleton placeholders while API images load */}
+          <div className="scc-grid">
             {filteredCategories.map((cat) => {
               const color = cat.color || "#6366f1";
-              const glowColor = color + "73";
               const iconType = cat.icon || "credit-card";
               let imgSrc = null;
               if (cat.image && cat.image !== "default" && cat.image !== "null") {
@@ -434,68 +435,57 @@ export default function Home() {
               // Preload first 4 images for faster LCP
               const isPriority = cat.id <= 4;
 
+              const hexToRgb = (hex) => {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
+              };
+              const glow = `rgba(${hexToRgb(color)}, 0.35)`;
+
               return (
-                <div className="cc-wrap" key={cat.id}>
+                <div className="scc-wrap" key={cat.id}>
                   <Link
-                    className="cc-card"
+                    className="scc-card"
                     dir="rtl"
                     href={`/category/${cat.id}`}
-                    style={{ "--cc-ac": color, "--cc-gl": glowColor }}
+                    style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
-                    <div className="cc-img-wrap">
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={cat.name}
-                          loading={isPriority ? "eager" : "lazy"}
-                          fetchPriority={isPriority ? "high" : "auto"}
-                          decoding="async"
-                          className="cc-img"
-                          onError={e => { e.target.style.display = 'none'; }}
-                        />
-                      ) : (
-                        <div className="cc-img-placeholder">{cat.name.charAt(0)}</div>
-                      )}
+                    <div className="scc-side-line"></div>
+                    <div className="scc-img-ring" style={{ borderColor: color }}>
+                      <div className="scc-img-inner">
+                        {imgSrc ? (
+                          <img
+                            src={imgSrc}
+                            alt={cat.name}
+                            loading={isPriority ? "eager" : "lazy"}
+                            className="scc-img"
+                            onError={e => {
+                              e.target.style.display = 'none';
+                              const parent = e.target.parentElement;
+                              if (parent) {
+                                const span = document.createElement('span');
+                                span.style.fontSize = '1.2rem';
+                                span.innerText = "📁";
+                                parent.appendChild(span);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: "1.2rem" }}>📁</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="cc-tint"></div>
-                    <div className="cc-overlay-bottom"></div>
-                    <div className="cc-shimmer"></div>
-                    <div className="cc-icon-badge">
-                      {iconType === "gamepad2" && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="6" x2="10" y1="11" y2="11"></line>
-                          <line x1="8" x2="8" y1="9" y2="13"></line>
-                          <line x1="15" x2="15.01" y1="12" y2="12"></line>
-                          <line x1="18" x2="18.01" y1="10" y2="10"></line>
-                          <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
-                        </svg>
-                      )}
-                      {iconType === "share2" && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="18" cy="5" r="3"></circle>
-                          <circle cx="6" cy="12" r="3"></circle>
-                          <circle cx="18" cy="19" r="3"></circle>
-                          <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
-                          <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
-                        </svg>
-                      )}
-                      {(iconType === "credit-card" || (!["gamepad2","share2"].includes(iconType))) && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                          <line x1="2" x2="22" y1="10" y2="10"></line>
-                        </svg>
-                      )}
+                    <div className="scc-content">
+                      <span className="scc-name">{cat.name}</span>
+                      <div className="scc-meta">
+                        <div className="scc-dot" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}></div>
+                        <span>دخول القسم</span>
+                      </div>
                     </div>
-                    <div className="cc-name-area">
-                      <span className="cc-name">{cat.name}</span>
-                      <span className="cc-enter">
-                        دخول
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m15 18-6-6 6-6"></path>
-                        </svg>
-                      </span>
+                    <div className="scc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+                        <path d="m15 18-6-6 6-6"></path>
+                      </svg>
                     </div>
-                    <div className="cc-bottom-glow"></div>
                   </Link>
                 </div>
               );

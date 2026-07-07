@@ -2184,7 +2184,7 @@ button, input, textarea, select {
 /* scc-card (Subcategory Cards list) */
 .scc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 30px;
 }

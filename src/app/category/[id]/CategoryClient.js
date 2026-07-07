@@ -266,10 +266,9 @@ export default function CategoryServices({ params }) {
       {subCategories.length > 0 && (
         <div style={{ marginBottom: "40px" }}>
           <h3 className="section-title" style={{ fontSize: "1.25rem", marginBottom: "18px" }}>الأقسام الفرعية</h3>
-          <div className="cc-grid">
+          <div className="scc-grid">
             {subCategories.map((cat) => {
               const color = cat.color || "#6366f1";
-              const glowColor = color + "73";
               let imgSrc = null;
               if (cat.image && cat.image !== "default" && cat.image !== "null") {
                 if (cat.image.startsWith("http") || cat.image.startsWith("data:")) {
@@ -279,40 +278,58 @@ export default function CategoryServices({ params }) {
                   imgSrc = `${API_BASE_URL}${cleanPath}`;
                 }
               }
+
+              const hexToRgb = (hex) => {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
+              };
+              const glow = `rgba(${hexToRgb(color)}, 0.35)`;
+
               return (
-                <div className="cc-wrap" key={cat.id}>
+                <div className="scc-wrap" key={cat.id}>
                   <Link
-                    className="cc-card"
+                    className="scc-card"
                     dir="rtl"
                     href={`/category/${cat.id}`}
-                    style={{ "--cc-ac": color, "--cc-gl": glowColor }}
+                    style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
-                    <div className="cc-img-wrap">
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={cat.name}
-                          loading="lazy"
-                          className="cc-img"
-                          onError={e => { e.target.style.display = 'none'; }}
-                        />
-                      ) : (
-                        <div className="cc-img-placeholder">{cat.name.charAt(0)}</div>
-                      )}
+                    <div className="scc-side-line"></div>
+                    <div className="scc-img-ring" style={{ borderColor: color }}>
+                      <div className="scc-img-inner">
+                        {imgSrc ? (
+                          <img
+                            src={imgSrc}
+                            alt={cat.name}
+                            loading="lazy"
+                            className="scc-img"
+                            onError={e => {
+                              e.target.style.display = 'none';
+                              const parent = e.target.parentElement;
+                              if (parent) {
+                                const span = document.createElement('span');
+                                span.style.fontSize = '1.2rem';
+                                span.innerText = "📁";
+                                parent.appendChild(span);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: "1.2rem" }}>📁</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="cc-tint"></div>
-                    <div className="cc-overlay-bottom"></div>
-                    <div className="cc-shimmer"></div>
-                    <div className="cc-name-area">
-                      <span className="cc-name">{cat.name}</span>
-                      <span className="cc-enter">
-                        دخول
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m15 18-6-6 6-6"></path>
-                        </svg>
-                      </span>
+                    <div className="scc-content">
+                      <span className="scc-name">{cat.name}</span>
+                      <div className="scc-meta">
+                        <div className="scc-dot" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}></div>
+                        <span>دخول القسم</span>
+                      </div>
                     </div>
-                    <div className="cc-bottom-glow"></div>
+                    <div className="scc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+                        <path d="m15 18-6-6 6-6"></path>
+                      </svg>
+                    </div>
                   </Link>
                 </div>
               );
