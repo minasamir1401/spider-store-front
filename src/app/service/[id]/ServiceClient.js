@@ -266,7 +266,28 @@ export default function ServiceDetail({ params }) {
 
   const activeFields = useMemo(() => {
     const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
-    return rawFields
+    const seen = new Set();
+    const uniqueFields = [];
+
+    for (const f of rawFields) {
+      if (!f) continue;
+      const fieldId = String(f.name || f.id || "").toLowerCase().trim();
+      const fieldLabel = String(f.label || "").toLowerCase().trim();
+      if (!fieldId && !fieldLabel) continue;
+
+      const idKey = fieldId ? `id_${fieldId}` : null;
+      const labelKey = fieldLabel ? `lbl_${fieldLabel}` : null;
+
+      if ((idKey && seen.has(idKey)) || (labelKey && seen.has(labelKey))) {
+        continue;
+      }
+
+      if (idKey) seen.add(idKey);
+      if (labelKey) seen.add(labelKey);
+      uniqueFields.push(f);
+    }
+
+    return uniqueFields
       .filter(f => (f.name || f.id) !== "phone")
       .map(f => ({
         ...f,
