@@ -500,33 +500,48 @@ export default function AdminDashboard() {
     setUnlockerSyncMsg("");
     
     try {
-      const servicesToImport = unlockerServices
+      const allServicesToImport = unlockerServices
         .filter(s => selectedUnlockerServices.includes(s.id))
         .map(s => ({
           ...s,
           custom_price: unlockerCustomPrices[s.id] !== undefined && unlockerCustomPrices[s.id] !== "" ? parseFloat(unlockerCustomPrices[s.id]) : null,
           custom_discount: unlockerCustomDiscounts[s.id] !== undefined && unlockerCustomDiscounts[s.id] !== "" ? parseFloat(unlockerCustomDiscounts[s.id]) : null
         }));
-      const response = await fetch(`${API_BASE_URL}/api/unlocker/import-services`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          services: servicesToImport,
-          exchange_rate: parseFloat(unlockerExchangeRate) || 50,
-          markup_percent: parseFloat(unlockerMarkupPercent) || 0,
-          local_category_id: unlockerImportTargetCat,
-          custom_category_name: unlockerNewCatName,
-          group_as_packages: unlockerGroupAsPackages
-        })
-      });
+
+      const CHUNK_SIZE = 25;
+      const totalServices = allServicesToImport.length;
+      let importedCount = 0;
+
+      for (let i = 0; i < totalServices; i += CHUNK_SIZE) {
+        const chunk = allServicesToImport.slice(i, i + CHUNK_SIZE);
+        const chunkNum = Math.floor(i / CHUNK_SIZE) + 1;
+        const totalChunks = Math.ceil(totalServices / CHUNK_SIZE);
+
+        setUnlockerSyncMsg(`⏳ جاري استيراد الدفعة ${chunkNum} من ${totalChunks} (${importedCount}/${totalServices} خدمة)...`);
+
+        const response = await fetch(`${API_BASE_URL}/api/unlocker/import-services`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            services: chunk,
+            exchange_rate: parseFloat(unlockerExchangeRate) || 50,
+            markup_percent: parseFloat(unlockerMarkupPercent) || 0,
+            local_category_id: unlockerImportTargetCat,
+            custom_category_name: unlockerNewCatName,
+            group_as_packages: unlockerGroupAsPackages
+          })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || `فشل استيراد الدفعة ${chunkNum}.`);
+
+        importedCount += chunk.length;
+      }
       
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "فشل استيراد الخدمات.");
-      
-      setUnlockerSyncMsg(`✅ ${data.message}`);
+      setUnlockerSyncMsg(`✅ تم استيراد عدد ${totalServices} خدمة بنجاح على دفعات متتالية دون أي مشاكل!`);
       setSelectedUnlockerServices([]);
       void fetchData();
     } catch (err) {
