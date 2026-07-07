@@ -143,6 +143,8 @@ export default function AdminDashboard() {
   const waPollingRef = useRef(null);
 
   const [newAdminUsername, setNewAdminUsername] = useState("");
+  const [globalMarkupPercent, setGlobalMarkupPercent] = useState(0);
+  const [unlockerSortOrder, setUnlockerSortOrder] = useState("original"); // original or alphabetical
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [credentialsErrorMsg, setCredentialsErrorMsg] = useState("");
@@ -237,7 +239,7 @@ export default function AdminDashboard() {
 
   const filteredUnlockerServices = useMemo(() => {
     const query = (unlockerSearch || "").trim().toLowerCase();
-    return unlockerServices.filter(s => {
+    const filtered = unlockerServices.filter(s => {
       const name = s.name || "";
       const category = s.category || "";
       const matchSearch = !query || 
@@ -247,7 +249,12 @@ export default function AdminDashboard() {
       const matchCat = unlockerCategoryFilter === "ALL" || s.category === unlockerCategoryFilter;
       return matchSearch && matchCat;
     });
-  }, [unlockerServices, unlockerSearch, unlockerCategoryFilter]);
+
+    if (unlockerSortOrder === "alphabetical") {
+      return [...filtered].sort((a, b) => (a.name || "").localeCompare(b.name || "", 'en'));
+    }
+    return filtered;
+  }, [unlockerServices, unlockerSearch, unlockerCategoryFilter, unlockerSortOrder]);
 
   const totalUnlockerPages = Math.max(1, Math.ceil(filteredUnlockerServices.length / unlockerPageSize));
   const paginatedUnlockerServices = useMemo(() => {
@@ -307,15 +314,17 @@ export default function AdminDashboard() {
       // Fetch categories
       const catRes = await fetch(`${API_BASE_URL}/api/categories`);
       const catData = await catRes.json();
-      setCategories(catData);
-      if (catData.length > 0) {
-        setNewServiceCatId(catData[0].id.toString());
+      const sortedCats = [...(catData || [])].sort((a, b) => a.name.localeCompare(b.name, 'en'));
+      setCategories(sortedCats);
+      if (sortedCats.length > 0) {
+        setNewServiceCatId(sortedCats[0].id.toString());
       }
 
       // Fetch services
       const serviceRes = await fetch(`${API_BASE_URL}/api/services`);
       const serviceData = await serviceRes.json();
-      setServices(serviceData);
+      const sortedServices = [...(serviceData || [])].sort((a, b) => a.name.localeCompare(b.name, 'en'));
+      setServices(sortedServices);
 
       // Fetch site settings
       const settingsRes = await fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`);
@@ -338,6 +347,9 @@ export default function AdminDashboard() {
         setHideWalletPayment(settingsData.hide_wallet_payment || false);
         if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
           setWhatsappNumbers(settingsData.whatsapp_numbers);
+        }
+        if (settingsData.global_markup_percent !== undefined) {
+          setGlobalMarkupPercent(settingsData.global_markup_percent);
         }
       }
 
@@ -500,13 +512,17 @@ export default function AdminDashboard() {
     setUnlockerSyncMsg("");
     
     try {
-      const allServicesToImport = unlockerServices
+      let allServicesToImport = unlockerServices
         .filter(s => selectedUnlockerServices.includes(s.id))
         .map(s => ({
           ...s,
           custom_price: unlockerCustomPrices[s.id] !== undefined && unlockerCustomPrices[s.id] !== "" ? parseFloat(unlockerCustomPrices[s.id]) : null,
           custom_discount: unlockerCustomDiscounts[s.id] !== undefined && unlockerCustomDiscounts[s.id] !== "" ? parseFloat(unlockerCustomDiscounts[s.id]) : null
         }));
+
+      if (unlockerSortOrder === "alphabetical") {
+        allServicesToImport.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'en'));
+      }
 
       const CHUNK_SIZE = 25;
       const totalServices = allServicesToImport.length;
@@ -1490,7 +1506,8 @@ const handleLogout = () => {
           exchange_rates: exchangeRates,
           base_currency: baseCurrency,
           hide_wallet_payment: hideWalletPayment,
-          whatsapp_numbers: whatsappNumbers
+          whatsapp_numbers: whatsappNumbers,
+          global_markup_percent: globalMarkupPercent
         })
       });
 
@@ -3956,6 +3973,19 @@ const handleLogout = () => {
                       />
                     </div>
 
+                    <div className="form-group">
+                      <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>📈 نسبة الزيادة العامة على جميع أسعار الخدمات (%):</label>
+                      <input
+                        type="number"
+                        className="search-input-premium"
+                        style={{ padding: "12px 16px !important" }}
+                        value={globalMarkupPercent}
+                        onChange={(e) => setGlobalMarkupPercent(parseFloat(e.target.value) || 0)}
+                        placeholder="مثال: 10 للزيادة بنسبة 10% (0 للتعطيل)"
+                        step="0.1"
+                      />
+                    </div>
+
                     <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px", background: "rgba(16, 185, 129, 0.05)", padding: "12px", borderRadius: "10px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
                       <input
                         type="checkbox"
@@ -4996,6 +5026,19 @@ const handleLogout = () => {
                             <option value={100}>100 خدمة في الصفحة</option>
                             <option value={250}>250 خدمة في الصفحة</option>
                             <option value={500}>500 خدمة في الصفحة</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔀 ترتيب عرض الخدمات:</label>
+                          <select 
+                            value={unlockerSortOrder} 
+                            onChange={(e) => setUnlockerSortOrder(e.target.value)} 
+                            className="search-input-premium" 
+                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                          >
+                            <option value="original">📋 نفس ترتيب سيرفر المزود (الأصلي)</option>
+                            <option value="alphabetical">🔤 الترتيب الأبجدي بالحروف (أ-ي)</option>
                           </select>
                         </div>
                       </div>

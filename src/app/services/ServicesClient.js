@@ -96,27 +96,11 @@ export default function ServicesClient() {
         return res.json();
       })
       .then((data) => {
-        const sorted = [...data].sort((a, b) => {
-          const idA = Number(a.id);
-          const idB = Number(b.id);
-          if (idA === 14) return -1;
-          if (idB === 14) return 1;
-          if (idA === 13) return -1;
-          if (idB === 13) return 1;
-          return 0;
-        });
+        const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name, 'en'));
         setCategories(sorted);
       })
       .catch(() => {
-        const sortedStatic = [...staticCategories].sort((a, b) => {
-          const idA = Number(a.id);
-          const idB = Number(b.id);
-          if (idA === 14) return -1;
-          if (idB === 14) return 1;
-          if (idA === 13) return -1;
-          if (idB === 13) return 1;
-          return 0;
-        });
+        const sortedStatic = [...staticCategories].sort((a, b) => a.name.localeCompare(b.name, 'en'));
         setCategories(sortedStatic);
       });
 
@@ -186,9 +170,9 @@ export default function ServicesClient() {
     s.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const uncategorizedServices = filteredServices.filter(
-    (s) => !categories.some((c) => c.id === s.category_id)
-  );
+  const uncategorizedServices = filteredServices
+    .filter((s) => !categories.some((c) => c.id === s.category_id))
+    .sort((a, b) => a.name.localeCompare(b.name, 'en'));
 
   return (
     <>
@@ -254,7 +238,7 @@ export default function ServicesClient() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
           {categories.map((cat) => {
-            const catServices = filteredServices.filter(s => s.category_id === cat.id);
+            const catServices = filteredServices.filter(s => s.category_id === cat.id).sort((a, b) => a.name.localeCompare(b.name, 'en'));
             if (catServices.length === 0) return null;
 
             return (
@@ -287,7 +271,7 @@ export default function ServicesClient() {
                       })()}
                     </div>
                   )}
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "var(--text-main)" }}>{cat.name}</h3>
+                  <h3 className="cat-section-header">{cat.name}</h3>
                   <span style={{ 
                     fontSize: "0.75rem", 
                     color: "#a855f7", 
@@ -406,7 +390,7 @@ export default function ServicesClient() {
                 }}>
                   <span style={{ fontSize: "1.2rem" }}>⚡</span>
                 </div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "var(--text-main)" }}>خدمات أخرى</h3>
+                <h3 className="cat-section-header">خدمات أخرى</h3>
                 <span style={{ 
                   fontSize: "0.75rem", 
                   color: "#cbd5e1", 

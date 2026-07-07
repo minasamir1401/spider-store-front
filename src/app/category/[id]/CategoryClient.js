@@ -241,7 +241,7 @@ export default function CategoryServices({ params }) {
 
   const currentCategory = allCategories.find(c => c.id === Number(categoryId));
   const parentCategory = currentCategory?.parent_id ? allCategories.find(c => c.id === Number(currentCategory.parent_id)) : null;
-  const subCategories = allCategories.filter(c => Number(c.parent_id) === Number(categoryId));
+  const subCategories = allCategories.filter(c => Number(c.parent_id) === Number(categoryId)).sort((a, b) => a.name.localeCompare(b.name, 'en'));
 
   return (
     <>
@@ -256,7 +256,7 @@ export default function CategoryServices({ params }) {
 
       {/* Page Title */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", gap: "12px", flexWrap: "wrap" }}>
-        <h2 className="section-title" style={{ margin: 0 }}>قسم {categoryName}</h2>
+        <h2 className="section-title" style={{ fontSize: "calc(1.5rem * var(--font-scale, 1))", margin: 0 }}>قسم {categoryName}</h2>
         <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: "600" }}>
           {services.length} خدمة متوفرة
         </span>
@@ -265,7 +265,7 @@ export default function CategoryServices({ params }) {
       {/* Subcategories Grid if any */}
       {subCategories.length > 0 && (
         <div style={{ marginBottom: "40px" }}>
-          <h3 className="section-title" style={{ fontSize: "1.25rem", marginBottom: "18px" }}>الأقسام الفرعية</h3>
+          <h3 className="section-title" style={{ fontSize: "calc(1.25rem * var(--font-scale, 1))", marginBottom: "18px" }}>الأقسام الفرعية</h3>
           <div className="scc-grid">
             {subCategories.map((cat) => {
               const color = cat.color || "#6366f1";
@@ -393,7 +393,7 @@ export default function CategoryServices({ params }) {
           {(() => {
             const filteredServices = services.filter(service => 
               service.name.toLowerCase().includes(serviceSearchTerm.toLowerCase())
-            );
+            ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
 
             if (filteredServices.length === 0) {
               return (

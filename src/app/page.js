@@ -135,29 +135,13 @@ export default function Home() {
         return res.json();
       })
       .then((data) => {
-        const sorted = [...data].sort((a, b) => {
-          const idA = Number(a.id);
-          const idB = Number(b.id);
-          if (idA === 14) return -1;
-          if (idB === 14) return 1;
-          if (idA === 13) return -1;
-          if (idB === 13) return 1;
-          return 0;
-        });
+        const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name, 'en'));
         setCategories(sorted);
         setLoading(false);
       })
       .catch((err) => {
         console.warn("Using fallback categories:", err.message);
-        const sortedStatic = [...staticCategories].sort((a, b) => {
-          const idA = Number(a.id);
-          const idB = Number(b.id);
-          if (idA === 14) return -1;
-          if (idB === 14) return 1;
-          if (idA === 13) return -1;
-          if (idB === 13) return 1;
-          return 0;
-        });
+        const sortedStatic = [...staticCategories].sort((a, b) => a.name.localeCompare(b.name, 'en'));
         setCategories(sortedStatic);
         setLoading(false);
       });
