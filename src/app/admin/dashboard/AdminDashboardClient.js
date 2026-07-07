@@ -1787,6 +1787,21 @@ const handleLogout = () => {
           position: sticky;
           top: 0;
           z-index: 10;
+          overflow-y: auto;
+        }
+
+        .premium-sidebar::-webkit-scrollbar {
+          width: 5px;
+        }
+        .premium-sidebar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .premium-sidebar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .premium-sidebar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
         }
 
         .premium-logo {
