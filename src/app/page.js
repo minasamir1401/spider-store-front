@@ -450,9 +450,9 @@ export default function Home() {
                     style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
                     <div className="scc-side-line"></div>
-                    <div className="scc-img-ring" style={{ borderColor: color }}>
-                      <div className="scc-img-inner">
-                        {imgSrc ? (
+                    {imgSrc && (
+                      <div className="scc-img-ring" style={{ borderColor: color }}>
+                        <div className="scc-img-inner">
                           <img
                             src={imgSrc}
                             alt={cat.name}
@@ -460,20 +460,13 @@ export default function Home() {
                             className="scc-img"
                             onError={e => {
                               e.target.style.display = 'none';
-                              const parent = e.target.parentElement;
-                              if (parent) {
-                                const span = document.createElement('span');
-                                span.style.fontSize = '1.2rem';
-                                span.innerText = "📁";
-                                parent.appendChild(span);
-                              }
+                              const ring = e.target.closest('.scc-img-ring');
+                              if (ring) ring.style.display = 'none';
                             }}
                           />
-                        ) : (
-                          <span style={{ fontSize: "1.2rem" }}>📁</span>
-                        )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="scc-content">
                       <span className="scc-name">{cat.name}</span>
                       <div className="scc-meta">

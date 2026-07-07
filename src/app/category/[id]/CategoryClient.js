@@ -294,9 +294,9 @@ export default function CategoryServices({ params }) {
                     style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
                     <div className="scc-side-line"></div>
-                    <div className="scc-img-ring" style={{ borderColor: color }}>
-                      <div className="scc-img-inner">
-                        {imgSrc ? (
+                    {imgSrc && (
+                      <div className="scc-img-ring" style={{ borderColor: color }}>
+                        <div className="scc-img-inner">
                           <img
                             src={imgSrc}
                             alt={cat.name}
@@ -304,20 +304,13 @@ export default function CategoryServices({ params }) {
                             className="scc-img"
                             onError={e => {
                               e.target.style.display = 'none';
-                              const parent = e.target.parentElement;
-                              if (parent) {
-                                const span = document.createElement('span');
-                                span.style.fontSize = '1.2rem';
-                                span.innerText = "📁";
-                                parent.appendChild(span);
-                              }
+                              const ring = e.target.closest('.scc-img-ring');
+                              if (ring) ring.style.display = 'none';
                             }}
                           />
-                        ) : (
-                          <span style={{ fontSize: "1.2rem" }}>📁</span>
-                        )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="scc-content">
                       <span className="scc-name">{cat.name}</span>
                       <div className="scc-meta">
@@ -453,9 +446,9 @@ export default function CategoryServices({ params }) {
                         style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                       >
                         <div className="scc-side-line"></div>
-                        <div className="scc-img-ring">
-                          <div className="scc-img-inner">
-                            {imgSrc ? (
+                        {imgSrc && (
+                          <div className="scc-img-ring">
+                            <div className="scc-img-inner">
                               <img 
                                 src={imgSrc} 
                                 alt={service.name} 
@@ -463,20 +456,15 @@ export default function CategoryServices({ params }) {
                                 className="scc-img" 
                                 onError={(e) => {
                                   e.target.style.display = 'none';
-                                  const parent = e.target.parentElement;
-                                  if (parent) {
-                                    const span = document.createElement('span');
-                                    span.style.fontSize = '1.2rem';
-                                    span.innerText = getFallbackEmoji(service.name, service.image);
-                                    parent.appendChild(span);
+                                  const ring = e.target.closest('.scc-img-ring');
+                                  if (ring) {
+                                    ring.style.display = 'none';
                                   }
                                 }}
                               />
-                            ) : (
-                              <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
-                            )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
                           <div className="scc-meta">

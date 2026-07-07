@@ -268,25 +268,25 @@ export default function ServicesClient() {
                   borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
                   position: "relative"
                 }}>
-                  <div style={{ 
-                    width: "36px", 
-                    height: "36px", 
-                    borderRadius: "10px", 
-                    background: "rgba(255, 255, 255, 0.03)", 
-                    border: "1px solid rgba(255, 255, 255, 0.05)", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "center",
-                    overflow: "hidden"
-                  }}>
-                    {cat.image && cat.image !== "default" && cat.image !== "null" ? (() => {
-                      const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
-                      const src = (cat.image.startsWith("http") || cat.image.startsWith("data:")) ? cat.image : `${API_BASE_URL}${cleanPath}`;
-                      return <img src={src} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />;
-                    })() : (
-                      <span style={{ fontSize: "1.2rem" }}>📁</span>
-                    )}
-                  </div>
+                  {cat.image && cat.image !== "default" && cat.image !== "null" && (
+                    <div style={{ 
+                      width: "36px", 
+                      height: "36px", 
+                      borderRadius: "10px", 
+                      background: "rgba(255, 255, 255, 0.03)", 
+                      border: "1px solid rgba(255, 255, 255, 0.05)", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      overflow: "hidden"
+                    }}>
+                      {(() => {
+                        const cleanPath = cat.image.startsWith("/") ? cat.image : `/${cat.image}`;
+                        const src = (cat.image.startsWith("http") || cat.image.startsWith("data:")) ? cat.image : `${API_BASE_URL}${cleanPath}`;
+                        return <img src={src} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />;
+                      })()}
+                    </div>
+                  )}
                   <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "var(--text-main)" }}>{cat.name}</h3>
                   <span style={{ 
                     fontSize: "0.75rem", 
@@ -343,9 +343,9 @@ export default function ServicesClient() {
                           style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                         >
                           <div className="scc-side-line"></div>
-                          <div className="scc-img-ring">
-                            <div className="scc-img-inner">
-                              {imgSrc ? (
+                          {imgSrc && (
+                            <div className="scc-img-ring">
+                              <div className="scc-img-inner">
                                 <img 
                                   src={imgSrc} 
                                   alt={service.name} 
@@ -353,20 +353,15 @@ export default function ServicesClient() {
                                   className="scc-img" 
                                   onError={(e) => {
                                     e.target.style.display = 'none';
-                                    const parent = e.target.parentElement;
-                                    if (parent) {
-                                      const span = document.createElement('span');
-                                      span.style.fontSize = '1.2rem';
-                                      span.innerText = getFallbackEmoji(service.name, service.image);
-                                      parent.appendChild(span);
+                                    const ring = e.target.closest('.scc-img-ring');
+                                    if (ring) {
+                                      ring.style.display = 'none';
                                     }
                                   }}
                                 />
-                              ) : (
-                                <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
-                              )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                           <div className="scc-content">
                             <span className="scc-name">{service.name}</span>
                             <div className="scc-meta">
@@ -445,9 +440,9 @@ export default function ServicesClient() {
                         style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                       >
                         <div className="scc-side-line"></div>
-                        <div className="scc-img-ring">
-                          <div className="scc-img-inner">
-                            {imgSrc ? (
+                        {imgSrc && (
+                          <div className="scc-img-ring">
+                            <div className="scc-img-inner">
                               <img 
                                 src={imgSrc} 
                                 alt={service.name} 
@@ -455,20 +450,15 @@ export default function ServicesClient() {
                                 className="scc-img" 
                                 onError={(e) => {
                                   e.target.style.display = 'none';
-                                  const parent = e.target.parentElement;
-                                  if (parent) {
-                                    const span = document.createElement('span');
-                                    span.style.fontSize = '1.2rem';
-                                    span.innerText = getFallbackEmoji(service.name, service.image);
-                                    parent.appendChild(span);
+                                  const ring = e.target.closest('.scc-img-ring');
+                                  if (ring) {
+                                    ring.style.display = 'none';
                                   }
                                 }}
                               />
-                            ) : (
-                              <span style={{ fontSize: "1.2rem" }}>{getFallbackEmoji(service.name, service.image)}</span>
-                            )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
                           <div className="scc-meta">
