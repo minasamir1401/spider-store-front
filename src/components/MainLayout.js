@@ -32,6 +32,7 @@ export default function MainLayout({ children }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [fontScale, setFontScale] = useState(1);
 
