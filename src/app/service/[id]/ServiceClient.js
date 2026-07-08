@@ -30,6 +30,7 @@ export default function ServiceDetail({ params }) {
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
   const [theme, setTheme] = useState("dark");
+  const [checkoutStep, setCheckoutStep] = useState(1);
 
   const [validatingId, setValidatingId] = useState(false);
   const [validationResult, setValidationResult] = useState(null);
@@ -425,6 +426,7 @@ export default function ServiceDetail({ params }) {
                       setCustomerPricingMode("packages");
                     }
                     setSelectedPackage(pkg);
+                    setCheckoutStep(2);
                   }}
                   style={{
                     cursor: "pointer",
@@ -531,134 +533,276 @@ export default function ServiceDetail({ params }) {
         {/* Form and Packages Selector */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-          {/* Header of service */}
-          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-            <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
-              {getServiceIcon(service.image)}
-            </div>
-            <div>
-              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>شحن فوري ومضمون 100%</p>
-            </div>
-          </div>
-
-          <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
-
-          <hr style={{ opacity: 0.1 }} />
-
-          {/* Package Select / Custom Quantity */}
-          <div>
-            {service.price_type === "both" ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-
-                {/* Option 1: Packages */}
-                <div
-                  onClick={() => setCustomerPricingMode("packages")}
-                  style={{
-                    border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: "16px",
-                    padding: "20px 16px 16px 16px",
-                    background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                    <input
-                      type="radio"
-                      name="pricing_mode_selector"
-                      checked={customerPricingMode === "packages"}
-                      onChange={() => setCustomerPricingMode("packages")}
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                    />
-                    <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
-                      📦 الخيار الأول: اختر باقة شحن جاهزة
-                    </strong>
-                  </div>
-
-                  <div style={{
-                    opacity: customerPricingMode === "packages" ? 1 : 0.6,
-                    pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
-                    transition: "opacity 0.2s"
-                  }}>
-                    {packagesSection}
-                  </div>
+          {checkoutStep === 1 ? (
+            <>
+              {/* Header of service */}
+              <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
+                  {getServiceIcon(service.image)}
                 </div>
-
-                {/* Option 2: Custom Quantity */}
-                <div
-                  onClick={() => setCustomerPricingMode("dynamic")}
-                  style={{
-                    border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: "16px",
-                    padding: "20px 16px 16px 16px",
-                    background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                    <input
-                      type="radio"
-                      name="pricing_mode_selector"
-                      checked={customerPricingMode === "dynamic"}
-                      onChange={() => setCustomerPricingMode("dynamic")}
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                    />
-                    <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
-                      ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
-                    </strong>
-                  </div>
-
-                  <div style={{
-                    opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
-                    transition: "opacity 0.2s"
-                  }}>
-                    {customQuantitySection}
-                  </div>
+                <div>
+                  <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>شحن فوري ومضمون 100%</p>
                 </div>
-
               </div>
-            ) : (
-              service.price_type === "dynamic" ? customQuantitySection : packagesSection
-            )}
-          </div>
 
-          <hr style={{ opacity: 0.1 }} />
+              <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
 
-          {/* Form fields - Dynamic */}
-          <form onSubmit={handleSubmit}>
-            <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
+              <hr style={{ opacity: 0.1 }} />
 
-            {activeFields.map((field, idx) => (
-              <div className="form-group" key={field.name || idx}>
-                <label htmlFor={`field_${field.name}`}>{field.label}:</label>
-                {field.type === "select" && field.options ? (
-                  <select
-                    id={`field_${field.name}`}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    style={{
-                      width: "100%",
-                      padding: "14px 18px",
-                      fontSize: "0.95rem",
-                      borderRadius: "12px",
-                      border: "2px solid #3b82f6",
-                      background: "#ffffff",
-                      color: "#000000",
-                      outline: "none"
-                    }}
-                  >
-                    <option value="" style={{ color: "#000000", background: "#ffffff" }}>-- اختر --</option>
-                    {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
-                      <option key={i} value={opt.trim()} style={{ color: "#000000", background: "#ffffff" }}>{opt.trim()}</option>
-                    ))}
-                  </select>
+              {/* Package Select / Custom Quantity */}
+              <div>
+                {service.price_type === "both" ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+                    {/* Option 1: Packages */}
+                    <div
+                      onClick={() => setCustomerPricingMode("packages")}
+                      style={{
+                        border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                        borderRadius: "16px",
+                        padding: "20px 16px 16px 16px",
+                        background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                        cursor: "pointer",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                        <input
+                          type="radio"
+                          name="pricing_mode_selector"
+                          checked={customerPricingMode === "packages"}
+                          onChange={() => setCustomerPricingMode("packages")}
+                          style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                        />
+                        <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
+                          📦 الخيار الأول: اختر باقة شحن جاهزة
+                        </strong>
+                      </div>
+
+                      <div style={{
+                        opacity: customerPricingMode === "packages" ? 1 : 0.6,
+                        pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
+                        transition: "opacity 0.2s"
+                      }}>
+                        {packagesSection}
+                      </div>
+                    </div>
+
+                    {/* Option 2: Custom Quantity */}
+                    <div
+                      onClick={() => setCustomerPricingMode("dynamic")}
+                      style={{
+                        border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                        borderRadius: "16px",
+                        padding: "20px 16px 16px 16px",
+                        background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                        cursor: "pointer",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                        <input
+                          type="radio"
+                          name="pricing_mode_selector"
+                          checked={customerPricingMode === "dynamic"}
+                          onChange={() => setCustomerPricingMode("dynamic")}
+                          style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                        />
+                        <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
+                          ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
+                        </strong>
+                      </div>
+
+                      <div style={{
+                        opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
+                        transition: "opacity 0.2s"
+                      }}>
+                        {customQuantitySection}
+                      </div>
+                    </div>
+
+                  </div>
                 ) : (
-                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <div style={{ display: "flex", gap: "10px" }}>
+                  service.price_type === "dynamic" ? customQuantitySection : packagesSection
+                )}
+              </div>
+
+              {/* Next Button for custom quantity or if package is selected */}
+              {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) || selectedPackage) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
+                      if (!customQuantity || customQuantity < 100) {
+                        setErrorMessage("من فضلك أدخل كمية صالحة (الحد الأدنى 100).");
+                        return;
+                      }
+                    }
+                    setErrorMessage("");
+                    setCheckoutStep(2);
+                  }}
+                  className="glass-btn glass-btn-primary"
+                  style={{ width: "100%", padding: "14px", fontSize: "1.1rem", borderRadius: "14px", marginTop: "10px" }}
+                >
+                  متابعة لإدخال البيانات والدفع ←
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Back to Step 1 */}
+              <button
+                type="button"
+                onClick={() => setCheckoutStep(1)}
+                className="glass-btn"
+                style={{
+                  alignSelf: "flex-start",
+                  padding: "8px 16px",
+                  fontSize: "0.85rem",
+                  borderRadius: "10px",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid var(--border-glass)",
+                  color: "var(--text-muted)"
+                }}
+              >
+                ← العودة لاختيار الباقة
+              </button>
+
+              {/* Selected package info summary block */}
+              <div style={{
+                background: "rgba(255, 255, 255, 0.02)",
+                border: "1px solid var(--border-glass)",
+                borderRadius: "16px",
+                padding: "16px 20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}>
+                <div>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>الباقة المختارة:</span>
+                  <strong style={{ fontSize: "1.1rem", display: "block", color: "var(--text-main)", marginTop: "4px" }}>
+                    {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic"))
+                      ? `كمية: ${customQuantity} وحدة`
+                      : selectedPackage?.name}
+                  </strong>
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>السعر:</span>
+                  <strong style={{ fontSize: "1.2rem", display: "block", color: "var(--success-color)", marginTop: "4px" }}>
+                    $ {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Form fields - Dynamic */}
+              <form onSubmit={handleSubmit}>
+                <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
+
+                {activeFields.map((field, idx) => (
+                  <div className="form-group" key={field.name || idx}>
+                    <label htmlFor={`field_${field.name}`}>{field.label}:</label>
+                    {field.type === "select" && field.options ? (
+                      <select
+                        id={`field_${field.name}`}
+                        value={formData[field.name] || ""}
+                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                        required={field.required !== false}
+                        style={{
+                          width: "100%",
+                          padding: "14px 18px",
+                          fontSize: "0.95rem",
+                          borderRadius: "12px",
+                          border: "2px solid #3b82f6",
+                          background: "#ffffff",
+                          color: "#000000",
+                          outline: "none"
+                        }}
+                      >
+                        <option value="" style={{ color: "#000000", background: "#ffffff" }}>-- اختر --</option>
+                        {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
+                          <option key={i} value={opt.trim()} style={{ color: "#000000", background: "#ffffff" }}>{opt.trim()}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                            <input
+                              id={`field_${field.name}`}
+                              type={field.type || "text"}
+                              placeholder={field.placeholder || ""}
+                              value={formData[field.name] || ""}
+                              onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                              required={field.required !== false}
+                              style={{
+                                flex: 1,
+                                padding: "14px 18px",
+                                fontSize: "0.95rem",
+                                borderRadius: "12px",
+                                border: "2px solid #3b82f6",
+                                background: "#ffffff",
+                                color: "#000000",
+                                outline: "none"
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleValidatePlayerId(formData[field.name])}
+                              disabled={validatingId || !formData[field.name]?.trim()}
+                              style={{
+                                padding: "0 20px",
+                                borderRadius: "12px",
+                                background: "linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%)",
+                                color: "#ffffff",
+                                border: "none",
+                                fontSize: "0.9rem",
+                                fontWeight: "bold",
+                                cursor: (validatingId || !formData[field.name]?.trim()) ? "not-allowed" : "pointer",
+                                opacity: (validatingId || !formData[field.name]?.trim()) ? 0.6 : 1,
+                                transition: "all 0.2s",
+                                minWidth: "120px"
+                              }}
+                            >
+                              {validatingId ? "جاري الفحص..." : "فحص الحساب"}
+                            </button>
+                          </div>
+                          {validationResult && (
+                            <div style={{
+                              padding: "10px 14px",
+                              background: "rgba(16, 185, 129, 0.1)",
+                              border: "1px solid rgba(16, 185, 129, 0.3)",
+                              borderRadius: "10px",
+                              color: "#10b981",
+                              fontSize: "0.88rem",
+                              fontWeight: "600",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px"
+                            }}>
+                              <span>✅</span>
+                              <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
+                            </div>
+                          )}
+                          {validationError && (
+                            <div style={{
+                              padding: "10px 14px",
+                              background: "rgba(244, 63, 94, 0.1)",
+                              border: "1px solid rgba(244, 63, 94, 0.3)",
+                              borderRadius: "10px",
+                              color: "#f43f5e",
+                              fontSize: "0.88rem",
+                              fontWeight: "600",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px"
+                            }}>
+                              <span>❌</span>
+                              <span>{validationError}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
                         <input
                           id={`field_${field.name}`}
                           type={field.type || "text"}
@@ -667,7 +811,7 @@ export default function ServiceDetail({ params }) {
                           onChange={(e) => handleFieldChange(field.name, e.target.value)}
                           required={field.required !== false}
                           style={{
-                            flex: 1,
+                            width: "100%",
                             padding: "14px 18px",
                             fontSize: "0.95rem",
                             borderRadius: "12px",
@@ -677,125 +821,51 @@ export default function ServiceDetail({ params }) {
                             outline: "none"
                           }}
                         />
-                        <button
-                          type="button"
-                          onClick={() => handleValidatePlayerId(formData[field.name])}
-                          disabled={validatingId || !formData[field.name]?.trim()}
-                          style={{
-                            padding: "0 20px",
-                            borderRadius: "12px",
-                            background: "linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%)",
-                            color: "#ffffff",
-                            border: "none",
-                            fontSize: "0.9rem",
-                            fontWeight: "bold",
-                            cursor: (validatingId || !formData[field.name]?.trim()) ? "not-allowed" : "pointer",
-                            opacity: (validatingId || !formData[field.name]?.trim()) ? 0.6 : 1,
-                            transition: "all 0.2s",
-                            minWidth: "120px"
-                          }}
-                        >
-                          {validatingId ? "جاري الفحص..." : "فحص الحساب"}
-                        </button>
-                      </div>
-                      {validationResult && (
-                        <div style={{
-                          padding: "10px 14px",
-                          background: "rgba(16, 185, 129, 0.1)",
-                          border: "1px solid rgba(16, 185, 129, 0.3)",
-                          borderRadius: "10px",
-                          color: "#10b981",
-                          fontSize: "0.88rem",
-                          fontWeight: "600",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px"
-                        }}>
-                          <span>✅</span>
-                          <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
-                        </div>
-                      )}
-                      {validationError && (
-                        <div style={{
-                          padding: "10px 14px",
-                          background: "rgba(244, 63, 94, 0.1)",
-                          border: "1px solid rgba(244, 63, 94, 0.3)",
-                          borderRadius: "10px",
-                          color: "#f43f5e",
-                          fontSize: "0.88rem",
-                          fontWeight: "600",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px"
-                        }}>
-                          <span>❌</span>
-                          <span>{validationError}</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <input
-                      id={`field_${field.name}`}
-                      type={field.type || "text"}
-                      placeholder={field.placeholder || ""}
-                      value={formData[field.name] || ""}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      required={field.required !== false}
-                      style={{
-                        width: "100%",
-                        padding: "14px 18px",
-                        fontSize: "0.95rem",
-                        borderRadius: "12px",
-                        border: "2px solid #3b82f6",
-                        background: "#ffffff",
-                        color: "#000000",
-                        outline: "none"
-                      }}
-                    />
-                  )
-                )}
-              </div>
-            ))}
+                      )
+                    )}
+                  </div>
+                ))}
 
-            <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
-                <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: $ {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)}
-                </span>
-              </div>
+                <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid var(--border-glass)", background: "rgba(255,255,255,0.03)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
+                    <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
+                    <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                      المبلغ: $ {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)}
+                    </span>
+                  </div>
 
-              <div style={{ display: "grid", gap: "10px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "12px", border: "1px solid rgba(34,197,94,0.45)", background: "rgba(34,197,94,0.08)" }}>
-                  <span style={{ fontSize: "1.5rem" }}>💳</span>
-                  <span>
-                    <strong style={{ color: "#34d399", display: "block", fontSize: "0.95rem" }}>المحفظة الشخصية</strong>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "4px" }}>
-                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: $ ${Number(customerUser?.balance || 0).toFixed(2)}` : "يتطلب تسجيل الدخول."}
+                  <div style={{ display: "grid", gap: "10px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "12px", border: "1px solid rgba(34,197,94,0.45)", background: "rgba(34,197,94,0.08)" }}>
+                      <span style={{ fontSize: "1.5rem" }}>💳</span>
+                      <span>
+                        <strong style={{ color: "#34d399", display: "block", fontSize: "0.95rem" }}>المحفظة الشخصية</strong>
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "4px" }}>
+                          الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: $ ${Number(customerUser?.balance || 0).toFixed(2)}` : "يتطلب تسجيل الدخول."}
+                        </div>
+                      </span>
                     </div>
-                  </span>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {errorMessage && (
-              <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", marginBottom: "15px" }}>
-                ⚠️ {errorMessage}
-              </div>
-            )}
+                {errorMessage && (
+                  <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", marginBottom: "15px", marginTop: "15px" }}>
+                    ⚠️ {errorMessage}
+                  </div>
+                )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="glass-btn glass-btn-primary"
-              style={{ width: "100%", padding: "14px", fontSize: "1.1rem", borderRadius: "14px" }}
-            >
-              {submitting ? "جاري إرسال الطلب..." : "تأكيد وإرسال طلب الشحن"}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="glass-btn glass-btn-primary"
+                  style={{ width: "100%", padding: "14px", fontSize: "1.1rem", borderRadius: "14px", marginTop: "20px" }}
+                >
+                  {submitting ? "جاري إرسال الطلب..." : "تأكيد وإرسال طلب الشحن"}
+                </button>
+              </form>
+            </>
+          )}
 
         </div>
-
       </div>
 
       {/* Confirmation Modal */}
