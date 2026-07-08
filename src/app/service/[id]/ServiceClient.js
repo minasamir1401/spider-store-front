@@ -22,6 +22,7 @@ export default function ServiceDetail({ params }) {
   const [submitting, setSubmitting] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [senderPhone, setSenderPhone] = useState("");
   const transferNumber = "01026785879";
@@ -261,7 +262,7 @@ export default function ServiceDetail({ params }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -295,8 +296,14 @@ export default function ServiceDetail({ params }) {
       }
     }
 
+    setShowConfirmModal(true);
+  };
+
+  const executeOrderSubmission = async () => {
+    setShowConfirmModal(false);
     setSubmitting(true);
 
+    const isDynamic = service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic");
     const computedPrice = isDynamic
       ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
       : Number(Number(selectedPackage.price || 0).toFixed(2));
@@ -353,7 +360,7 @@ export default function ServiceDetail({ params }) {
 
       setSuccessData(data);
     } catch (err) {
-      setErrorMessage(err.message || "حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.");
+      setErrorMessage(err.message || "حدث خطأ غير متوقع.");
     } finally {
       setSubmitting(false);
     }
@@ -520,7 +527,7 @@ export default function ServiceDetail({ params }) {
   return (
     <>
       {/* Main layout */}
-      <div className="service-details-layout">
+      <div className="service-details-layout" style={{ gridTemplateColumns: "1fr", maxWidth: "700px", margin: "0 auto" }}>
         {/* Form and Packages Selector */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
@@ -789,64 +796,87 @@ export default function ServiceDetail({ params }) {
 
         </div>
 
-        {/* Sidebar Summary */}
-        <div>
-          <div className="glass-panel summary-box">
-            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>تفاصيل الطلب</h3>
+      </div>
 
-            <div className="summary-row">
-              <span className="summary-label">الخدمة</span>
-              <span className="summary-value">{service.name}</span>
-            </div>
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="overlay">
+          <div className="modal-content" style={{ textAlign: "right", padding: "30px 20px", width: "95%", maxWidth: "500px", borderRadius: "24px", maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(255,255,255,0.05)", paddingBottom: "10px", color: "#ffffff", marginBottom: "15px" }}>
+              📋 تأكيد تفاصيل الطلب
+            </h3>
+            
+            <div className="summary-box" style={{ background: "none", border: "none", padding: 0 }}>
+              <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
+                <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
+              </div>
 
-            {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
-              <>
-                <div className="summary-row">
-                  <span className="summary-label">الكمية المطلوبة</span>
-                  <span className="summary-value">{customQuantity} وحدة</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-label">سعر الـ 1000 وحدة</span>
-                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
-                </div>
-              </>
-            ) : (
-              selectedPackage && (
+              {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
                 <>
-                  <div className="summary-row">
-                    <span className="summary-label">الباقة المختارة</span>
-                    <span className="summary-value">{selectedPackage.name}</span>
+                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                    <span style={{ color: "var(--text-muted)" }}>الكمية المطلوبة</span>
+                    <strong style={{ color: "var(--text-main)" }}>{customQuantity} وحدة</strong>
                   </div>
-                  <div className="summary-row">
-                    <span className="summary-label">سعر الباقة</span>
-                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} ج.م</span>
+                  <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                    <span style={{ color: "var(--text-muted)" }}>سعر الـ 1000 وحدة</span>
+                    <strong style={{ color: "var(--text-main)" }}>{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</strong>
                   </div>
                 </>
-              )
-            )}
+              ) : (
+                selectedPackage && (
+                  <>
+                    <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                      <span style={{ color: "var(--text-muted)" }}>الباقة المختارة</span>
+                      <strong style={{ color: "var(--text-main)" }}>{selectedPackage.name}</strong>
+                    </div>
+                    <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                      <span style={{ color: "var(--text-muted)" }}>سعر الباقة</span>
+                      <strong style={{ color: "var(--text-main)" }}>{Number(selectedPackage.price).toFixed(2)} ج.م</strong>
+                    </div>
+                  </>
+                )
+              )}
 
-            {activeFields.map((field, idx) => (
-              <div className="summary-row" key={field.name || idx}>
-                <span className="summary-label">{field.label}</span>
-                <span className="summary-value" style={{ wordBreak: "break-all" }}>{formData[field.name] || "---"}</span>
+              {activeFields.map((field, idx) => (
+                <div className="summary-row" key={field.name || idx} style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+                  <span style={{ color: "var(--text-muted)" }}>{field.label}</span>
+                  <strong style={{ color: "var(--text-main)", wordBreak: "break-all" }}>{formData[field.name] || "---"}</strong>
+                </div>
+              ))}
+
+              <hr style={{ opacity: 0.1, margin: "15px 0" }} />
+
+              <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "1.1rem", fontWeight: "bold", color: "var(--text-main)" }}>الإجمالي المستحق</span>
+                <strong style={{ fontSize: "1.25rem", color: "#22c55e" }}>
+                  {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                </strong>
               </div>
-            ))}
-
-            <hr style={{ opacity: 0.1 }} />
-
-            <div className="summary-row" style={{ alignItems: "center" }}>
-              <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
-              <span className="summary-value summary-total">
-                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
-              </span>
             </div>
 
-            <div style={{ marginTop: "10px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.5", background: "rgba(255,255,255,0.4)", padding: "10px", borderRadius: "8px" }}>
-              📢 بمجرد إتمام الطلب، سيتم مراجعة الدفع وتحويل الشحنة لحسابك في غضون 5 إلى 15 دقيقة فقط كحد أقصى.
+            <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+              <button
+                type="button"
+                onClick={executeOrderSubmission}
+                disabled={submitting}
+                className="glass-btn glass-btn-primary"
+                style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #22c55e 0%, #15803d 100%)", boxShadow: "0 0 15px rgba(34, 197, 94, 0.2)" }}
+              >
+                {submitting ? "جاري الإرسال..." : "تأكيد الدفع والإرسال"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="glass-btn"
+                style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                إلغاء وتعديل
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Success Modal */}
       {successData && (
