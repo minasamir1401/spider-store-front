@@ -16,7 +16,7 @@ export default function ServiceDetail({ params }) {
   const [customQuantity, setCustomQuantity] = useState(1000);
   const [copied, setCopied] = useState(false);
   const [customerPricingMode, setCustomerPricingMode] = useState("packages");
-  
+
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -29,6 +29,46 @@ export default function ServiceDetail({ params }) {
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const [customerUser, setCustomerUser] = useState(null);
   const [theme, setTheme] = useState("dark");
+
+  const [validatingId, setValidatingId] = useState(false);
+  const [validationResult, setValidationResult] = useState(null);
+  const [validationError, setValidationError] = useState("");
+
+  const handleValidatePlayerId = async (playerId) => {
+    if (!playerId || !playerId.trim()) {
+      setValidationError("يرجى إدخال معرف اللاعب أولاً.");
+      setValidationResult(null);
+      return;
+    }
+
+    setValidatingId(true);
+    setValidationError("");
+    setValidationResult(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          game: service.name,
+          userId: playerId.trim()
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "فشل التحقق من معرف اللاعب.");
+      }
+
+      setValidationResult(data);
+    } catch (err) {
+      setValidationError(err.message || "فشل التحقق من معرف اللاعب. يرجى التأكد من الرقم والمحاولة لاحقاً.");
+    } finally {
+      setValidatingId(false);
+    }
+  };
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -207,10 +247,20 @@ export default function ServiceDetail({ params }) {
     { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
   ];
 
-  const activeFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+  const activeFields = useMemo(() => {
+    const raw = serviceFields.length > 0 ? serviceFields : defaultFields;
+    return raw.map(f => ({
+      ...f,
+      name: f.name || f.id
+    }));
+  }, [serviceFields, defaultFields]);
 
   const handleFieldChange = (fieldName, value) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
+    if (fieldName === "player_id") {
+      setValidationResult(null);
+      setValidationError("");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -249,9 +299,9 @@ export default function ServiceDetail({ params }) {
 
     setSubmitting(true);
 
-    const computedPrice = isDynamic 
+    const computedPrice = isDynamic
       ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
-      : selectedPackage.price;
+      : Number(Number(selectedPackage.price || 0).toFixed(2));
     const computedPackageName = isDynamic
       ? `كمية: ${customQuantity}`
       : selectedPackage.name;
@@ -457,7 +507,7 @@ export default function ServiceDetail({ params }) {
       <div className="service-details-layout">
         {/* Form and Packages Selector */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
+
           {/* Header of service */}
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
@@ -477,11 +527,11 @@ export default function ServiceDetail({ params }) {
           <div>
             {service.price_type === "both" ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                
+
                 {/* Option 1: Packages */}
-                <div 
+                <div
                   onClick={() => setCustomerPricingMode("packages")}
-                  style={{ 
+                  style={{
                     border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
                     borderRadius: "16px",
                     padding: "20px 16px 16px 16px",
@@ -491,20 +541,20 @@ export default function ServiceDetail({ params }) {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                    <input 
-                      type="radio" 
-                      name="pricing_mode_selector" 
-                      checked={customerPricingMode === "packages"} 
-                      onChange={() => setCustomerPricingMode("packages")} 
+                    <input
+                      type="radio"
+                      name="pricing_mode_selector"
+                      checked={customerPricingMode === "packages"}
+                      onChange={() => setCustomerPricingMode("packages")}
                       style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
                       📦 الخيار الأول: اختر باقة شحن جاهزة
                     </strong>
                   </div>
-                  
-                  <div style={{ 
-                    opacity: customerPricingMode === "packages" ? 1 : 0.6, 
+
+                  <div style={{
+                    opacity: customerPricingMode === "packages" ? 1 : 0.6,
                     pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
                     transition: "opacity 0.2s"
                   }}>
@@ -513,9 +563,9 @@ export default function ServiceDetail({ params }) {
                 </div>
 
                 {/* Option 2: Custom Quantity */}
-                <div 
+                <div
                   onClick={() => setCustomerPricingMode("dynamic")}
-                  style={{ 
+                  style={{
                     border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
                     borderRadius: "16px",
                     padding: "20px 16px 16px 16px",
@@ -525,11 +575,11 @@ export default function ServiceDetail({ params }) {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                    <input 
-                      type="radio" 
-                      name="pricing_mode_selector" 
-                      checked={customerPricingMode === "dynamic"} 
-                      onChange={() => setCustomerPricingMode("dynamic")} 
+                    <input
+                      type="radio"
+                      name="pricing_mode_selector"
+                      checked={customerPricingMode === "dynamic"}
+                      onChange={() => setCustomerPricingMode("dynamic")}
                       style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
@@ -537,8 +587,8 @@ export default function ServiceDetail({ params }) {
                     </strong>
                   </div>
 
-                  <div style={{ 
-                    opacity: customerPricingMode === "dynamic" ? 1 : 0.6, 
+                  <div style={{
+                    opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
                     transition: "opacity 0.2s"
                   }}>
                     {customQuantitySection}
@@ -556,7 +606,7 @@ export default function ServiceDetail({ params }) {
           {/* Form fields - Dynamic */}
           <form onSubmit={handleSubmit}>
             <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
-            
+
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx}>
                 <label htmlFor={`field_${field.name}`}>{field.label}:</label>
@@ -583,24 +633,103 @@ export default function ServiceDetail({ params }) {
                     ))}
                   </select>
                 ) : (
-                  <input
-                    id={`field_${field.name}`}
-                    type={field.type || "text"}
-                    placeholder={field.placeholder || ""}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    style={{
-                      width: "100%",
-                      padding: "14px 18px",
-                      fontSize: "0.95rem",
-                      borderRadius: "12px",
-                      border: "2px solid #3b82f6",
-                      background: "#ffffff",
-                      color: "#000000",
-                      outline: "none"
-                    }}
-                  />
+                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <input
+                          id={`field_${field.name}`}
+                          type={field.type || "text"}
+                          placeholder={field.placeholder || ""}
+                          value={formData[field.name] || ""}
+                          onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                          required={field.required !== false}
+                          style={{
+                            flex: 1,
+                            padding: "14px 18px",
+                            fontSize: "0.95rem",
+                            borderRadius: "12px",
+                            border: "2px solid #3b82f6",
+                            background: "#ffffff",
+                            color: "#000000",
+                            outline: "none"
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleValidatePlayerId(formData[field.name])}
+                          disabled={validatingId || !formData[field.name]?.trim()}
+                          style={{
+                            padding: "0 20px",
+                            borderRadius: "12px",
+                            background: "linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%)",
+                            color: "#ffffff",
+                            border: "none",
+                            fontSize: "0.9rem",
+                            fontWeight: "bold",
+                            cursor: (validatingId || !formData[field.name]?.trim()) ? "not-allowed" : "pointer",
+                            opacity: (validatingId || !formData[field.name]?.trim()) ? 0.6 : 1,
+                            transition: "all 0.2s",
+                            minWidth: "120px"
+                          }}
+                        >
+                          {validatingId ? "جاري الفحص..." : "فحص الحساب"}
+                        </button>
+                      </div>
+                      {validationResult && (
+                        <div style={{
+                          padding: "10px 14px",
+                          background: "rgba(16, 185, 129, 0.1)",
+                          border: "1px solid rgba(16, 185, 129, 0.3)",
+                          borderRadius: "10px",
+                          color: "#10b981",
+                          fontSize: "0.88rem",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}>
+                          <span>✅</span>
+                          <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
+                        </div>
+                      )}
+                      {validationError && (
+                        <div style={{
+                          padding: "10px 14px",
+                          background: "rgba(244, 63, 94, 0.1)",
+                          border: "1px solid rgba(244, 63, 94, 0.3)",
+                          borderRadius: "10px",
+                          color: "#f43f5e",
+                          fontSize: "0.88rem",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}>
+                          <span>❌</span>
+                          <span>{validationError}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <input
+                      id={`field_${field.name}`}
+                      type={field.type || "text"}
+                      placeholder={field.placeholder || ""}
+                      value={formData[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      style={{
+                        width: "100%",
+                        padding: "14px 18px",
+                        fontSize: "0.95rem",
+                        borderRadius: "12px",
+                        border: "2px solid #3b82f6",
+                        background: "#ffffff",
+                        color: "#000000",
+                        outline: "none"
+                      }}
+                    />
+                  )
                 )}
               </div>
             ))}
@@ -705,7 +834,7 @@ export default function ServiceDetail({ params }) {
         <div>
           <div className="glass-panel summary-box">
             <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>تفاصيل الطلب</h3>
-            
+
             <div className="summary-row">
               <span className="summary-label">الخدمة</span>
               <span className="summary-value">{service.name}</span>
@@ -769,7 +898,7 @@ export default function ServiceDetail({ params }) {
             <p style={{ margin: "15px 0", lineHeight: "1.6", color: "#cbd5e1" }}>
               شكراً لتعاملك مع Spider Store. تم تسجيل طلب الشحن الخاص بك بنجاح وهو قيد التنفيذ الآن.
             </p>
-            
+
             <div style={{ background: "linear-gradient(180deg, rgba(13, 18, 36, 0.98), rgba(13, 18, 36, 0.82))", border: "1px solid rgba(255,255,255,0.08)", padding: "15px", borderRadius: "12px", textAlign: "right", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem", marginBottom: "20px", color: "#f8fafc" }}>
               <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>

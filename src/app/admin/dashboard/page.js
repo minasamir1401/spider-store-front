@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const [serviceUploadedFile, setServiceUploadedFile] = useState(null);
   const [newServicePriceType, setNewServicePriceType] = useState("fixed"); // fixed or dynamic
   const [newServicePricePerThousand, setNewServicePricePerThousand] = useState(0);
+  const [newServiceSmmId, setNewServiceSmmId] = useState("");
   
   // Package list builder
   const [newServicePackages, setNewServicePackages] = useState([
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
   const [editServiceFields, setEditServiceFields] = useState(defaultFields);
   const [editServicePriceType, setEditServicePriceType] = useState("fixed");
   const [editServicePricePerThousand, setEditServicePricePerThousand] = useState(0);
+  const [editServiceSmmId, setEditServiceSmmId] = useState("");
 
   // Banners data & form states
   const [banners, setBanners] = useState([]);
@@ -109,6 +111,21 @@ export default function AdminDashboard() {
   const [editBannerColor, setEditBannerColor] = useState("#8b5cf6");
   const [editBannerIcon, setEditBannerIcon] = useState("⚡");
   const [editBannerUploadedFile, setEditBannerUploadedFile] = useState(null);
+
+  // SMM Party integration states
+  const [smmServices, setSmmServices] = useState([]);
+  const [smmSearch, setSmmSearch] = useState("");
+  const [smmLoading, setSmmLoading] = useState(false);
+  const [smmBalance, setSmmBalance] = useState("0.00");
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importTargetService, setImportTargetService] = useState(null);
+  const [importLocalCatId, setImportLocalCatId] = useState("");
+  const [importSellingPrice, setImportSellingPrice] = useState(0);
+  const [importPriceType, setImportPriceType] = useState("dynamic"); // fixed, dynamic, both
+  const [importPackageName, setImportPackageName] = useState("");
+  const [importPackagePrice, setImportPackagePrice] = useState(0);
+  const [importMethod, setImportMethod] = useState("new"); // new, package
+  const [importTargetServiceId, setImportTargetServiceId] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -151,6 +168,56 @@ export default function AdminDashboard() {
       router.push("/admin/login");
     }
   }, [hydrated, token, router]);
+
+  const filteredSmmServices = useMemo(() => {
+    if (!smmSearch) return smmServices;
+    const query = smmSearch.toLowerCase();
+    return smmServices.filter(
+      s => (s.name || "").toLowerCase().includes(query) ||
+           (s.category || "").toLowerCase().includes(query) ||
+           String(s.service).includes(query)
+    );
+  }, [smmServices, smmSearch]);
+
+  const filteredExistingServices = useMemo(() => {
+    if (!importLocalCatId) return [];
+    return services.filter(s => s.category_id === parseInt(importLocalCatId));
+  }, [services, importLocalCatId]);
+
+  useEffect(() => {
+    if (filteredExistingServices.length > 0) {
+      setImportTargetServiceId(filteredExistingServices[0].id.toString());
+    } else {
+      setImportTargetServiceId("");
+    }
+  }, [filteredExistingServices]);
+
+  const fetchSmmData = async () => {
+    setSmmLoading(true);
+    try {
+      const headers = { "Authorization": `Bearer ${token}` };
+      const balanceRes = await fetch(`${API_BASE_URL}/api/services/smm-balance`, { headers });
+      if (balanceRes.ok) {
+        const balData = await balanceRes.json();
+        setSmmBalance(balData.balance || "0.00");
+      }
+      const listRes = await fetch(`${API_BASE_URL}/api/services/smm-list`, { headers });
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        setSmmServices(listData || []);
+      }
+    } catch (err) {
+      console.error("Error fetching SMM data:", err);
+    } finally {
+      setSmmLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "smm" && token) {
+      fetchSmmData();
+    }
+  }, [activeTab, token]);
 
   async function fetchData() {
     setLoading(true);
@@ -464,6 +531,131 @@ export default function AdminDashboard() {
     }));
   };
 
+  // Import SMM Service
+  const handleImportSmmService = async (e) => {
+    e.preventDefault();
+    if (!importTargetService || !importLocalCatId) {
+      alert("الرجاء اختيار القسم المحلي.");
+      return;
+    }
+
+    if (importMethod === "package" && !importTargetServiceId) {
+      alert("الرجاء اختيار الخدمة المحلية المستهدفة.");
+      return;
+    }
+
+    try {
+      if (importMethod === "new") {
+        let finalPackages = [];
+        let finalPriceType = importPriceType;
+        let finalPrice = parseFloat(importSellingPrice) || 0.0;
+        let finalPricePerThousand = parseFloat(importSellingPrice) || 0.0;
+
+        if (importPriceType === "fixed") {
+          finalPackages = [{ id: 1, name: importPackageName || importTargetService.name, price: parseFloat(importPackagePrice) || 0.0 }];
+          finalPrice = parseFloat(importPackagePrice) || 0.0;
+          finalPricePerThousand = 0.0;
+        } else if (importPriceType === "both") {
+          finalPackages = [{ id: 1, name: importPackageName || importTargetService.name, price: parseFloat(importPackagePrice) || 0.0 }];
+          finalPrice = parseFloat(importPackagePrice) || 0.0;
+          finalPricePerThousand = parseFloat(importSellingPrice) || 0.0;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/services`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            category_id: parseInt(importLocalCatId),
+            name: importTargetService.name,
+            description: `خدمة مستوردة تلقائياً من SMM Party. القسم: ${importTargetService.category}. الحد الأدنى: ${importTargetService.min}، الأقصى: ${importTargetService.max}.`,
+            price: finalPrice,
+            image: "default",
+            packages: finalPackages,
+            fields: defaultFields,
+            price_type: finalPriceType,
+            price_per_thousand: finalPricePerThousand,
+            smm_service_id: importTargetService.service.toString()
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || "فشل استيراد الخدمة.");
+        }
+
+        setServices(prev => [...prev, data]);
+        alert("تم استيراد الخدمة بنجاح كخدمة جديدة.");
+      } else {
+        // Append as package to existing service
+        const existingService = services.find(s => s.id === parseInt(importTargetServiceId));
+        if (!existingService) {
+          alert("الخدمة المحلية المستهدفة غير موجودة.");
+          return;
+        }
+
+        const currentPackages = existingService.packages || [];
+        const nextPkgId = currentPackages.length > 0 ? Math.max(...currentPackages.map(p => p.id || 0)) + 1 : 1;
+
+        const newPkg = {
+          id: nextPkgId,
+          name: importPackageName || importTargetService.name,
+          price: parseFloat(importPackagePrice) || 0.0,
+          smm_service_id: parseInt(importTargetService.service)
+        };
+
+        const updatedPackages = [...currentPackages, newPkg];
+
+        let finalPriceType = existingService.price_type || "fixed";
+        if (finalPriceType === "dynamic") {
+          finalPriceType = "both";
+        }
+
+        const minPrice = Math.min(...updatedPackages.map(p => p.price));
+
+        const response = await fetch(`${API_BASE_URL}/api/services/${existingService.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            category_id: existingService.category_id,
+            name: existingService.name,
+            description: existingService.description || "",
+            price: minPrice,
+            image: existingService.image || "default",
+            packages: updatedPackages,
+            fields: existingService.fields || defaultFields,
+            price_type: finalPriceType,
+            price_per_thousand: existingService.price_per_thousand || 0.0,
+            smm_service_id: existingService.smm_service_id || ""
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || "فشل تحديث الخدمة المستهدفة.");
+        }
+
+        setServices(prev => prev.map(s => s.id === existingService.id ? {
+          ...s,
+          packages: updatedPackages,
+          price_type: finalPriceType,
+          price: minPrice
+        } : s));
+
+        alert("تمت إضافة الخدمة كباقة جديدة للخدمة المحددة بنجاح.");
+      }
+
+      setShowImportModal(false);
+    } catch (err) {
+      alert("حدث خطأ أثناء الاستيراد: " + err.message);
+    }
+  };
+
   // Add Service
   const handleAddService = async (e) => {
     e.preventDefault();
@@ -480,7 +672,12 @@ export default function AdminDashboard() {
     if (newServicePriceType === "fixed") {
       validPackages = newServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ 
+          id: idx + 1, 
+          name: p.name, 
+          price: p.price,
+          smm_service_id: p.smm_service_id ? parseInt(p.smm_service_id) : null
+        }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -489,11 +686,16 @@ export default function AdminDashboard() {
       minPrice = Math.min(...validPackages.map(p => p.price));
     } else if (newServicePriceType === "dynamic") {
       minPrice = parseFloat(newServicePricePerThousand) || 0;
-      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
+      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice, smm_service_id: newServiceSmmId ? parseInt(newServiceSmmId) : null }];
     } else {
       validPackages = newServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ 
+          id: idx + 1, 
+          name: p.name, 
+          price: p.price,
+          smm_service_id: p.smm_service_id ? parseInt(p.smm_service_id) : null
+        }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -518,7 +720,8 @@ export default function AdminDashboard() {
           packages: validPackages,
           fields: newServiceFields,
           price_type: newServicePriceType,
-          price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0
+          price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0,
+          smm_service_id: newServiceSmmId || ""
         })
       });
 
@@ -540,6 +743,7 @@ export default function AdminDashboard() {
       setNewServiceFields(defaultFields);
       setNewServicePriceType("fixed");
       setNewServicePricePerThousand(0);
+      setNewServiceSmmId("");
       setShowServiceModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -640,7 +844,11 @@ export default function AdminDashboard() {
     } catch(e) {
       parsedPackages = service.packages || [];
     }
-    setEditServicePackages(parsedPackages.length > 0 ? parsedPackages : [{ name: "", price: 0 }]);
+    setEditServicePackages(parsedPackages.length > 0 ? parsedPackages.map(p => ({
+      name: p.name || "",
+      price: p.price || 0,
+      smm_service_id: p.smm_service_id ? p.smm_service_id.toString() : ""
+    })) : [{ name: "", price: 0, smm_service_id: "" }]);
 
     let parsedFields = [];
     try {
@@ -653,6 +861,7 @@ export default function AdminDashboard() {
     setEditServiceFields(parsedFields.length > 0 ? parsedFields : defaultFields);
     setEditServicePriceType(service.price_type || "fixed");
     setEditServicePricePerThousand(service.price_per_thousand || 0);
+    setEditServiceSmmId(service.smm_service_id ? service.smm_service_id.toString() : "");
 
     setShowEditServiceModal(true);
   };
@@ -715,7 +924,12 @@ export default function AdminDashboard() {
     if (editServicePriceType === "fixed") {
       validPackages = editServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ 
+          id: idx + 1, 
+          name: p.name, 
+          price: p.price,
+          smm_service_id: p.smm_service_id ? parseInt(p.smm_service_id) : null
+        }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -724,11 +938,16 @@ export default function AdminDashboard() {
       minPrice = Math.min(...validPackages.map(p => p.price));
     } else if (editServicePriceType === "dynamic") {
       minPrice = parseFloat(editServicePricePerThousand) || 0;
-      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice }];
+      validPackages = [{ id: 1, name: "شحن بالكمية", price: minPrice, smm_service_id: editServiceSmmId ? parseInt(editServiceSmmId) : null }];
     } else {
       validPackages = editServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ 
+          id: idx + 1, 
+          name: p.name, 
+          price: p.price,
+          smm_service_id: p.smm_service_id ? parseInt(p.smm_service_id) : null
+        }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -753,7 +972,8 @@ export default function AdminDashboard() {
           packages: validPackages,
           fields: editServiceFields,
           price_type: editServicePriceType,
-          price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
+          price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
+          smm_service_id: editServiceSmmId || ""
         })
       });
 
@@ -773,7 +993,8 @@ export default function AdminDashboard() {
         packages: validPackages,
         fields: data.fields,
         price_type: editServicePriceType,
-        price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0
+        price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
+        smm_service_id: editServiceSmmId || ""
       } : s));
       
       setShowEditServiceModal(false);
@@ -2062,6 +2283,7 @@ export default function AdminDashboard() {
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "العملاء والمحفظة" },
+          { tab: "smm", icon: "📦", label: "خدمات SMM Party" },
         ].map(item => (
           <button key={item.tab}
             className={`mobile-drawer-link ${activeTab === item.tab ? "active" : ""}`}
@@ -2143,6 +2365,14 @@ export default function AdminDashboard() {
               <span>العملاء والمحفظة</span>
             </div>
 
+            <div
+              className={`nav-item-premium ${activeTab === "smm" ? "active" : ""}`}
+              onClick={() => setActiveTab("smm")}
+            >
+              <span className="nav-icon">📦</span>
+              <span>خدمات SMM Party</span>
+            </div>
+
             <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
@@ -2169,26 +2399,37 @@ export default function AdminDashboard() {
             <h1>
               {activeTab === "orders" && "طلبات الشحن"}
               {activeTab === "categories" && "الأقسام والتبويبات"}
-                {activeTab === "services" && "الخدمات والمنتجات"}
-                {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
-                {activeTab === "wallets" && "طلبات شحن الرصيد"}
-                {activeTab === "customers" && "العملاء، الرصيد، وسجل المعاملات"}
-              </h1>
-              <p>
-                {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
-                {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
-                {activeTab === "services" && "إدارة خدمات الشحن وتفاصيل حزم التسعير والباقات"}
-                {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
-                {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
-                {activeTab === "customers" && "استعراض الحسابات المسجلة، رصيد كل محفظة، وسجل الحركات المرتبط بكل عميل"}
-              </p>
-            </div>
+              {activeTab === "services" && "الخدمات والمنتجات"}
+              {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
+              {activeTab === "wallets" && "طلبات شحن الرصيد"}
+              {activeTab === "customers" && "العملاء، الرصيد، وسجل المعاملات"}
+              {activeTab === "smm" && "مستورد خدمات SMM Party"}
+            </h1>
+            <p>
+              {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
+              {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
+              {activeTab === "services" && "إدارة خدمات الشحن وتفاصيل حزم التسعير والباقات"}
+              {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
+              {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
+              {activeTab === "customers" && "استعراض الحسابات المسجلة، رصيد كل محفظة، وسجل الحركات المرتبط بكل عميل"}
+              {activeTab === "smm" && `استعراض واستيراد خدمات SMM Party مباشرة لمتجرك بالجنيه المصري (رصيد الحساب الحالي: ${smmBalance} ج.م)`}
+            </p>
+          </div>
 
           <div className="header-actions">
             <div className="user-menu-widget" style={{ marginInlineStart: "auto" }}>
               <span className="user-username">{adminUser?.username || "admin"}</span>
               <span className="logout-btn-text" onClick={handleLogout}>خروج</span>
             </div>
+            {activeTab === "smm" && (
+              <button 
+                onClick={fetchSmmData} 
+                className="btn-add-premium"
+                style={{ background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", border: "none" }}
+              >
+                🔄 تحديث رصيد وقائمة الخدمات
+              </button>
+            )}
             {activeTab === "categories" && (
               <button 
                 onClick={() => {
@@ -3105,6 +3346,92 @@ export default function AdminDashboard() {
                 </div>
               </>
             )}
+
+            {activeTab === "smm" && (
+              <>
+                <div className="table-filter-bar" style={{ justifyContent: "flex-start" }}>
+                  <div className="search-input-wrapper">
+                    <input
+                      type="text"
+                      className="search-input-premium"
+                      placeholder="ابحث عن خدمة في SMM Party (مثال: PUBG)..."
+                      value={smmSearch}
+                      onChange={(e) => setSmmSearch(e.target.value)}
+                    />
+                    <span className="search-input-icon">🔍</span>
+                  </div>
+                </div>
+
+                <div className="premium-table-wrapper">
+                  <table className="premium-table">
+                    <thead>
+                      <tr>
+                        <th>SMM ID</th>
+                        <th>اسم الخدمة (SMM Party)</th>
+                        <th>القسم التابع له</th>
+                        <th>سعر الجملة</th>
+                        <th>الحدود</th>
+                        <th style={{ textAlign: "center" }}>الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {smmLoading ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                            جاري جلب وتحديث قائمة الخدمات من SMM Party...
+                          </td>
+                        </tr>
+                      ) : filteredSmmServices.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
+                            لا توجد خدمات مطابقة لبحثك.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredSmmServices.slice(0, 100).map((service) => (
+                          <tr key={service.service}>
+                            <td data-label="SMM ID" style={{ fontWeight: 800, color: "#38bdf8" }}>#{service.service}</td>
+                            <td data-label="اسم الخدمة (SMM Party)">
+                              <div style={{ fontWeight: 700, whiteSpace: "normal" }}>{service.name}</div>
+                            </td>
+                            <td data-label="القسم التابع له" style={{ color: "#94a3b8" }}>{service.category}</td>
+                            <td data-label="سعر الجملة" style={{ color: "#34d399", fontWeight: 700 }}>
+                              {Number(service.rate).toFixed(2)} ج.م <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>لكل 1000</span>
+                            </td>
+                            <td data-label="الحدود" style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
+                              {service.min} / {service.max}
+                            </td>
+                            <td data-label="الإجراءات" style={{ textAlign: "center" }}>
+                              <button
+                                onClick={() => {
+                                  setImportTargetService(service);
+                                  if (categories.length > 0) {
+                                    setImportLocalCatId(categories[0].id.toString());
+                                  }
+                                  const suggestedEgp = Number(service.rate) * 1.5;
+                                  const roundedEgp = parseFloat(suggestedEgp.toFixed(2));
+                                  setImportSellingPrice(roundedEgp);
+                                  setImportPackagePrice(roundedEgp);
+                                  setImportPackageName(service.name);
+                                  setImportPriceType("dynamic");
+                                  setImportMethod("new");
+                                  setImportTargetServiceId("");
+                                  setShowImportModal(true);
+                                }}
+                                className="action-btn btn-success-premium"
+                                style={{ background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", boxShadow: "0 0 10px rgba(124, 58, 237, 0.3)", border: "none" }}
+                              >
+                                <span>📦 استيراد للمتجر</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </>
         )}
       </main>
@@ -3367,18 +3694,31 @@ export default function AdminDashboard() {
               </div>
 
               {(newServicePriceType === "dynamic" || newServicePriceType === "both") && (
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label>سعر الـ 1000 وحدة (ج.م):</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="مثال: 50.00"
-                    value={newServicePricePerThousand || ""}
-                    onChange={(e) => setNewServicePricePerThousand(e.target.value)}
-                    className="search-input-premium"
-                    style={{ padding: "12px 16px", direction: "ltr" }}
-                    required={newServicePriceType === "dynamic" || newServicePriceType === "both"}
-                  />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>سعر الـ 1000 وحدة (ج.م):</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="مثال: 50.00"
+                      value={newServicePricePerThousand || ""}
+                      onChange={(e) => setNewServicePricePerThousand(e.target.value)}
+                      className="search-input-premium"
+                      style={{ padding: "12px 16px", direction: "ltr" }}
+                      required={newServicePriceType === "dynamic" || newServicePriceType === "both"}
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>معرّف الخدمة في SMM (اختياري):</label>
+                    <input
+                      type="text"
+                      placeholder="مثال: 13540"
+                      value={newServiceSmmId}
+                      onChange={(e) => setNewServiceSmmId(e.target.value)}
+                      className="search-input-premium"
+                      style={{ padding: "12px 16px", direction: "ltr" }}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -3442,6 +3782,16 @@ export default function AdminDashboard() {
                               onChange={(e) => handlePkgChange(idx, "price", e.target.value)}
                               style={{ direction: "ltr" }}
                               required
+                            />
+                          </div>
+                          <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف SMM ID (اختياري):</span>
+                            <input
+                              type="text"
+                              placeholder="مثال: 13540"
+                              value={pkg.smm_service_id || ""}
+                              onChange={(e) => handlePkgChange(idx, "smm_service_id", e.target.value)}
+                              style={{ direction: "ltr" }}
                             />
                           </div>
                         </div>
@@ -3824,18 +4174,31 @@ export default function AdminDashboard() {
               </div>
 
               {(editServicePriceType === "dynamic" || editServicePriceType === "both") && (
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label>سعر الـ 1000 وحدة (ج.م):</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="مثال: 50.00"
-                    value={editServicePricePerThousand || ""}
-                    onChange={(e) => setEditServicePricePerThousand(e.target.value)}
-                    className="search-input-premium"
-                    style={{ padding: "12px 16px", direction: "ltr" }}
-                    required={editServicePriceType === "dynamic" || editServicePriceType === "both"}
-                  />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>سعر الـ 1000 وحدة (ج.م):</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="مثال: 50.00"
+                      value={editServicePricePerThousand || ""}
+                      onChange={(e) => setEditServicePricePerThousand(e.target.value)}
+                      className="search-input-premium"
+                      style={{ padding: "12px 16px", direction: "ltr" }}
+                      required={editServicePriceType === "dynamic" || editServicePriceType === "both"}
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>معرّف الخدمة في SMM (اختياري):</label>
+                    <input
+                      type="text"
+                      placeholder="مثال: 13540"
+                      value={editServiceSmmId}
+                      onChange={(e) => setEditServiceSmmId(e.target.value)}
+                      className="search-input-premium"
+                      style={{ padding: "12px 16px", direction: "ltr" }}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -3899,6 +4262,16 @@ export default function AdminDashboard() {
                               onChange={(e) => handleEditPkgChange(idx, "price", e.target.value)}
                               style={{ direction: "ltr" }}
                               required
+                            />
+                          </div>
+                          <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>معرّف SMM ID (اختياري):</span>
+                            <input
+                              type="text"
+                              placeholder="مثال: 13540"
+                              value={pkg.smm_service_id || ""}
+                              onChange={(e) => handleEditPkgChange(idx, "smm_service_id", e.target.value)}
+                              style={{ direction: "ltr" }}
                             />
                           </div>
                         </div>
@@ -4388,6 +4761,203 @@ export default function AdminDashboard() {
                 <button type="submit" className="btn-add-premium">
                   حفظ التعديلات
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* SMM Import Modal */}
+      {showImportModal && importTargetService && (
+        <div className="premium-overlay" onClick={() => setShowImportModal(false)}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "550px" }}>
+            <div className="premium-modal-header">
+              <h3 className="premium-modal-title">📥 استيراد خدمة لمتجرك</h3>
+              <button className="close-btn-premium" onClick={() => setShowImportModal(false)}>×</button>
+            </div>
+
+            <form onSubmit={handleImportSmmService} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>الخدمة المحددة (SMM):</label>
+                <div style={{ padding: "12px", borderRadius: "12px", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)", fontSize: "0.9rem", color: "#ffffff", whiteSpace: "normal" }}>
+                  <strong>#{importTargetService.service}</strong> - {importTargetService.name}
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>سعر الجملة (SMM Rate):</label>
+                  <div style={{ padding: "12px", borderRadius: "12px", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)", fontSize: "0.9rem", color: "#34d399", fontWeight: "bold" }}>
+                    {Number(importTargetService.rate).toFixed(2)} ج.م
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>الحدود (Min / Max):</label>
+                  <div style={{ padding: "12px", borderRadius: "12px", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)", fontSize: "0.9rem", color: "#38bdf8", fontWeight: "bold" }}>
+                    {importTargetService.min} / {importTargetService.max}
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>القسم المحلي بالمتجر:</label>
+                <select
+                  value={importLocalCatId}
+                  onChange={(e) => setImportLocalCatId(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                  required
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id.toString()} style={{ color: "#000000", background: "#ffffff" }}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>طريقة الاستيراد للمتجر:</label>
+                <select
+                  value={importMethod}
+                  onChange={(e) => setImportMethod(e.target.value)}
+                  style={{
+                    padding: "12px 18px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(13, 18, 36, 0.7)",
+                    color: "#ffffff",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                  required
+                >
+                  <option value="new" style={{ color: "#000000", background: "#ffffff" }}>🆕 استيراد كخدمة جديدة (كرت مستقل)</option>
+                  <option value="package" style={{ color: "#000000", background: "#ffffff" }}>📦 إضافة كباقة لخدمة موجودة</option>
+                </select>
+              </div>
+
+              {importMethod === "package" && (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>اختر الخدمة المحلية المستهدفة:</label>
+                  <select
+                    value={importTargetServiceId}
+                    onChange={(e) => setImportTargetServiceId(e.target.value)}
+                    style={{
+                      padding: "12px 18px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(13, 18, 36, 0.7)",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      outline: "none",
+                      width: "100%"
+                    }}
+                    required={importMethod === "package"}
+                  >
+                    {filteredExistingServices.length === 0 ? (
+                      <option value="" disabled style={{ color: "#000000", background: "#ffffff" }}>لا توجد خدمات مضافة في هذا القسم</option>
+                    ) : (
+                      filteredExistingServices.map((s) => (
+                        <option key={s.id} value={s.id.toString()} style={{ color: "#000000", background: "#ffffff" }}>
+                          {s.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+              )}
+
+              {importMethod === "new" && (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>نوع التسعير في متجرك:</label>
+                  <select
+                    value={importPriceType}
+                    onChange={(e) => setImportPriceType(e.target.value)}
+                    style={{
+                      padding: "12px 18px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(13, 18, 36, 0.7)",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      outline: "none",
+                      width: "100%"
+                    }}
+                    required={importMethod === "new"}
+                  >
+                    <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (حسب الكمية / لكل 1000)</option>
+                    <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقة ثابتة (Fixed Package)</option>
+                    <option value="both" style={{ color: "#000000", background: "#ffffff" }}>🔄 الاثنين معاً (باقة وبالكمية)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Package Details (visible if appending as package OR new service with fixed/both pricing) */}
+              {(importMethod === "package" || importPriceType === "fixed" || importPriceType === "both") && (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>اسم الباقة (مثال: 60 شدة):</label>
+                      <input
+                        type="text"
+                        className="search-input-premium"
+                        style={{ padding: "12px 16px !important" }}
+                        placeholder="اسم الباقة"
+                        value={importPackageName}
+                        onChange={(e) => setImportPackageName(e.target.value)}
+                        required={importMethod === "package" || importPriceType === "fixed" || importPriceType === "both"}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>سعر بيع الباقة للعميل:</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="search-input-premium"
+                        style={{ padding: "12px 16px !important" }}
+                        placeholder="سعر البيع"
+                        value={importPackagePrice}
+                        onChange={(e) => setImportPackagePrice(e.target.value)}
+                        required={importMethod === "package" || importPriceType === "fixed" || importPriceType === "both"}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Price per 1000 (visible if new service with dynamic/both pricing) */}
+              {importMethod === "new" && (importPriceType === "dynamic" || importPriceType === "both") && (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>سعر بيع الـ 1000 وحدة للعملاء (بالجنيه):</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="search-input-premium"
+                    style={{ padding: "12px 16px !important" }}
+                    placeholder="سعر بيع الـ 1000"
+                    value={importSellingPrice}
+                    onChange={(e) => setImportSellingPrice(e.target.value)}
+                    required={importMethod === "new" && (importPriceType === "dynamic" || importPriceType === "both")}
+                  />
+                  <small style={{ color: "#94a3b8", display: "block", marginTop: "4px" }}>
+                    سيتم تفعيل شحن الخدمة تلقائياً للعميل، ويتم حساب التكلفة بناءً على الكمية المحددة.
+                  </small>
+                </div>
+              )}
+
+              <div style={{ marginTop: "10px", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button type="button" onClick={() => setShowImportModal(false)} className="action-btn" style={{ background: "rgba(255,255,255,0.05)" }}>إلغاء</button>
+                <button type="submit" className="btn-add-premium" style={{ background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", boxShadow: "0 0 15px rgba(124, 58, 237, 0.4)", border: "none" }}>تأكيد الاستيراد والتفعيل</button>
               </div>
             </form>
           </div>

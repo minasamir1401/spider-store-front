@@ -26,18 +26,18 @@ export default function Home() {
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
-    { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
-    { id: 2,  name: "تطبيقات اللايف",    image: "/uploads/live-apps.png",            color: "#eab308", icon: "credit-card"  },
-    { id: 3,  name: "بطاقات الكترونية",  image: "/uploads/electronic-cards.png",     color: "#6366f1", icon: "credit-card"  },
-    { id: 4,  name: "الأرصدة والعملات",  image: "/uploads/balances-currencies.png",  color: "#eab308", icon: "credit-card"  },
-    { id: 5,  name: "سوشال ميديا",       image: "/uploads/social-media.png",         color: "#eab308", icon: "credit-card"  },
-    { id: 6,  name: "خدمات السيرفر",     image: "/uploads/server-services.png",      color: "#6366f1", icon: "gamepad2"     },
-    { id: 7,  name: "اشتراكات",          image: "/uploads/subscriptions.png",        color: "#d946ef", icon: "credit-card"  },
-    { id: 8,  name: "الذكاء الاصطناعي",  image: "/uploads/ai-section.png",           color: "#eab308", icon: "credit-card"  },
-    { id: 9,  name: "قسم الارقام",       image: "/uploads/numbers-section.png",      color: "#6366f1", icon: "credit-card"  },
-    { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
-    { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
-    { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
+    { id: 1, name: "قسم الالعاب", image: "/uploads/games-section.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 2, name: "تطبيقات اللايف", image: "/uploads/live-apps.png", color: "#eab308", icon: "credit-card" },
+    { id: 3, name: "بطاقات الكترونية", image: "/uploads/electronic-cards.png", color: "#6366f1", icon: "credit-card" },
+    { id: 4, name: "الأرصدة والعملات", image: "/uploads/balances-currencies.png", color: "#eab308", icon: "credit-card" },
+    { id: 5, name: "سوشال ميديا", image: "/uploads/social-media.png", color: "#eab308", icon: "credit-card" },
+    { id: 6, name: "خدمات السيرفر", image: "/uploads/server-services.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 7, name: "اشتراكات", image: "/uploads/subscriptions.png", color: "#d946ef", icon: "credit-card" },
+    { id: 8, name: "الذكاء الاصطناعي", image: "/uploads/ai-section.png", color: "#eab308", icon: "credit-card" },
+    { id: 9, name: "قسم الارقام", image: "/uploads/numbers-section.png", color: "#6366f1", icon: "credit-card" },
+    { id: 10, name: "البرمجة والتصميم", image: "/uploads/programming-design.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 11, name: "حسابات جاهزة", image: "/uploads/ready-accounts.png", color: "#eab308", icon: "credit-card" },
+    { id: 12, name: "إعلانات ممولة", image: "/uploads/ads-section.png", color: "#ec4899", icon: "share2" },
   ];
 
 
@@ -108,7 +108,7 @@ export default function Home() {
             localStorage.setItem("customer_user", JSON.stringify(profile));
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // Check URL parameters for search term
@@ -251,10 +251,10 @@ export default function Home() {
             </div>
             <div className="banner-graphic">
               {slide.icon && (slide.icon.startsWith("data:image") || slide.icon.startsWith("http") || slide.icon.startsWith("/uploads")) ? (
-                <img 
-                  src={slide.icon.startsWith("/uploads") ? `${API_BASE_URL}${slide.icon}` : slide.icon} 
-                  alt={slide.title} 
-                  style={{ width: "220px", height: "220px", objectFit: "contain", filter: `drop-shadow(0 0 25px ${slide.color}66)` }} 
+                <img
+                  src={slide.icon.startsWith("/uploads") ? `${API_BASE_URL}${slide.icon}` : slide.icon}
+                  alt={slide.title}
+                  style={{ width: "220px", height: "220px", objectFit: "contain", filter: `drop-shadow(0 0 25px ${slide.color}66)` }}
                 />
               ) : (
                 <span className="coin-icon" style={{ color: slide.color, filter: `drop-shadow(0 0 25px ${slide.color}66)` }}>
@@ -382,7 +382,7 @@ export default function Home() {
                           <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
                         </svg>
                       )}
-                      {(iconType === "credit-card" || (!["gamepad2","share2"].includes(iconType))) && (
+                      {(iconType === "credit-card" || (!["gamepad2", "share2"].includes(iconType))) && (
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                           <rect width="20" height="14" x="2" y="5" rx="2"></rect>
                           <line x1="2" x2="22" y1="10" y2="10"></line>
