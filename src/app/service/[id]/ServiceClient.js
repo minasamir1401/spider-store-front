@@ -204,9 +204,29 @@ export default function ServiceDetail({ params }) {
       })
       .then(data => {
         setService(data);
-        if (data.packages && data.packages.length > 0) {
-          setSelectedPackage(data.packages[0]);
+        
+        let initialPkg = null;
+        let shouldGoToCheckout = false;
+        if (typeof window !== "undefined") {
+          const urlParams = new URLSearchParams(window.location.search);
+          const pkgIdParam = urlParams.get("package");
+          if (pkgIdParam && data.packages) {
+            initialPkg = data.packages.find(p => p.id.toString() === pkgIdParam);
+            if (initialPkg) {
+              shouldGoToCheckout = true;
+            }
+          }
         }
+        if (!initialPkg && data.packages && data.packages.length > 0) {
+          initialPkg = data.packages[0];
+        }
+        if (initialPkg) {
+          setSelectedPackage(initialPkg);
+          if (shouldGoToCheckout) {
+            setCheckoutStep(2);
+          }
+        }
+
         if (data.price_type === "dynamic") {
           setCustomerPricingMode("dynamic");
         } else {
@@ -218,9 +238,29 @@ export default function ServiceDetail({ params }) {
         const fallback = staticServices.find(s => s.id === Number(serviceId));
         if (fallback) {
           setService(fallback);
-          if (fallback.packages && fallback.packages.length > 0) {
-            setSelectedPackage(fallback.packages[0]);
+
+          let initialPkg = null;
+          let shouldGoToCheckout = false;
+          if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pkgIdParam = urlParams.get("package");
+            if (pkgIdParam && fallback.packages) {
+              initialPkg = fallback.packages.find(p => p.id.toString() === pkgIdParam);
+              if (initialPkg) {
+                shouldGoToCheckout = true;
+              }
+            }
           }
+          if (!initialPkg && fallback.packages && fallback.packages.length > 0) {
+            initialPkg = fallback.packages[0];
+          }
+          if (initialPkg) {
+            setSelectedPackage(initialPkg);
+            if (shouldGoToCheckout) {
+              setCheckoutStep(2);
+            }
+          }
+
           if (fallback.price_type === "dynamic") {
             setCustomerPricingMode("dynamic");
           } else {

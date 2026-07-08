@@ -405,7 +405,7 @@ export default function CategoryServices({ params }) {
 
             return (
               <div className="scc-grid">
-                {filteredServices.map((service) => {
+                {filteredServices.flatMap((service) => {
                   const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
                   
                   // Premium colors per category
@@ -436,6 +436,66 @@ export default function CategoryServices({ params }) {
                         ? service.image 
                         : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
                     : null;
+
+                  if (service.packages && service.packages.length > 0) {
+                    return service.packages.map((pkg, idx) => {
+                      const simulatedDiscount = 2 + (idx % 4);
+                      const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
+
+                      return (
+                        <div className="scc-wrap" key={`${service.id}-${pkg.id}`}>
+                          <Link 
+                            href={`/service/${service.id}?package=${pkg.id}`} 
+                            className="scc-card" 
+                            dir="rtl" 
+                            style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
+                          >
+                            <div className="scc-side-line"></div>
+                            {imgSrc && (
+                              <div className="scc-img-ring">
+                                <div className="scc-img-inner">
+                                  <img 
+                                    src={imgSrc} 
+                                    alt={pkg.name} 
+                                    loading="lazy" 
+                                    className="scc-img" 
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      const ring = e.target.closest('.scc-img-ring');
+                                      if (ring) {
+                                        ring.style.display = 'none';
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <div className="scc-content">
+                              <span className="scc-name">{pkg.name}</span>
+                              <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4.5px" }}>
+                                <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.95rem" }}>
+                                  $ {Number(pkg.price).toFixed(2)}
+                                </span>
+                                <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                                  {Number(originalPrice).toFixed(2)}
+                                </span>
+                                {simulatedDiscount > 0 && (
+                                  <span style={{ background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
+                                    خصم {simulatedDiscount}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="scc-arrow">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+                                <path d="m15 18-6-6 6-6"></path>
+                              </svg>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    });
+                  }
 
                   return (
                     <div className="scc-wrap" key={service.id}>
@@ -468,16 +528,7 @@ export default function CategoryServices({ params }) {
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
                           <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
-                            {service.packages && service.packages.length > 0 ? (
-                              <>
-                                <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
-                                  من $ {Math.min(...service.packages.map(p => parseFloat(p.price) || 0)).toFixed(2)}
-                                </span>
-                                <span style={{ background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
-                                  {service.packages.length} باقة
-                                </span>
-                              </>
-                            ) : service.price > 0 ? (
+                            {service.price > 0 ? (
                               <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
                                 $ {Number(service.price).toFixed(2)}
                               </span>
