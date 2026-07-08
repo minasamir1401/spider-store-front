@@ -83,10 +83,8 @@ export default function ServiceDetail({ params }) {
     if (token && userStr) {
       setIsCustomerLoggedIn(true);
       setCustomerUser(JSON.parse(userStr));
-      setPaymentMethod("wallet");
-    } else {
-      setPaymentMethod("transfer");
     }
+    setPaymentMethod("wallet");
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -400,46 +398,64 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
       {service.packages && service.packages.length > 0 ? (
-        <div className="packages-selector">
+        <div className="scc-grid">
           {service.packages.map((pkg, idx) => {
             const simulatedDiscount = 2 + (idx % 4);
             const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
+            
+            const accentColor = isSelected ? "#3b82f6" : "#6366f1";
+            const glowColor = isSelected ? "rgba(59, 130, 246, 0.35)" : "rgba(99, 102, 241, 0.15)";
+
             return (
-              <div
-                key={pkg.id}
-                className={`package-option ${isSelected ? "selected" : ""}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (service.price_type === "both") {
-                    setCustomerPricingMode("packages");
-                  }
-                  setSelectedPackage(pkg);
-                }}
-                style={{ position: "relative", overflow: "hidden", padding: "24px 14px 16px 14px", cursor: "pointer" }}
-              >
-                {/* Discount Tag */}
-                <span style={{
-                  position: "absolute",
-                  top: "6px",
-                  left: "6px",
-                  background: "var(--danger-color)",
-                  color: "white",
-                  fontSize: "0.68rem",
-                  padding: "2px 6px",
-                  borderRadius: "6px",
-                  fontWeight: "800"
-                }}>
-                  -{simulatedDiscount}%
-                </span>
+              <div className="scc-wrap" key={pkg.id}>
+                <div
+                  className="scc-card"
+                  dir="rtl"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (service.price_type === "both") {
+                      setCustomerPricingMode("packages");
+                    }
+                    setSelectedPackage(pkg);
+                  }}
+                  style={{
+                    cursor: "pointer",
+                    border: isSelected ? `2px solid ${accentColor}` : "1px solid rgba(255,255,255,0.08)",
+                    background: isSelected ? "rgba(255,255,255,0.05)" : "",
+                    transform: isSelected ? "translateY(-2px)" : "",
+                    "--scc-ac": accentColor,
+                    "--scc-gl": glowColor,
+                    padding: "14px 18px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}
+                >
+                  <div className="scc-side-line"></div>
+                  
+                  <div className="scc-content" style={{ paddingRight: "4px", textAlign: "right" }}>
+                    <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "700", display: "block" }}>{pkg.name}</span>
+                    <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "6px" }}>
+                      <span style={{ color: "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
+                        {Number(pkg.price).toFixed(2)} ج.م
+                      </span>
+                      <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                        {Number(originalPrice).toFixed(2)}
+                      </span>
+                      {simulatedDiscount > 0 && (
+                        <span style={{ background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
+                          خصم {simulatedDiscount}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-                <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
-
-                <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
-                  <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                    {Number(originalPrice).toFixed(2)}
-                  </span>
+                  <div className="scc-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left" style={{ opacity: 0.8 }}>
+                      <path d="m15 18-6-6 6-6"></path>
+                    </svg>
+                  </div>
                 </div>
               </div>
             );
@@ -743,73 +759,16 @@ export default function ServiceDetail({ params }) {
               </div>
 
               <div style={{ display: "grid", gap: "10px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "wallet" ? "1px solid rgba(34,197,94,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "wallet" ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.03)", opacity: isCustomerLoggedIn ? 1 : 0.65 }}>
-                  <input type="radio" name="paymentMethod" value="wallet" checked={paymentMethod === "wallet"} onChange={() => setPaymentMethod("wallet")} disabled={!isCustomerLoggedIn} />
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "12px", border: "1px solid rgba(34,197,94,0.45)", background: "rgba(34,197,94,0.08)" }}>
+                  <span style={{ fontSize: "1.5rem" }}>💳</span>
                   <span>
-                    <strong>المحفظة</strong>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                    <strong style={{ color: "#34d399", display: "block", fontSize: "0.95rem" }}>المحفظة الشخصية</strong>
+                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "4px" }}>
                       الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
-                </label>
-
-                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "transfer" ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "transfer" ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.03)" }}>
-                  <input type="radio" name="paymentMethod" value="transfer" checked={paymentMethod === "transfer"} onChange={() => setPaymentMethod("transfer")} />
-                  <span>
-                    <strong>تحويل إلى {transferNumber}</strong>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      بعد التحويل اكتب الرقم الذي تم التحويل منه حتى يظهر للأدمن.
-                    </div>
-                  </span>
-                </label>
-              </div>
-
-              {paymentMethod === "transfer" && (
-                <div className="form-group" style={{ marginTop: "14px" }}>
-                  <label htmlFor="senderPhone">الرقم الذي تم التحويل منه:</label>
-                  <input
-                    id="senderPhone"
-                    type="tel"
-                    placeholder="مثال: 01023456789"
-                    value={senderPhone}
-                    onChange={(e) => setSenderPhone(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "14px 18px",
-                      fontSize: "0.95rem",
-                      borderRadius: "12px",
-                      border: "2px solid #3b82f6",
-                      background: "#ffffff",
-                      color: "#000000",
-                      outline: "none"
-                    }}
-                  />
-                  <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>رقم الاستلام: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{transferNumber}</strong></span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(transferNumber);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      style={{
-                        background: copied ? "#10b981" : "#3b82f6",
-                        color: "#ffffff",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "4px 8px",
-                        fontSize: "0.75rem",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
-                    </button>
-                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {errorMessage && (
