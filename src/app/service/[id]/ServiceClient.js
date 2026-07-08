@@ -17,9 +17,13 @@ export default function ServiceDetail({ params }) {
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
   const [customerPricingMode, setCustomerPricingMode] = useState("packages");
+<<<<<<< HEAD
   const [packageSearchTerm, setPackageSearchTerm] = useState("");
   const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
-  
+
+=======
+
+>>>>>>> 40aacd7
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -38,6 +42,46 @@ export default function ServiceDetail({ params }) {
   const [customerUser, setCustomerUser] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [imageError, setImageError] = useState(false);
+
+  const [validatingId, setValidatingId] = useState(false);
+  const [validationResult, setValidationResult] = useState(null);
+  const [validationError, setValidationError] = useState("");
+
+  const handleValidatePlayerId = async (playerId) => {
+    if (!playerId || !playerId.trim()) {
+      setValidationError("يرجى إدخال معرف اللاعب أولاً.");
+      setValidationResult(null);
+      return;
+    }
+
+    setValidatingId(true);
+    setValidationError("");
+    setValidationResult(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          game: service.name,
+          userId: playerId.trim()
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "فشل التحقق من معرف اللاعب.");
+      }
+
+      setValidationResult(data);
+    } catch (err) {
+      setValidationError(err.message || "فشل التحقق من معرف اللاعب. يرجى التأكد من الرقم والمحاولة لاحقاً.");
+    } finally {
+      setValidatingId(false);
+    }
+  };
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -237,25 +281,25 @@ export default function ServiceDetail({ params }) {
   // Parse dynamic fields from service
   const serviceFields = useMemo(() => {
     if (!service) return [];
-    
+
     // Check service fields first
     let sFields = [];
     if (Array.isArray(service.fields)) sFields = service.fields;
     else if (typeof service.fields === 'string') {
-      try { sFields = JSON.parse(service.fields); } catch {}
+      try { sFields = JSON.parse(service.fields); } catch { }
     }
-    
+
     if (sFields && sFields.length > 0) return sFields;
-    
+
     // Fallback to category fields
     let catFields = [];
     if (Array.isArray(service.category_fields)) catFields = service.category_fields;
     else if (typeof service.category_fields === 'string') {
-      try { catFields = JSON.parse(service.category_fields); } catch {}
+      try { catFields = JSON.parse(service.category_fields); } catch { }
     }
-    
+
     if (catFields && catFields.length > 0) return catFields;
-    
+
     return [];
   }, [service]);
 
@@ -265,6 +309,7 @@ export default function ServiceDetail({ params }) {
   ];
 
   const activeFields = useMemo(() => {
+<<<<<<< HEAD
     const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
     const seen = new Set();
     const uniqueFields = [];
@@ -305,9 +350,21 @@ export default function ServiceDetail({ params }) {
     }
     return "بيانات الحساب المراد شحنه";
   }, [service]);
+=======
+    const raw = serviceFields.length > 0 ? serviceFields : defaultFields;
+    return raw.map(f => ({
+      ...f,
+      name: f.name || f.id
+    }));
+  }, [serviceFields, defaultFields]);
+>>>>>>> 40aacd7
 
   const handleFieldChange = (fieldName, value) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
+    if (fieldName === "player_id") {
+      setValidationResult(null);
+      setValidationError("");
+    }
   };
 
   const handleReceiptChange = (e) => {
@@ -371,6 +428,7 @@ export default function ServiceDetail({ params }) {
 
     setSubmitting(true);
 
+<<<<<<< HEAD
     let computedPrice = 0;
     if (isDynamic) {
       const usdPrice = (customQuantity / 1000) * (service.price_per_thousand || 0);
@@ -389,6 +447,11 @@ export default function ServiceDetail({ params }) {
         computedPrice = selectedPackage.price;
       }
     }
+=======
+    const computedPrice = isDynamic
+      ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
+      : Number(Number(selectedPackage.price || 0).toFixed(2));
+>>>>>>> 40aacd7
     const computedPackageName = isDynamic
       ? `كمية: ${customQuantity}`
       : selectedPackage.name;
@@ -453,7 +516,7 @@ export default function ServiceDetail({ params }) {
   const getFallbackEmoji = (name = "", image = "") => {
     const lowerName = (name || "").toLowerCase();
     const lowerImg = (image || "").toLowerCase();
-    
+
     if (lowerImg.includes("pubg") || lowerName.includes("pubg") || lowerName.includes("ببجي")) return "🔫";
     if (lowerImg.includes("freefire") || lowerImg.includes("free fire") || lowerName.includes("فري فاير") || lowerName.includes("free fire") || lowerName.includes("freefire")) return "🔥";
     if (lowerImg.includes("bigo") || lowerName.includes("بيجو")) return "💬";
@@ -462,23 +525,23 @@ export default function ServiceDetail({ params }) {
     if (lowerImg.includes("canva") || lowerName.includes("كانفا")) return "🎨";
     if (lowerImg.includes("netflix") || lowerName.includes("نتفليكس")) return "🎬";
     if (lowerName.includes("ايفون") || lowerName.includes("iphone") || lowerName.includes("ipad") || lowerName.includes("ايباد") || lowerName.includes("bypass") || lowerName.includes("تخط") || lowerName.includes("icloud") || lowerName.includes("ايكلاود") || lowerName.includes("hello") || lowerName.includes("removal") || lowerName.includes("hfz") || lowerName.includes("smd") || lowerName.includes("otix")) return "📱";
-    
+
     return "⚡";
   };
 
   const getServiceIcon = (image, name = "") => {
     if (!image) return getFallbackEmoji(name, image);
     if (image.startsWith("data:image") || image.startsWith("http") || image.includes("uploads")) {
-      const src = image.startsWith("http") || image.startsWith("data:") 
-        ? image 
+      const src = image.startsWith("http") || image.startsWith("data:")
+        ? image
         : (image.startsWith("/") ? `${API_BASE_URL}${image}` : `${API_BASE_URL}/${image}`);
-      return <img 
-        src={src} 
-        alt="Service Icon" 
+      return <img
+        src={src}
+        alt="Service Icon"
         onError={(e) => {
           setImageError(true);
         }}
-        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }} 
+        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }}
       />;
     }
     if (image.includes("pubg")) return "🔫";
@@ -495,7 +558,7 @@ export default function ServiceDetail({ params }) {
     if (!service?.packages) return [];
     const query = (packageSearchTerm || "").trim().toLowerCase();
     if (!query) return service.packages;
-    return service.packages.filter(pkg => 
+    return service.packages.filter(pkg =>
       (pkg.name || "").toLowerCase().includes(query)
     );
   }, [service?.packages, packageSearchTerm]);
@@ -528,7 +591,7 @@ export default function ServiceDetail({ params }) {
   const packagesSection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "15px", fontSize: "1.1rem" }}>1. اختر الباقة المطلوبة:</h3>
-      
+
       {service.packages && service.packages.length > 3 && (
         <div style={{ marginBottom: "20px", position: "relative" }}>
           <input
@@ -586,13 +649,13 @@ export default function ServiceDetail({ params }) {
             const isUsd = service.category_currency === 'USD';
             const usdPrice = pkg.usd_price || pkg.price;
             const originalUsdPrice = usdPrice / (1 - simulatedDiscount / 100);
-            
+
             const usdRate = Number(exchangeRates?.["USD"] || 50);
             const egpPrice = usdPrice * usdRate;
             const originalEgpPrice = originalUsdPrice * usdRate;
 
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
-            
+
             // Generate a dynamic accent color for the side border line
             const accentColors = ["#6366f1", "#3b82f6", "#10b981", "#ec4899", "#f59e0b"];
             const accentColor = accentColors[idx % accentColors.length];
@@ -608,11 +671,11 @@ export default function ServiceDetail({ params }) {
                       setCustomerPricingMode("packages");
                     }
                     setSelectedPackage(pkg);
-                    
+
                     // Directly transition to checkout step 2
                     setTimeout(() => {
                       setStep(2);
-                      
+
                       // Smooth scroll to top of checkout container
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }, 200);
@@ -628,13 +691,13 @@ export default function ServiceDetail({ params }) {
                   }}
                 >
                   <div className="scc-side-line"></div>
-                  
+
                   {hasImage && (
                     <div className="scc-img-ring" style={{ borderColor: accentColor }}>
                       <div className="scc-img-inner">
-                        <img 
-                          alt={pkg.name} 
-                          className="scc-img" 
+                        <img
+                          alt={pkg.name}
+                          className="scc-img"
                           src={service.image.startsWith("http") || service.image.startsWith("/") || service.image.startsWith("data:") ? service.image : `${API_BASE_URL}/${service.image}`}
                           onError={() => {
                             setImageError(true);
@@ -683,8 +746,8 @@ export default function ServiceDetail({ params }) {
         سعر الـ 1000 وحدة هو: {baseCurrency === 'USD'
           ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)}`
           : (service.category_currency === 'USD'
-              ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
-              : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: 100)
+            ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
+            : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -743,6 +806,7 @@ export default function ServiceDetail({ params }) {
     </div>
   );
 
+<<<<<<< HEAD
   const isContinueEnabled = (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic"))
     ? (Number(customQuantity) >= 100)
     : (selectedPackage !== null);
@@ -762,8 +826,8 @@ export default function ServiceDetail({ params }) {
       WebkitBackdropFilter: "blur(24px)"
     }}>
       {/* Back button */}
-      <button 
-        type="button" 
+      <button
+        type="button"
         onClick={() => setStep(1)}
         style={{
           color: "var(--primary-color)",
@@ -803,15 +867,15 @@ export default function ServiceDetail({ params }) {
       </div>
 
       <form onSubmit={handleSubmit} className="service-details-layout">
-        
+
         {/* Main section: Col 1 */}
         <div className="checkout-main-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
+
           {/* Step 1: Account Details */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
+          <div className="glass-panel" style={{
+            background: "rgba(255, 255, 255, 0.01)",
+            padding: "20px",
+            borderRadius: "16px",
             border: "1px solid rgba(255,255,255,0.06)",
             display: "flex",
             flexDirection: "column",
@@ -821,380 +885,599 @@ export default function ServiceDetail({ params }) {
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
               {fieldsSectionTitle}:
             </h3>
-            {activeFields.map((field, idx) => (
-              <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
-                <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                  {field.label}:
-                </label>
-                {field.type === "select" && field.options ? (
-                  <select
-                    id={`field_${field.name}`}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    style={{
-                      width: "100%",
-                      padding: "12px 14px",
-                      fontSize: "0.9rem",
-                      borderRadius: "10px",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      background: "var(--input-bg)",
-                      color: "var(--text-main)",
-                      outline: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--primary-color)";
-                      e.target.style.background = "rgba(255, 255, 255, 0.06)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                      e.target.style.background = "var(--input-bg)";
-                    }}
-                  >
-                    <option value="" style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>-- اختر --</option>
-                    {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
-                      <option key={i} value={opt.trim()} style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>{opt.trim()}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    id={`field_${field.name}`}
-                    type={field.type || "text"}
-                    placeholder={field.placeholder || ""}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    style={{
-                      width: "100%",
-                      padding: "12px 14px",
-                      fontSize: "0.9rem",
-                      borderRadius: "10px",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      background: "var(--input-bg)",
-                      color: "var(--text-main)",
-                      outline: "none",
-                      transition: "all 0.2s ease"
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--primary-color)";
-                      e.target.style.background = "rgba(255, 255, 255, 0.06)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                      e.target.style.background = "var(--input-bg)";
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+=======
+  return (
+    <>
+              {/* Main layout */}
+              <div className="service-details-layout">
+                {/* Form and Packages Selector */}
+                <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-          {/* Step 2: Payment Method */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
-            border: "1px solid rgba(255,255,255,0.06)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "14px"
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-              <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>٢</span>
-                طريقة الدفع:
-              </h3>
-              <span style={{ fontSize: "0.9rem", color: "var(--primary-color)", fontWeight: "bold" }}>
-                المبلغ المستحق: {(() => {
-                  const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
-                  let usdPrice = 0;
-                  let egpPrice = 0;
-                  const usdRate = Number(exchangeRates?.["USD"] || 50);
-
-                  if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
-                    const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
-                    if (isUsd) {
-                      usdPrice = computedUsd;
-                      egpPrice = usdPrice * usdRate;
-                    } else {
-                      egpPrice = computedUsd;
-                    }
-                  } else if (selectedPackage) {
-                    if (isUsd) {
-                      usdPrice = selectedPackage.usd_price || selectedPackage.price;
-                      egpPrice = usdPrice * usdRate;
-                    } else {
-                      egpPrice = selectedPackage.price;
-                    }
-                  }
-
-                  if (baseCurrency === 'USD' || isUsd) {
-                    return `$ ${usdPrice.toFixed(2)}`;
-                  } else {
-                    return `${egpPrice.toFixed(2)} ${baseCurrency}`;
-                  }
-                })()}
-              </span>
-            </div>
-
-            <div style={{ display: "grid", gap: "10px", marginTop: "4px" }}>
-              <label style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "12px", 
-                cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", 
-                padding: "14px 16px", 
-                borderRadius: "12px", 
-                border: paymentMethod === "wallet" ? "2px solid #22c55e" : "1px solid rgba(255, 255, 255, 0.08)", 
-                background: paymentMethod === "wallet" ? "rgba(34, 197, 94, 0.06)" : "rgba(255, 255, 255, 0.02)", 
-                opacity: isCustomerLoggedIn ? 1 : 0.6,
-                transition: "all 0.2s ease"
-              }}>
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
-                  value="wallet" 
-                  checked={paymentMethod === "wallet"} 
-                  onChange={() => setPaymentMethod("wallet")} 
-                  disabled={!isCustomerLoggedIn} 
-                  style={{ width: "18px", height: "18px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed" }} 
-                />
-                <div style={{ flexGrow: 1 }}>
-                  <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💳 دفع عبر محفظة الموقع الرقمية</strong>
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
-                    {isCustomerLoggedIn 
-                      ? `سيتم خصم القيمة من رصيدك تلقائياً. رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}` 
-                      : "يرجى تسجيل الدخول أولاً لتتمكن من استخدام المحفظة."}
-                  </span>
-                </div>
-              </label>
-
-              {!hideManualTransfersSetting && paymentMethods.map((pm) => {
-                const isSelected = paymentMethod === pm.id;
-                return (
-                  <label key={pm.id} style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "12px", 
-                    cursor: "pointer", 
-                    padding: "14px 16px", 
-                    borderRadius: "12px", 
-                    border: isSelected ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)", 
-                    background: isSelected ? "rgba(59, 130, 246, 0.06)" : "rgba(255, 255, 255, 0.02)",
-                    transition: "all 0.2s ease"
-                  }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value={pm.id} 
-                      checked={isSelected} 
-                      onChange={() => setPaymentMethod(pm.id)} 
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }} 
-                    />
-                    <div style={{ flexGrow: 1 }}>
-                      <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💸 تحويل يدوي مباشر: {pm.name}</strong>
-                      <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
-                        {pm.description}
-                      </span>
+                  {/* Header of service */}
+                  <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                    <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem" }}>
+                      {getServiceIcon(service.image)}
                     </div>
-                  </label>
-                );
-              })}
-            </div>
-
-            {paymentMethod !== "wallet" && (
-              (() => {
-                const currentPM = paymentMethods.find(pm => pm.id === paymentMethod) || paymentMethods[0];
-                if (!currentPM) return null;
-                return (
-                  <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "14px" }}>
-                    
-                    {/* Clipboard copy box */}
-                    <div style={{ 
-                      padding: "12px 16px", 
-                      borderRadius: "10px", 
-                      background: "rgba(59, 130, 246, 0.05)", 
-                      border: "1px solid rgba(59, 130, 246, 0.2)", 
-                      color: "#38bdf8", 
-                      fontSize: "0.88rem", 
-                      display: "flex", 
-                      justifyContent: "space-between", 
-                      alignItems: "center", 
-                      gap: "12px",
-                      flexWrap: "wrap"
-                    }}>
-                      <span>بيانات الاستلام للتحويل: <strong style={{ color: "#ffffff", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all", background: "rgba(0,0,0,0.3)", padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.05)", fontWeight: "bold" }}>{currentPM.value}</strong></span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(currentPM.value);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        style={{
-                          background: copied ? "#10b981" : "#3b82f6",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: "8px",
-                          padding: "6px 14px",
-                          fontSize: "0.8rem",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        {copied ? "تم النسخ! ✓" : "نسخ الرقم 📋"}
-                      </button>
+                    <div>
+                      <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>شحن فوري ومضمون 100%</p>
                     </div>
+                  </div>
 
-                    <div className="form-group" style={{ marginBottom: "0px" }}>
-                      <label htmlFor="senderPhone" style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                        الرقم أو اسم الحساب الذي تم التحويل منه *إجباري*:
-                      </label>
-                      <input
-                        id="senderPhone"
-                        type="text"
-                        placeholder="مثال: 01023456789 أو اسم الحساب"
-                        value={senderPhone}
-                        onChange={(e) => setSenderPhone(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "12px 14px",
-                          fontSize: "0.9rem",
+                  <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
+
+                  <hr style={{ opacity: 0.1 }} />
+
+                  {/* Package Select / Custom Quantity */}
+                  <div>
+                    {service.price_type === "both" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+                        {/* Option 1: Packages */}
+                        <div
+                          onClick={() => setCustomerPricingMode("packages")}
+                          style={{
+                            border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                            borderRadius: "16px",
+                            padding: "20px 16px 16px 16px",
+                            background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                            cursor: "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                            <input
+                              type="radio"
+                              name="pricing_mode_selector"
+                              checked={customerPricingMode === "packages"}
+                              onChange={() => setCustomerPricingMode("packages")}
+                              style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                            />
+                            <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
+                              📦 الخيار الأول: اختر باقة شحن جاهزة
+                            </strong>
+                          </div>
+
+                          <div style={{
+                            opacity: customerPricingMode === "packages" ? 1 : 0.6,
+                            pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
+                            transition: "opacity 0.2s"
+                          }}>
+                            {packagesSection}
+                          </div>
+                        </div>
+
+                        {/* Option 2: Custom Quantity */}
+                        <div
+                          onClick={() => setCustomerPricingMode("dynamic")}
+                          style={{
+                            border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                            borderRadius: "16px",
+                            padding: "20px 16px 16px 16px",
+                            background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                            cursor: "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                            <input
+                              type="radio"
+                              name="pricing_mode_selector"
+                              checked={customerPricingMode === "dynamic"}
+                              onChange={() => setCustomerPricingMode("dynamic")}
+                              style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                            />
+                            <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
+                              ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
+                            </strong>
+                          </div>
+
+                          <div style={{
+                            opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
+                            transition: "opacity 0.2s"
+                          }}>
+                            {customQuantitySection}
+                          </div>
+                        </div>
+
+                      </div>
+                    ) : (
+                      service.price_type === "dynamic" ? customQuantitySection : packagesSection
+                    )}
+                  </div>
+
+                  <hr style={{ opacity: 0.1 }} />
+
+                  {/* Form fields - Dynamic */}
+                  <form onSubmit={handleSubmit}>
+                    <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
+
+>>>>>>> 40aacd7
+                    {activeFields.map((field, idx) => (
+                      <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
+                        <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                          {field.label}:
+                        </label>
+                        {field.type === "select" && field.options ? (
+                          <select
+                            id={`field_${field.name}`}
+                            value={formData[field.name] || ""}
+                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                            required={field.required !== false}
+                            style={{
+                              width: "100%",
+                              padding: "12px 14px",
+                              fontSize: "0.9rem",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              background: "var(--input-bg)",
+                              color: "var(--text-main)",
+                              outline: "none",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease"
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "var(--primary-color)";
+                              e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                              e.target.style.background = "var(--input-bg)";
+                            }}
+                          >
+                            <option value="" style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>-- اختر --</option>
+                            {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
+                              <option key={i} value={opt.trim()} style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>{opt.trim()}</option>
+                            ))}
+                          </select>
+                        ) : (
+<<<<<<< HEAD
+                          <input
+                            id={`field_${field.name}`}
+                            type={field.type || "text"}
+                            placeholder={field.placeholder || ""}
+                            value={formData[field.name] || ""}
+                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                            required={field.required !== false}
+                            style={{
+                              width: "100%",
+                              padding: "12px 14px",
+                              fontSize: "0.9rem",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              background: "var(--input-bg)",
+                              color: "var(--text-main)",
+                              outline: "none",
+                              transition: "all 0.2s ease"
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "var(--primary-color)";
+                              e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                              e.target.style.background = "var(--input-bg)";
+                            }}
+                          />
+=======
+                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <input
+                          id={`field_${field.name}`}
+                          type={field.type || "text"}
+                          placeholder={field.placeholder || ""}
+                          value={formData[field.name] || ""}
+                          onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                          required={field.required !== false}
+                          style={{
+                            flex: 1,
+                            padding: "14px 18px",
+                            fontSize: "0.95rem",
+                            borderRadius: "12px",
+                            border: "2px solid #3b82f6",
+                            background: "#ffffff",
+                            color: "#000000",
+                            outline: "none"
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleValidatePlayerId(formData[field.name])}
+                          disabled={validatingId || !formData[field.name]?.trim()}
+                          style={{
+                            padding: "0 20px",
+                            borderRadius: "12px",
+                            background: "linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%)",
+                            color: "#ffffff",
+                            border: "none",
+                            fontSize: "0.9rem",
+                            fontWeight: "bold",
+                            cursor: (validatingId || !formData[field.name]?.trim()) ? "not-allowed" : "pointer",
+                            opacity: (validatingId || !formData[field.name]?.trim()) ? 0.6 : 1,
+                            transition: "all 0.2s",
+                            minWidth: "120px"
+                          }}
+                        >
+                          {validatingId ? "جاري الفحص..." : "فحص الحساب"}
+                        </button>
+                      </div>
+                      {validationResult && (
+                        <div style={{
+                          padding: "10px 14px",
+                          background: "rgba(16, 185, 129, 0.1)",
+                          border: "1px solid rgba(16, 185, 129, 0.3)",
                           borderRadius: "10px",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          background: "var(--input-bg)",
-                          color: "var(--text-main)",
-                          outline: "none",
-                          transition: "all 0.2s"
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = "var(--primary-color)";
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                        }}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: "0px" }}>
-                      <label htmlFor="transferAmount" style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                        المبلغ الذي قمت بتحويله فعلياً ({baseCurrency}) *إجباري*:
-                      </label>
-                      <input
-                        id="transferAmount"
-                        type="number"
-                        step="any"
-                        placeholder="أدخل المبلغ المحول بالضبط (مثال: 150)"
-                        value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "12px 14px",
-                          fontSize: "0.9rem",
-                          borderRadius: "10px",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          background: "var(--input-bg)",
-                          color: "var(--text-main)",
-                          outline: "none",
-                          transition: "all 0.2s"
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = "var(--primary-color)";
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                        }}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="form-group" style={{ marginBottom: "0px" }}>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "var(--text-muted)", fontSize: "0.85rem" }}>
-                        ارفع صورة إيصال التحويل (لقطة شاشة) *إجباري*:
-                      </label>
-                      <div style={{ position: "relative", width: "100%" }}>
-                        <label htmlFor="receipt-upload" style={{
+                          color: "#10b981",
+                          fontSize: "0.88rem",
+                          fontWeight: "600",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
-                          gap: "10px",
-                          width: "100%",
-                          padding: "16px",
+                          gap: "6px"
+                        }}>
+                          <span>✅</span>
+                          <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
+                        </div>
+                      )}
+                      {validationError && (
+                        <div style={{
+                          padding: "10px 14px",
+                          background: "rgba(244, 63, 94, 0.1)",
+                          border: "1px solid rgba(244, 63, 94, 0.3)",
                           borderRadius: "10px",
-                          border: "2px dashed rgba(255, 255, 255, 0.15)",
-                          background: "rgba(255, 255, 255, 0.02)",
-                          color: "var(--text-muted)",
-                          cursor: "pointer",
-                          fontSize: "0.9rem",
+                          color: "#f43f5e",
+                          fontSize: "0.88rem",
                           fontWeight: "600",
-                          textAlign: "center",
-                          transition: "all 0.2s"
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "var(--primary-color)";
-                          e.currentTarget.style.background = "rgba(59, 130, 246, 0.05)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
-                        }}
-                        >
-                          <span>📁 {receiptImage ? "✓ تغيير صورة الإيصال" : "اختر صورة إيصال التحويل أو اسحبها هنا"}</span>
-                        </label>
-                        <input
-                          id="receipt-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleReceiptChange}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            opacity: 0,
-                            cursor: "pointer"
-                          }}
-                          required
-                        />
-                      </div>
-                      {receiptImage && (
-                        <div style={{ marginTop: "10px", textAlign: "right" }}>
-                          <img src={receiptImage} alt="Receipt Preview" style={{ maxWidth: "120px", maxHeight: "120px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)" }} />
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}>
+                          <span>❌</span>
+                          <span>{validationError}</span>
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              })()
-            )}
-          </div>
-        </div>
+                  ) : (
+                    <input
+                      id={`field_${field.name}`}
+                      type={field.type || "text"}
+                      placeholder={field.placeholder || ""}
+                      value={formData[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      style={{
+                        width: "100%",
+                        padding: "14px 18px",
+                        fontSize: "0.95rem",
+                        borderRadius: "12px",
+                        border: "2px solid #3b82f6",
+                        background: "#ffffff",
+                        color: "#000000",
+                        outline: "none"
+                      }}
+                    />
+                  )
+>>>>>>> 40aacd7
+                        )}
+                      </div>
+                    ))}
+                </div>
 
-        {/* Side section: Col 2 */}
-        <div className="checkout-side-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
-          {/* Summary Box */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
-            border: "1px solid rgba(255,255,255,0.06)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "14px"
-          }}>
-            <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "10px" }}>
-              📋 ملخص الطلب
-            </h3>
-            
-            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
-              <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
-              <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
+                {/* Step 2: Payment Method */}
+                <div className="glass-panel" style={{
+                  background: "rgba(255, 255, 255, 0.01)",
+                  padding: "20px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px"
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                    <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>٢</span>
+                      طريقة الدفع:
+                    </h3>
+                    <span style={{ fontSize: "0.9rem", color: "var(--primary-color)", fontWeight: "bold" }}>
+                      المبلغ المستحق: {(() => {
+                        const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
+                        let usdPrice = 0;
+                        let egpPrice = 0;
+                        const usdRate = Number(exchangeRates?.["USD"] || 50);
+
+                        if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
+                          const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
+                          if (isUsd) {
+                            usdPrice = computedUsd;
+                            egpPrice = usdPrice * usdRate;
+                          } else {
+                            egpPrice = computedUsd;
+                          }
+                        } else if (selectedPackage) {
+                          if (isUsd) {
+                            usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                            egpPrice = usdPrice * usdRate;
+                          } else {
+                            egpPrice = selectedPackage.price;
+                          }
+                        }
+
+                        if (baseCurrency === 'USD' || isUsd) {
+                          return `$ ${usdPrice.toFixed(2)}`;
+                        } else {
+                          return `${egpPrice.toFixed(2)} ${baseCurrency}`;
+                        }
+                      })()}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "grid", gap: "10px", marginTop: "4px" }}>
+                    <label style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      cursor: isCustomerLoggedIn ? "pointer" : "not-allowed",
+                      padding: "14px 16px",
+                      borderRadius: "12px",
+                      border: paymentMethod === "wallet" ? "2px solid #22c55e" : "1px solid rgba(255, 255, 255, 0.08)",
+                      background: paymentMethod === "wallet" ? "rgba(34, 197, 94, 0.06)" : "rgba(255, 255, 255, 0.02)",
+                      opacity: isCustomerLoggedIn ? 1 : 0.6,
+                      transition: "all 0.2s ease"
+                    }}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="wallet"
+                        checked={paymentMethod === "wallet"}
+                        onChange={() => setPaymentMethod("wallet")}
+                        disabled={!isCustomerLoggedIn}
+                        style={{ width: "18px", height: "18px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed" }}
+                      />
+                      <div style={{ flexGrow: 1 }}>
+                        <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💳 دفع عبر محفظة الموقع الرقمية</strong>
+                        <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
+                          {isCustomerLoggedIn
+                            ? `سيتم خصم القيمة من رصيدك تلقائياً. رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}`
+                            : "يرجى تسجيل الدخول أولاً لتتمكن من استخدام المحفظة."}
+                        </span>
+                      </div>
+                    </label>
+
+                    {!hideManualTransfersSetting && paymentMethods.map((pm) => {
+                      const isSelected = paymentMethod === pm.id;
+                      return (
+                        <label key={pm.id} style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          cursor: "pointer",
+                          padding: "14px 16px",
+                          borderRadius: "12px",
+                          border: isSelected ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
+                          background: isSelected ? "rgba(59, 130, 246, 0.06)" : "rgba(255, 255, 255, 0.02)",
+                          transition: "all 0.2s ease"
+                        }}>
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value={pm.id}
+                            checked={isSelected}
+                            onChange={() => setPaymentMethod(pm.id)}
+                            style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                          />
+                          <div style={{ flexGrow: 1 }}>
+                            <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💸 تحويل يدوي مباشر: {pm.name}</strong>
+                            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
+                              {pm.description}
+                            </span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {paymentMethod !== "wallet" && (
+                    (() => {
+                      const currentPM = paymentMethods.find(pm => pm.id === paymentMethod) || paymentMethods[0];
+                      if (!currentPM) return null;
+                      return (
+                        <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "14px" }}>
+
+                          {/* Clipboard copy box */}
+                          <div style={{
+                            padding: "12px 16px",
+                            borderRadius: "10px",
+                            background: "rgba(59, 130, 246, 0.05)",
+                            border: "1px solid rgba(59, 130, 246, 0.2)",
+                            color: "#38bdf8",
+                            fontSize: "0.88rem",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "12px",
+                            flexWrap: "wrap"
+                          }}>
+                            <span>بيانات الاستلام للتحويل: <strong style={{ color: "#ffffff", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all", background: "rgba(0,0,0,0.3)", padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.05)", fontWeight: "bold" }}>{currentPM.value}</strong></span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(currentPM.value);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                              }}
+                              style={{
+                                background: copied ? "#10b981" : "#3b82f6",
+                                color: "#ffffff",
+                                border: "none",
+                                borderRadius: "8px",
+                                padding: "6px 14px",
+                                fontSize: "0.8rem",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                transition: "all 0.2s"
+                              }}
+                            >
+                              {copied ? "تم النسخ! ✓" : "نسخ الرقم 📋"}
+                            </button>
+                          </div>
+
+                          <div className="form-group" style={{ marginBottom: "0px" }}>
+                            <label htmlFor="senderPhone" style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                              الرقم أو اسم الحساب الذي تم التحويل منه *إجباري*:
+                            </label>
+                            <input
+                              id="senderPhone"
+                              type="text"
+                              placeholder="مثال: 01023456789 أو اسم الحساب"
+                              value={senderPhone}
+                              onChange={(e) => setSenderPhone(e.target.value)}
+                              style={{
+                                width: "100%",
+                                padding: "12px 14px",
+                                fontSize: "0.9rem",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                background: "var(--input-bg)",
+                                color: "var(--text-main)",
+                                outline: "none",
+                                transition: "all 0.2s"
+                              }}
+                              onFocus={(e) => {
+                                e.target.style.borderColor = "var(--primary-color)";
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                              }}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group" style={{ marginBottom: "0px" }}>
+                            <label htmlFor="transferAmount" style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                              المبلغ الذي قمت بتحويله فعلياً ({baseCurrency}) *إجباري*:
+                            </label>
+                            <input
+                              id="transferAmount"
+                              type="number"
+                              step="any"
+                              placeholder="أدخل المبلغ المحول بالضبط (مثال: 150)"
+                              value={transferAmount}
+                              onChange={(e) => setTransferAmount(e.target.value)}
+                              style={{
+                                width: "100%",
+                                padding: "12px 14px",
+                                fontSize: "0.9rem",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                background: "var(--input-bg)",
+                                color: "var(--text-main)",
+                                outline: "none",
+                                transition: "all 0.2s"
+                              }}
+                              onFocus={(e) => {
+                                e.target.style.borderColor = "var(--primary-color)";
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                              }}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group" style={{ marginBottom: "0px" }}>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                              ارفع صورة إيصال التحويل (لقطة شاشة) *إجباري*:
+                            </label>
+                            <div style={{ position: "relative", width: "100%" }}>
+                              <label htmlFor="receipt-upload" style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "10px",
+                                width: "100%",
+                                padding: "16px",
+                                borderRadius: "10px",
+                                border: "2px dashed rgba(255, 255, 255, 0.15)",
+                                background: "rgba(255, 255, 255, 0.02)",
+                                color: "var(--text-muted)",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                                fontWeight: "600",
+                                textAlign: "center",
+                                transition: "all 0.2s"
+                              }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.borderColor = "var(--primary-color)";
+                                  e.currentTarget.style.background = "rgba(59, 130, 246, 0.05)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
+                                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+                                }}
+                              >
+                                <span>📁 {receiptImage ? "✓ تغيير صورة الإيصال" : "اختر صورة إيصال التحويل أو اسحبها هنا"}</span>
+                              </label>
+                              <input
+                                id="receipt-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleReceiptChange}
+                                style={{
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  width: "100%",
+                                  height: "100%",
+                                  opacity: 0,
+                                  cursor: "pointer"
+                                }}
+                                required
+                              />
+                            </div>
+                            {receiptImage && (
+                              <div style={{ marginTop: "10px", textAlign: "right" }}>
+                                <img src={receiptImage} alt="Receipt Preview" style={{ maxWidth: "120px", maxHeight: "120px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)" }} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
+                </div>
+              </div>
+
+<<<<<<< HEAD
+    {/* Side section: Col 2 */ }
+  <div className="checkout-side-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+    {/* Summary Box */}
+    <div className="glass-panel" style={{
+      background: "rgba(255, 255, 255, 0.01)",
+      padding: "20px",
+      borderRadius: "16px",
+      border: "1px solid rgba(255,255,255,0.06)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "14px"
+    }}>
+      <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "10px" }}>
+        📋 ملخص الطلب
+      </h3>
+
+      <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
+        <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
+        <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
+=======
+        {/* Sidebar Summary */}
+        <div>
+          <div className="glass-panel summary-box">
+            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>تفاصيل الطلب</h3>
+
+            <div className="summary-row">
+              <span className="summary-label">الخدمة</span>
+              <span className="summary-value">{service.name}</span>
+>>>>>>> 40aacd7
             </div>
 
             {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
@@ -1267,47 +1550,50 @@ export default function ServiceDetail({ params }) {
             </div>
           </div>
 
-          {errorMessage && (
-            <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.08)", borderRight: "4px solid #ef4444", color: "#f87171", borderRadius: "10px", fontSize: "0.85rem", fontWeight: "bold" }}>
-              ⚠️ {errorMessage}
-            </div>
-          )}
+<<<<<<< HEAD
+  {
+    errorMessage && (
+      <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.08)", borderRight: "4px solid #ef4444", color: "#f87171", borderRadius: "10px", fontSize: "0.85rem", fontWeight: "bold" }}>
+        ⚠️ {errorMessage}
+      </div>
+    )
+  }
 
-          {/* Submit button */}
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{ 
-              width: "100%", 
-              padding: "16px", 
-              fontSize: "1.05rem", 
-              fontWeight: "bold",
-              borderRadius: "12px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px",
-              cursor: submitting ? "not-allowed" : "pointer",
-              background: submitting ? "var(--text-muted)" : "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-              color: "#ffffff",
-              border: "none",
-              boxShadow: submitting ? "none" : "0 8px 25px rgba(37,99,235,0.3)",
-              transition: "all 0.2s"
-            }}
-          >
-            {submitting ? (
-              <>
-                <span className="spinner-loader" style={{ borderTopColor: "#fff" }}></span>
-                <span>جاري إرسال طلبك...</span>
-              </>
-            ) : (
-              "تأكيد وإرسال طلب الخدمة"
-            )}
-          </button>
-        </div>
+  {/* Submit button */ }
+  <button
+    type="submit"
+    disabled={submitting}
+    style={{
+      width: "100%",
+      padding: "16px",
+      fontSize: "1.05rem",
+      fontWeight: "bold",
+      borderRadius: "12px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "10px",
+      cursor: submitting ? "not-allowed" : "pointer",
+      background: submitting ? "var(--text-muted)" : "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+      color: "#ffffff",
+      border: "none",
+      boxShadow: submitting ? "none" : "0 8px 25px rgba(37,99,235,0.3)",
+      transition: "all 0.2s"
+    }}
+  >
+    {submitting ? (
+      <>
+        <span className="spinner-loader" style={{ borderTopColor: "#fff" }}></span>
+        <span>جاري إرسال طلبك...</span>
+      </>
+    ) : (
+      "تأكيد وإرسال طلب الخدمة"
+    )}
+  </button>
+        </div >
 
-      </form>
-    </div>
+      </form >
+    </div >
   );
 
   return (
@@ -1344,19 +1630,19 @@ export default function ServiceDetail({ params }) {
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
       `}</style>
-      
+
       {step === 1 ? (
         <div className="service-details-layout" style={{ gridTemplateColumns: "1fr" }}>
           <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            
+
             {isCustomerLoggedIn && customerUser && (
-              <div style={{ 
-                background: "rgba(59, 130, 246, 0.08)", 
-                border: "1px solid rgba(59, 130, 246, 0.2)", 
-                padding: "12px 18px", 
-                borderRadius: "14px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "rgba(59, 130, 246, 0.08)",
+                border: "1px solid rgba(59, 130, 246, 0.2)",
+                padding: "12px 18px",
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
                 gap: "10px",
                 fontSize: "0.95rem",
                 color: "#38bdf8",
@@ -1367,376 +1653,435 @@ export default function ServiceDetail({ params }) {
                 {typeof customerUser.balance === "number" && (
                   <span style={{ marginInlineStart: "auto", background: "rgba(34, 197, 94, 0.15)", color: "#4ade80", padding: "4px 10px", borderRadius: "8px", fontWeight: "bold", fontSize: "0.82rem" }}>
                     رصيد محفظتك: {customerUser.balance.toFixed(2)} {baseCurrency}
-                  </span>
-                )}
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: hasImage ? "20px" : "0px", alignItems: "center" }}>
-              {hasImage && (
-                <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {getServiceIcon(service.image, service.name)}
-                </div>
-              )}
-              <div>
-                <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
-              </div>
-            </div>
-
-            <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
-
-            {service.download_link && (
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px", flexWrap: "wrap" }}>
-                <span style={{ color: "var(--text-muted)", fontSize: "0.88rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة:</span>
-                <a 
-                  href={service.download_link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{ 
-                    display: "inline-flex", 
-                    alignItems: "center", 
-                    gap: "6px", 
-                    background: "rgba(56, 189, 248, 0.1)", 
-                    padding: "6px 14px", 
-                    borderRadius: "8px", 
-                    border: "1px solid rgba(56, 189, 248, 0.25)",
-                    color: "#38bdf8",
-                    fontWeight: "bold",
-                    textDecoration: "none",
-                    transition: "all 0.2s",
-                    fontSize: "0.85rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(56, 189, 248, 0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(56, 189, 248, 0.1)";
-                  }}
-                >
-                  {service.download_link_title || "تحميل الأداة"}
-                </a>
-              </div>
-            )}
-
-            <hr style={{ opacity: 0.1 }} />
-
-            <div>
-              {service.price_type === "both" ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                  
-                  <div 
-                    onClick={() => setCustomerPricingMode("packages")}
-                    style={{ 
-                      border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: "16px",
-                      padding: "20px 16px 16px 16px",
-                      background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                      <input 
-                        type="radio" 
-                        name="pricing_mode_selector" 
-                        checked={customerPricingMode === "packages"} 
-                        onChange={() => setCustomerPricingMode("packages")} 
-                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                      />
-                      <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
-                        📦 الخيار الأول: اختر باقة شحن جاهزة
-                      </strong>
-                    </div>
-                    
-                    <div style={{ 
-                      opacity: customerPricingMode === "packages" ? 1 : 0.6, 
-                      pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
-                      transition: "opacity 0.2s"
-                    }}>
-                      {packagesSection}
-                    </div>
-                  </div>
-
-                  <div 
-                    onClick={() => setCustomerPricingMode("dynamic")}
-                    style={{ 
-                      border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: "16px",
-                      padding: "20px 16px 16px 16px",
-                      background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                      <input 
-                        type="radio" 
-                        name="pricing_mode_selector" 
-                        checked={customerPricingMode === "dynamic"} 
-                        onChange={() => setCustomerPricingMode("dynamic")} 
-                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                      />
-                      <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
-                        ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
-                      </strong>
-                    </div>
-                    
-                    <div style={{ 
-                      opacity: customerPricingMode === "dynamic" ? 1 : 0.6, 
-                      transition: "opacity 0.2s"
-                    }}>
-                      {customQuantitySection}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                service.price_type === "dynamic" ? customQuantitySection : packagesSection
-              )}
-            </div>
-
-            <hr style={{ opacity: 0.1 }} />
-
-            {/* Continue to Checkout Button */}
-            <div style={{ marginTop: "24px", textAlign: "center" }}>
-              <button
-                type="button"
-                disabled={!isContinueEnabled}
-                onClick={() => {
-                  setStep(2);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="glass-btn glass-btn-primary"
-                style={{
-                  width: "100%",
-                  padding: "16px",
-                  fontSize: "1.15rem",
-                  fontWeight: "800",
-                  borderRadius: "14px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  cursor: isContinueEnabled ? "pointer" : "not-allowed",
-                  opacity: isContinueEnabled ? 1 : 0.5,
-                  boxShadow: isContinueEnabled ? "0 8px 25px rgba(59, 130, 246, 0.4)" : "none",
-                  transition: "all 0.3s ease"
-                }}
-              >
-                <span>المتابعة للدفع وإتمام الطلب {isContinueEnabled && (
-                  <span>({(() => {
-                    const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
-                    let usdPrice = 0;
-                    let egpPrice = 0;
-                    const usdRate = Number(exchangeRates?.["USD"] || 50);
-
-                    if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
-                      const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
-                      if (isUsd) {
-                        usdPrice = computedUsd;
-                        egpPrice = usdPrice * usdRate;
-                      } else {
-                        egpPrice = computedUsd;
-                      }
-                    } else if (selectedPackage) {
-                      if (isUsd) {
-                        usdPrice = selectedPackage.usd_price || selectedPackage.price;
-                        egpPrice = usdPrice * usdRate;
-                      } else {
-                        egpPrice = selectedPackage.price;
-                      }
-                    }
-
-                    if (baseCurrency === 'USD' || isUsd) {
-                      return `$ ${usdPrice.toFixed(2)}`;
-                    } else {
-                      return `${egpPrice.toFixed(2)} ج.م`;
-                    }
-                  })()})</span>
-                )}</span>
-                <span style={{ fontSize: "1.2rem" }}>←</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="service-details-layout" style={{ gridTemplateColumns: "1fr" }}>
-          {checkoutPage}
-        </div>
-      )}
-
+=======
       {/* Success Modal */}
-      {successData && (
-        <div className="overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, padding: "20px", backdropFilter: "blur(8px)" }}>
-          <div className="modal-content" style={{ 
-            textAlign: "center", 
-            padding: "30px clamp(12px, 5vw, 24px)", 
-            width: "95%", 
-            maxWidth: "650px", 
-            borderRadius: "30px", 
-            maxHeight: "90vh", 
-            overflowY: "auto",
-            background: "rgba(15, 23, 42, 0.95)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15)",
-            backdropFilter: "blur(16px)"
-          }}>
-            <div className="success-ring-pulse">
-              <span style={{ fontSize: "3rem", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>✓</span>
-            </div>
-            
-            <h2 style={{ fontWeight: 800, fontSize: "1.8rem", color: "#ffffff", marginBottom: "10px" }}>تم استلام طلبك بنجاح!</h2>
-            <p style={{ margin: "0 auto 30px auto", maxWidth: "480px", lineHeight: "1.6", color: "#94a3b8", fontSize: "0.95rem" }}>
-              شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>عرب تك</strong>. تم استلام وتسجيل طلب الخدمة الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
-            </p>
-            
-            <div style={{ 
-              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8))", 
-              border: "1px solid rgba(255,255,255,0.06)", 
-              padding: "24px", 
-              borderRadius: "20px", 
-              textAlign: "right",
-              marginBottom: "24px",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)"
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", marginBottom: "16px" }}>
-                <span style={{ fontSize: "1.2rem" }}>📄</span>
-                <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الخدمة</strong>
-              </div>
-              
-              <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
-                gap: "14px 20px" 
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                  <span style={{ color: "#94a3b8" }}>رقم الطلب:</span>
-                  <strong style={{ color: "#38bdf8" }}>#{successData.id}</strong>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                  <span style={{ color: "#94a3b8" }}>الخدمة:</span>
-                  <strong style={{ color: "#f1f5f9" }}>{successData.service_name}</strong>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                  <span style={{ color: "#94a3b8" }}>الباقة / الكمية:</span>
-                  <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
-                </div>
-                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
-                   <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
-                     {baseCurrency === 'USD'
-                       ? `$ ${Number(successData.package_price).toFixed(2)}`
-                       : (service.category_currency === 'USD' 
-                           ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
-                           : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
-                   </strong>
-                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
-                  <span style={{ color: "#94a3b8" }}>حساب الخدمة (Player ID):</span>
-                  <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>
-                </div>
-                {successData.sender_phone && (
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
-                    <span style={{ color: "#94a3b8" }}>الرقم المحول منه:</span>
-                    <strong style={{ color: "#e2e8f0", direction: "ltr" }}>{successData.sender_phone}</strong>
-                  </div>
-                )}
-                {successData.receipt_image && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", gridColumn: "1 / -1", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "12px", textAlign: "right" }}>
-                    <span style={{ color: "#94a3b8" }}>صورة إيصال التحويل المرفقة:</span>
-                    <div style={{ marginTop: "4px" }}>
-                      <img 
-                        src={`${API_BASE_URL}${successData.receipt_image}`} 
-                        alt="Receipt Screenshot" 
-                        style={{ maxWidth: "150px", maxHeight: "150px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
-                        onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_self')}
-                        title="انقر لفتح الصورة في نفس الصفحة"
-                      />
-                    </div>
-                  </div>
-                )}
-                {typeof successData.customer_balance === "number" && (
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                    <span style={{ color: "#94a3b8" }}>الرصيد المتبقي:</span>
-                     <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} {baseCurrency}</strong>
-                  </div>
-                )}
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                  <span style={{ color: "#94a3b8" }}>الحالة:</span>
-                  <span style={{ color: "#4ade80", background: "rgba(74, 222, 128, 0.1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "bold" }}>قيد الانتظار (سيتم التنفيذ فوراً)</span>
-                </div>
-              </div>
+                    {successData && (
+                      <div className="overlay">
+                        <div className="modal-content" style={{ textAlign: "center", padding: "30px 20px", width: "95%", maxWidth: "500px", borderRadius: "24px", maxHeight: "90vh", overflowY: "auto" }}>
+                          <span style={{ fontSize: "4rem", color: "var(--success-color)", display: "block", marginBottom: "15px" }}>✅</span>
+                          <h2 style={{ fontWeight: 800, color: "#ffffff" }}>تم استلام طلبك بنجاح!</h2>
+                          <p style={{ margin: "15px 0", lineHeight: "1.6", color: "#cbd5e1" }}>
+                            شكراً لتعاملك مع Spider Store. تم تسجيل طلب الشحن الخاص بك بنجاح وهو قيد التنفيذ الآن.
+                          </p>
 
-              {/* Payment Method Details inside Receipt */}
-              <div style={{ 
-                marginTop: "20px", 
-                padding: "12px 16px", 
-                borderRadius: "12px", 
-                background: "rgba(255,255,255,0.03)", 
-                border: "1px solid rgba(255,255,255,0.05)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px"
-              }}>
-                <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>طريقة الدفع ومستلم التحويل:</span>
-                {successData.payment_method === "wallet" ? (
-                  <strong style={{ color: "#60a5fa" }}>المحفظة الشخصية للموقع</strong>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", marginTop: "4px" }}>
-                    <span style={{ color: "#f1f5f9", fontWeight: "bold" }}>تحويل يدوي إلى الرقم:</span>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <strong style={{
-                        color: "#ffffff",
-                        background: "#1e293b",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        direction: "ltr",
-                        display: "inline-block",
-                        fontSize: "0.95rem",
-                        userSelect: "all",
-                        fontWeight: "bold",
-                        letterSpacing: "0.5px"
-                      }}>
-                        {successData.transfer_to}
-                      </strong>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(successData.transfer_to);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        style={{
-                          background: copied ? "#22c55e" : "#3b82f6",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: "8px",
-                          padding: "6px 12px",
-                          fontSize: "0.85rem",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          transition: "all 0.2s ease"
-                        }}
-                      >
-                        {copied ? "تم النسخ ✓" : "نسخ 📋"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+                          <div style={{ background: "linear-gradient(180deg, rgba(13, 18, 36, 0.98), rgba(13, 18, 36, 0.82))", border: "1px solid rgba(255,255,255,0.08)", padding: "15px", borderRadius: "12px", textAlign: "right", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem", marginBottom: "20px", color: "#f8fafc" }}>
+                            <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
+                            <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
+                            <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
+                            <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
+                            <div>
+                              <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
+                              {successData.payment_method === "wallet" ? (
+                                "المحفظة"
+                              ) : (
+                                <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                                  تحويل إلى:{" "}
+                                  <strong style={{
+                                    color: "#000000",
+                                    background: "#f1f5f9",
+                                    padding: "4px 10px",
+                                    borderRadius: "8px",
+                                    border: "1px solid #cbd5e1",
+                                    direction: "ltr",
+                                    display: "inline-block",
+                                    fontSize: "0.95rem",
+                                    userSelect: "all",
+                                    fontWeight: "bold"
+                                  }}>
+                                    {successData.transfer_to}
+                                  </strong>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(successData.transfer_to);
+                                      setCopied(true);
+                                      setTimeout(() => setCopied(false), 2000);
+                                    }}
+                                    style={{
+                                      background: copied ? "#10b981" : "#3b82f6",
+                                      color: "#ffffff",
+                                      border: "none",
+                                      borderRadius: "6px",
+                                      padding: "4px 10px",
+                                      fontSize: "0.8rem",
+                                      cursor: "pointer",
+                                      fontWeight: "bold",
+                                      transition: "all 0.2s"
+                                    }}
+                                  >
+                                    {copied ? "تم النسخ! ✓" : "نسخ 📋"}
+                                  </button>
+>>>>>>> 40aacd7
+                                </span>
+                              )}
+                            </div>
+            )}
 
-            </div>
+                            <div style={{ display: "flex", gap: hasImage ? "20px" : "0px", alignItems: "center" }}>
+                              {hasImage && (
+                                <div className="service-icon" style={{ width: "80px", height: "80px", borderRadius: "24px", fontSize: "2.4rem", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  {getServiceIcon(service.image, service.name)}
+                                </div>
+                              )}
+                              <div>
+                                <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
+                              </div>
+                            </div>
 
-            <button
-              className="glass-btn glass-btn-primary"
-              style={{ width: "100%", padding: "14px", fontSize: "1.05rem", borderRadius: "14px", fontWeight: "bold" }}
-              onClick={() => router.push("/")}
-            >
-              حسناً، العودة للرئيسية
-            </button>
-          </div>
-        </div>
+                            <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>{service.description}</p>
+
+                            {service.download_link && (
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px", flexWrap: "wrap" }}>
+                                <span style={{ color: "var(--text-muted)", fontSize: "0.88rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة:</span>
+                                <a
+                                  href={service.download_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    background: "rgba(56, 189, 248, 0.1)",
+                                    padding: "6px 14px",
+                                    borderRadius: "8px",
+                                    border: "1px solid rgba(56, 189, 248, 0.25)",
+                                    color: "#38bdf8",
+                                    fontWeight: "bold",
+                                    textDecoration: "none",
+                                    transition: "all 0.2s",
+                                    fontSize: "0.85rem"
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = "rgba(56, 189, 248, 0.2)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "rgba(56, 189, 248, 0.1)";
+                                  }}
+                                >
+                                  {service.download_link_title || "تحميل الأداة"}
+                                </a>
+                              </div>
+                            )}
+
+                            <hr style={{ opacity: 0.1 }} />
+
+                            <div>
+                              {service.price_type === "both" ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+                                  <div
+                                    onClick={() => setCustomerPricingMode("packages")}
+                                    style={{
+                                      border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                                      borderRadius: "16px",
+                                      padding: "20px 16px 16px 16px",
+                                      background: customerPricingMode === "packages" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                                      cursor: "pointer",
+                                      transition: "all 0.2s"
+                                    }}
+                                  >
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                                      <input
+                                        type="radio"
+                                        name="pricing_mode_selector"
+                                        checked={customerPricingMode === "packages"}
+                                        onChange={() => setCustomerPricingMode("packages")}
+                                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                                      />
+                                      <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
+                                        📦 الخيار الأول: اختر باقة شحن جاهزة
+                                      </strong>
+                                    </div>
+
+                                    <div style={{
+                                      opacity: customerPricingMode === "packages" ? 1 : 0.6,
+                                      pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
+                                      transition: "opacity 0.2s"
+                                    }}>
+                                      {packagesSection}
+                                    </div>
+                                  </div>
+
+                                  <div
+                                    onClick={() => setCustomerPricingMode("dynamic")}
+                                    style={{
+                                      border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
+                                      borderRadius: "16px",
+                                      padding: "20px 16px 16px 16px",
+                                      background: customerPricingMode === "dynamic" ? "rgba(59, 130, 246, 0.05)" : "rgba(255,255,255,0.01)",
+                                      cursor: "pointer",
+                                      transition: "all 0.2s"
+                                    }}
+                                  >
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                                      <input
+                                        type="radio"
+                                        name="pricing_mode_selector"
+                                        checked={customerPricingMode === "dynamic"}
+                                        onChange={() => setCustomerPricingMode("dynamic")}
+                                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                                      />
+                                      <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
+                                        ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
+                                      </strong>
+                                    </div>
+
+                                    <div style={{
+                                      opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
+                                      transition: "opacity 0.2s"
+                                    }}>
+                                      {customQuantitySection}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                service.price_type === "dynamic" ? customQuantitySection : packagesSection
+                              )}
+                            </div>
+
+                            <hr style={{ opacity: 0.1 }} />
+
+                            {/* Continue to Checkout Button */}
+                            <div style={{ marginTop: "24px", textAlign: "center" }}>
+                              <button
+                                type="button"
+                                disabled={!isContinueEnabled}
+                                onClick={() => {
+                                  setStep(2);
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="glass-btn glass-btn-primary"
+                                style={{
+                                  width: "100%",
+                                  padding: "16px",
+                                  fontSize: "1.15rem",
+                                  fontWeight: "800",
+                                  borderRadius: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: "10px",
+                                  cursor: isContinueEnabled ? "pointer" : "not-allowed",
+                                  opacity: isContinueEnabled ? 1 : 0.5,
+                                  boxShadow: isContinueEnabled ? "0 8px 25px rgba(59, 130, 246, 0.4)" : "none",
+                                  transition: "all 0.3s ease"
+                                }}
+                              >
+                                <span>المتابعة للدفع وإتمام الطلب {isContinueEnabled && (
+                                  <span>({(() => {
+                                    const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
+                                    let usdPrice = 0;
+                                    let egpPrice = 0;
+                                    const usdRate = Number(exchangeRates?.["USD"] || 50);
+
+                                    if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
+                                      const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
+                                      if (isUsd) {
+                                        usdPrice = computedUsd;
+                                        egpPrice = usdPrice * usdRate;
+                                      } else {
+                                        egpPrice = computedUsd;
+                                      }
+                                    } else if (selectedPackage) {
+                                      if (isUsd) {
+                                        usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                                        egpPrice = usdPrice * usdRate;
+                                      } else {
+                                        egpPrice = selectedPackage.price;
+                                      }
+                                    }
+
+                                    if (baseCurrency === 'USD' || isUsd) {
+                                      return `$ ${usdPrice.toFixed(2)}`;
+                                    } else {
+                                      return `${egpPrice.toFixed(2)} ج.م`;
+                                    }
+                                  })()})</span>
+                                )}</span>
+                                <span style={{ fontSize: "1.2rem" }}>←</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        ) : (
+                        <div className="service-details-layout" style={{ gridTemplateColumns: "1fr" }}>
+                          {checkoutPage}
+                        </div>
       )}
-    </>
-  );
+
+                        {/* Success Modal */}
+                        {successData && (
+                          <div className="overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, padding: "20px", backdropFilter: "blur(8px)" }}>
+                            <div className="modal-content" style={{
+                              textAlign: "center",
+                              padding: "30px clamp(12px, 5vw, 24px)",
+                              width: "95%",
+                              maxWidth: "650px",
+                              borderRadius: "30px",
+                              maxHeight: "90vh",
+                              overflowY: "auto",
+                              background: "rgba(15, 23, 42, 0.95)",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15)",
+                              backdropFilter: "blur(16px)"
+                            }}>
+                              <div className="success-ring-pulse">
+                                <span style={{ fontSize: "3rem", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>✓</span>
+                              </div>
+
+                              <h2 style={{ fontWeight: 800, fontSize: "1.8rem", color: "#ffffff", marginBottom: "10px" }}>تم استلام طلبك بنجاح!</h2>
+                              <p style={{ margin: "0 auto 30px auto", maxWidth: "480px", lineHeight: "1.6", color: "#94a3b8", fontSize: "0.95rem" }}>
+                                شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>عرب تك</strong>. تم استلام وتسجيل طلب الخدمة الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
+                              </p>
+
+                              <div style={{
+                                background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8))",
+                                border: "1px solid rgba(255,255,255,0.06)",
+                                padding: "24px",
+                                borderRadius: "20px",
+                                textAlign: "right",
+                                marginBottom: "24px",
+                                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)"
+                              }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", marginBottom: "16px" }}>
+                                  <span style={{ fontSize: "1.2rem" }}>📄</span>
+                                  <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الخدمة</strong>
+                                </div>
+
+                                <div style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                                  gap: "14px 20px"
+                                }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                    <span style={{ color: "#94a3b8" }}>رقم الطلب:</span>
+                                    <strong style={{ color: "#38bdf8" }}>#{successData.id}</strong>
+                                  </div>
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                    <span style={{ color: "#94a3b8" }}>الخدمة:</span>
+                                    <strong style={{ color: "#f1f5f9" }}>{successData.service_name}</strong>
+                                  </div>
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                    <span style={{ color: "#94a3b8" }}>الباقة / الكمية:</span>
+                                    <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
+                                  </div>
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                    <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
+                                    <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
+                                      {baseCurrency === 'USD'
+                                        ? `$ ${Number(successData.package_price).toFixed(2)}`
+                                        : (service.category_currency === 'USD'
+                                          ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}`
+                                          : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
+                                    </strong>
+                                  </div>
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
+                                    <span style={{ color: "#94a3b8" }}>حساب الخدمة (Player ID):</span>
+                                    <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>
+                                  </div>
+                                  {successData.sender_phone && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
+                                      <span style={{ color: "#94a3b8" }}>الرقم المحول منه:</span>
+                                      <strong style={{ color: "#e2e8f0", direction: "ltr" }}>{successData.sender_phone}</strong>
+                                    </div>
+                                  )}
+                                  {successData.receipt_image && (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", gridColumn: "1 / -1", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "12px", textAlign: "right" }}>
+                                      <span style={{ color: "#94a3b8" }}>صورة إيصال التحويل المرفقة:</span>
+                                      <div style={{ marginTop: "4px" }}>
+                                        <img
+                                          src={`${API_BASE_URL}${successData.receipt_image}`}
+                                          alt="Receipt Screenshot"
+                                          style={{ maxWidth: "150px", maxHeight: "150px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
+                                          onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_self')}
+                                          title="انقر لفتح الصورة في نفس الصفحة"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                  {typeof successData.customer_balance === "number" && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                      <span style={{ color: "#94a3b8" }}>الرصيد المتبقي:</span>
+                                      <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} {baseCurrency}</strong>
+                                    </div>
+                                  )}
+                                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                                    <span style={{ color: "#94a3b8" }}>الحالة:</span>
+                                    <span style={{ color: "#4ade80", background: "rgba(74, 222, 128, 0.1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "bold" }}>قيد الانتظار (سيتم التنفيذ فوراً)</span>
+                                  </div>
+                                </div>
+
+                                {/* Payment Method Details inside Receipt */}
+                                <div style={{
+                                  marginTop: "20px",
+                                  padding: "12px 16px",
+                                  borderRadius: "12px",
+                                  background: "rgba(255,255,255,0.03)",
+                                  border: "1px solid rgba(255,255,255,0.05)",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "6px"
+                                }}>
+                                  <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>طريقة الدفع ومستلم التحويل:</span>
+                                  {successData.payment_method === "wallet" ? (
+                                    <strong style={{ color: "#60a5fa" }}>المحفظة الشخصية للموقع</strong>
+                                  ) : (
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", marginTop: "4px" }}>
+                                      <span style={{ color: "#f1f5f9", fontWeight: "bold" }}>تحويل يدوي إلى الرقم:</span>
+                                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                        <strong style={{
+                                          color: "#ffffff",
+                                          background: "#1e293b",
+                                          padding: "6px 12px",
+                                          borderRadius: "8px",
+                                          border: "1px solid rgba(255,255,255,0.1)",
+                                          direction: "ltr",
+                                          display: "inline-block",
+                                          fontSize: "0.95rem",
+                                          userSelect: "all",
+                                          fontWeight: "bold",
+                                          letterSpacing: "0.5px"
+                                        }}>
+                                          {successData.transfer_to}
+                                        </strong>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(successData.transfer_to);
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 2000);
+                                          }}
+                                          style={{
+                                            background: copied ? "#22c55e" : "#3b82f6",
+                                            color: "#ffffff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            padding: "6px 12px",
+                                            fontSize: "0.85rem",
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                            transition: "all 0.2s ease"
+                                          }}
+                                        >
+                                          {copied ? "تم النسخ ✓" : "نسخ 📋"}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                              </div>
+
+                              <button
+                                className="glass-btn glass-btn-primary"
+                                style={{ width: "100%", padding: "14px", fontSize: "1.05rem", borderRadius: "14px", fontWeight: "bold" }}
+                                onClick={() => router.push("/")}
+                              >
+                                حسناً، العودة للرئيسية
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
 }

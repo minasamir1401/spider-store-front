@@ -1,4 +1,4 @@
-const defaultApiUrl = 'https://spider-store-api.duckdns.org';
+const defaultApiUrl = 'https://api.arab-tech1.online';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultApiUrl;
 
 function buildRemotePattern(value) {

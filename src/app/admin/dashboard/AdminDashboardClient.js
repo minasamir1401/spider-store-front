@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   const [serviceUploadedFile, setServiceUploadedFile] = useState(null);
   const [newServicePriceType, setNewServicePriceType] = useState("fixed"); // fixed or dynamic
   const [newServicePricePerThousand, setNewServicePricePerThousand] = useState(0);
-  
+
   // Package list builder
   const [newServicePackages, setNewServicePackages] = useState([
     { name: "", price: 0 }
@@ -243,10 +243,10 @@ export default function AdminDashboard() {
     const filtered = unlockerServices.filter(s => {
       const name = s.name || "";
       const category = s.category || "";
-      const matchSearch = !query || 
-                          name.toLowerCase().includes(query) || 
-                          category.toLowerCase().includes(query) ||
-                          String(s.id).includes(query);
+      const matchSearch = !query ||
+        name.toLowerCase().includes(query) ||
+        category.toLowerCase().includes(query) ||
+        String(s.id).includes(query);
       const matchCat = unlockerCategoryFilter === "ALL" || s.category === unlockerCategoryFilter;
       return matchSearch && matchCat;
     });
@@ -453,7 +453,7 @@ export default function AdminDashboard() {
     loadCustomerTransactions();
   }, [token, selectedCustomerId]);
 
-  
+
   const saveUnlockerSettings = async (e) => {
     e.preventDefault();
     setUnlockerSettingsMsg("");
@@ -508,10 +508,10 @@ export default function AdminDashboard() {
       alert("يرجى تحديد خدمة واحدة على الأقل للاستيراد.");
       return;
     }
-    
+
     setUnlockerLoading(true);
     setUnlockerSyncMsg("");
-    
+
     try {
       let allServicesToImport = unlockerServices
         .filter(s => selectedUnlockerServices.includes(s.id))
@@ -551,13 +551,13 @@ export default function AdminDashboard() {
             group_as_packages: unlockerGroupAsPackages
           })
         });
-        
+
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || `فشل استيراد الدفعة ${chunkNum}.`);
 
         importedCount += chunk.length;
       }
-      
+
       setUnlockerSyncMsg(`✅ تم استيراد عدد ${totalServices} خدمة بنجاح على دفعات متتالية دون أي مشاكل!`);
       setSelectedUnlockerServices([]);
       void fetchData();
@@ -577,10 +577,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل إرسال الطلب لـ API.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -596,10 +596,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل تحديث حالة الطلب.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -607,7 +607,7 @@ export default function AdminDashboard() {
     }
   };
 
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
     router.push("/admin/login");
@@ -642,8 +642,8 @@ const handleLogout = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          status: newStatus || undefined, 
+        body: JSON.stringify({
+          status: newStatus || undefined,
           code: newCode,
           download_link: newDownloadLink,
           download_link_title: newDownloadLinkTitle
@@ -654,9 +654,9 @@ const handleLogout = () => {
       if (!response.ok) throw new Error(data.message);
 
       // Update locally
-      setOrders(prev => prev.map(o => o.id === orderId ? { 
-        ...o, 
-        status: newStatus || o.status, 
+      setOrders(prev => prev.map(o => o.id === orderId ? {
+        ...o,
+        status: newStatus || o.status,
         code: newCode,
         download_link: newDownloadLink,
         download_link_title: newDownloadLinkTitle
@@ -682,7 +682,7 @@ const handleLogout = () => {
   const handleSubmitCodeModal = async (e) => {
     e.preventDefault();
     if (!codeModalOrder) return;
-    
+
     await updateOrderCodeAndStatus(codeModalOrder.id, codeModalStatusToUpdate, codeValue, orderDownloadLinkValue, orderDownloadLinkTitleValue);
     setShowCodeModal(false);
     setCodeModalOrder(null);
@@ -783,7 +783,7 @@ const handleLogout = () => {
 
       // Remove customer from state
       setCustomers(prev => prev.filter(c => c.id !== customerId));
-      
+
       // Clear selected customer details if they were deleted
       if (selectedCustomerId === customerId) {
         setSelectedCustomerId(null);
@@ -992,7 +992,7 @@ const handleLogout = () => {
       }
 
       setServices(prev => [...prev, data]);
-      
+
       // Reset form
       setNewServiceName("");
       setNewServiceDesc("");
@@ -1045,7 +1045,7 @@ const handleLogout = () => {
       setEditCatUploadedFile(null);
       setEditCatImage(cat.image || "games");
     }
-    
+
     // Parse and set edit fields
     let parsedFields = [];
     try {
@@ -1058,7 +1058,7 @@ const handleLogout = () => {
     setEditCatFields(parsedFields && parsedFields.length > 0 ? parsedFields : defaultFields);
     setEditCatFieldsTitle(cat.fields_title || "بيانات الحساب المراد شحنه");
     setEditCatParentId(cat.parent_id || "");
-    
+
     setShowEditCatModal(true);
   };
 
@@ -1096,7 +1096,7 @@ const handleLogout = () => {
       }
 
       setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image, fields: data.fields, fields_title: data.fields_title, parent_id: data.parent_id } : c));
-      
+
       if (applyToServices) {
         setServices(prev => prev.map(s => Number(s.category_id) === Number(editCatId) ? {
           ...s,
@@ -1119,7 +1119,7 @@ const handleLogout = () => {
     setEditServiceName(service.name);
     setEditServiceDesc(service.description || "");
     setEditServiceCatId(service.category_id.toString());
-    
+
     const isCustom = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
     if (isCustom) {
       setEditServiceUploadedFile(service.image);
@@ -1131,20 +1131,20 @@ const handleLogout = () => {
 
     let parsedPackages = [];
     try {
-      parsedPackages = typeof service.packages === 'string' 
-        ? JSON.parse(service.packages) 
+      parsedPackages = typeof service.packages === 'string'
+        ? JSON.parse(service.packages)
         : service.packages;
-    } catch(e) {
+    } catch (e) {
       parsedPackages = service.packages || [];
     }
     setEditServicePackages(parsedPackages.length > 0 ? parsedPackages : [{ name: "", price: 0 }]);
 
     let parsedFields = [];
     try {
-      parsedFields = typeof service.fields === 'string' 
-        ? JSON.parse(service.fields) 
+      parsedFields = typeof service.fields === 'string'
+        ? JSON.parse(service.fields)
         : service.fields;
-    } catch(e) {
+    } catch (e) {
       parsedFields = service.fields || [];
     }
     setEditServiceFields(parsedFields.length > 0 ? parsedFields : defaultFields);
@@ -1301,8 +1301,8 @@ const handleLogout = () => {
         throw new Error(data.message || "فشل تعديل الخدمة.");
       }
 
-      setServices(prev => prev.map(s => s.id === editServiceId ? { 
-        ...s, 
+      setServices(prev => prev.map(s => s.id === editServiceId ? {
+        ...s,
         category_id: parseInt(editServiceCatId),
         name: editServiceName,
         description: editServiceDesc,
@@ -1316,7 +1316,7 @@ const handleLogout = () => {
         download_link: data.download_link,
         download_link_title: data.download_link_title
       } : s));
-      
+
       setShowEditServiceModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -1379,7 +1379,7 @@ const handleLogout = () => {
     setEditBannerDesc(banner.desc || "");
     setEditBannerBadge(banner.badge || "");
     setEditBannerColor(banner.color || "#8b5cf6");
-    
+
     const isCustom = banner.icon && (banner.icon.startsWith("data:image") || banner.icon.startsWith("http") || banner.icon.startsWith("/uploads"));
     if (isCustom) {
       setEditBannerUploadedFile(banner.icon);
@@ -1463,7 +1463,7 @@ const handleLogout = () => {
         setWaStatus(d.status || "disconnected");
         setWaQR(d.qr || null);
       }
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -1484,7 +1484,7 @@ const handleLogout = () => {
       clearTimeout(bootstrapTimer);
       clearInterval(interval);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1665,7 +1665,7 @@ const handleLogout = () => {
       }
 
       setCredentialsSuccessMsg("تم تحديث بيانات المسؤول بنجاح!");
-      
+
       // Update local storage username if it changed
       if (adminUser) {
         const updatedUser = { ...adminUser, username: newAdminUsername };
@@ -1682,7 +1682,7 @@ const handleLogout = () => {
   const filteredOrders = Array.isArray(orders) ? orders.filter(o => {
     const query = (orderSearch || "").trim().toLowerCase();
     if (!query) return orderFilter === "all" ? true : o.status === orderFilter;
-    const matchesSearch = 
+    const matchesSearch =
       o.id.toString().includes(query) ||
       (o.service_name || "").toLowerCase().includes(query) ||
       (o.player_id || "").toLowerCase().includes(query) ||
@@ -1690,7 +1690,7 @@ const handleLogout = () => {
       (o.payment_method || "").toLowerCase().includes(query) ||
       (o.sender_phone || "").includes(query) ||
       (o.transfer_to || "").includes(query);
-    
+
     const matchesStatus = orderFilter === "all" ? true : o.status === orderFilter;
     return matchesSearch && matchesStatus;
   }) : [];
@@ -1704,9 +1704,9 @@ const handleLogout = () => {
     const parentCat = Array.isArray(categories) ? categories.find(c => c.id === s.category_id) : null;
     const catName = parentCat ? parentCat.name : "";
     const query = (serviceSearch || "").trim().toLowerCase();
-    return (s.name || "").toLowerCase().includes(query) || 
-           catName.toLowerCase().includes(query) ||
-           String(s.id).includes(query);
+    return (s.name || "").toLowerCase().includes(query) ||
+      catName.toLowerCase().includes(query) ||
+      String(s.id).includes(query);
   }) : [];
 
   const filteredWalletRequests = Array.isArray(walletRequests) ? walletRequests.filter((request) => {
@@ -2881,7 +2881,7 @@ const handleLogout = () => {
             <span className="nav-icon">📥</span>
             <span>طلبات الخدمات</span>
           </div>
-          
+
           <div
             className={`nav-item-premium ${activeTab === "categories" ? "active" : ""}`}
             onClick={() => setActiveTab("categories")}
@@ -2906,67 +2906,67 @@ const handleLogout = () => {
             <span>إدارة البانر الإعلاني</span>
           </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "wallets" ? "active" : ""}`}
-              onClick={() => setActiveTab("wallets")}
-            >
-              <span className="nav-icon">💳</span>
-              <span>طلبات شحن الرصيد</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "wallets" ? "active" : ""}`}
+            onClick={() => setActiveTab("wallets")}
+          >
+            <span className="nav-icon">💳</span>
+            <span>طلبات شحن الرصيد</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "customers" ? "active" : ""}`}
-              onClick={() => setActiveTab("customers")}
-            >
-              <span className="nav-icon">👥</span>
-              <span>إدارة المستخدمين</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "customers" ? "active" : ""}`}
+            onClick={() => setActiveTab("customers")}
+          >
+            <span className="nav-icon">👥</span>
+            <span>إدارة المستخدمين</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "settings" ? "active" : ""}`}
-              onClick={() => setActiveTab("settings")}
-            >
-              <span className="nav-icon">⚙️</span>
-              <span>إعدادات الموقع</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "settings" ? "active" : ""}`}
+            onClick={() => setActiveTab("settings")}
+          >
+            <span className="nav-icon">⚙️</span>
+            <span>إعدادات الموقع</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "whatsapp" ? "active" : ""}`}
-              onClick={() => setActiveTab("whatsapp")}
-              style={{ background: activeTab === "whatsapp" ? "rgba(37,211,102,0.1)" : "", borderColor: activeTab === "whatsapp" ? "rgba(37,211,102,0.3)" : "" }}
-            >
-              <span className="nav-icon">💬</span>
-              <span>إعدادات واتساب</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "whatsapp" ? "active" : ""}`}
+            onClick={() => setActiveTab("whatsapp")}
+            style={{ background: activeTab === "whatsapp" ? "rgba(37,211,102,0.1)" : "", borderColor: activeTab === "whatsapp" ? "rgba(37,211,102,0.3)" : "" }}
+          >
+            <span className="nav-icon">💬</span>
+            <span>إعدادات واتساب</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "excel_prices" ? "active" : ""}`}
-              onClick={() => setActiveTab("excel_prices")}
-              style={{ background: activeTab === "excel_prices" ? "rgba(168,85,247,0.1)" : "", borderColor: activeTab === "excel_prices" ? "rgba(168,85,247,0.3)" : "" }}
-            >
-              <span className="nav-icon">📊</span>
-              <span>أسعار أقسام السيرفر</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "excel_prices" ? "active" : ""}`}
+            onClick={() => setActiveTab("excel_prices")}
+            style={{ background: activeTab === "excel_prices" ? "rgba(168,85,247,0.1)" : "", borderColor: activeTab === "excel_prices" ? "rgba(168,85,247,0.3)" : "" }}
+          >
+            <span className="nav-icon">📊</span>
+            <span>أسعار أقسام السيرفر</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "amrr_unlocker" ? "active" : ""}`}
-              onClick={() => setActiveTab("amrr_unlocker")}
-              style={{ background: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.1)" : "", borderColor: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.3)" : "" }}
-            >
-              <span className="nav-icon">🔓</span>
-              <span>بوابة Amrr Unlocker</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "amrr_unlocker" ? "active" : ""}`}
+            onClick={() => setActiveTab("amrr_unlocker")}
+            style={{ background: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.1)" : "", borderColor: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.3)" : "" }}
+          >
+            <span className="nav-icon">🔓</span>
+            <span>بوابة Amrr Unlocker</span>
+          </div>
 
-            <hr style={{ opacity: 0.05, margin: "15px 0" }} />
+          <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
             <span className="nav-icon">🏠</span>
             <span>الموقع الرئيسي</span>
           </Link>
 
-          <div 
-            className="nav-item-premium" 
-            onClick={handleLogout} 
+          <div
+            className="nav-item-premium"
+            onClick={handleLogout}
             style={{ color: "#f87171", marginTop: "auto" }}
           >
             <span className="nav-icon">🚪</span>
@@ -2983,28 +2983,28 @@ const handleLogout = () => {
             <h1>
               {activeTab === "orders" && "طلبات الخدمات"}
               {activeTab === "categories" && "الأقسام والتبويبات"}
-                {activeTab === "services" && "الخدمات والمنتجات"}
-                {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
-                {activeTab === "wallets" && "طلبات شحن الرصيد"}
-                {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
-                {activeTab === "settings" && "إعدادات معلومات الموقع"}
-                {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
-                {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
+              {activeTab === "services" && "الخدمات والمنتجات"}
+              {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
+              {activeTab === "wallets" && "طلبات شحن الرصيد"}
+              {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
+              {activeTab === "settings" && "إعدادات معلومات الموقع"}
+              {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
+              {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
               {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
-              </h1>
-              <p>
-                {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
-                {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
-                {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
-                {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
-                {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
-                {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
-                {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
-                {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
-                {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
+            </h1>
+            <p>
+              {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
+              {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
+              {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
+              {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
+              {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
+              {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
+              {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
+              {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
+              {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
               {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
-              </p>
-            </div>
+            </p>
+          </div>
 
           <div className="header-actions">
             <button
@@ -3022,31 +3022,31 @@ const handleLogout = () => {
               <span className="logout-btn-text" onClick={handleLogout}>خروج</span>
             </div>
             {activeTab === "categories" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewCatImage("games");
                   setCatUploadedFile(null);
                   setShowCatModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة قسم جديد
               </button>
             )}
             {activeTab === "services" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewServiceImage("pubg");
                   setServiceUploadedFile(null);
                   setShowServiceModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة خدمة جديدة
               </button>
             )}
             {activeTab === "banners" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewBannerTitle("");
                   setNewBannerHighlight("");
@@ -3055,7 +3055,7 @@ const handleLogout = () => {
                   setNewBannerColor("#8b5cf6");
                   setNewBannerIcon("⚡");
                   setShowBannerModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة شريحة جديدة
@@ -3325,8 +3325,8 @@ const handleLogout = () => {
             )}
 
             {/* Wallet Requests Section */}
-              {activeTab === "wallets" && (
-                <>
+            {activeTab === "wallets" && (
+              <>
                 <div className="premium-stats-grid">
                   <div className="premium-stat-card" style={{ "--glow-color": "rgba(6, 182, 212, 0.15)" }}>
                     <div className="stat-card-info">
@@ -3466,139 +3466,199 @@ const handleLogout = () => {
                       )}
                     </tbody>
                   </table>
-                  </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
-              {/* Customers Section */}
-              {activeTab === "customers" && (
-                <>
-                  <div className="premium-stats-grid">
-                    <div className="premium-stat-card" style={{ "--glow-color": "rgba(59, 130, 246, 0.15)" }}>
-                      <div className="stat-card-info">
-                        <span className="stat-card-title">عدد العملاء</span>
-                        <span className="stat-card-value">{customers.length}</span>
-                      </div>
-                      <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(59, 130, 246, 0.1)", "--icon-border": "rgba(59, 130, 246, 0.2)", "--icon-color": "#60a5fa" }}>
-                        👥
-                      </div>
+            {/* Customers Section */}
+            {activeTab === "customers" && (
+              <>
+                <div className="premium-stats-grid">
+                  <div className="premium-stat-card" style={{ "--glow-color": "rgba(59, 130, 246, 0.15)" }}>
+                    <div className="stat-card-info">
+                      <span className="stat-card-title">عدد العملاء</span>
+                      <span className="stat-card-value">{customers.length}</span>
                     </div>
-
-                    <div className="premium-stat-card" style={{ "--glow-color": "rgba(16, 185, 129, 0.15)" }}>
-                      <div className="stat-card-info">
-                        <span className="stat-card-title">إجمالي أرصدة العملاء</span>
-                        <span className="stat-card-value" style={{ fontSize: "1.1rem", display: "block", direction: "rtl", whiteSpace: "normal", marginTop: "4px" }}>
-                          {(() => {
-                            const egpSum = customers.reduce((sum, c) => sum + Number(c.balance || 0), 0);
-                            let result = [`${egpSum.toFixed(2)} ${baseCurrency}`];
-                            const currencySums = {};
-                            customers.forEach(c => {
-                              let customerBalances = {};
-                              if (c.balances) {
-                                customerBalances = typeof c.balances === 'string' ? JSON.parse(c.balances) : c.balances;
-                              }
-                              if (customerBalances && typeof customerBalances === 'object') {
-                                Object.entries(customerBalances).forEach(([curr, val]) => {
-                                  currencySums[curr] = (currencySums[curr] || 0) + Number(val || 0);
-                                });
-                              }
-                            });
-                            Object.entries(currencySums).forEach(([curr, val]) => {
-                              result.push(`${val.toFixed(2)} ${curr}`);
-                            });
-                            return result.join(" | ");
-                          })()}
-                        </span>
-                      </div>
-                      <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(16, 185, 129, 0.1)", "--icon-border": "rgba(16, 185, 129, 0.2)", "--icon-color": "#34d399" }}>
-                        💰
-                      </div>
-                    </div>
-
-                    <div className="premium-stat-card" style={{ "--glow-color": "rgba(139, 92, 246, 0.15)" }}>
-                      <div className="stat-card-info">
-                        <span className="stat-card-title">المعاملات المسجلة</span>
-                        <span className="stat-card-value">{walletTransactions.length}</span>
-                      </div>
-                      <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(139, 92, 246, 0.1)", "--icon-border": "rgba(139, 92, 246, 0.2)", "--icon-color": "#c084fc" }}>
-                        🧾
-                      </div>
+                    <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(59, 130, 246, 0.1)", "--icon-border": "rgba(59, 130, 246, 0.2)", "--icon-color": "#60a5fa" }}>
+                      👥
                     </div>
                   </div>
 
-                  <div className="table-filter-bar">
-                    <div className="search-input-wrapper">
-                      <input
-                        type="text"
-                        className="search-input-premium"
-                        placeholder="ابحث بالاسم أو الهاتف أو الرصيد..."
-                        value={customerSearch}
-                        onChange={(e) => setCustomerSearch(e.target.value)}
-                      />
-                      <span className="search-input-icon">🔍</span>
+                  <div className="premium-stat-card" style={{ "--glow-color": "rgba(16, 185, 129, 0.15)" }}>
+                    <div className="stat-card-info">
+                      <span className="stat-card-title">إجمالي أرصدة العملاء</span>
+                      <span className="stat-card-value" style={{ fontSize: "1.1rem", display: "block", direction: "rtl", whiteSpace: "normal", marginTop: "4px" }}>
+                        {(() => {
+                          const egpSum = customers.reduce((sum, c) => sum + Number(c.balance || 0), 0);
+                          let result = [`${egpSum.toFixed(2)} ${baseCurrency}`];
+                          const currencySums = {};
+                          customers.forEach(c => {
+                            let customerBalances = {};
+                            if (c.balances) {
+                              customerBalances = typeof c.balances === 'string' ? JSON.parse(c.balances) : c.balances;
+                            }
+                            if (customerBalances && typeof customerBalances === 'object') {
+                              Object.entries(customerBalances).forEach(([curr, val]) => {
+                                currencySums[curr] = (currencySums[curr] || 0) + Number(val || 0);
+                              });
+                            }
+                          });
+                          Object.entries(currencySums).forEach(([curr, val]) => {
+                            result.push(`${val.toFixed(2)} ${curr}`);
+                          });
+                          return result.join(" | ");
+                        })()}
+                      </span>
+                    </div>
+                    <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(16, 185, 129, 0.1)", "--icon-border": "rgba(16, 185, 129, 0.2)", "--icon-color": "#34d399" }}>
+                      💰
                     </div>
                   </div>
 
-                  <div className="premium-table-wrapper">
+                  <div className="premium-stat-card" style={{ "--glow-color": "rgba(139, 92, 246, 0.15)" }}>
+                    <div className="stat-card-info">
+                      <span className="stat-card-title">المعاملات المسجلة</span>
+                      <span className="stat-card-value">{walletTransactions.length}</span>
+                    </div>
+                    <div className="stat-card-icon-wrapper" style={{ "--icon-bg": "rgba(139, 92, 246, 0.1)", "--icon-border": "rgba(139, 92, 246, 0.2)", "--icon-color": "#c084fc" }}>
+                      🧾
+                    </div>
+                  </div>
+                </div>
+
+                <div className="table-filter-bar">
+                  <div className="search-input-wrapper">
+                    <input
+                      type="text"
+                      className="search-input-premium"
+                      placeholder="ابحث بالاسم أو الهاتف أو الرصيد..."
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                    />
+                    <span className="search-input-icon">🔍</span>
+                  </div>
+                </div>
+
+                <div className="premium-table-wrapper">
+                  <table className="premium-table">
+                    <thead>
+                      <tr>
+                        <th>رقم العميل</th>
+                        <th>اسم المستخدم</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الهاتف</th>
+                        <th>كلمة المرور</th>
+                        <th>الرصيد</th>
+                        <th>الحالة</th>
+                        <th style={{ textAlign: "center" }}>الاختيار</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCustomers.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                            لا يوجد عملاء يطابقون البحث.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredCustomers.map((customer) => (
+                          <tr key={customer.id}>
+                            <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
+                            <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>{customer.username}</td>
+                            <td data-label="البريد الإلكتروني" style={{ fontWeight: 700 }}>{customer.email || "-"}</td>
+                            <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
+                            <td data-label="كلمة المرور" style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
+                            <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} {baseCurrency}</td>
+                            <td data-label="الحالة">
+                              <span className={`premium-badge ${Number(customer.balance || 0) > 0 ? "premium-badge-approved" : "premium-badge-pending"}`}>
+                                {Number(customer.balance || 0) > 0 ? "يوجد رصيد" : "صفر"}
+                              </span>
+                            </td>
+                            <td data-label="الاختيار" style={{ textAlign: "center" }}>
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+                                <button
+                                  type="button"
+                                  className="action-btn btn-success-premium"
+                                  onClick={() => setSelectedCustomerId(customer.id)}
+                                >
+                                  عرض السجل
+                                </button>
+                                <button
+                                  type="button"
+                                  className="action-btn"
+                                  style={{ background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd", border: "1px solid rgba(59, 130, 246, 0.22)" }}
+                                  onClick={() => handleOpenEditCustomer(customer)}
+                                >
+                                  تعديل
+                                </button>
+                                <button
+                                  type="button"
+                                  className="action-btn btn-danger-premium"
+                                  onClick={() => handleDeleteCustomer(customer.id)}
+                                >
+                                  حذف
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px", flexWrap: "wrap" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>سجل معاملات العميل</h3>
+                      <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: "0.85rem" }}>
+                        {selectedCustomerId ? "يعرض التحويلات والخصومات الخاصة بالعميل المختار." : "اختر عميلًا لعرض سجله."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="premium-table-wrapper" style={{ marginBottom: 0 }}>
                     <table className="premium-table">
                       <thead>
                         <tr>
-                          <th>رقم العميل</th>
-                          <th>اسم المستخدم</th>
-                          <th>البريد الإلكتروني</th>
-                          <th>الهاتف</th>
-                          <th>كلمة المرور</th>
-                          <th>الرصيد</th>
-                          <th>الحالة</th>
-                          <th style={{ textAlign: "center" }}>الاختيار</th>
+                          <th>النوع</th>
+                          <th>المبلغ</th>
+                          <th>الرصيد قبل</th>
+                          <th>الرصيد بعد</th>
+                          <th>المرجع</th>
+                          <th>الوصف</th>
+                          <th>التاريخ</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredCustomers.length === 0 ? (
+                        {selectedCustomerTransactions.length === 0 ? (
                           <tr>
-                            <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-                              لا يوجد عملاء يطابقون البحث.
+                            <td colSpan="7" style={{ textAlign: "center", padding: "36px", color: "#64748b" }}>
+                              لا توجد معاملات لهذا العميل بعد.
                             </td>
                           </tr>
                         ) : (
-                          filteredCustomers.map((customer) => (
-                            <tr key={customer.id}>
-                              <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
-                              <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>{customer.username}</td>
-                              <td data-label="البريد الإلكتروني" style={{ fontWeight: 700 }}>{customer.email || "-"}</td>
-                              <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
-                              <td data-label="كلمة المرور" style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
-                              <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} {baseCurrency}</td>
-                              <td data-label="الحالة">
-                                <span className={`premium-badge ${Number(customer.balance || 0) > 0 ? "premium-badge-approved" : "premium-badge-pending"}`}>
-                                  {Number(customer.balance || 0) > 0 ? "يوجد رصيد" : "صفر"}
+                          selectedCustomerTransactions.map((tx) => (
+                            <tr key={tx.id}>
+                              <td data-label="النوع">
+                                <span className={`premium-badge ${tx.type === "credit" ? "premium-badge-approved" : "premium-badge-rejected"}`}>
+                                  {tx.type === "credit" ? "إضافة" : "خصم"}
                                 </span>
                               </td>
-                              <td data-label="الاختيار" style={{ textAlign: "center" }}>
-                                <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
-                                  <button
-                                    type="button"
-                                    className="action-btn btn-success-premium"
-                                    onClick={() => setSelectedCustomerId(customer.id)}
-                                  >
-                                    عرض السجل
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="action-btn"
-                                    style={{ background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd", border: "1px solid rgba(59, 130, 246, 0.22)" }}
-                                    onClick={() => handleOpenEditCustomer(customer)}
-                                  >
-                                    تعديل
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="action-btn btn-danger-premium"
-                                    onClick={() => handleDeleteCustomer(customer.id)}
-                                  >
-                                    حذف
-                                  </button>
-                                </div>
+                              <td data-label="المبلغ" style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
+                                {Number(tx.amount || 0).toFixed(2)} {baseCurrency}
+                              </td>
+                              <td data-label="الرصيد قبل">{Number(tx.balance_before || 0).toFixed(2)} {baseCurrency}</td>
+                              <td data-label="الرصيد بعد">{Number(tx.balance_after || 0).toFixed(2)} {baseCurrency}</td>
+                              <td data-label="المرجع" style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
+                                {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
+                                {tx.reference_type === "order_refund" && `استرداد #${tx.reference_id}`}
+                                {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
+                                {!tx.reference_type && "-"}
+                              </td>
+                              <td data-label="الوصف" style={{ color: "#e2e8f0" }}>{tx.description || "-"}</td>
+                              <td data-label="التاريخ" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                                {tx.created_at ? new Date(tx.created_at).toLocaleString("ar-EG") : "-"}
                               </td>
                             </tr>
                           ))
@@ -3606,73 +3666,13 @@ const handleLogout = () => {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </>
+            )}
 
-                  <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px", flexWrap: "wrap" }}>
-                      <div>
-                        <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>سجل معاملات العميل</h3>
-                        <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: "0.85rem" }}>
-                          {selectedCustomerId ? "يعرض التحويلات والخصومات الخاصة بالعميل المختار." : "اختر عميلًا لعرض سجله."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="premium-table-wrapper" style={{ marginBottom: 0 }}>
-                      <table className="premium-table">
-                        <thead>
-                          <tr>
-                            <th>النوع</th>
-                            <th>المبلغ</th>
-                            <th>الرصيد قبل</th>
-                            <th>الرصيد بعد</th>
-                            <th>المرجع</th>
-                            <th>الوصف</th>
-                            <th>التاريخ</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedCustomerTransactions.length === 0 ? (
-                            <tr>
-                              <td colSpan="7" style={{ textAlign: "center", padding: "36px", color: "#64748b" }}>
-                                لا توجد معاملات لهذا العميل بعد.
-                              </td>
-                            </tr>
-                          ) : (
-                            selectedCustomerTransactions.map((tx) => (
-                              <tr key={tx.id}>
-                                <td data-label="النوع">
-                                  <span className={`premium-badge ${tx.type === "credit" ? "premium-badge-approved" : "premium-badge-rejected"}`}>
-                                    {tx.type === "credit" ? "إضافة" : "خصم"}
-                                  </span>
-                                </td>
-                                <td data-label="المبلغ" style={{ fontWeight: 800, color: tx.type === "credit" ? "#34d399" : "#f87171" }}>
-                                  {Number(tx.amount || 0).toFixed(2)} {baseCurrency}
-                                </td>
-                                <td data-label="الرصيد قبل">{Number(tx.balance_before || 0).toFixed(2)} {baseCurrency}</td>
-                                <td data-label="الرصيد بعد">{Number(tx.balance_after || 0).toFixed(2)} {baseCurrency}</td>
-                                <td data-label="المرجع" style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
-                                  {tx.reference_type === "order" && `طلب #${tx.reference_id}`}
-                                  {tx.reference_type === "order_refund" && `استرداد #${tx.reference_id}`}
-                                  {tx.reference_type === "wallet_request" && `شحن #${tx.reference_id}`}
-                                  {!tx.reference_type && "-"}
-                                </td>
-                                <td data-label="الوصف" style={{ color: "#e2e8f0" }}>{tx.description || "-"}</td>
-                                <td data-label="التاريخ" style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-                                  {tx.created_at ? new Date(tx.created_at).toLocaleString("ar-EG") : "-"}
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Categories Section */}
-              {activeTab === "categories" && (
-                <>
+            {/* Categories Section */}
+            {activeTab === "categories" && (
+              <>
                 <div className="table-filter-bar" style={{ justifyContent: "flex-start" }}>
                   <div className="search-input-wrapper">
                     <input
@@ -3717,7 +3717,7 @@ const handleLogout = () => {
                           📁 قسم رئيسي
                         </span>
                       )}
-                      
+
                       <div style={{ marginTop: "15px", display: "flex", gap: "8px" }}>
                         <button
                           onClick={() => handleOpenEditCat(cat)}
@@ -3812,10 +3812,10 @@ const handleLogout = () => {
                           // Parse packages if stored as JSON string
                           let parsedPackages = [];
                           try {
-                            parsedPackages = typeof service.packages === 'string' 
-                              ? JSON.parse(service.packages) 
+                            parsedPackages = typeof service.packages === 'string'
+                              ? JSON.parse(service.packages)
                               : service.packages;
-                          } catch(e) {
+                          } catch (e) {
                             parsedPackages = service.packages || [];
                           }
 
@@ -4017,7 +4017,7 @@ const handleLogout = () => {
             {/* Settings Section */}
             {activeTab === "settings" && (
               <div style={{ maxWidth: "1000px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
-                
+
                 {/* General Settings Card */}
                 <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)" }}>
                   <h3 style={{ fontWeight: 800, fontSize: "1.25rem", marginBottom: "20px", color: "#38bdf8", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -4103,10 +4103,10 @@ const handleLogout = () => {
                       />
                       {(logoUploadedFile || (siteLogo && siteLogo !== "default")) && (
                         <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                          <img 
-                            src={logoUploadedFile || (siteLogo.startsWith("/uploads") ? `${API_BASE_URL}${siteLogo}` : siteLogo)} 
-                            alt="Logo Preview" 
-                            style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)" }} 
+                          <img
+                            src={logoUploadedFile || (siteLogo.startsWith("/uploads") ? `${API_BASE_URL}${siteLogo}` : siteLogo)}
+                            alt="Logo Preview"
+                            style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)" }}
                           />
                           <button
                             type="button"
@@ -4150,10 +4150,10 @@ const handleLogout = () => {
                       />
                       {(faviconUploadedFile || (siteFavicon && siteFavicon !== "default")) && (
                         <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                          <img 
-                            src={faviconUploadedFile || (siteFavicon.startsWith("/uploads") ? `${API_BASE_URL}${siteFavicon}` : siteFavicon)} 
-                            alt="Favicon Preview" 
-                            style={{ width: "32px", height: "32px", objectFit: "contain", borderRadius: "4px", border: "1px solid rgba(255, 255, 255, 0.1)" }} 
+                          <img
+                            src={faviconUploadedFile || (siteFavicon.startsWith("/uploads") ? `${API_BASE_URL}${siteFavicon}` : siteFavicon)}
+                            alt="Favicon Preview"
+                            style={{ width: "32px", height: "32px", objectFit: "contain", borderRadius: "4px", border: "1px solid rgba(255, 255, 255, 0.1)" }}
                           />
                           <button
                             type="button"
@@ -4299,7 +4299,7 @@ const handleLogout = () => {
                           </div>
                         ))}
                       </div>
-                      
+
                       <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", width: "100%" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
                           <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: "bold" }}>اختر العملة:</span>
@@ -4478,7 +4478,7 @@ const handleLogout = () => {
                         style={{ padding: "10px 14px !important", fontSize: "0.9rem !important" }}
                       />
                     </div>
-                    
+
                     <div className="form-group" style={{ position: "relative" }}>
                       <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#cbd5e1", fontSize: "0.85rem" }}>كلمة المرور الجديدة (أتركها فارغة إذا لم ترغب بتغييرها):</label>
                       <div style={{ position: "relative" }}>
@@ -4537,8 +4537,8 @@ const handleLogout = () => {
                   <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "15px", lineHeight: "1.5" }}>
                     يمكنك حذف كافة صور التحويلات واللقطات المرفوعة من العملاء لتوفير مساحة على السيرفر (الحد الأقصى المسموح به هو 1 جيجابايت).
                   </p>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={async () => {
                       if (!confirm("هل أنت متأكد من حذف كافة صور إيصالات التحويل من السيرفر نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
                       try {
@@ -4552,7 +4552,7 @@ const handleLogout = () => {
                         alert("حدث خطأ أثناء تفريغ صور الإيصالات.");
                       }
                     }}
-                    className="action-btn btn-danger-premium" 
+                    className="action-btn btn-danger-premium"
                     style={{ width: "100%", padding: "12px", justifyContent: "center", borderRadius: "10px", fontSize: "0.9rem", fontWeight: "bold" }}
                   >
                     حذف كافة إيصالات التحويل من السيرفر
@@ -4579,7 +4579,8 @@ const handleLogout = () => {
 
               {/* Status badge */}
               <div style={{ marginBottom: "20px" }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderRadius: "30px",
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderRadius: "30px",
                   background: waStatus === "ready" ? "rgba(37,211,102,0.15)" : waStatus === "qr" ? "rgba(250,204,21,0.15)" : waStatus === "loading" ? "rgba(96,165,250,0.15)" : "rgba(239,68,68,0.1)",
                   border: `1px solid ${waStatus === "ready" ? "rgba(37,211,102,0.3)" : waStatus === "qr" ? "rgba(250,204,21,0.3)" : waStatus === "loading" ? "rgba(96,165,250,0.3)" : "rgba(239,68,68,0.2)"}`,
                   color: waStatus === "ready" ? "#34d399" : waStatus === "qr" ? "#facc15" : waStatus === "loading" ? "#60a5fa" : "#f87171",
@@ -4759,569 +4760,569 @@ const handleLogout = () => {
           </div>
         )}
 
-            {/* Excel & Server Prices Tab */}
-            {activeTab === "excel_prices" && (
-              <div style={{ maxWidth: "1000px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
-                
-                {/* Exchange Rates & Markup Config */}
-                <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)" }}>
-                  <h3 style={{ fontWeight: 800, fontSize: "1.25rem", marginBottom: "20px", color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
-                    ⚙️ إعدادات أسعار الصرف ونسب الأرباح للقسمين
-                  </h3>
-                  
-                  {excelSettingsSuccessMsg && (
-                    <div style={{ background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.2)", color: "#4ade80", padding: "12px 18px", borderRadius: "12px", marginBottom: "20px", fontSize: "0.9rem" }}>
-                      {excelSettingsSuccessMsg}
-                    </div>
-                  )}
-                  {excelSettingsErrorMsg && (
-                    <div style={{ background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#f87171", padding: "12px 18px", borderRadius: "12px", marginBottom: "20px", fontSize: "0.9rem" }}>
-                      {excelSettingsErrorMsg}
-                    </div>
-                  )}
+        {/* Excel & Server Prices Tab */}
+        {activeTab === "excel_prices" && (
+          <div style={{ maxWidth: "1000px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
 
-                  <form onSubmit={handleUpdateExcelSettings} style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-                      {/* Apple Card */}
-                      <div style={{ background: "rgba(168, 85, 247, 0.03)", border: "1px solid rgba(168, 85, 247, 0.15)", borderRadius: "16px", padding: "20px" }}>
-                        <h4 style={{ color: "#a855f7", fontWeight: 800, marginBottom: "15px", display: "flex", alignItems: "center", gap: "6px" }}>
-                          🍎 قسم خدمات APPLE
-                        </h4>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>سعر صرف الدولار (ج.م):</label>
-                            <input
-                              type="number"
-                              step="any"
-                              value={excelAppleUsdRate}
-                              onChange={(e) => setExcelAppleUsdRate(parseFloat(e.target.value) || 0)}
-                              className="search-input-premium"
-                              style={{ padding: "10px 14px !important" }}
-                              required
-                            />
-                          </div>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>نسبة الربح المضافة (%):</label>
-                            <input
-                              type="number"
-                              step="any"
-                              value={excelAppleMarkup}
-                              onChange={(e) => setExcelAppleMarkup(parseFloat(e.target.value) || 0)}
-                              className="search-input-premium"
-                              style={{ padding: "10px 14px !important" }}
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
+            {/* Exchange Rates & Markup Config */}
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)" }}>
+              <h3 style={{ fontWeight: 800, fontSize: "1.25rem", marginBottom: "20px", color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
+                ⚙️ إعدادات أسعار الصرف ونسب الأرباح للقسمين
+              </h3>
 
-                      {/* FRP Card */}
-                      <div style={{ background: "rgba(16, 185, 129, 0.03)", border: "1px solid rgba(16, 185, 129, 0.15)", borderRadius: "16px", padding: "20px" }}>
-                        <h4 style={{ color: "#10b981", fontWeight: 800, marginBottom: "15px", display: "flex", alignItems: "center", gap: "6px" }}>
-                          🤖 قسم خدمات سيرفر FRP
-                        </h4>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>سعر صرف الدولار (ج.م):</label>
-                            <input
-                              type="number"
-                              step="any"
-                              value={excelFrpUsdRate}
-                              onChange={(e) => setExcelFrpUsdRate(parseFloat(e.target.value) || 0)}
-                              className="search-input-premium"
-                              style={{ padding: "10px 14px !important" }}
-                              required
-                            />
-                          </div>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>نسبة الربح المضافة (%):</label>
-                            <input
-                              type="number"
-                              step="any"
-                              value={excelFrpMarkup}
-                              onChange={(e) => setExcelFrpMarkup(parseFloat(e.target.value) || 0)}
-                              className="search-input-premium"
-                              style={{ padding: "10px 14px !important" }}
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="btn-add-premium"
-                      style={{ padding: "14px 28px", background: "linear-gradient(135deg, #a855f7, #7c3aed)", border: "none", color: "#ffffff", fontWeight: 800, borderRadius: "12px", cursor: "pointer", width: "100%" }}
-                    >
-                      💾 حفظ الإعدادات وإعادة حساب الأسعار في الموقع
-                    </button>
-                  </form>
+              {excelSettingsSuccessMsg && (
+                <div style={{ background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.2)", color: "#4ade80", padding: "12px 18px", borderRadius: "12px", marginBottom: "20px", fontSize: "0.9rem" }}>
+                  {excelSettingsSuccessMsg}
                 </div>
+              )}
+              {excelSettingsErrorMsg && (
+                <div style={{ background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#f87171", padding: "12px 18px", borderRadius: "12px", marginBottom: "20px", fontSize: "0.9rem" }}>
+                  {excelSettingsErrorMsg}
+                </div>
+              )}
 
-                {/* Import Excel Sheets Cards */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px" }}>
-                  
-                  {/* Upload Apple Sheet */}
-                  <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)", display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#a855f7", margin: 0 }}>
-                      📥 استيراد وتحديث خدمات APPLE
-                    </h3>
-                    <p style={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: "1.6", margin: 0 }}>
-                      قم برفع ملف الإكسل الخاص بمنتجات آبل لتحديث قائمة الخدمات والباقات فوراً. سيتم مسح الخدمات القديمة في القسم واستبدالها بالجديدة.
-                    </p>
-                    
-                    <div style={{ border: "2px dashed rgba(168, 85, 247, 0.3)", borderRadius: "14px", padding: "30px 20px", textAlign: "center", position: "relative", background: "rgba(168, 85, 247, 0.01)" }}>
-                      <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "10px" }}>🍏</span>
-                      <label style={{ cursor: "pointer", background: "rgba(168, 85, 247, 0.15)", border: "1px solid rgba(168, 85, 247, 0.3)", padding: "10px 20px", borderRadius: "10px", color: "#c084fc", fontWeight: "bold", fontSize: "0.88rem", display: "inline-block" }}>
-                        اختر ملف iphone.xlsx
+              <form onSubmit={handleUpdateExcelSettings} style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                  {/* Apple Card */}
+                  <div style={{ background: "rgba(168, 85, 247, 0.03)", border: "1px solid rgba(168, 85, 247, 0.15)", borderRadius: "16px", padding: "20px" }}>
+                    <h4 style={{ color: "#a855f7", fontWeight: 800, marginBottom: "15px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      🍎 قسم خدمات APPLE
+                    </h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>سعر صرف الدولار (ج.م):</label>
                         <input
-                          type="file"
-                          accept=".xlsx, .xls"
-                          onChange={(e) => handleUploadExcelFile(e, 'apple')}
-                          style={{ display: "none" }}
-                          disabled={excelUploadLoading}
+                          type="number"
+                          step="any"
+                          value={excelAppleUsdRate}
+                          onChange={(e) => setExcelAppleUsdRate(parseFloat(e.target.value) || 0)}
+                          className="search-input-premium"
+                          style={{ padding: "10px 14px !important" }}
+                          required
                         />
-                      </label>
-                    </div>
-                    {excelAppleUploadMsg && (
-                      <div style={{ fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "10px 14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                        {excelAppleUploadMsg}
                       </div>
-                    )}
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>نسبة الربح المضافة (%):</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={excelAppleMarkup}
+                          onChange={(e) => setExcelAppleMarkup(parseFloat(e.target.value) || 0)}
+                          className="search-input-premium"
+                          style={{ padding: "10px 14px !important" }}
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Upload FRP Sheet */}
-                  <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)", display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#10b981", margin: 0 }}>
-                      📥 استيراد وتحديث خدمات سيرفر FRP
-                    </h3>
-                    <p style={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: "1.6", margin: 0 }}>
-                      قم برفع ملف الإكسل الخاص بمنتجات الأندرويد/FRP لتحديث قائمة الخدمات والباقات فوراً. سيتم مسح الخدمات القديمة في القسم واستبدالها بالجديدة.
-                    </p>
-                    
-                    <div style={{ border: "2px dashed rgba(16, 185, 129, 0.3)", borderRadius: "14px", padding: "30px 20px", textAlign: "center", position: "relative", background: "rgba(16, 185, 129, 0.01)" }}>
-                      <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "10px" }}>🤖</span>
-                      <label style={{ cursor: "pointer", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", padding: "10px 20px", borderRadius: "10px", color: "#34d399", fontWeight: "bold", fontSize: "0.88rem", display: "inline-block" }}>
-                        اختر ملف android.xlsx
+                  {/* FRP Card */}
+                  <div style={{ background: "rgba(16, 185, 129, 0.03)", border: "1px solid rgba(16, 185, 129, 0.15)", borderRadius: "16px", padding: "20px" }}>
+                    <h4 style={{ color: "#10b981", fontWeight: 800, marginBottom: "15px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      🤖 قسم خدمات سيرفر FRP
+                    </h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>سعر صرف الدولار (ج.م):</label>
                         <input
-                          type="file"
-                          accept=".xlsx, .xls"
-                          onChange={(e) => handleUploadExcelFile(e, 'frp')}
-                          style={{ display: "none" }}
-                          disabled={excelUploadLoading}
+                          type="number"
+                          step="any"
+                          value={excelFrpUsdRate}
+                          onChange={(e) => setExcelFrpUsdRate(parseFloat(e.target.value) || 0)}
+                          className="search-input-premium"
+                          style={{ padding: "10px 14px !important" }}
+                          required
                         />
-                      </label>
-                    </div>
-                    {excelFrpUploadMsg && (
-                      <div style={{ fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "10px 14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                        {excelFrpUploadMsg}
                       </div>
-                    )}
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", color: "#cbd5e1" }}>نسبة الربح المضافة (%):</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={excelFrpMarkup}
+                          onChange={(e) => setExcelFrpMarkup(parseFloat(e.target.value) || 0)}
+                          className="search-input-premium"
+                          style={{ padding: "10px 14px !important" }}
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
-
                 </div>
 
+                <button
+                  type="submit"
+                  className="btn-add-premium"
+                  style={{ padding: "14px 28px", background: "linear-gradient(135deg, #a855f7, #7c3aed)", border: "none", color: "#ffffff", fontWeight: 800, borderRadius: "12px", cursor: "pointer", width: "100%" }}
+                >
+                  💾 حفظ الإعدادات وإعادة حساب الأسعار في الموقع
+                </button>
+              </form>
+            </div>
+
+            {/* Import Excel Sheets Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px" }}>
+
+              {/* Upload Apple Sheet */}
+              <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)", display: "flex", flexDirection: "column", gap: "20px" }}>
+                <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#a855f7", margin: 0 }}>
+                  📥 استيراد وتحديث خدمات APPLE
+                </h3>
+                <p style={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: "1.6", margin: 0 }}>
+                  قم برفع ملف الإكسل الخاص بمنتجات آبل لتحديث قائمة الخدمات والباقات فوراً. سيتم مسح الخدمات القديمة في القسم واستبدالها بالجديدة.
+                </p>
+
+                <div style={{ border: "2px dashed rgba(168, 85, 247, 0.3)", borderRadius: "14px", padding: "30px 20px", textAlign: "center", position: "relative", background: "rgba(168, 85, 247, 0.01)" }}>
+                  <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "10px" }}>🍏</span>
+                  <label style={{ cursor: "pointer", background: "rgba(168, 85, 247, 0.15)", border: "1px solid rgba(168, 85, 247, 0.3)", padding: "10px 20px", borderRadius: "10px", color: "#c084fc", fontWeight: "bold", fontSize: "0.88rem", display: "inline-block" }}>
+                    اختر ملف iphone.xlsx
+                    <input
+                      type="file"
+                      accept=".xlsx, .xls"
+                      onChange={(e) => handleUploadExcelFile(e, 'apple')}
+                      style={{ display: "none" }}
+                      disabled={excelUploadLoading}
+                    />
+                  </label>
+                </div>
+                {excelAppleUploadMsg && (
+                  <div style={{ fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "10px 14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    {excelAppleUploadMsg}
+                  </div>
+                )}
               </div>
-            )}
-      
-            {activeTab === "amrr_unlocker" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                
-                {/* 1. API Connection Status (Hardcoded & Secure) */}
-                <div className="premium-card-solid" style={{ padding: "20px" }}>
-                  <h3 style={{ margin: "0 0 12px", fontSize: "1.1rem", fontWeight: 800, color: "#38bdf8", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span>🔓</span> بوابة Amrr Unlocker متصلة بنجاح
-                  </h3>
-                  <p style={{ color: "#94a3b8", fontSize: "0.88rem", margin: 0, lineHeight: "1.6" }}>
-                    تم ربط وتهيئة اتصال لوحة التحكم ببوابة الخدمات الخارجية تلقائياً بشكل آمن وجاهز للتشغيل.
-                  </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", marginTop: "12px", fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.02)", padding: "12px 16px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)", alignItems: "center" }}>
-                    <div><strong>اسم المستخدم:</strong> <span style={{ color: "#38bdf8" }}>Hassen1990</span></div>
-                    {unlockerBalanceEmail && (
-                      <div><strong>بريد الحساب:</strong> <span style={{ color: "#e2e8f0" }}>{unlockerBalanceEmail}</span></div>
-                    )}
-                    <div><strong>حالة الاتصال:</strong> <span style={{ color: "#34d399", fontWeight: "bold" }}>● متصل بالخدمة</span></div>
-                    
-                    <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيدك لدى المزود:</span>
-                      <span style={{ fontSize: "1.15rem", fontWeight: "900", color: "#fbbf24", background: "rgba(251, 191, 36, 0.1)", padding: "4px 12px", borderRadius: "6px", border: "1px solid rgba(251, 191, 36, 0.2)", display: "inline-flex", direction: "ltr" }}>
-                        {unlockerBalanceLoading ? "جاري التحميل..." : (unlockerBalance || "غير متوفر")}
-                      </span>
-                      <button 
-                        onClick={fetchUnlockerBalance} 
-                        disabled={unlockerBalanceLoading}
-                        style={{ background: "rgba(56, 189, 248, 0.12)", border: "1px solid rgba(56, 189, 248, 0.3)", color: "#38bdf8", padding: "4px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "0.78rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.2s" }}
-                        title="تحديث الرصيد"
-                      >
-                        {unlockerBalanceLoading ? "انتظر..." : "🔄 تحديث"}
-                      </button>
-                    </div>
+
+              {/* Upload FRP Sheet */}
+              <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "20px", padding: "30px", backdropFilter: "blur(25px)", display: "flex", flexDirection: "column", gap: "20px" }}>
+                <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#10b981", margin: 0 }}>
+                  📥 استيراد وتحديث خدمات سيرفر FRP
+                </h3>
+                <p style={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: "1.6", margin: 0 }}>
+                  قم برفع ملف الإكسل الخاص بمنتجات الأندرويد/FRP لتحديث قائمة الخدمات والباقات فوراً. سيتم مسح الخدمات القديمة في القسم واستبدالها بالجديدة.
+                </p>
+
+                <div style={{ border: "2px dashed rgba(16, 185, 129, 0.3)", borderRadius: "14px", padding: "30px 20px", textAlign: "center", position: "relative", background: "rgba(16, 185, 129, 0.01)" }}>
+                  <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "10px" }}>🤖</span>
+                  <label style={{ cursor: "pointer", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", padding: "10px 20px", borderRadius: "10px", color: "#34d399", fontWeight: "bold", fontSize: "0.88rem", display: "inline-block" }}>
+                    اختر ملف android.xlsx
+                    <input
+                      type="file"
+                      accept=".xlsx, .xls"
+                      onChange={(e) => handleUploadExcelFile(e, 'frp')}
+                      style={{ display: "none" }}
+                      disabled={excelUploadLoading}
+                    />
+                  </label>
+                </div>
+                {excelFrpUploadMsg && (
+                  <div style={{ fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "10px 14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    {excelFrpUploadMsg}
                   </div>
+                )}
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {activeTab === "amrr_unlocker" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+            {/* 1. API Connection Status (Hardcoded & Secure) */}
+            <div className="premium-card-solid" style={{ padding: "20px" }}>
+              <h3 style={{ margin: "0 0 12px", fontSize: "1.1rem", fontWeight: 800, color: "#38bdf8", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>🔓</span> بوابة Amrr Unlocker متصلة بنجاح
+              </h3>
+              <p style={{ color: "#94a3b8", fontSize: "0.88rem", margin: 0, lineHeight: "1.6" }}>
+                تم ربط وتهيئة اتصال لوحة التحكم ببوابة الخدمات الخارجية تلقائياً بشكل آمن وجاهز للتشغيل.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", marginTop: "12px", fontSize: "0.85rem", color: "#cbd5e1", background: "rgba(255,255,255,0.02)", padding: "12px 16px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)", alignItems: "center" }}>
+                <div><strong>اسم المستخدم:</strong> <span style={{ color: "#38bdf8" }}>Hassen1990</span></div>
+                {unlockerBalanceEmail && (
+                  <div><strong>بريد الحساب:</strong> <span style={{ color: "#e2e8f0" }}>{unlockerBalanceEmail}</span></div>
+                )}
+                <div><strong>حالة الاتصال:</strong> <span style={{ color: "#34d399", fontWeight: "bold" }}>● متصل بالخدمة</span></div>
+
+                <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>رصيدك لدى المزود:</span>
+                  <span style={{ fontSize: "1.15rem", fontWeight: "900", color: "#fbbf24", background: "rgba(251, 191, 36, 0.1)", padding: "4px 12px", borderRadius: "6px", border: "1px solid rgba(251, 191, 36, 0.2)", display: "inline-flex", direction: "ltr" }}>
+                    {unlockerBalanceLoading ? "جاري التحميل..." : (unlockerBalance || "غير متوفر")}
+                  </span>
+                  <button
+                    onClick={fetchUnlockerBalance}
+                    disabled={unlockerBalanceLoading}
+                    style={{ background: "rgba(56, 189, 248, 0.12)", border: "1px solid rgba(56, 189, 248, 0.3)", color: "#38bdf8", padding: "4px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "0.78rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.2s" }}
+                    title="تحديث الرصيد"
+                  >
+                    {unlockerBalanceLoading ? "انتظر..." : "🔄 تحديث"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Services Sync Controls */}
+            <div className="premium-card-solid" style={{ padding: "20px" }}>
+              <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 800, color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>🔄</span> مزامنة واستيراد الخدمات
+              </h3>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "20px" }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>سعر صرف الدولار (EGP / USD):</label>
+                  <input
+                    type="number"
+                    value={unlockerExchangeRate}
+                    onChange={(e) => setUnlockerExchangeRate(e.target.value)}
+                    className="search-input-premium"
+                    style={{ padding: "10px 14px", width: "100%" }}
+                    min="1"
+                    step="0.1"
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>هامش الربح (%):</label>
+                  <input
+                    type="number"
+                    value={unlockerMarkupPercent}
+                    onChange={(e) => setUnlockerMarkupPercent(e.target.value)}
+                    className="search-input-premium"
+                    style={{ padding: "10px 14px", width: "100%" }}
+                    min="0"
+                    step="0.5"
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>📥 استيراد إلى القسم المحلي:</label>
+                  <select
+                    value={unlockerImportTargetCat}
+                    onChange={(e) => setUnlockerImportTargetCat(e.target.value)}
+                    className="search-input-premium"
+                    style={{ padding: "10px 14px", width: "100%", height: "42px", background: "rgba(15,23,42,0.8)" }}
+                  >
+                    <option value="auto">📂 نفس اسم القسم في المزود (تلقائي)</option>
+                    <option value="new">🆕 إنشاء قسم جديد باسم مخصص...</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>📁 {c.name}</option>
+                    ))}
+                  </select>
                 </div>
 
-                {/* 2. Services Sync Controls */}
-                <div className="premium-card-solid" style={{ padding: "20px" }}>
-                  <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 800, color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span>🔄</span> مزامنة واستيراد الخدمات
-                  </h3>
+                {unlockerImportTargetCat === "new" && (
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ color: "#38bdf8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>✨ اسم القسم الجديد:</label>
+                    <input
+                      type="text"
+                      placeholder="أدخل اسم القسم الجديد"
+                      value={unlockerNewCatName}
+                      onChange={(e) => setUnlockerNewCatName(e.target.value)}
+                      className="search-input-premium"
+                      style={{ padding: "10px 14px", width: "100%" }}
+                    />
+                  </div>
+                )}
+              </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "20px" }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>سعر صرف الدولار (EGP / USD):</label>
-                      <input 
-                        type="number" 
-                        value={unlockerExchangeRate} 
-                        onChange={(e) => setUnlockerExchangeRate(e.target.value)} 
-                        className="search-input-premium" 
-                        style={{ padding: "10px 14px", width: "100%" }}
-                        min="1"
-                        step="0.1"
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "14px 0 20px 0", padding: "10px 14px", background: "rgba(139, 92, 246, 0.05)", borderRadius: "10px", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
+                <input
+                  type="checkbox"
+                  id="group_as_packages"
+                  checked={unlockerGroupAsPackages}
+                  onChange={(e) => setUnlockerGroupAsPackages(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
+                <label htmlFor="group_as_packages" style={{ fontSize: "0.85rem", color: "#e9d5ff", cursor: "pointer", fontWeight: "bold", userSelect: "none" }}>
+                  📦 دمج الخدمات المحددة في منتج واحد يحتوي على باقات (موصى به للألعاب كـ PUBG وشحن الرصيد)
+                </label>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginBottom: "20px" }}>
+                <button
+                  onClick={fetchUnlockerServices}
+                  className="action-btn btn-edit-premium"
+                  style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                  disabled={unlockerLoading}
+                >
+                  🔍 {unlockerLoading ? "جاري الاتصال..." : "جلب الخدمات"}
+                </button>
+                <button
+                  onClick={importSelectedUnlockerServices}
+                  className="action-btn btn-success-premium"
+                  style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
+                  disabled={unlockerLoading || selectedUnlockerServices.length === 0}
+                >
+                  📥 استيراد المحددة ({selectedUnlockerServices.length})
+                </button>
+              </div>
+
+              <div style={{ fontSize: "0.88rem", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", marginBottom: "16px", color: "#cbd5e1" }}>
+                {unlockerSyncMsg || "اضغط على زر (جلب الخدمات) لعرض الخدمات المتاحة وتحديد المطلوب استيرادها للموقع."}
+              </div>
+
+              {unlockerServices.length > 0 && (
+                <>
+                  {/* Search & Filter Bar for remote services */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "16px", background: "rgba(15, 23, 42, 0.4)", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔍 بحث بالاسم أو ID:</label>
+                      <input
+                        type="text"
+                        placeholder="ابحث عن خدمة أو قسم أو رقم ID..."
+                        value={unlockerSearch}
+                        onChange={(e) => { setUnlockerSearch(e.target.value); setUnlockerPage(1); }}
+                        className="search-input-premium"
+                        style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>هامش الربح (%):</label>
-                      <input 
-                        type="number" 
-                        value={unlockerMarkupPercent} 
-                        onChange={(e) => setUnlockerMarkupPercent(e.target.value)} 
-                        className="search-input-premium" 
-                        style={{ padding: "10px 14px", width: "100%" }}
-                        min="0"
-                        step="0.5"
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>📥 استيراد إلى القسم المحلي:</label>
-                      <select 
-                        value={unlockerImportTargetCat} 
-                        onChange={(e) => setUnlockerImportTargetCat(e.target.value)} 
-                        className="search-input-premium" 
-                        style={{ padding: "10px 14px", width: "100%", height: "42px", background: "rgba(15,23,42,0.8)" }}
+
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📂 تصفية حسب القسم:</label>
+                      <select
+                        value={unlockerCategoryFilter}
+                        onChange={(e) => { setUnlockerCategoryFilter(e.target.value); setUnlockerPage(1); }}
+                        className="search-input-premium"
+                        style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
                       >
-                        <option value="auto">📂 نفس اسم القسم في المزود (تلقائي)</option>
-                        <option value="new">🆕 إنشاء قسم جديد باسم مخصص...</option>
-                        {categories.map(c => (
-                          <option key={c.id} value={c.id}>📁 {c.name}</option>
-                        ))}
+                        <option value="ALL">🌐 جميع الأقسام ({unlockerServices.length})</option>
+                        {unlockerCategories.filter(c => c !== "ALL").map(cat => {
+                          const count = unlockerServices.filter(s => s.category === cat).length;
+                          return <option key={cat} value={cat}>{cat} ({count})</option>;
+                        })}
                       </select>
                     </div>
 
-                    {unlockerImportTargetCat === "new" && (
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ color: "#38bdf8", fontSize: "0.85rem", marginBottom: "6px", display: "block" }}>✨ اسم القسم الجديد:</label>
-                        <input 
-                          type="text" 
-                          placeholder="أدخل اسم القسم الجديد" 
-                          value={unlockerNewCatName} 
-                          onChange={(e) => setUnlockerNewCatName(e.target.value)} 
-                          className="search-input-premium" 
-                          style={{ padding: "10px 14px", width: "100%" }}
-                        />
-                      </div>
-                    )}
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📊 عدد النتائج بالصفحة:</label>
+                      <select
+                        value={unlockerPageSize}
+                        onChange={(e) => { setUnlockerPageSize(Number(e.target.value)); setUnlockerPage(1); }}
+                        className="search-input-premium"
+                        style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                      >
+                        <option value={25}>25 خدمة في الصفحة</option>
+                        <option value={50}>50 خدمة في الصفحة</option>
+                        <option value={100}>100 خدمة في الصفحة</option>
+                        <option value={250}>250 خدمة في الصفحة</option>
+                        <option value={500}>500 خدمة في الصفحة</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔀 ترتيب عرض الخدمات:</label>
+                      <select
+                        value={unlockerSortOrder}
+                        onChange={(e) => setUnlockerSortOrder(e.target.value)}
+                        className="search-input-premium"
+                        style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
+                      >
+                        <option value="original">📋 نفس ترتيب سيرفر المزود (الأصلي)</option>
+                        <option value="alphabetical">🔤 الترتيب الأبجدي بالحروف (أ-ي)</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "14px 0 20px 0", padding: "10px 14px", background: "rgba(139, 92, 246, 0.05)", borderRadius: "10px", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
-                    <input 
-                      type="checkbox" 
-                      id="group_as_packages" 
-                      checked={unlockerGroupAsPackages} 
-                      onChange={(e) => setUnlockerGroupAsPackages(e.target.checked)}
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                    />
-                    <label htmlFor="group_as_packages" style={{ fontSize: "0.85rem", color: "#e9d5ff", cursor: "pointer", fontWeight: "bold", userSelect: "none" }}>
-                      📦 دمج الخدمات المحددة في منتج واحد يحتوي على باقات (موصى به للألعاب كـ PUBG وشحن الرصيد)
-                    </label>
+                  {/* Selection Summary */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", background: "rgba(56, 189, 248, 0.08)", padding: "10px 16px", borderRadius: "8px", border: "1px solid rgba(56, 189, 248, 0.2)", fontSize: "0.88rem", flexWrap: "wrap", gap: "8px" }}>
+                    <div>
+                      <span style={{ color: "#38bdf8", fontWeight: "bold" }}>تم العثور على: </span>
+                      <span style={{ color: "#fff", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> من أصل <span style={{ color: "#94a3b8" }}>{unlockerServices.length}</span> خدمة
+                    </div>
+                    <div>
+                      <span style={{ color: "#38bdf8", fontWeight: "bold" }}>المحدد للاستيراد: </span>
+                      <span style={{ color: "#4ade80", fontWeight: "bold", fontSize: "0.95rem" }}>{selectedUnlockerServices.length}</span> خدمة
+                      {selectedUnlockerServices.length > 0 && (
+                        <button
+                          onClick={() => setSelectedUnlockerServices([])}
+                          style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.82rem", marginRight: "10px", textDecoration: "underline" }}
+                        >
+                          إلغاء التحديد
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginBottom: "20px" }}>
-                    <button 
-                      onClick={fetchUnlockerServices} 
-                      className="action-btn btn-edit-premium"
-                      style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
-                      disabled={unlockerLoading}
-                    >
-                      🔍 {unlockerLoading ? "جاري الاتصال..." : "جلب الخدمات"}
-                    </button>
-                    <button 
-                      onClick={importSelectedUnlockerServices} 
-                      className="action-btn btn-success-premium"
-                      style={{ padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold" }}
-                      disabled={unlockerLoading || selectedUnlockerServices.length === 0}
-                    >
-                      📥 استيراد المحددة ({selectedUnlockerServices.length})
-                    </button>
-                  </div>
+                  {/* Remote Services list table */}
+                  <div className="premium-table-wrapper" style={{ maxHeight: "500px", overflowY: "auto", marginBottom: "16px" }}>
+                    <table className="premium-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "40px", textAlign: "center" }}>
+                            <input
+                              type="checkbox"
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  const filteredIds = filteredUnlockerServices.map(s => s.id);
+                                  setSelectedUnlockerServices(prev => Array.from(new Set([...prev, ...filteredIds])));
+                                } else {
+                                  const filteredIdsSet = new Set(filteredUnlockerServices.map(s => s.id));
+                                  setSelectedUnlockerServices(prev => prev.filter(id => !filteredIdsSet.has(id)));
+                                }
+                              }}
+                              checked={filteredUnlockerServices.length > 0 && filteredUnlockerServices.every(s => selectedUnlockerServices.includes(s.id))}
+                              title="تحديد الكل في القائمة المصفاة حالياً"
+                            />
+                          </th>
+                          <th>ID الخدمة</th>
+                          <th>اسم الخدمة</th>
+                          <th>القسم (المجموعة)</th>
+                          <th>سعر المزود ({unlockerCurrency})</th>
+                          <th>سعر البيع المقترح</th>
+                          <th>الخصم (%) (اختياري)</th>
+                          <th>حالة الاستيراد</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedUnlockerServices.length > 0 ? (
+                          paginatedUnlockerServices.map((s) => {
+                            const isSelected = selectedUnlockerServices.includes(s.id);
+                            const isAlreadyImported = importedUnlockerServiceIds.has(String(s.id));
 
-                  <div style={{ fontSize: "0.88rem", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", marginBottom: "16px", color: "#cbd5e1" }}>
-                    {unlockerSyncMsg || "اضغط على زر (جلب الخدمات) لعرض الخدمات المتاحة وتحديد المطلوب استيرادها للموقع."}
-                  </div>
+                            const apiPriceUsd = parseFloat(s.price) || 0;
+                            const isTargetCatUsd = (categories.find(c => c.id === Number(unlockerImportTargetCat))?.currency === 'USD');
 
-                  {unlockerServices.length > 0 && (
-                    <>
-                      {/* Search & Filter Bar for remote services */}
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "16px", background: "rgba(15, 23, 42, 0.4)", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                        <div>
-                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔍 بحث بالاسم أو ID:</label>
-                          <input 
-                            type="text" 
-                            placeholder="ابحث عن خدمة أو قسم أو رقم ID..." 
-                            value={unlockerSearch} 
-                            onChange={(e) => { setUnlockerSearch(e.target.value); setUnlockerPage(1); }} 
-                            className="search-input-premium" 
-                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
-                          />
-                        </div>
+                            let multiplier = 1;
+                            if (unlockerCurrency === 'USD' && !isTargetCatUsd) {
+                              multiplier = parseFloat(unlockerExchangeRate) || 50;
+                            } else if (unlockerCurrency === 'EGP' && isTargetCatUsd) {
+                              multiplier = 1 / (parseFloat(unlockerExchangeRate) || 50);
+                            }
+                            const estPrice = apiPriceUsd * multiplier * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
 
-                        <div>
-                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📂 تصفية حسب القسم:</label>
-                          <select 
-                            value={unlockerCategoryFilter} 
-                            onChange={(e) => { setUnlockerCategoryFilter(e.target.value); setUnlockerPage(1); }} 
-                            className="search-input-premium" 
-                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
-                          >
-                            <option value="ALL">🌐 جميع الأقسام ({unlockerServices.length})</option>
-                            {unlockerCategories.filter(c => c !== "ALL").map(cat => {
-                              const count = unlockerServices.filter(s => s.category === cat).length;
-                              return <option key={cat} value={cat}>{cat} ({count})</option>;
-                            })}
-                          </select>
-                        </div>
+                            const pricePlaceholder = isTargetCatUsd
+                              ? `$ ${estPrice.toFixed(2)}`
+                              : `${Math.ceil(estPrice)} ج.م`;
 
-                        <div>
-                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>📊 عدد النتائج بالصفحة:</label>
-                          <select 
-                            value={unlockerPageSize} 
-                            onChange={(e) => { setUnlockerPageSize(Number(e.target.value)); setUnlockerPage(1); }} 
-                            className="search-input-premium" 
-                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
-                          >
-                            <option value={25}>25 خدمة في الصفحة</option>
-                            <option value={50}>50 خدمة في الصفحة</option>
-                            <option value={100}>100 خدمة في الصفحة</option>
-                            <option value={250}>250 خدمة في الصفحة</option>
-                            <option value={500}>500 خدمة في الصفحة</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label style={{ display: "block", fontSize: "0.8rem", color: "#94a3b8", marginBottom: "6px" }}>🔀 ترتيب عرض الخدمات:</label>
-                          <select 
-                            value={unlockerSortOrder} 
-                            onChange={(e) => setUnlockerSortOrder(e.target.value)} 
-                            className="search-input-premium" 
-                            style={{ padding: "10px 14px", fontSize: "0.88rem", width: "100%" }}
-                          >
-                            <option value="original">📋 نفس ترتيب سيرفر المزود (الأصلي)</option>
-                            <option value="alphabetical">🔤 الترتيب الأبجدي بالحروف (أ-ي)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Selection Summary */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", background: "rgba(56, 189, 248, 0.08)", padding: "10px 16px", borderRadius: "8px", border: "1px solid rgba(56, 189, 248, 0.2)", fontSize: "0.88rem", flexWrap: "wrap", gap: "8px" }}>
-                        <div>
-                          <span style={{ color: "#38bdf8", fontWeight: "bold" }}>تم العثور على: </span>
-                          <span style={{ color: "#fff", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> من أصل <span style={{ color: "#94a3b8" }}>{unlockerServices.length}</span> خدمة
-                        </div>
-                        <div>
-                          <span style={{ color: "#38bdf8", fontWeight: "bold" }}>المحدد للاستيراد: </span>
-                          <span style={{ color: "#4ade80", fontWeight: "bold", fontSize: "0.95rem" }}>{selectedUnlockerServices.length}</span> خدمة
-                          {selectedUnlockerServices.length > 0 && (
-                            <button 
-                              onClick={() => setSelectedUnlockerServices([])} 
-                              style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.82rem", marginRight: "10px", textDecoration: "underline" }}
-                            >
-                              إلغاء التحديد
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Remote Services list table */}
-                      <div className="premium-table-wrapper" style={{ maxHeight: "500px", overflowY: "auto", marginBottom: "16px" }}>
-                        <table className="premium-table">
-                          <thead>
-                            <tr>
-                              <th style={{ width: "40px", textAlign: "center" }}>
-                                <input 
-                                  type="checkbox" 
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      const filteredIds = filteredUnlockerServices.map(s => s.id);
-                                      setSelectedUnlockerServices(prev => Array.from(new Set([...prev, ...filteredIds])));
-                                    } else {
-                                      const filteredIdsSet = new Set(filteredUnlockerServices.map(s => s.id));
-                                      setSelectedUnlockerServices(prev => prev.filter(id => !filteredIdsSet.has(id)));
-                                    }
-                                  }}
-                                  checked={filteredUnlockerServices.length > 0 && filteredUnlockerServices.every(s => selectedUnlockerServices.includes(s.id))}
-                                  title="تحديد الكل في القائمة المصفاة حالياً"
-                                />
-                              </th>
-                              <th>ID الخدمة</th>
-                              <th>اسم الخدمة</th>
-                              <th>القسم (المجموعة)</th>
-                              <th>سعر المزود ({unlockerCurrency})</th>
-                              <th>سعر البيع المقترح</th>
-                              <th>الخصم (%) (اختياري)</th>
-                              <th>حالة الاستيراد</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {paginatedUnlockerServices.length > 0 ? (
-                              paginatedUnlockerServices.map((s) => {
-                                const isSelected = selectedUnlockerServices.includes(s.id);
-                                const isAlreadyImported = importedUnlockerServiceIds.has(String(s.id));
-                                
-                                const apiPriceUsd = parseFloat(s.price) || 0;
-                                const isTargetCatUsd = (categories.find(c => c.id === Number(unlockerImportTargetCat))?.currency === 'USD');
-                                
-                                let multiplier = 1;
-                                 if (unlockerCurrency === 'USD' && !isTargetCatUsd) {
-                                   multiplier = parseFloat(unlockerExchangeRate) || 50;
-                                 } else if (unlockerCurrency === 'EGP' && isTargetCatUsd) {
-                                   multiplier = 1 / (parseFloat(unlockerExchangeRate) || 50);
-                                 }
-                                 const estPrice = apiPriceUsd * multiplier * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
-                                
-                                const pricePlaceholder = isTargetCatUsd
-                                  ? `$ ${estPrice.toFixed(2)}`
-                                  : `${Math.ceil(estPrice)} ج.م`;
-
-                                return (
-                                  <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : isSelected ? "rgba(56, 189, 248, 0.08)" : "" }}>
-                                    <td style={{ textAlign: "center" }}>
-                                      <input 
-                                        type="checkbox" 
-                                        checked={isSelected}
-                                        onChange={() => {
-                                          if (isSelected) {
-                                            setSelectedUnlockerServices(prev => prev.filter(id => id !== s.id));
-                                          } else {
-                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
-                                          }
-                                        }}
-                                      />
-                                    </td>
-                                    <td data-label="ID الخدمة" style={{ fontWeight: "bold", color: "#64748b" }}>{s.id}</td>
-                                    <td data-label="اسم الخدمة" style={{ fontWeight: 700 }}>{s.name}</td>
-                                    <td data-label="القسم">{s.category}</td>
-                                    <td data-label={`سعر المزود (${unlockerCurrency})`} style={{ color: "#38bdf8", fontWeight: "bold" }}>
-                                       {unlockerCurrency === 'USD' ? '$' : ''}{apiPriceUsd.toFixed(2)}{unlockerCurrency !== 'USD' ? ' ' + unlockerCurrency : ''}
-                                     </td>
-                                    <td data-label="سعر البيع">
-                                      <input 
-                                        type="number" 
-                                        step="0.01"
-                                        placeholder={pricePlaceholder}
-                                        value={unlockerCustomPrices[s.id] || ""} 
-                                        onChange={(e) => {
-                                          const val = e.target.value;
-                                          setUnlockerCustomPrices(prev => ({ ...prev, [s.id]: val }));
-                                          if (!isSelected) {
-                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
-                                          }
-                                        }}
-                                        style={{ width: "100px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
-                                      />
-                                    </td>
-                                    <td data-label="الخصم (%)">
-                                      <input 
-                                        type="number" 
-                                        placeholder="0"
-                                        min="0"
-                                        max="99"
-                                        value={unlockerCustomDiscounts[s.id] || ""} 
-                                        onChange={(e) => {
-                                          const val = e.target.value;
-                                          setUnlockerCustomDiscounts(prev => ({ ...prev, [s.id]: val }));
-                                          if (!isSelected) {
-                                            setSelectedUnlockerServices(prev => [...prev, s.id]);
-                                          }
-                                        }}
-                                        style={{ width: "70px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
-                                      />
-                                    </td>
-                                    <td data-label="حالة الاستيراد">
-                                      {isAlreadyImported ? (
-                                        <span style={{ color: "#4ade80", fontSize: "0.8rem", background: "rgba(34,197,94,0.12)", padding: "4px 8px", borderRadius: "6px", fontWeight: "bold" }}>
-                                          ✓ مستورد مسبقاً
-                                        </span>
-                                      ) : (
-                                        <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
-                                          جاهز للاستيراد
-                                        </span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })
-                            ) : (
-                              <tr>
-                                <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#94a3b8" }}>
-                                  لا توجد خدمات مطابقة للبحث أو التصفية الحالية.
+                            return (
+                              <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : isSelected ? "rgba(56, 189, 248, 0.08)" : "" }}>
+                                <td style={{ textAlign: "center" }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => {
+                                      if (isSelected) {
+                                        setSelectedUnlockerServices(prev => prev.filter(id => id !== s.id));
+                                      } else {
+                                        setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                      }
+                                    }}
+                                  />
+                                </td>
+                                <td data-label="ID الخدمة" style={{ fontWeight: "bold", color: "#64748b" }}>{s.id}</td>
+                                <td data-label="اسم الخدمة" style={{ fontWeight: 700 }}>{s.name}</td>
+                                <td data-label="القسم">{s.category}</td>
+                                <td data-label={`سعر المزود (${unlockerCurrency})`} style={{ color: "#38bdf8", fontWeight: "bold" }}>
+                                  {unlockerCurrency === 'USD' ? '$' : ''}{apiPriceUsd.toFixed(2)}{unlockerCurrency !== 'USD' ? ' ' + unlockerCurrency : ''}
+                                </td>
+                                <td data-label="سعر البيع">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder={pricePlaceholder}
+                                    value={unlockerCustomPrices[s.id] || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setUnlockerCustomPrices(prev => ({ ...prev, [s.id]: val }));
+                                      if (!isSelected) {
+                                        setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                      }
+                                    }}
+                                    style={{ width: "100px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
+                                  />
+                                </td>
+                                <td data-label="الخصم (%)">
+                                  <input
+                                    type="number"
+                                    placeholder="0"
+                                    min="0"
+                                    max="99"
+                                    value={unlockerCustomDiscounts[s.id] || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setUnlockerCustomDiscounts(prev => ({ ...prev, [s.id]: val }));
+                                      if (!isSelected) {
+                                        setSelectedUnlockerServices(prev => [...prev, s.id]);
+                                      }
+                                    }}
+                                    style={{ width: "70px", padding: "6px 8px", fontSize: "0.8rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "#fff", textAlign: "center" }}
+                                  />
+                                </td>
+                                <td data-label="حالة الاستيراد">
+                                  {isAlreadyImported ? (
+                                    <span style={{ color: "#4ade80", fontSize: "0.8rem", background: "rgba(34,197,94,0.12)", padding: "4px 8px", borderRadius: "6px", fontWeight: "bold" }}>
+                                      ✓ مستورد مسبقاً
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+                                      جاهز للاستيراد
+                                    </span>
+                                  )}
                                 </td>
                               </tr>
-                            )}
-                          </tbody>
-                        </table>
+                            );
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#94a3b8" }}>
+                              لا توجد خدمات مطابقة للبحث أو التصفية الحالية.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalUnlockerPages > 1 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(15, 23, 42, 0.6)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: "10px" }}>
+                      <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+                        عرض من <span style={{ color: "#fff", fontWeight: "bold" }}>{(unlockerPage - 1) * unlockerPageSize + 1}</span> إلى <span style={{ color: "#fff", fontWeight: "bold" }}>{Math.min(unlockerPage * unlockerPageSize, filteredUnlockerServices.length)}</span> من إجمالي <span style={{ color: "#38bdf8", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> خدمة
                       </div>
-
-                      {/* Pagination Controls */}
-                      {totalUnlockerPages > 1 && (
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(15, 23, 42, 0.6)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: "10px" }}>
-                          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
-                            عرض من <span style={{ color: "#fff", fontWeight: "bold" }}>{(unlockerPage - 1) * unlockerPageSize + 1}</span> إلى <span style={{ color: "#fff", fontWeight: "bold" }}>{Math.min(unlockerPage * unlockerPageSize, filteredUnlockerServices.length)}</span> من إجمالي <span style={{ color: "#38bdf8", fontWeight: "bold" }}>{filteredUnlockerServices.length}</span> خدمة
-                          </div>
-                          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                            <button 
-                              onClick={() => setUnlockerPage(1)} 
-                              disabled={unlockerPage === 1}
-                              className="btn-premium"
-                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
-                            >
-                              « الأولى
-                            </button>
-                            <button 
-                              onClick={() => setUnlockerPage(p => Math.max(1, p - 1))} 
-                              disabled={unlockerPage === 1}
-                              className="btn-premium"
-                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
-                            >
-                              ‹ السابقة
-                            </button>
-                            <span style={{ padding: "4px 12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", borderRadius: "6px", fontWeight: "bold", fontSize: "0.88rem" }}>
-                              صفحة {unlockerPage} من {totalUnlockerPages}
-                            </span>
-                            <button 
-                              onClick={() => setUnlockerPage(p => Math.min(totalUnlockerPages, p + 1))} 
-                              disabled={unlockerPage === totalUnlockerPages}
-                              className="btn-premium"
-                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
-                            >
-                              التالية ›
-                            </button>
-                            <button 
-                              onClick={() => setUnlockerPage(totalUnlockerPages)} 
-                              disabled={unlockerPage === totalUnlockerPages}
-                              className="btn-premium"
-                              style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
-                            >
-                              الأخيرة »
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
+                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        <button
+                          onClick={() => setUnlockerPage(1)}
+                          disabled={unlockerPage === 1}
+                          className="btn-premium"
+                          style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
+                        >
+                          « الأولى
+                        </button>
+                        <button
+                          onClick={() => setUnlockerPage(p => Math.max(1, p - 1))}
+                          disabled={unlockerPage === 1}
+                          className="btn-premium"
+                          style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === 1 ? 0.4 : 1, cursor: unlockerPage === 1 ? "not-allowed" : "pointer" }}
+                        >
+                          ‹ السابقة
+                        </button>
+                        <span style={{ padding: "4px 12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", borderRadius: "6px", fontWeight: "bold", fontSize: "0.88rem" }}>
+                          صفحة {unlockerPage} من {totalUnlockerPages}
+                        </span>
+                        <button
+                          onClick={() => setUnlockerPage(p => Math.min(totalUnlockerPages, p + 1))}
+                          disabled={unlockerPage === totalUnlockerPages}
+                          className="btn-premium"
+                          style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
+                        >
+                          التالية ›
+                        </button>
+                        <button
+                          onClick={() => setUnlockerPage(totalUnlockerPages)}
+                          disabled={unlockerPage === totalUnlockerPages}
+                          className="btn-premium"
+                          style={{ padding: "6px 12px", fontSize: "0.8rem", opacity: unlockerPage === totalUnlockerPages ? 0.4 : 1, cursor: unlockerPage === totalUnlockerPages ? "not-allowed" : "pointer" }}
+                        >
+                          الأخيرة »
+                        </button>
+                      </div>
+                    </div>
                   )}
-                </div>
+                </>
+              )}
+            </div>
 
-              </div>
-            )}
-</main>
+          </div>
+        )}
+      </main>
 
       {/* Add Category Modal */}
       {showCatModal && (
@@ -5331,7 +5332,7 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">إضافة قسم جديد</h3>
               <button className="close-btn-premium" onClick={() => setShowCatModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleAddCategory} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>اسم القسم:</label>
@@ -5348,8 +5349,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>القسم الرئيسي (اختياري - لجعله قسماً فرعياً):</label>
-                <select 
-                  value={newCatParentId || ""} 
+                <select
+                  value={newCatParentId || ""}
                   onChange={(e) => setNewCatParentId(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -5371,8 +5372,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>أيقونة القسم التعبيرية (الافتراضية):</label>
-                <select 
-                  value={newCatImage} 
+                <select
+                  value={newCatImage}
                   onChange={(e) => setNewCatImage(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -5451,9 +5452,9 @@ const handleLogout = () => {
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل عند الشراء:</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddCatField} 
+                  <button
+                    type="button"
+                    onClick={handleAddCatField}
                     className="action-btn"
                     style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
                   >
@@ -5563,12 +5564,12 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">إضافة خدمة شحن جديدة</h3>
               <button className="close-btn-premium" onClick={() => setShowServiceModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleAddService} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>القسم الرئيسي:</label>
-                <select 
-                  value={newServiceCatId} 
+                <select
+                  value={newServiceCatId}
                   onChange={(e) => setNewServiceCatId(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -5625,8 +5626,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>رمز الأيقونة للخدمة (الافتراضية):</label>
-                <select 
-                  value={newServiceImage} 
+                <select
+                  value={newServiceImage}
                   onChange={(e) => setNewServiceImage(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -5735,9 +5736,9 @@ const handleLogout = () => {
                 <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                     <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>الباقات المتوفرة (الحزم):</h4>
-                    <button 
-                      type="button" 
-                      onClick={handleAddPkgInput} 
+                    <button
+                      type="button"
+                      onClick={handleAddPkgInput}
                       className="action-btn"
                       style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
                     >
@@ -5857,9 +5858,9 @@ const handleLogout = () => {
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل:</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddField} 
+                  <button
+                    type="button"
+                    onClick={handleAddField}
                     className="action-btn"
                     style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
                   >
@@ -5969,7 +5970,7 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">تعديل القسم</h3>
               <button className="close-btn-premium" onClick={() => setShowEditCatModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleEditCategory} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>اسم القسم:</label>
@@ -5986,8 +5987,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>القسم الرئيسي (اختياري - لجعله قسماً فرعياً):</label>
-                <select 
-                  value={editCatParentId || ""} 
+                <select
+                  value={editCatParentId || ""}
                   onChange={(e) => setEditCatParentId(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -6009,8 +6010,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>أيقونة القسم التعبيرية (الافتراضية):</label>
-                <select 
-                  value={editCatImage} 
+                <select
+                  value={editCatImage}
                   onChange={(e) => setEditCatImage(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -6089,9 +6090,9 @@ const handleLogout = () => {
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل عند الشراء:</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddEditCatField} 
+                  <button
+                    type="button"
+                    onClick={handleAddEditCatField}
                     className="action-btn"
                     style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
                   >
@@ -6221,12 +6222,12 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">تعديل الخدمة</h3>
               <button className="close-btn-premium" onClick={() => setShowEditServiceModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleEditService} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>القسم الرئيسي:</label>
-                <select 
-                  value={editServiceCatId} 
+                <select
+                  value={editServiceCatId}
                   onChange={(e) => setEditServiceCatId(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -6283,8 +6284,8 @@ const handleLogout = () => {
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>رمز الأيقونة للخدمة (الافتراضية):</label>
-                <select 
-                  value={editServiceImage} 
+                <select
+                  value={editServiceImage}
                   onChange={(e) => setEditServiceImage(e.target.value)}
                   style={{
                     padding: "12px 18px",
@@ -6393,9 +6394,9 @@ const handleLogout = () => {
                 <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                     <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>الباقات المتوفرة (الحزم):</h4>
-                    <button 
-                      type="button" 
-                      onClick={handleAddEditPkgInput} 
+                    <button
+                      type="button"
+                      onClick={handleAddEditPkgInput}
                       className="action-btn"
                       style={{ background: "rgba(139, 92, 246, 0.2)", color: "#c084fc", border: "1px solid rgba(139, 92, 246, 0.3)" }}
                     >
@@ -6515,9 +6516,9 @@ const handleLogout = () => {
               <div style={{ border: "1px solid rgba(255, 255, 255, 0.05)", padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <h4 style={{ fontWeight: 800, fontSize: "0.9rem" }}>حقول البيانات المطلوبة من العميل:</h4>
-                  <button 
-                    type="button" 
-                    onClick={handleAddEditField} 
+                  <button
+                    type="button"
+                    onClick={handleAddEditField}
                     className="action-btn"
                     style={{ background: "rgba(6, 182, 212, 0.2)", color: "#22d3ee", border: "1px solid rgba(6, 182, 212, 0.3)" }}
                   >
@@ -6627,7 +6628,7 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">إضافة شريحة إعلانية جديدة</h3>
               <button className="close-btn-premium" onClick={() => setShowBannerModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleAddBanner} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ display: "flex", gap: "14px" }}>
                 <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
@@ -6781,7 +6782,7 @@ const handleLogout = () => {
               <h3 className="premium-modal-title">تعديل الشريحة الإعلانية</h3>
               <button className="close-btn-premium" onClick={() => setShowEditBannerModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleEditBanner} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ display: "flex", gap: "14px" }}>
                 <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
@@ -7157,13 +7158,13 @@ const handleLogout = () => {
           <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "500px", maxHeight: "85vh", overflowY: "auto" }}>
             <div className="premium-modal-header">
               <h3 className="premium-modal-title">
-                {codeModalStatusToUpdate === "completed" 
-                  ? `إتمام التنفيذ وإرسال كود التفعيل للطلب #${codeModalOrder.id}` 
+                {codeModalStatusToUpdate === "completed"
+                  ? `إتمام التنفيذ وإرسال كود التفعيل للطلب #${codeModalOrder.id}`
                   : `تعديل كود التفعيل للطلب #${codeModalOrder.id}`}
               </h3>
               <button className="close-btn-premium" onClick={() => setShowCodeModal(false)}>×</button>
             </div>
-            
+
             <form onSubmit={handleSubmitCodeModal} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div style={{ background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "0.85rem", color: "#cbd5e1" }}>
                 <div>الخدمة: <strong>{codeModalOrder.service_name}</strong></div>
@@ -7231,17 +7232,17 @@ const handleLogout = () => {
               </div>
 
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
-                <button 
-                  type="button" 
-                  className="action-btn btn-danger-premium" 
+                <button
+                  type="button"
+                  className="action-btn btn-danger-premium"
                   onClick={() => setShowCodeModal(false)}
                 >
                   إلغاء
                 </button>
-                
+
                 {codeModalStatusToUpdate === "completed" && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="action-btn btn-edit-premium"
                     style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)" }}
                     onClick={async () => {
