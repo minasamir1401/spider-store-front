@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, use, useMemo } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ export default function ServiceDetail({ params }) {
 
   const handleValidatePlayerId = async (playerId) => {
     if (!playerId || !playerId.trim()) {
-      setValidationError("???? ????? ???? ?????? ?????.");
+      setValidationError("يرجى إدخال معرف اللاعب أولاً.");
       setValidationResult(null);
       return;
     }
@@ -59,12 +59,12 @@ export default function ServiceDetail({ params }) {
 
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "??? ?????? ?? ???? ??????.");
+        throw new Error(data.message || "فشل التحقق من معرف اللاعب.");
       }
 
       setValidationResult(data);
     } catch (err) {
-      setValidationError(err.message || "??? ?????? ?? ???? ??????. ???? ?????? ?? ????? ????????? ??????.");
+      setValidationError(err.message || "فشل التحقق من معرف اللاعب. يرجى التأكد من الرقم والمحاولة لاحقاً.");
     } finally {
       setValidatingId(false);
     }
@@ -108,58 +108,58 @@ export default function ServiceDetail({ params }) {
   const staticServices = [
     {
       id: 1,
-      name: "???? ?????? (PUBG Mobile)",
-      description: "???? ???? ???? ?????? ????? ??????? ?? ????? ?? ???? ?????? ID ????? ???????.",
+      name: "ببجي موبايل (PUBG Mobile)",
+      description: "اشحن شدات ببجي موبايل فوراً ومباشرة في حسابك عن طريق الآيدي ID بأفضل الأسعار.",
       price: 0.99,
       image: "pubg",
       packages: [
-        { id: 1, name: "60 ??? (UC)", price: 0.99 },
-        { id: 2, name: "325 ??? (UC)", price: 4.85 },
-        { id: 3, name: "660 ??? (UC)", price: 9.50 },
-        { id: 4, name: "1800 ??? (UC)", price: 23.99 }
+        { id: 1, name: "60 شدة (UC)", price: 0.99 },
+        { id: 2, name: "325 شدة (UC)", price: 4.85 },
+        { id: 3, name: "660 شدة (UC)", price: 9.50 },
+        { id: 4, name: "1800 شدة (UC)", price: 23.99 }
       ]
     },
     {
       id: 2,
-      name: "??? ???? (Free Fire)",
-      description: "???? ????? ??? ???? ????? ?????? ?????? ??? ??????? ??? ???? ????? ?????? ??? ??????.",
+      name: "فري فاير (Free Fire)",
+      description: "اشحن جواهر فري فاير فوراً لتفعيل الفاير باس والحصول على أحدث سكنات اللعبة عبر الآيدي.",
       price: 1.10,
       image: "freefire",
       packages: [
-        { id: 1, name: "110 ?????", price: 1.10 },
-        { id: 2, name: "231 ?????", price: 2.20 },
-        { id: 3, name: "583 ?????", price: 5.30 },
-        { id: 4, name: "1188 ?????", price: 10.50 }
+        { id: 1, name: "110 جواهر", price: 1.10 },
+        { id: 2, name: "231 جواهر", price: 2.20 },
+        { id: 3, name: "583 جواهر", price: 5.30 },
+        { id: 4, name: "1188 جواهر", price: 10.50 }
       ]
     },
     {
       id: 3,
-      name: "???? ???? (Bigo Live)",
-      description: "???? ??????? ???????? ????? ???? ???? ???? ???? ??????? ?????? ????.",
+      name: "بيجو لايف (Bigo Live)",
+      description: "اشحن فاصوليا ومجوهرات تطبيق بيجو لايف لدعم البث المباشر المفضل لديك.",
       price: 1.25,
       image: "bigo",
       packages: [
-        { id: 1, name: "42 ?????", price: 1.25 },
-        { id: 2, name: "297 ?????", price: 7.99 },
-        { id: 3, name: "848 ?????", price: 22.50 }
+        { id: 1, name: "42 جوهرة", price: 1.25 },
+        { id: 2, name: "297 جوهرة", price: 7.99 },
+        { id: 3, name: "848 جوهرة", price: 22.50 }
       ]
     },
     {
       id: 4,
-      name: "??????? ??? ??? (Vodafone Cash)",
-      description: "??? ???? ?????? ????? ??? ????? ??????? ??? ?????? ???? ????? ???????.",
+      name: "فودافون كاش مصر (Vodafone Cash)",
+      description: "شحن رصيد وتحويل أموال عبر محفظة فودافون كاش مباشرة بسعر الصرف الممتاز.",
       price: 1.00,
       image: "vodafone",
       packages: [
-        { id: 1, name: "????? 100 ???? ????", price: 2.10 },
-        { id: 2, name: "????? 500 ???? ????", price: 10.50 },
-        { id: 3, name: "????? 1000 ???? ????", price: 21.00 }
+        { id: 1, name: "إرسال 100 جنيه مصري", price: 2.10 },
+        { id: 2, name: "إرسال 500 جنيه مصري", price: 10.50 },
+        { id: 3, name: "إرسال 1000 جنيه مصري", price: 21.00 }
       ]
     },
     {
       id: 5,
-      name: "??? ???? USDT (TRC20)",
-      description: "???? ???? ???? USDT ??????? ????? ????? ????? ?????? ????? ??????.",
+      name: "شحن رصيد USDT (TRC20)",
+      description: "شراء وسحب عملة USDT الرقمية بأفضل أسعار الصرف وبسرعة تنفيذ خيالية.",
       price: 1.00,
       image: "usdt",
       packages: [
@@ -170,25 +170,25 @@ export default function ServiceDetail({ params }) {
     },
     {
       id: 6,
-      name: "?????? ????? ??? (Canva Pro)",
-      description: "????? ?????? ????? ??? ?????? ?????? ????? ????? ??????? ??????? ?????????.",
+      name: "اشتراك كانفا برو (Canva Pro)",
+      description: "تفعيل اشتراك كانفا برو الحساب الشخصي بكافة ميزات التصميم والذكاء الاصطناعي.",
       price: 1.99,
       image: "canva",
       packages: [
-        { id: 1, name: "????? ???? ???", price: 1.99 },
-        { id: 2, name: "????? ???? 6 ????", price: 8.99 },
-        { id: 3, name: "????? ???? ??? ?????", price: 14.99 }
+        { id: 1, name: "تفعيل لمدة شهر", price: 1.99 },
+        { id: 2, name: "تفعيل لمدة 6 أشهر", price: 8.99 },
+        { id: 3, name: "تفعيل لمدة سنة كاملة", price: 14.99 }
       ]
     },
     {
       id: 7,
-      name: "?????? ??????? (Netflix Premium)",
-      description: "???? ???? ?? ????? 4K UHD ??? ???? ??????? ????? ?? ???? ????? ???????.",
+      name: "اشتراك نتفليكس (Netflix Premium)",
+      description: "شاشة خاصة بك بجودة 4K UHD على حساب نتفليكس مشترك أو حساب مستقل بالكامل.",
       price: 2.50,
       image: "netflix",
       packages: [
-        { id: 1, name: "???? ????? ???? ??? 4K", price: 2.50 },
-        { id: 2, name: "???? ???? ????? ???? ???", price: 9.99 }
+        { id: 1, name: "شاشة واحدة لمدة شهر 4K", price: 2.50 },
+        { id: 2, name: "حساب كامل مستقل لمدة شهر", price: 9.99 }
       ]
     }
   ];
@@ -243,8 +243,8 @@ export default function ServiceDetail({ params }) {
 
   // Fallback fields if none configured
   const defaultFields = [
-    { name: "player_id", label: "????? ?????? / ???? ????? (Player ID / Email)", type: "text", placeholder: "???? ????? ?????? ???? ??? (????: 512495910)", required: true },
-    { name: "phone", label: "??? ?????? ??????? ?????? ????? (??????)", type: "tel", placeholder: "????: 01023456789 ?? +96651234567", required: true }
+    { name: "player_id", label: "معرّف اللاعب / حساب الشحن (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true },
+    { name: "phone", label: "رقم الهاتف للتواصل وتأكيد الشحن (واتساب)", type: "tel", placeholder: "مثال: 01023456789 أو +96651234567", required: true }
   ];
 
   const activeFields = useMemo(() => {
@@ -270,29 +270,29 @@ export default function ServiceDetail({ params }) {
     const isDynamic = service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic");
 
     if (!isDynamic && !selectedPackage) {
-      setErrorMessage("?? ???? ??? ???? ????? ????????.");
+      setErrorMessage("من فضلك حدد باقة الشحن المطلوبة.");
       return;
     }
 
     if (isDynamic && (!customQuantity || customQuantity < 100)) {
-      setErrorMessage("?? ???? ???? ???? ????? (???? ?????? 100).");
+      setErrorMessage("من فضلك أدخل كمية صالحة (الحد الأدنى 100).");
       return;
     }
 
     if (paymentMethod === "wallet" && !isCustomerLoggedIn) {
-      setErrorMessage("??? ????? ?????? ???????? ??????? ?? ?????.");
+      setErrorMessage("يجب تسجيل الدخول لاستخدام المحفظة في الدفع.");
       return;
     }
 
     if (paymentMethod === "transfer" && !senderPhone.trim()) {
-      setErrorMessage("???? ????? ????? ???? ?? ??????? ???.");
+      setErrorMessage("يرجى إدخال الرقم الذي تم التحويل منه.");
       return;
     }
 
     // Validate required fields
     for (const field of activeFields) {
       if (field.required !== false && (!formData[field.name] || !formData[field.name].toString().trim())) {
-        setErrorMessage(`??? "${field.label}" ?????.`);
+        setErrorMessage(`حقل "${field.label}" مطلوب.`);
         return;
       }
     }
@@ -303,7 +303,7 @@ export default function ServiceDetail({ params }) {
       ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
       : Number(Number(selectedPackage.price || 0).toFixed(2));
     const computedPackageName = isDynamic
-      ? `????: ${customQuantity}`
+      ? `كمية: ${customQuantity}`
       : selectedPackage.name;
 
     try {
@@ -336,7 +336,7 @@ export default function ServiceDetail({ params }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "??? ????? ?????? ?????? ???????? ??????.");
+        throw new Error(data.message || "فشل إرسال الطلب، الرجاء المحاولة مجدداً.");
       }
 
       if (typeof data.customer_balance === "number") {
@@ -355,26 +355,26 @@ export default function ServiceDetail({ params }) {
 
       setSuccessData(data);
     } catch (err) {
-      setErrorMessage(err.message || "??? ??? ??? ?????? ???? ???????? ??????.");
+      setErrorMessage(err.message || "حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const getServiceIcon = (image) => {
-    if (!image) return "?";
+    if (!image) return "⚡";
     if (image.startsWith("data:image") || image.startsWith("http") || image.startsWith("/uploads")) {
       const src = image.startsWith("/uploads") ? `${API_BASE_URL}${image}` : image;
       return <img src={src} alt="Service Icon" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }} />;
     }
-    if (image.includes("pubg")) return "??";
-    if (image.includes("freefire")) return "??";
-    if (image.includes("bigo")) return "??";
-    if (image.includes("vodafone")) return "??";
-    if (image.includes("usdt")) return "??";
-    if (image.includes("canva")) return "??";
-    if (image.includes("netflix")) return "??";
-    return "?";
+    if (image.includes("pubg")) return "🔫";
+    if (image.includes("freefire")) return "🔥";
+    if (image.includes("bigo")) return "💬";
+    if (image.includes("vodafone")) return "📱";
+    if (image.includes("usdt")) return "🪙";
+    if (image.includes("canva")) return "🎨";
+    if (image.includes("netflix")) return "🎬";
+    return "⚡";
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -382,7 +382,7 @@ export default function ServiceDetail({ params }) {
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "80px" }}>
-        <h2 style={{ fontWeight: 800 }}>???? ????? ?????? ??????...</h2>
+        <h2 style={{ fontWeight: 800 }}>جاري تحميل تفاصيل الخدمة...</h2>
       </div>
     );
   }
@@ -390,15 +390,15 @@ export default function ServiceDetail({ params }) {
   if (!service) {
     return (
       <div style={{ textAlign: "center", padding: "80px" }}>
-        <h2 style={{ fontWeight: 800, color: "var(--danger-color)" }}>?????? ???????? ??? ??????!</h2>
-        <Link href="/" className="glass-btn glass-btn-primary" style={{ marginTop: "20px" }}>?????? ????????</Link>
+        <h2 style={{ fontWeight: 800, color: "var(--danger-color)" }}>الخدمة المطلوبة غير متوفرة!</h2>
+        <Link href="/" className="glass-btn glass-btn-primary" style={{ marginTop: "20px" }}>العودة للرئيسية</Link>
       </div>
     );
   }
 
   const packagesSection = (
     <div>
-      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. ???? ?????? ????????:</h3>
+      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
       {service.packages && service.packages.length > 0 ? (
         <div className="packages-selector">
           {service.packages.map((pkg, idx) => {
@@ -436,7 +436,7 @@ export default function ServiceDetail({ params }) {
                 <span className="package-name" style={{ display: "block", marginBottom: "6px" }}>{pkg.name}</span>
 
                 <div style={{ display: "flex", gap: "6px", justifyContent: "center", alignItems: "baseline" }}>
-                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ?.?</span>
+                  <span className="package-price" style={{ fontSize: "1.1rem" }}>{Number(pkg.price).toFixed(2)} ج.م</span>
                   <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
                     {Number(originalPrice).toFixed(2)}
                   </span>
@@ -446,16 +446,16 @@ export default function ServiceDetail({ params }) {
           })}
         </div>
       ) : (
-        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>?? ????? ????? ?????? ???? ??????.</div>
+        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
       )}
     </div>
   );
 
   const customQuantitySection = (
     <div>
-      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. ???? ?????? ????????:</h3>
+      <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        ??? ??? 1000 ???? ??: {Number(service.price_per_thousand || 0).toFixed(2)} ?.? (??? ????: 100)
+        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -492,10 +492,10 @@ export default function ServiceDetail({ params }) {
             boxSizing: "border-box",
             outline: "none"
           }}
-          placeholder="???? ?????? ??? (????: 5000)"
+          placeholder="أدخل الكمية هنا (مثال: 5000)"
         />
         <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-          ????? ???????? ??????: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ?.?</strong>
+          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
         </div>
       </div>
     </div>
@@ -515,7 +515,7 @@ export default function ServiceDetail({ params }) {
             </div>
             <div>
               <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-main)" }}>{service.name}</h1>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>??? ???? ?????? 100%</p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "4px" }}>شحن فوري ومضمون 100%</p>
             </div>
           </div>
 
@@ -549,7 +549,7 @@ export default function ServiceDetail({ params }) {
                       style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
-                      ?? ?????? ?????: ???? ???? ??? ?????
+                      📦 الخيار الأول: اختر باقة شحن جاهزة
                     </strong>
                   </div>
 
@@ -583,7 +583,7 @@ export default function ServiceDetail({ params }) {
                       style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
-                      ? ?????? ??????: ????? ??????? ??????? (??? ?????)
+                      ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
                     </strong>
                   </div>
 
@@ -605,7 +605,7 @@ export default function ServiceDetail({ params }) {
 
           {/* Form fields - Dynamic */}
           <form onSubmit={handleSubmit}>
-            <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. ?????? ?????? ?????? ????:</h3>
+            <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
 
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx}>
@@ -627,13 +627,13 @@ export default function ServiceDetail({ params }) {
                       outline: "none"
                     }}
                   >
-                    <option value="" style={{ color: "#000000", background: "#ffffff" }}>-- ???? --</option>
+                    <option value="" style={{ color: "#000000", background: "#ffffff" }}>-- اختر --</option>
                     {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
                       <option key={i} value={opt.trim()} style={{ color: "#000000", background: "#ffffff" }}>{opt.trim()}</option>
                     ))}
                   </select>
                 ) : (
-                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("????"))) ? (
+                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                       <div style={{ display: "flex", gap: "10px" }}>
                         <input
@@ -672,7 +672,7 @@ export default function ServiceDetail({ params }) {
                             minWidth: "120px"
                           }}
                         >
-                          {validatingId ? "???? ?????..." : "??? ??????"}
+                          {validatingId ? "جاري الفحص..." : "فحص الحساب"}
                         </button>
                       </div>
                       {validationResult && (
@@ -688,8 +688,8 @@ export default function ServiceDetail({ params }) {
                           alignItems: "center",
                           gap: "6px"
                         }}>
-                          <span>?</span>
-                          <span>??? ??????: <strong>{validationResult.name}</strong></span>
+                          <span>✅</span>
+                          <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
                         </div>
                       )}
                       {validationError && (
@@ -705,7 +705,7 @@ export default function ServiceDetail({ params }) {
                           alignItems: "center",
                           gap: "6px"
                         }}>
-                          <span>?</span>
+                          <span>❌</span>
                           <span>{validationError}</span>
                         </div>
                       )}
@@ -736,9 +736,9 @@ export default function ServiceDetail({ params }) {
 
             <div style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
-                <h3 style={{ fontWeight: 800, margin: 0 }}>3. ????? ?????:</h3>
+                <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  ??????: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ?.?
+                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
                 </span>
               </div>
 
@@ -746,9 +746,9 @@ export default function ServiceDetail({ params }) {
                 <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "wallet" ? "1px solid rgba(34,197,94,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "wallet" ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.03)", opacity: isCustomerLoggedIn ? 1 : 0.65 }}>
                   <input type="radio" name="paymentMethod" value="wallet" checked={paymentMethod === "wallet"} onChange={() => setPaymentMethod("wallet")} disabled={!isCustomerLoggedIn} />
                   <span>
-                    <strong>???????</strong>
+                    <strong>المحفظة</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      ????? ??? ???????? ?? ????? ??????. {isCustomerLoggedIn ? `????? ??????: ${Number(customerUser?.balance || 0).toFixed(2)} ?.?` : "????? ????? ??????."}
+                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
                 </label>
@@ -756,9 +756,9 @@ export default function ServiceDetail({ params }) {
                 <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", padding: "12px 14px", borderRadius: "12px", border: paymentMethod === "transfer" ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: paymentMethod === "transfer" ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.03)" }}>
                   <input type="radio" name="paymentMethod" value="transfer" checked={paymentMethod === "transfer"} onChange={() => setPaymentMethod("transfer")} />
                   <span>
-                    <strong>????? ??? {transferNumber}</strong>
+                    <strong>تحويل إلى {transferNumber}</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      ??? ??????? ???? ????? ???? ?? ??????? ??? ??? ???? ??????.
+                      بعد التحويل اكتب الرقم الذي تم التحويل منه حتى يظهر للأدمن.
                     </div>
                   </span>
                 </label>
@@ -766,11 +766,11 @@ export default function ServiceDetail({ params }) {
 
               {paymentMethod === "transfer" && (
                 <div className="form-group" style={{ marginTop: "14px" }}>
-                  <label htmlFor="senderPhone">????? ???? ?? ??????? ???:</label>
+                  <label htmlFor="senderPhone">الرقم الذي تم التحويل منه:</label>
                   <input
                     id="senderPhone"
                     type="tel"
-                    placeholder="????: 01023456789"
+                    placeholder="مثال: 01023456789"
                     value={senderPhone}
                     onChange={(e) => setSenderPhone(e.target.value)}
                     style={{
@@ -785,7 +785,7 @@ export default function ServiceDetail({ params }) {
                     }}
                   />
                   <div style={{ marginTop: "8px", padding: "10px 12px", borderRadius: "10px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#334155", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>??? ????????: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{transferNumber}</strong></span>
+                    <span>رقم الاستلام: <strong style={{ color: "#000000", direction: "ltr", display: "inline-block", fontSize: "1rem", userSelect: "all" }}>{transferNumber}</strong></span>
                     <button
                       type="button"
                       onClick={() => {
@@ -805,7 +805,7 @@ export default function ServiceDetail({ params }) {
                         transition: "all 0.2s"
                       }}
                     >
-                      {copied ? "?? ?????! ?" : "??? ??"}
+                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
                     </button>
                   </div>
                 </div>
@@ -814,7 +814,7 @@ export default function ServiceDetail({ params }) {
 
             {errorMessage && (
               <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", marginBottom: "15px" }}>
-                ?? {errorMessage}
+                ⚠️ {errorMessage}
               </div>
             )}
 
@@ -824,7 +824,7 @@ export default function ServiceDetail({ params }) {
               className="glass-btn glass-btn-primary"
               style={{ width: "100%", padding: "14px", fontSize: "1.1rem", borderRadius: "14px" }}
             >
-              {submitting ? "???? ????? ?????..." : "????? ?????? ??? ?????"}
+              {submitting ? "جاري إرسال الطلب..." : "تأكيد وإرسال طلب الشحن"}
             </button>
           </form>
 
@@ -833,34 +833,34 @@ export default function ServiceDetail({ params }) {
         {/* Sidebar Summary */}
         <div>
           <div className="glass-panel summary-box">
-            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>?????? ?????</h3>
+            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>تفاصيل الطلب</h3>
 
             <div className="summary-row">
-              <span className="summary-label">??????</span>
+              <span className="summary-label">الخدمة</span>
               <span className="summary-value">{service.name}</span>
             </div>
 
             {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
               <>
                 <div className="summary-row">
-                  <span className="summary-label">?????? ????????</span>
-                  <span className="summary-value">{customQuantity} ????</span>
+                  <span className="summary-label">الكمية المطلوبة</span>
+                  <span className="summary-value">{customQuantity} وحدة</span>
                 </div>
                 <div className="summary-row">
-                  <span className="summary-label">??? ??? 1000 ????</span>
-                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} ?.?</span>
+                  <span className="summary-label">سعر الـ 1000 وحدة</span>
+                  <span className="summary-value">{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</span>
                 </div>
               </>
             ) : (
               selectedPackage && (
                 <>
                   <div className="summary-row">
-                    <span className="summary-label">?????? ????????</span>
+                    <span className="summary-label">الباقة المختارة</span>
                     <span className="summary-value">{selectedPackage.name}</span>
                   </div>
                   <div className="summary-row">
-                    <span className="summary-label">??? ??????</span>
-                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} ?.?</span>
+                    <span className="summary-label">سعر الباقة</span>
+                    <span className="summary-value">{Number(selectedPackage.price).toFixed(2)} ج.م</span>
                   </div>
                 </>
               )
@@ -876,14 +876,14 @@ export default function ServiceDetail({ params }) {
             <hr style={{ opacity: 0.1 }} />
 
             <div className="summary-row" style={{ alignItems: "center" }}>
-              <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>???????? ???????</span>
+              <span className="summary-label" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>الإجمالي المستحق</span>
               <span className="summary-value summary-total">
-                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ?.?
+                {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
               </span>
             </div>
 
             <div style={{ marginTop: "10px", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.5", background: "rgba(255,255,255,0.4)", padding: "10px", borderRadius: "8px" }}>
-              ?? ????? ????? ?????? ???? ?????? ????? ?????? ?????? ?????? ?? ???? 5 ??? 15 ????? ??? ??? ????.
+              📢 بمجرد إتمام الطلب، سيتم مراجعة الدفع وتحويل الشحنة لحسابك في غضون 5 إلى 15 دقيقة فقط كحد أقصى.
             </div>
           </div>
         </div>
@@ -893,24 +893,24 @@ export default function ServiceDetail({ params }) {
       {successData && (
         <div className="overlay">
           <div className="modal-content" style={{ textAlign: "center", padding: "30px 20px", width: "95%", maxWidth: "500px", borderRadius: "24px", maxHeight: "90vh", overflowY: "auto" }}>
-            <span style={{ fontSize: "4rem", color: "var(--success-color)", display: "block", marginBottom: "15px" }}>?</span>
-            <h2 style={{ fontWeight: 800, color: "#ffffff" }}>?? ?????? ???? ?????!</h2>
+            <span style={{ fontSize: "4rem", color: "var(--success-color)", display: "block", marginBottom: "15px" }}>✅</span>
+            <h2 style={{ fontWeight: 800, color: "#ffffff" }}>تم استلام طلبك بنجاح!</h2>
             <p style={{ margin: "15px 0", lineHeight: "1.6", color: "#cbd5e1" }}>
-              ????? ??????? ?? Spider Store. ?? ????? ??? ????? ????? ?? ????? ??? ??? ??????? ????.
+              شكراً لتعاملك مع Spider Store. تم تسجيل طلب الشحن الخاص بك بنجاح وهو قيد التنفيذ الآن.
             </p>
 
             <div style={{ background: "linear-gradient(180deg, rgba(13, 18, 36, 0.98), rgba(13, 18, 36, 0.82))", border: "1px solid rgba(255,255,255,0.08)", padding: "15px", borderRadius: "12px", textAlign: "right", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem", marginBottom: "20px", color: "#f8fafc" }}>
-              <div><strong style={{ color: "#cbd5e1" }}>??? ?????:</strong> #{successData.id}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>??????:</strong> {successData.service_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>??????:</strong> {successData.package_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>??????:</strong> {Number(successData.package_price).toFixed(2)} ?.?</div>
+              <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
+              <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
+              <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
+              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
               <div>
-                <strong style={{ color: "#cbd5e1" }}>????? ?????:</strong>{" "}
+                <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
                 {successData.payment_method === "wallet" ? (
-                  "???????"
+                  "المحفظة"
                 ) : (
                   <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                    ????? ???:{" "}
+                    تحويل إلى:{" "}
                     <strong style={{
                       color: "#000000",
                       background: "#f1f5f9",
@@ -944,19 +944,19 @@ export default function ServiceDetail({ params }) {
                         transition: "all 0.2s"
                       }}
                     >
-                      {copied ? "?? ?????! ?" : "??? ??"}
+                      {copied ? "تم النسخ! ✓" : "نسخ 📋"}
                     </button>
                   </span>
                 )}
               </div>
               {successData.sender_phone && (
-                <div><strong style={{ color: "#cbd5e1" }}>????? ?????? ???:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>
+                <div><strong style={{ color: "#cbd5e1" }}>الرقم المحول منه:</strong> <span style={{ color: "#f8fafc", direction: "ltr", display: "inline-block" }}>{successData.sender_phone}</span></div>
               )}
-              <div><strong style={{ color: "#cbd5e1" }}>???? ?????:</strong> <span style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{successData.player_id}</span></div>
+              <div><strong style={{ color: "#cbd5e1" }}>حساب الشحن:</strong> <span style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{successData.player_id}</span></div>
               {typeof successData.customer_balance === "number" && (
-                <div><strong style={{ color: "#cbd5e1" }}>?????? ???????:</strong> <span style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ?.?</span></div>
+                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</span></div>
               )}
-              <div><strong style={{ color: "#cbd5e1" }}>??????:</strong> <span style={{ color: "#86efac" }}>??? ???????? (???? ????? ????)</span></div>
+              <div><strong style={{ color: "#cbd5e1" }}>الحالة:</strong> <span style={{ color: "#86efac" }}>قيد الانتظار (سيتم الشحن فورا)</span></div>
             </div>
 
             <button
@@ -964,7 +964,7 @@ export default function ServiceDetail({ params }) {
               style={{ width: "100%", padding: "12px" }}
               onClick={() => router.push("/")}
             >
-              ?????? ?????? ????????
+              حسناً، العودة للرئيسية
             </button>
           </div>
         </div>
