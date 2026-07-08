@@ -5260,7 +5260,7 @@ export default function AdminDashboard() {
                             }
                             const estPrice = apiPriceUsd * multiplier * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
 
-                            const pricePlaceholder = `$ ${estPrice.toFixed(2)}`;
+                            const pricePlaceholder = estPrice.toFixed(2);
 
                             return (
                               <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : isSelected ? "rgba(56, 189, 248, 0.08)" : "" }}>
@@ -5283,7 +5283,7 @@ export default function AdminDashboard() {
                                 <td data-label={`سعر المزود (${unlockerCurrency})`} style={{ color: "#38bdf8", fontWeight: "bold" }}>
                                   {unlockerCurrency === 'USD' ? '$' : ''}{apiPriceUsd.toFixed(2)}{unlockerCurrency !== 'USD' ? ' ' + unlockerCurrency : ''}
                                 </td>
-                                <td data-label="سعر البيع">
+                                <td data-label="سعر البيع المقترح">
                                   <input
                                     type="number"
                                     step="0.01"
