@@ -1327,7 +1327,6 @@ export default function ServiceDetail({ params }) {
                 </div>
               </div>
 
-<<<<<<< HEAD
     {/* Side section: Col 2 */ }
   <div className="checkout-side-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
@@ -1348,16 +1347,6 @@ export default function ServiceDetail({ params }) {
       <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
         <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
         <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
-=======
-        {/* Sidebar Summary */}
-        <div>
-          <div className="glass-panel summary-box">
-            <h3 style={{ fontWeight: 800, borderBottom: "2px solid rgba(0,0,0,0.05)", paddingBottom: "10px" }}>تفاصيل الطلب</h3>
-
-            <div className="summary-row">
-              <span className="summary-label">الخدمة</span>
-              <span className="summary-value">{service.name}</span>
->>>>>>> 40aacd7
             </div>
 
             {(service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? (
@@ -1430,7 +1419,6 @@ export default function ServiceDetail({ params }) {
             </div>
           </div>
 
-<<<<<<< HEAD
   {
     errorMessage && (
       <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.08)", borderRight: "4px solid #ef4444", color: "#f87171", borderRadius: "10px", fontSize: "0.85rem", fontWeight: "bold" }}>
@@ -1533,65 +1521,6 @@ export default function ServiceDetail({ params }) {
                 {typeof customerUser.balance === "number" && (
                   <span style={{ marginInlineStart: "auto", background: "rgba(34, 197, 94, 0.15)", color: "#4ade80", padding: "4px 10px", borderRadius: "8px", fontWeight: "bold", fontSize: "0.82rem" }}>
                     رصيد محفظتك: {customerUser.balance.toFixed(2)} {baseCurrency}
-=======
-      {/* Success Modal */}
-                    {successData && (
-                      <div className="overlay">
-                        <div className="modal-content" style={{ textAlign: "center", padding: "30px 20px", width: "95%", maxWidth: "500px", borderRadius: "24px", maxHeight: "90vh", overflowY: "auto" }}>
-                          <span style={{ fontSize: "4rem", color: "var(--success-color)", display: "block", marginBottom: "15px" }}>✅</span>
-                          <h2 style={{ fontWeight: 800, color: "#ffffff" }}>تم استلام طلبك بنجاح!</h2>
-                          <p style={{ margin: "15px 0", lineHeight: "1.6", color: "#cbd5e1" }}>
-                            شكراً لتعاملك مع Spider Store. تم تسجيل طلب الشحن الخاص بك بنجاح وهو قيد التنفيذ الآن.
-                          </p>
-
-                          <div style={{ background: "linear-gradient(180deg, rgba(13, 18, 36, 0.98), rgba(13, 18, 36, 0.82))", border: "1px solid rgba(255,255,255,0.08)", padding: "15px", borderRadius: "12px", textAlign: "right", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem", marginBottom: "20px", color: "#f8fafc" }}>
-                            <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
-                            <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
-                            <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
-                            <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
-                            <div>
-                              <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
-                              {successData.payment_method === "wallet" ? (
-                                "المحفظة"
-                              ) : (
-                                <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                                  تحويل إلى:{" "}
-                                  <strong style={{
-                                    color: "#000000",
-                                    background: "#f1f5f9",
-                                    padding: "4px 10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #cbd5e1",
-                                    direction: "ltr",
-                                    display: "inline-block",
-                                    fontSize: "0.95rem",
-                                    userSelect: "all",
-                                    fontWeight: "bold"
-                                  }}>
-                                    {successData.transfer_to}
-                                  </strong>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(successData.transfer_to);
-                                      setCopied(true);
-                                      setTimeout(() => setCopied(false), 2000);
-                                    }}
-                                    style={{
-                                      background: copied ? "#10b981" : "#3b82f6",
-                                      color: "#ffffff",
-                                      border: "none",
-                                      borderRadius: "6px",
-                                      padding: "4px 10px",
-                                      fontSize: "0.8rem",
-                                      cursor: "pointer",
-                                      fontWeight: "bold",
-                                      transition: "all 0.2s"
-                                    }}
-                                  >
-                                    {copied ? "تم النسخ! ✓" : "نسخ 📋"}
-                                  </button>
->>>>>>> 40aacd7
                                 </span>
                               )}
                             </div>
