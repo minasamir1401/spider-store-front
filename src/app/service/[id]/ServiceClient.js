@@ -787,7 +787,6 @@ export default function ServiceDetail({ params }) {
     </div>
   );
 
-<<<<<<< HEAD
   const isContinueEnabled = (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic"))
     ? (Number(customQuantity) >= 100)
     : (selectedPackage !== null);
@@ -1012,7 +1011,6 @@ export default function ServiceDetail({ params }) {
                             ))}
                           </select>
                         ) : (
-<<<<<<< HEAD
                           <input
                             id={`field_${field.name}`}
                             type={field.type || "text"}
@@ -1040,105 +1038,6 @@ export default function ServiceDetail({ params }) {
                               e.target.style.background = "var(--input-bg)";
                             }}
                           />
-=======
-                  field.name === "player_id" && (service?.name && (service.name.toLowerCase().includes("pubg") || service.name.includes("ببجي"))) ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <div style={{ display: "flex", gap: "10px" }}>
-                        <input
-                          id={`field_${field.name}`}
-                          type={field.type || "text"}
-                          placeholder={field.placeholder || ""}
-                          value={formData[field.name] || ""}
-                          onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                          required={field.required !== false}
-                          style={{
-                            flex: 1,
-                            padding: "14px 18px",
-                            fontSize: "0.95rem",
-                            borderRadius: "12px",
-                            border: "2px solid #3b82f6",
-                            background: "#ffffff",
-                            color: "#000000",
-                            outline: "none"
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleValidatePlayerId(formData[field.name])}
-                          disabled={validatingId || !formData[field.name]?.trim()}
-                          style={{
-                            padding: "0 20px",
-                            borderRadius: "12px",
-                            background: "linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%)",
-                            color: "#ffffff",
-                            border: "none",
-                            fontSize: "0.9rem",
-                            fontWeight: "bold",
-                            cursor: (validatingId || !formData[field.name]?.trim()) ? "not-allowed" : "pointer",
-                            opacity: (validatingId || !formData[field.name]?.trim()) ? 0.6 : 1,
-                            transition: "all 0.2s",
-                            minWidth: "120px"
-                          }}
-                        >
-                          {validatingId ? "جاري الفحص..." : "فحص الحساب"}
-                        </button>
-                      </div>
-                      {validationResult && (
-                        <div style={{
-                          padding: "10px 14px",
-                          background: "rgba(16, 185, 129, 0.1)",
-                          border: "1px solid rgba(16, 185, 129, 0.3)",
-                          borderRadius: "10px",
-                          color: "#10b981",
-                          fontSize: "0.88rem",
-                          fontWeight: "600",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px"
-                        }}>
-                          <span>✅</span>
-                          <span>اسم اللاعب: <strong>{validationResult.name}</strong></span>
-                        </div>
-                      )}
-                      {validationError && (
-                        <div style={{
-                          padding: "10px 14px",
-                          background: "rgba(244, 63, 94, 0.1)",
-                          border: "1px solid rgba(244, 63, 94, 0.3)",
-                          borderRadius: "10px",
-                          color: "#f43f5e",
-                          fontSize: "0.88rem",
-                          fontWeight: "600",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px"
-                        }}>
-                          <span>❌</span>
-                          <span>{validationError}</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <input
-                      id={`field_${field.name}`}
-                      type={field.type || "text"}
-                      placeholder={field.placeholder || ""}
-                      value={formData[field.name] || ""}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      required={field.required !== false}
-                      style={{
-                        width: "100%",
-                        padding: "14px 18px",
-                        fontSize: "0.95rem",
-                        borderRadius: "12px",
-                        border: "2px solid #3b82f6",
-                        background: "#ffffff",
-                        color: "#000000",
-                        outline: "none"
-                      }}
-                    />
-                  )
->>>>>>> 40aacd7
                         )}
                       </div>
                     ))}
