@@ -348,9 +348,26 @@ export default function ServicesClient() {
                           )}
                           <div className="scc-content">
                             <span className="scc-name">{service.name}</span>
-                            <div className="scc-meta">
-                              <div className="scc-dot"></div>
-                              <span>اضغط للعرض</span>
+                            <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
+                              {service.packages && service.packages.length > 0 ? (
+                                <>
+                                  <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
+                                    من $ {Math.min(...service.packages.map(p => parseFloat(p.price) || 0)).toFixed(2)}
+                                  </span>
+                                  <span style={{ background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
+                                    {service.packages.length} باقة
+                                  </span>
+                                </>
+                              ) : service.price > 0 ? (
+                                <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
+                                  $ {Number(service.price).toFixed(2)}
+                                </span>
+                              ) : (
+                                <>
+                                  <div className="scc-dot"></div>
+                                  <span>اضغط للعرض</span>
+                                </>
+                              )}
                             </div>
                           </div>
                           <div className="scc-arrow">
@@ -445,9 +462,26 @@ export default function ServicesClient() {
                         )}
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
-                          <div className="scc-meta">
-                            <div className="scc-dot"></div>
-                            <span>اضغط للعرض</span>
+                          <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
+                            {service.packages && service.packages.length > 0 ? (
+                              <>
+                                <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
+                                  من $ {Math.min(...service.packages.map(p => parseFloat(p.price) || 0)).toFixed(2)}
+                                </span>
+                                <span style={{ background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
+                                  {service.packages.length} باقة
+                                </span>
+                              </>
+                            ) : service.price > 0 ? (
+                              <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
+                                $ {Number(service.price).toFixed(2)}
+                              </span>
+                            ) : (
+                              <>
+                                <div className="scc-dot"></div>
+                                <span>اضغط للعرض</span>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div className="scc-arrow">
