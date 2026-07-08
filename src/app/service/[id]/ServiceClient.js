@@ -197,7 +197,13 @@ export default function ServiceDetail({ params }) {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_BASE_URL}/api/services/${serviceId}`)
+    const token = typeof window !== 'undefined' ? localStorage.getItem("customer_token") : null;
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    fetch(`${API_BASE_URL}/api/services/${serviceId}`, { headers })
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();

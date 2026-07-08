@@ -106,6 +106,19 @@ export default function AdminDashboard() {
   const [editCustomerBalances, setEditCustomerBalances] = useState({});
   const [editCustomerNewPassword, setEditCustomerNewPassword] = useState("");
 
+  // VIP & Discount states
+  const [customerFilter, setCustomerFilter] = useState("all"); // all, vip, active, new
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountCustomerId, setDiscountCustomerId] = useState(null);
+  const [discountCustomerName, setDiscountCustomerName] = useState("");
+  const [discountType, setDiscountType] = useState("percentage");
+  const [discountValue, setDiscountValue] = useState("");
+  const [discountDescription, setDiscountDescription] = useState("");
+  const [discountServiceId, setDiscountServiceId] = useState("");
+  const [discountCategoryId, setDiscountCategoryId] = useState("");
+  const [discountExpiresAt, setDiscountExpiresAt] = useState("");
+  const [customerDiscounts, setCustomerDiscounts] = useState([]);
+
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [newBannerTitle, setNewBannerTitle] = useState("");
   const [newBannerHighlight, setNewBannerHighlight] = useState("");
@@ -793,6 +806,94 @@ export default function AdminDashboard() {
       alert("تم حذف العميل والبيانات المرتبطة به بنجاح.");
     } catch (err) {
       alert(err.message || "فشل حذف العميل.");
+    }
+  };
+
+  const handleToggleVip = async (customerId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/admin/${customerId}/toggle-vip`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, is_vip: data.is_vip } : c));
+    } catch (err) {
+      alert(err.message || "فشل تحديث حالة VIP.");
+    }
+  };
+
+  const handleOpenDiscountModal = async (customer) => {
+    setDiscountCustomerId(customer.id);
+    setDiscountCustomerName(customer.username);
+    setDiscountType("percentage");
+    setDiscountValue("");
+    setDiscountDescription("");
+    setDiscountServiceId("");
+    setDiscountCategoryId("");
+    setDiscountExpiresAt("");
+    // Load existing discounts
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/admin/${customer.id}/discounts`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCustomerDiscounts(data);
+      }
+    } catch (err) {
+      console.error("Failed to load discounts:", err);
+    }
+    setShowDiscountModal(true);
+  };
+
+  const handleCreateDiscount = async (e) => {
+    e.preventDefault();
+    if (!discountValue || Number(discountValue) <= 0) {
+      alert("يرجى إدخال قيمة خصم صحيحة.");
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/admin/${discountCustomerId}/discount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          discount_type: discountType,
+          discount_value: Number(discountValue),
+          description: discountDescription,
+          service_id: discountServiceId || null,
+          category_id: discountCategoryId || null,
+          expires_at: discountExpiresAt || null
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setCustomerDiscounts(prev => [data.discount, ...prev]);
+      setDiscountValue("");
+      setDiscountDescription("");
+      setDiscountServiceId("");
+      setDiscountCategoryId("");
+      setDiscountExpiresAt("");
+      alert("تم إنشاء عرض الخصم بنجاح!");
+    } catch (err) {
+      alert(err.message || "فشل إنشاء عرض الخصم.");
+    }
+  };
+
+  const handleDeleteDiscount = async (discountId) => {
+    if (!confirm("هل أنت متأكد من حذف هذا العرض؟")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/admin/discount/${discountId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error();
+      setCustomerDiscounts(prev => prev.filter(d => d.id !== discountId));
+    } catch (err) {
+      alert("فشل حذف العرض.");
     }
   };
 
@@ -1783,12 +1884,24 @@ export default function AdminDashboard() {
 
   const filteredCustomers = Array.isArray(customers) ? customers.filter((customer) => {
     const search = customerSearch.toLowerCase();
-    return (
+    const matchesSearch = !search || (
       customer.id.toString().includes(customerSearch) ||
       (customer.username || "").toLowerCase().includes(search) ||
       (customer.phone || "").toLowerCase().includes(search) ||
       String(customer.balance || "").includes(customerSearch)
     );
+    if (!matchesSearch) return false;
+
+    if (customerFilter === "vip") return customer.is_vip;
+    if (customerFilter === "active") {
+      if (!customer.last_order_at) return false;
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      return new Date(customer.last_order_at) >= thirtyDaysAgo;
+    }
+    if (customerFilter === "new") {
+      return (customer.total_orders || 0) === 0;
+    }
+    return true; // "all"
   }) : [];
 
   if (!hydrated) return null;
@@ -3518,6 +3631,93 @@ export default function AdminDashboard() {
             {/* Customers Section */}
             {activeTab === "customers" && (
               <>
+                {/* VIP / Featured Customers Showcase (أعلى صفحة إدارة المستخدمين) */}
+                <div style={{ marginBottom: "25px" }}>
+                  <h3 style={{ margin: "0 0 12px 0", fontSize: "1.1rem", fontWeight: 800, color: "var(--primary-color)", display: "flex", alignItems: "center", gap: "8px" }}>
+                    ⭐ العملاء المميزون والأكثر نشاطاً (VIP)
+                  </h3>
+                  {(() => {
+                    const vipList = customers.filter(c => c.is_vip || c.customer_level === 'gold' || c.customer_level === 'diamond');
+                    if (vipList.length === 0) {
+                      return (
+                        <div className="glass-panel" style={{ padding: "16px", textAlign: "center", color: "#64748b", fontSize: "0.9rem" }}>
+                          لا يوجد عملاء مميزون حالياً. يمكنك ترقية أي عميل إلى VIP من الجدول أدناه.
+                        </div>
+                      );
+                    }
+                    return (
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "12px" }}>
+                        {vipList.map(c => {
+                          const levelDetails = {
+                            bronze: { label: "برونزي", emoji: "🥉", color: "#cd7f32" },
+                            silver: { label: "فضي", emoji: "🥈", color: "#cbd5e1" },
+                            gold: { label: "ذهبي", emoji: "🥇", color: "#fbbf24" },
+                            diamond: { label: "ماسي", emoji: "💎", color: "#38bdf8" }
+                          };
+                          const lvl = levelDetails[c.customer_level || 'bronze'] || levelDetails.bronze;
+
+                          return (
+                            <div key={c.id} className="glass-panel" style={{ padding: "14px", border: "1px solid rgba(255, 255, 255, 0.08)", background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)", position: "relative", overflow: "hidden" }}>
+                              {/* VIP Glow badge */}
+                              <div style={{ position: "absolute", top: "10px", left: "10px", display: "flex", gap: "4px" }}>
+                                {c.is_vip && (
+                                  <span style={{ fontSize: "0.72rem", background: "rgba(250,204,21,0.15)", color: "#facc15", padding: "2px 6px", borderRadius: "8px", fontWeight: "bold", border: "1px solid rgba(250,204,21,0.25)" }}>
+                                    ⭐ VIP
+                                  </span>
+                                )}
+                                <span style={{ fontSize: "0.72rem", background: `rgba(255,255,255,0.05)`, color: lvl.color, padding: "2px 6px", borderRadius: "8px", fontWeight: "bold", border: `1px solid ${lvl.color}33` }}>
+                                  {lvl.emoji} {lvl.label}
+                                </span>
+                              </div>
+
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--primary-light)", border: "1px solid var(--primary-color)", display: "flex", alignItems: "center", justifyCenter: "center", fontWeight: "bold", color: "var(--primary-color)", fontSize: "1.1rem" }}>
+                                  👤
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#fff" }}>{c.username}</div>
+                                  <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>معرف العميل #{c.id}</div>
+                                </div>
+                              </div>
+
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.8rem", color: "#cbd5e1", marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "8px" }}>
+                                <div>
+                                  <div style={{ color: "#94a3b8", fontSize: "0.7rem", marginBottom: "2px" }}>الرصيد</div>
+                                  <div style={{ fontWeight: "bold", color: "#34d399" }}>{Number(c.balance || 0).toFixed(2)} {baseCurrency}</div>
+                                </div>
+                                <div style={{ textAlign: "left" }}>
+                                  <div style={{ color: "#94a3b8", fontSize: "0.7rem", marginBottom: "2px" }}>إجمالي الطلبات</div>
+                                  <div style={{ fontWeight: "bold", color: "#38bdf8" }}>{c.total_orders || 0} طلب</div>
+                                </div>
+                              </div>
+
+                              {/* Quick actions for VIP */}
+                              <div style={{ display: "flex", gap: "6px", marginTop: "12px" }}>
+                                <button
+                                  type="button"
+                                  className="action-btn"
+                                  style={{ flex: 1, padding: "4px 8px", fontSize: "0.75rem", background: "rgba(168,85,247,0.12)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.2)" }}
+                                  onClick={() => handleOpenDiscountModal(c)}
+                                >
+                                  🎁 تقديم عرض / هدية
+                                </button>
+                                <button
+                                  type="button"
+                                  className="action-btn"
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                  onClick={() => setSelectedCustomerId(c.id)}
+                                >
+                                  سجل الحركة
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+
                 <div className="premium-stats-grid">
                   <div className="premium-stat-card" style={{ "--glow-color": "rgba(59, 130, 246, 0.15)" }}>
                     <div className="stat-card-info">
@@ -3571,8 +3771,8 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="table-filter-bar">
-                  <div className="search-input-wrapper">
+                <div className="table-filter-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+                  <div className="search-input-wrapper" style={{ flex: 1, minWidth: "250px" }}>
                     <input
                       type="text"
                       className="search-input-premium"
@@ -3582,6 +3782,48 @@ export default function AdminDashboard() {
                     />
                     <span className="search-input-icon">🔍</span>
                   </div>
+
+                  {/* Customer type segmentation filters */}
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className={`action-btn ${customerFilter === "all" ? "btn-success-premium" : ""}`}
+                      style={{ background: customerFilter !== "all" ? "rgba(255,255,255,0.03)" : "", border: customerFilter !== "all" ? "1px solid rgba(255,255,255,0.08)" : "", color: customerFilter !== "all" ? "#cbd5e1" : "" }}
+                      onClick={() => setCustomerFilter("all")}
+                    >
+                      📁 الكل ({customers.length})
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-btn ${customerFilter === "vip" ? "btn-success-premium" : ""}`}
+                      style={{ background: customerFilter !== "vip" ? "rgba(255,255,255,0.03)" : "", border: customerFilter !== "vip" ? "1px solid rgba(255,255,255,0.08)" : "", color: customerFilter !== "vip" ? "#cbd5e1" : "" }}
+                      onClick={() => setCustomerFilter("vip")}
+                    >
+                      ⭐ المميزون VIP ({customers.filter(c => c.is_vip).length})
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-btn ${customerFilter === "active" ? "btn-success-premium" : ""}`}
+                      style={{ background: customerFilter !== "active" ? "rgba(255,255,255,0.03)" : "", border: customerFilter !== "active" ? "1px solid rgba(255,255,255,0.08)" : "", color: customerFilter !== "active" ? "#cbd5e1" : "" }}
+                      onClick={() => setCustomerFilter("active")}
+                    >
+                      🔥 النشطون (آخر 30 يوم) ({
+                        customers.filter(c => {
+                          if (!c.last_order_at) return false;
+                          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                          return new Date(c.last_order_at) >= thirtyDaysAgo;
+                        }).length
+                      })
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-btn ${customerFilter === "new" ? "btn-success-premium" : ""}`}
+                      style={{ background: customerFilter !== "new" ? "rgba(255,255,255,0.03)" : "", border: customerFilter !== "new" ? "1px solid rgba(255,255,255,0.08)" : "", color: customerFilter !== "new" ? "#cbd5e1" : "" }}
+                      onClick={() => setCustomerFilter("new")}
+                    >
+                      🆕 الجدد (بدون طلبات) ({customers.filter(c => (c.total_orders || 0) === 0).length})
+                    </button>
+                  </div>
                 </div>
 
                 <div className="premium-table-wrapper">
@@ -3590,67 +3832,114 @@ export default function AdminDashboard() {
                       <tr>
                         <th>رقم العميل</th>
                         <th>اسم المستخدم</th>
-                        <th>البريد الإلكتروني</th>
+                        <th>المستوى</th>
+                        <th>النوع</th>
                         <th>الهاتف</th>
-                        <th>كلمة المرور</th>
                         <th>الرصيد</th>
-                        <th>الحالة</th>
-                        <th style={{ textAlign: "center" }}>الاختيار</th>
+                        <th>الطلبات</th>
+                        <th style={{ textAlign: "center" }}>الإجراءات والإدارة</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredCustomers.length === 0 ? (
                         <tr>
                           <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-                            لا يوجد عملاء يطابقون البحث.
+                            لا يوجد عملاء يطابقون شروط البحث والتصفية المحددة.
                           </td>
                         </tr>
                       ) : (
-                        filteredCustomers.map((customer) => (
-                          <tr key={customer.id}>
-                            <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
-                            <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>{customer.username}</td>
-                            <td data-label="البريد الإلكتروني" style={{ fontWeight: 700 }}>{customer.email || "-"}</td>
-                            <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
-                            <td data-label="كلمة المرور" style={{ color: "#94a3b8", fontWeight: 700 }}>{customer.password_masked || "مخفية"}</td>
-                            <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} {baseCurrency}</td>
-                            <td data-label="الحالة">
-                              <span className={`premium-badge ${Number(customer.balance || 0) > 0 ? "premium-badge-approved" : "premium-badge-pending"}`}>
-                                {Number(customer.balance || 0) > 0 ? "يوجد رصيد" : "صفر"}
-                              </span>
-                            </td>
-                            <td data-label="الاختيار" style={{ textAlign: "center" }}>
-                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
-                                <button
-                                  type="button"
-                                  className="action-btn btn-success-premium"
-                                  onClick={() => setSelectedCustomerId(customer.id)}
-                                >
-                                  عرض السجل
-                                </button>
-                                <button
-                                  type="button"
-                                  className="action-btn"
-                                  style={{ background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd", border: "1px solid rgba(59, 130, 246, 0.22)" }}
-                                  onClick={() => handleOpenEditCustomer(customer)}
-                                >
-                                  تعديل
-                                </button>
-                                <button
-                                  type="button"
-                                  className="action-btn btn-danger-premium"
-                                  onClick={() => handleDeleteCustomer(customer.id)}
-                                >
-                                  حذف
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
+                        filteredCustomers.map((customer) => {
+                          const levelDetails = {
+                            bronze: { label: "برونزي", emoji: "🥉", color: "#cd7f32" },
+                            silver: { label: "فضي", emoji: "🥈", color: "#cbd5e1" },
+                            gold: { label: "ذهبي", emoji: "🥇", color: "#fbbf24" },
+                            diamond: { label: "ماسي", emoji: "💎", color: "#38bdf8" }
+                          };
+                          const lvl = levelDetails[customer.customer_level || 'bronze'] || levelDetails.bronze;
+
+                          return (
+                            <tr key={customer.id}>
+                              <td data-label="رقم العميل" style={{ fontWeight: 800, color: "#38bdf8" }}>#{customer.id}</td>
+                              <td data-label="اسم المستخدم" style={{ fontWeight: 700 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                  {customer.username}
+                                  {customer.is_vip && <span style={{ color: "#fbbf24", title: "عميل مميز VIP" }}>⭐</span>}
+                                </div>
+                              </td>
+                              <td data-label="المستوى">
+                                <span style={{ color: lvl.color, fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                  {lvl.emoji} {lvl.label}
+                                </span>
+                              </td>
+                              <td data-label="النوع">
+                                <span className={`premium-badge ${customer.is_vip ? "premium-badge-approved" : "premium-badge-pending"}`} style={{ fontSize: "0.72rem" }}>
+                                  {customer.is_vip ? "VIP مميز" : "عادي"}
+                                </span>
+                              </td>
+                              <td data-label="الهاتف" style={{ direction: "ltr", fontWeight: 700 }}>{customer.phone || "-"}</td>
+                              <td data-label="الرصيد" style={{ fontWeight: 800, color: "#34d399" }}>{Number(customer.balance || 0).toFixed(2)} {baseCurrency}</td>
+                              <td data-label="الطلبات" style={{ fontWeight: 700 }}>
+                                <div style={{ fontSize: "0.85rem" }}>
+                                  <strong>{customer.total_orders || 0}</strong> طلب
+                                  {customer.last_order_at && (
+                                    <div style={{ fontSize: "0.68rem", color: "#94a3b8", marginTop: "2px" }}>
+                                      آخرها: {new Date(customer.last_order_at).toLocaleDateString("ar-EG")}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td data-label="الانتخاب" style={{ textAlign: "center" }}>
+                                <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    className="action-btn btn-success-premium"
+                                    style={{ padding: "6px 10px", fontSize: "0.8rem" }}
+                                    onClick={() => setSelectedCustomerId(customer.id)}
+                                  >
+                                    الحركة
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn"
+                                    style={{ padding: "6px 10px", fontSize: "0.8rem", background: "rgba(168,85,247,0.12)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.2)" }}
+                                    onClick={() => handleOpenDiscountModal(customer)}
+                                  >
+                                    🎁 خصم/هدية
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn"
+                                    style={{ padding: "6px 10px", fontSize: "0.8rem", background: customer.is_vip ? "rgba(239,68,68,0.12)" : "rgba(250,204,21,0.12)", color: customer.is_vip ? "#f87171" : "#facc15", border: customer.is_vip ? "1px solid rgba(239,68,68,0.2)" : "1px solid rgba(250,204,21,0.2)" }}
+                                    onClick={() => handleToggleVip(customer.id)}
+                                  >
+                                    {customer.is_vip ? "إلغاء VIP" : "ترقية VIP"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn"
+                                    style={{ padding: "6px 10px", fontSize: "0.8rem", background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd", border: "1px solid rgba(59, 130, 246, 0.22)" }}
+                                    onClick={() => handleOpenEditCustomer(customer)}
+                                  >
+                                    تعديل
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn btn-danger-premium"
+                                    style={{ padding: "6px 10px", fontSize: "0.8rem" }}
+                                    onClick={() => handleDeleteCustomer(customer.id)}
+                                  >
+                                    حذف
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
                 </div>
+
 
                 <div style={{ marginTop: "28px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.02)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px", flexWrap: "wrap" }}>
@@ -7333,6 +7622,185 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDiscountModal && (
+        <div className="premium-overlay" onClick={() => setShowDiscountModal(false)}>
+          <div className="premium-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "700px", maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="premium-modal-header">
+              <h3 className="premium-modal-title">
+                🎁 عروض الأسعار والخصومات المخصصة للعميل: <span style={{ color: "#38bdf8" }}>{discountCustomerName}</span>
+              </h3>
+              <button className="close-btn-premium" onClick={() => setShowDiscountModal(false)}>×</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              {/* Create Discount Form */}
+              <form onSubmit={handleCreateDiscount} className="glass-panel" style={{ padding: "16px", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", gap: "14px" }}>
+                <h4 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "var(--primary-color)" }}>إضافة عرض خصم / هدية جديدة</h4>
+                
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <div className="form-group" style={{ flex: 1, minWidth: "150px", marginBottom: 0 }}>
+                    <label>نوع العرض / الخصم:</label>
+                    <select
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value)}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                    >
+                      <option value="percentage">نسبة مئوية (%)</option>
+                      <option value="fixed">مبلغ ثابت ($)</option>
+                      <option value="gift">هدية / مكافأة مجانية</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ flex: 1, minWidth: "150px", marginBottom: 0 }}>
+                    <label>قيمة الخصم / الهدية:</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder={discountType === "percentage" ? "مثال: 10 (لخصم 10%)" : discountType === "fixed" ? "مثال: 5 (لخصم 5 دولارات)" : "أدخل القيمة أو عدد الوحدات"}
+                      value={discountValue}
+                      onChange={(e) => setDiscountValue(e.target.value)}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <div className="form-group" style={{ flex: 1, minWidth: "150px", marginBottom: 0 }}>
+                    <label>تطبيق على قسم محدد (اختياري):</label>
+                    <select
+                      value={discountCategoryId}
+                      onChange={(e) => {
+                        setDiscountCategoryId(e.target.value);
+                        setDiscountServiceId(""); // Reset service if category changes
+                      }}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                    >
+                      <option value="">كل الأقسام</option>
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ flex: 1, minWidth: "150px", marginBottom: 0 }}>
+                    <label>تطبيق على خدمة محددة (اختياري):</label>
+                    <select
+                      value={discountServiceId}
+                      onChange={(e) => setDiscountServiceId(e.target.value)}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                    >
+                      <option value="">كل الخدمات</option>
+                      {services
+                        .filter(s => !discountCategoryId || Number(s.category_id) === Number(discountCategoryId))
+                        .map(srv => (
+                          <option key={srv.id} value={srv.id}>{srv.name}</option>
+                        ))
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <div className="form-group" style={{ flex: 2, minWidth: "200px", marginBottom: 0 }}>
+                    <label>وصف العرض (يظهر للعميل):</label>
+                    <input
+                      type="text"
+                      placeholder="مثال: خصم خاص 10% بمناسبة الترقية لمستوى ذهبي"
+                      value={discountDescription}
+                      onChange={(e) => setDiscountDescription(e.target.value)}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ flex: 1, minWidth: "150px", marginBottom: 0 }}>
+                    <label>تاريخ الانتهاء (اختياري):</label>
+                    <input
+                      type="date"
+                      value={discountExpiresAt}
+                      onChange={(e) => setDiscountExpiresAt(e.target.value)}
+                      style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13, 18, 36, 0.7)", color: "#fff" }}
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-add-premium" style={{ alignSelf: "flex-end", marginTop: "6px" }}>
+                  ➕ حفظ العرض وتطبيقه
+                </button>
+              </form>
+
+              {/* Active Discounts Table */}
+              <div>
+                <h4 style={{ margin: "0 0 10px 0", fontSize: "0.95rem", fontWeight: 800 }}>العروض المطبقة حالياً على هذا العميل</h4>
+                <div className="premium-table-wrapper" style={{ margin: 0, maxHeight: "250px", overflowY: "auto" }}>
+                  <table className="premium-table">
+                    <thead>
+                      <tr>
+                        <th>النوع</th>
+                        <th>القيمة</th>
+                        <th>التطبيق</th>
+                        <th>الوصف</th>
+                        <th>الصلاحية</th>
+                        <th style={{ textAlign: "center" }}>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customerDiscounts.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "#64748b" }}>
+                            لا توجد عروض أو خصومات مخصصة لهذا العميل حالياً.
+                          </td>
+                        </tr>
+                      ) : (
+                        customerDiscounts.map(d => {
+                          const catName = categories.find(c => c.id === d.category_id)?.name || "الكل";
+                          const srvName = services.find(s => s.id === d.service_id)?.name || "الكل";
+                          return (
+                            <tr key={d.id}>
+                              <td>
+                                <span className={`premium-badge ${d.discount_type === 'percentage' ? 'premium-badge-approved' : d.discount_type === 'fixed' ? 'premium-badge-pending' : 'premium-badge-rejected'}`}>
+                                  {d.discount_type === 'percentage' ? 'نسبة مئوية' : d.discount_type === 'fixed' ? 'مبلغ ثابت' : 'هدية'}
+                                </span>
+                              </td>
+                              <td style={{ fontWeight: 800, color: "#34d399" }}>
+                                {d.discount_type === 'percentage' ? `${d.discount_value}%` : d.discount_type === 'fixed' ? `$${d.discount_value}` : d.discount_value}
+                              </td>
+                              <td style={{ fontSize: "0.8rem" }}>
+                                {d.service_id ? `الخدمة: ${srvName}` : d.category_id ? `القسم: ${catName}` : "كل الخدمات"}
+                              </td>
+                              <td>{d.description || "-"}</td>
+                              <td style={{ fontSize: "0.8rem" }}>
+                                {d.expires_at ? new Date(d.expires_at).toLocaleDateString("ar-EG") : "مفتوح"}
+                              </td>
+                              <td style={{ textAlign: "center" }}>
+                                <button
+                                  type="button"
+                                  className="action-btn btn-danger-premium"
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                  onClick={() => handleDeleteDiscount(d.id)}
+                                >
+                                  حذف
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+              <button onClick={() => setShowDiscountModal(false)} className="action-btn btn-edit-premium">
+                إغلاق
+              </button>
+            </div>
           </div>
         </div>
       )}

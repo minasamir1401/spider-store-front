@@ -131,8 +131,14 @@ export default function CategoryServices({ params }) {
         setCategoryName(categoryNamesMap[categoryId] || "الخدمات المتاحة");
       });
 
-    // Fetch services filtering by category_id
-    fetchWithTimeout(`${API_BASE_URL}/api/services?category_id=${categoryId}`)
+    // Fetch services filtering by category_id with optional customer token
+    const token = typeof window !== 'undefined' ? localStorage.getItem("customer_token") : null;
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    fetchWithTimeout(`${API_BASE_URL}/api/services?category_id=${categoryId}`, { headers })
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -289,7 +295,7 @@ export default function CategoryServices({ params }) {
                 <div className="scc-wrap" key={cat.id}>
                   <Link
                     className="scc-card"
-                    dir="rtl"
+                    dir="ltr"
                     href={`/category/${cat.id}`}
                     style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
@@ -320,7 +326,7 @@ export default function CategoryServices({ params }) {
                     </div>
                     <div className="scc-arrow">
                       <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                        <path d="m15 18-6-6 6-6"></path>
+                        <path d="m9 18 6-6-6-6"></path>
                       </svg>
                     </div>
                   </Link>
@@ -447,7 +453,7 @@ export default function CategoryServices({ params }) {
                           <Link 
                             href={`/service/${service.id}?package=${pkg.id}`} 
                             className="scc-card" 
-                            dir="rtl" 
+                            dir="ltr" 
                             style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                           >
                             <div className="scc-side-line"></div>
@@ -488,7 +494,7 @@ export default function CategoryServices({ params }) {
                             </div>
                             <div className="scc-arrow">
                               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                                <path d="m15 18-6-6 6-6"></path>
+                                <path d="m9 18 6-6-6-6"></path>
                               </svg>
                             </div>
                           </Link>
@@ -502,7 +508,7 @@ export default function CategoryServices({ params }) {
                       <Link 
                         href={`/service/${service.id}`} 
                         className="scc-card" 
-                        dir="rtl" 
+                        dir="ltr" 
                         style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                       >
                         <div className="scc-side-line"></div>
@@ -542,7 +548,7 @@ export default function CategoryServices({ params }) {
                         </div>
                         <div className="scc-arrow">
                           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                            <path d="m15 18-6-6 6-6"></path>
+                            <path d="m9 18 6-6-6-6"></path>
                           </svg>
                         </div>
                       </Link>

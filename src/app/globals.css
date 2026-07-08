@@ -2225,7 +2225,7 @@ button, input, textarea, select {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 100% 50%, var(--scc-gl, rgba(99, 102, 241, 0.2)), transparent 70%);
+  background: radial-gradient(circle at 0% 50%, var(--scc-gl, rgba(99, 102, 241, 0.2)), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 0;
@@ -2246,11 +2246,11 @@ button, input, textarea, select {
 .scc-side-line {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   bottom: 0;
   width: 3.5px;
   background: var(--scc-ac, #6366f1);
-  border-radius: 0 4px 4px 0;
+  border-radius: 4px 0 0 4px;
   z-index: 1;
 }
 
@@ -2297,7 +2297,7 @@ button, input, textarea, select {
   justify-content: center;
   gap: 3px;
   flex-grow: 1;
-  text-align: right;
+  text-align: left;
   z-index: 1;
   min-width: 0;
 }
@@ -2362,9 +2362,9 @@ button, input, textarea, select {
   color: #64748b;
   z-index: 1;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: 4px;
+  margin-right: 4px;
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateX(-10px);
 }
 
 .scc-card:hover .scc-arrow {

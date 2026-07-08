@@ -104,8 +104,14 @@ export default function ServicesClient() {
         setCategories(sortedStatic);
       });
 
-    // Fetch services
-    fetch(`${API_BASE_URL}/api/services`)
+    // Fetch services with optional customer token for discounts
+    const token = typeof window !== 'undefined' ? localStorage.getItem("customer_token") : null;
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    fetch(`${API_BASE_URL}/api/services`, { headers })
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -328,7 +334,7 @@ export default function ServicesClient() {
                             <Link 
                               href={`/service/${service.id}?package=${pkg.id}`} 
                               className="scc-card" 
-                              dir="rtl" 
+                              dir="ltr" 
                               style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                             >
                               <div className="scc-side-line"></div>
@@ -369,7 +375,7 @@ export default function ServicesClient() {
                               </div>
                               <div className="scc-arrow">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                                  <path d="m15 18-6-6 6-6"></path>
+                                  <path d="m9 18 6-6-6-6"></path>
                                 </svg>
                               </div>
                             </Link>
@@ -383,7 +389,7 @@ export default function ServicesClient() {
                         <Link 
                           href={`/service/${service.id}`} 
                           className="scc-card" 
-                          dir="rtl" 
+                          dir="ltr" 
                           style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                         >
                           <div className="scc-side-line"></div>
@@ -423,7 +429,7 @@ export default function ServicesClient() {
                           </div>
                           <div className="scc-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                              <path d="m15 18-6-6 6-6"></path>
+                              <path d="m9 18 6-6-6-6"></path>
                             </svg>
                           </div>
                         </Link>
@@ -493,7 +499,7 @@ export default function ServicesClient() {
                           <Link 
                             href={`/service/${service.id}?package=${pkg.id}`} 
                             className="scc-card" 
-                            dir="rtl" 
+                            dir="ltr" 
                             style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                           >
                             <div className="scc-side-line"></div>
@@ -534,7 +540,7 @@ export default function ServicesClient() {
                             </div>
                             <div className="scc-arrow">
                               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left">
-                                <path d="m15 18-6-6 6-6"></path>
+                                <path d="m9 18 6-6-6-6"></path>
                               </svg>
                             </div>
                           </Link>
@@ -548,7 +554,7 @@ export default function ServicesClient() {
                       <Link 
                         href={`/service/${service.id}`} 
                         className="scc-card" 
-                        dir="rtl" 
+                        dir="ltr" 
                         style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                       >
                         <div className="scc-side-line"></div>
@@ -588,7 +594,7 @@ export default function ServicesClient() {
                         </div>
                         <div className="scc-arrow">
                           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left">
-                            <path d="m15 18-6-6 6-6"></path>
+                            <path d="m9 18 6-6-6-6"></path>
                           </svg>
                         </div>
                       </Link>
