@@ -882,6 +882,29 @@ export default function AdminDashboard() {
     }
   };
 
+  // Delete All Categories
+  const handleDeleteAllCategories = async () => {
+    if (!confirm("هل أنت متأكد من حذف جميع الأقسام نهائياً؟ سيتم حذف كافة الخدمات أيضاً!")) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/categories/all/clear`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error();
+
+      setCategories([]);
+      setServices([]);
+      alert("تم حذف جميع الأقسام والخدمات بنجاح.");
+    } catch (err) {
+      alert("فشل حذف الأقسام.");
+    }
+  };
+
+
   // Package list helpers
   const handleAddPkgInput = () => {
     setNewServicePackages(prev => [...prev, { name: "", price: 0 }]);
@@ -1031,6 +1054,28 @@ export default function AdminDashboard() {
       alert("فشل حذف الخدمة.");
     }
   };
+
+  // Delete All Services
+  const handleDeleteAllServices = async () => {
+    if (!confirm("هل أنت متأكد من حذف جميع الخدمات نهائياً؟")) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/services/all/clear`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error();
+
+      setServices([]);
+      alert("تم حذف جميع الخدمات بنجاح.");
+    } catch (err) {
+      alert("فشل حذف الخدمات.");
+    }
+  };
+
 
   // Open Edit Category Modal
   const handleOpenEditCat = (cat) => {
@@ -3673,7 +3718,7 @@ export default function AdminDashboard() {
             {/* Categories Section */}
             {activeTab === "categories" && (
               <>
-                <div className="table-filter-bar" style={{ justifyContent: "flex-start" }}>
+                <div className="table-filter-bar" style={{ justifyContent: "flex-start", gap: "15px", alignItems: "center" }}>
                   <div className="search-input-wrapper">
                     <input
                       type="text"
@@ -3684,6 +3729,20 @@ export default function AdminDashboard() {
                     />
                     <span className="search-input-icon">🔍</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAllCategories}
+                    className="action-btn btn-danger-premium"
+                    style={{
+                      padding: "10px 18px",
+                      borderRadius: "10px",
+                      fontWeight: "800",
+                      fontSize: "0.85rem",
+                      boxShadow: "0 0 15px rgba(239, 68, 68, 0.2)"
+                    }}
+                  >
+                    حذف جميع الأقسام 🗑️
+                  </button>
                 </div>
 
                 <div className="category-grid-premium">
@@ -3754,6 +3813,21 @@ export default function AdminDashboard() {
                     />
                     <span className="search-input-icon">🔍</span>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={handleDeleteAllServices}
+                    className="action-btn btn-danger-premium"
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "10px",
+                      fontWeight: "800",
+                      fontSize: "0.85rem",
+                      boxShadow: "0 0 15px rgba(239, 68, 68, 0.2)"
+                    }}
+                  >
+                    حذف جميع الخدمات 🗑️
+                  </button>
 
                   <form onSubmit={handleSaveGlobalMarkup} style={{ display: "flex", alignItems: "center", gap: "10px", marginRight: "auto" }}>
                     <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#94a3b8", whiteSpace: "nowrap" }}>
