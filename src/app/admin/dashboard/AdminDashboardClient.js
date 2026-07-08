@@ -133,7 +133,7 @@ export default function AdminDashboard() {
   const [paymentMethodsList, setPaymentMethodsList] = useState([]);
   const [globalCurrencies, setGlobalCurrencies] = useState(["USD", "USDT"]);
   const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
-  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [baseCurrency, setBaseCurrency] = useState("$");
   const [supportedCurrenciesText, setSupportedCurrenciesText] = useState("USD, USDT");
   const [hideWalletPayment, setHideWalletPayment] = useState(false);
   const [whatsappNumbers, setWhatsappNumbers] = useState([]);
@@ -3924,17 +3924,17 @@ export default function AdminDashboard() {
                               <td data-label="الباقات المتوفرة">
                                 {service.price_type === "dynamic" ? (
                                   <span className="pkg-tag" style={{ background: "rgba(192, 132, 252, 0.15)", color: "#c084fc", borderColor: "rgba(192, 132, 252, 0.3)", fontWeight: "bold" }}>
-                                    سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
+                                    سعر الـ 1000: {parentCat && parentCat.currency === 'USD' || baseCurrency === '$' || baseCurrency === 'USD' ? `$${Number(service.price_per_thousand || 0).toFixed(2)}` : `${Number(service.price_per_thousand || 0).toFixed(2)} ج.م`}
                                   </span>
                                 ) : service.price_type === "both" ? (
                                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     <span className="pkg-tag" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", borderColor: "rgba(59, 130, 246, 0.3)", fontWeight: "bold", width: "fit-content" }}>
-                                      سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
+                                      سعر الـ 1000: {parentCat && parentCat.currency === 'USD' || baseCurrency === '$' || baseCurrency === 'USD' ? `$${Number(service.price_per_thousand || 0).toFixed(2)}` : `${Number(service.price_per_thousand || 0).toFixed(2)} ج.م`}
                                     </span>
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                       {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                         <span key={pkg.id || pkg.name} className="pkg-tag">
-                                          {pkg.name} ({parentCat && parentCat.currency === 'USD' ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
+                                          {pkg.name} ({parentCat && parentCat.currency === 'USD' || baseCurrency === '$' || baseCurrency === 'USD' ? `$${Number(pkg.usd_price || pkg.price).toFixed(2)}` : `${pkg.price} ج.م`})
                                         </span>
                                       ))}
                                       {parsedPackages && parsedPackages.length > 3 && (
@@ -3948,7 +3948,7 @@ export default function AdminDashboard() {
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
                                     {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
                                       <span key={pkg.id || pkg.name} className="pkg-tag">
-                                        {pkg.name} ({parentCat && parentCat.currency === 'USD' ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
+                                        {pkg.name} ({parentCat && parentCat.currency === 'USD' || baseCurrency === '$' || baseCurrency === 'USD' ? `$${Number(pkg.usd_price || pkg.price).toFixed(2)}` : `${pkg.price} ج.م`})
                                       </span>
                                     ))}
                                     {parsedPackages && parsedPackages.length > 3 && (
@@ -3960,7 +3960,7 @@ export default function AdminDashboard() {
                                 )}
                               </td>
                               <td data-label="السعر الابتدائي" style={{ fontWeight: 800, color: "#34d399" }}>
-                                {parentCat && parentCat.currency === 'USD' ? (
+                                {parentCat && parentCat.currency === 'USD' || baseCurrency === '$' || baseCurrency === 'USD' ? (
                                   `$ ${Number(parsedPackages && parsedPackages.length > 0 ? (parsedPackages[0].usd_price || parsedPackages[0].price) : service.price).toFixed(2)}`
                                 ) : service.price_type === "dynamic" ? (
                                   `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency} / 1000`
@@ -5252,19 +5252,15 @@ export default function AdminDashboard() {
                             const isAlreadyImported = importedUnlockerServiceIds.has(String(s.id));
 
                             const apiPriceUsd = parseFloat(s.price) || 0;
-                            const isTargetCatUsd = (categories.find(c => c.id === Number(unlockerImportTargetCat))?.currency === 'USD');
+                            const isTargetCatUsd = true;
 
                             let multiplier = 1;
-                            if (unlockerCurrency === 'USD' && !isTargetCatUsd) {
-                              multiplier = parseFloat(unlockerExchangeRate) || 50;
-                            } else if (unlockerCurrency === 'EGP' && isTargetCatUsd) {
+                            if (unlockerCurrency === 'EGP') {
                               multiplier = 1 / (parseFloat(unlockerExchangeRate) || 50);
                             }
                             const estPrice = apiPriceUsd * multiplier * (1 + (parseFloat(unlockerMarkupPercent) || 0) / 100);
 
-                            const pricePlaceholder = isTargetCatUsd
-                              ? `$ ${estPrice.toFixed(2)}`
-                              : `${Math.ceil(estPrice)} ج.م`;
+                            const pricePlaceholder = `$ ${estPrice.toFixed(2)}`;
 
                             return (
                               <tr key={s.id} style={{ background: isAlreadyImported ? "rgba(34,197,94,0.03)" : isSelected ? "rgba(56, 189, 248, 0.08)" : "" }}>
