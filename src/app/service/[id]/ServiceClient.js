@@ -445,7 +445,7 @@ export default function ServiceDetail({ params }) {
                     <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "700", display: "block" }}>{pkg.name}</span>
                     <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "6px" }}>
                       <span style={{ color: "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
-                        {Number(pkg.price).toFixed(2)} ج.م
+                        $ {Number(pkg.price).toFixed(2)}
                       </span>
                       <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
                         {Number(originalPrice).toFixed(2)}
@@ -478,7 +478,7 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        سعر الـ 1000 وحدة هو: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م (أقل كمية: 100)
+        سعر الـ 1000 وحدة هو: $ {Number(service.price_per_thousand || 0).toFixed(2)} (أقل كمية: 100)
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -518,7 +518,7 @@ export default function ServiceDetail({ params }) {
           placeholder="أدخل الكمية هنا (مثال: 5000)"
         />
         <div style={{ marginTop: "8px", fontSize: "0.88rem", color: "var(--text-muted)" }}>
-          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>{(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)} ج.م</strong>
+          السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>$ {(((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0)).toFixed(2)}</strong>
         </div>
       </div>
     </div>
@@ -761,7 +761,7 @@ export default function ServiceDetail({ params }) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <h3 style={{ fontWeight: 800, margin: 0 }}>3. طريقة الدفع:</h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  المبلغ: {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                  المبلغ: $ {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)}
                 </span>
               </div>
 
@@ -771,7 +771,7 @@ export default function ServiceDetail({ params }) {
                   <span>
                     <strong style={{ color: "#34d399", display: "block", fontSize: "0.95rem" }}>المحفظة الشخصية</strong>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "4px" }}>
-                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ج.م` : "يتطلب تسجيل الدخول."}
+                      الخصم يتم تلقائيًا من رصيدك الحالي. {isCustomerLoggedIn ? `رصيدك الحالي: $ ${Number(customerUser?.balance || 0).toFixed(2)}` : "يتطلب تسجيل الدخول."}
                     </div>
                   </span>
                 </div>
@@ -820,7 +820,7 @@ export default function ServiceDetail({ params }) {
                   </div>
                   <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>سعر الـ 1000 وحدة</span>
-                    <strong style={{ color: "var(--text-main)" }}>{Number(service.price_per_thousand || 0).toFixed(2)} ج.م</strong>
+                    <strong style={{ color: "var(--text-main)" }}>$ {Number(service.price_per_thousand || 0).toFixed(2)}</strong>
                   </div>
                 </>
               ) : (
@@ -832,7 +832,7 @@ export default function ServiceDetail({ params }) {
                     </div>
                     <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
                       <span style={{ color: "var(--text-muted)" }}>سعر الباقة</span>
-                      <strong style={{ color: "var(--text-main)" }}>{Number(selectedPackage.price).toFixed(2)} ج.م</strong>
+                      <strong style={{ color: "var(--text-main)" }}>$ {Number(selectedPackage.price).toFixed(2)}</strong>
                     </div>
                   </>
                 )
@@ -850,7 +850,7 @@ export default function ServiceDetail({ params }) {
               <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: "1.1rem", fontWeight: "bold", color: "var(--text-main)" }}>الإجمالي المستحق</span>
                 <strong style={{ fontSize: "1.25rem", color: "#22c55e" }}>
-                  {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)} ج.م
+                  $ {((service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) ? ((customQuantity / 1000) * (service.price_per_thousand || 0)) : (selectedPackage?.price || 0)).toFixed(2)}
                 </strong>
               </div>
             </div>
@@ -892,7 +892,7 @@ export default function ServiceDetail({ params }) {
               <div><strong style={{ color: "#cbd5e1" }}>رقم الطلب:</strong> #{successData.id}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الخدمة:</strong> {successData.service_name}</div>
               <div><strong style={{ color: "#cbd5e1" }}>الباقة:</strong> {successData.package_name}</div>
-              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> {Number(successData.package_price).toFixed(2)} ج.م</div>
+              <div><strong style={{ color: "#cbd5e1" }}>القيمة:</strong> $ {Number(successData.package_price).toFixed(2)}</div>
               <div>
                 <strong style={{ color: "#cbd5e1" }}>طريقة الدفع:</strong>{" "}
                 {successData.payment_method === "wallet" ? (
@@ -943,7 +943,7 @@ export default function ServiceDetail({ params }) {
               )}
               <div><strong style={{ color: "#cbd5e1" }}>حساب الشحن:</strong> <span style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{successData.player_id}</span></div>
               {typeof successData.customer_balance === "number" && (
-                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} ج.م</span></div>
+                <div><strong style={{ color: "#cbd5e1" }}>الرصيد المتبقي:</strong> <span style={{ color: "#86efac" }}>$ {successData.customer_balance.toFixed(2)}</span></div>
               )}
               <div><strong style={{ color: "#cbd5e1" }}>الحالة:</strong> <span style={{ color: "#86efac" }}>قيد الانتظار (سيتم الشحن فورا)</span></div>
             </div>
