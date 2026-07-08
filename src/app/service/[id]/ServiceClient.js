@@ -865,7 +865,6 @@ export default function ServiceDetail({ params }) {
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
               {fieldsSectionTitle}:
             </h3>
-=======
   return (
     <>
               {/* Main layout */}
@@ -972,7 +971,6 @@ export default function ServiceDetail({ params }) {
                   <form onSubmit={handleSubmit}>
                     <h3 style={{ fontWeight: 800, marginBottom: "15px" }}>2. بيانات الحساب المراد شحنه:</h3>
 
->>>>>>> 40aacd7
                     {activeFields.map((field, idx) => (
                       <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
                         <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
