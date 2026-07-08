@@ -20,3 +20,14 @@ if (typeof window !== "undefined") {
 export const API_BASE_URL = apiBaseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://arab-tech1.online";
 
+/**
+ * fetch() with a timeout (default 10 seconds).
+ * Accepts the same arguments as the native fetch() API.
+ */
+export function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(id)
+  );
+}

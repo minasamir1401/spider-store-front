@@ -17,13 +17,9 @@ export default function ServiceDetail({ params }) {
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
   const [customerPricingMode, setCustomerPricingMode] = useState("packages");
-<<<<<<< HEAD
   const [packageSearchTerm, setPackageSearchTerm] = useState("");
   const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
 
-=======
-
->>>>>>> 40aacd7
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -309,7 +305,6 @@ export default function ServiceDetail({ params }) {
   ];
 
   const activeFields = useMemo(() => {
-<<<<<<< HEAD
     const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
     const seen = new Set();
     const uniqueFields = [];
@@ -350,14 +345,6 @@ export default function ServiceDetail({ params }) {
     }
     return "بيانات الحساب المراد شحنه";
   }, [service]);
-=======
-    const raw = serviceFields.length > 0 ? serviceFields : defaultFields;
-    return raw.map(f => ({
-      ...f,
-      name: f.name || f.id
-    }));
-  }, [serviceFields, defaultFields]);
->>>>>>> 40aacd7
 
   const handleFieldChange = (fieldName, value) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
@@ -428,7 +415,6 @@ export default function ServiceDetail({ params }) {
 
     setSubmitting(true);
 
-<<<<<<< HEAD
     let computedPrice = 0;
     if (isDynamic) {
       const usdPrice = (customQuantity / 1000) * (service.price_per_thousand || 0);
@@ -447,11 +433,6 @@ export default function ServiceDetail({ params }) {
         computedPrice = selectedPackage.price;
       }
     }
-=======
-    const computedPrice = isDynamic
-      ? Number(((customQuantity / 1000) * (service.price_per_thousand || 0)).toFixed(2))
-      : Number(Number(selectedPackage.price || 0).toFixed(2));
->>>>>>> 40aacd7
     const computedPackageName = isDynamic
       ? `كمية: ${customQuantity}`
       : selectedPackage.name;
