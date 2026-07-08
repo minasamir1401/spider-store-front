@@ -31,6 +31,7 @@ export default function ServiceDetail({ params }) {
   const [customerUser, setCustomerUser] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [checkoutStep, setCheckoutStep] = useState(1);
+  const [packageSearchTerm, setPackageSearchTerm] = useState("");
 
   const [validatingId, setValidatingId] = useState(false);
   const [validationResult, setValidationResult] = useState(null);
@@ -402,12 +403,41 @@ export default function ServiceDetail({ params }) {
     );
   }
 
+  const filteredPackages = useMemo(() => {
+    if (!service || !service.packages) return [];
+    return service.packages.filter(pkg =>
+      (pkg.name || "").toLowerCase().includes(packageSearchTerm.toLowerCase())
+    );
+  }, [service, packageSearchTerm]);
+
   const packagesSection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. اختر الباقة المطلوبة:</h3>
-      {service.packages && service.packages.length > 0 ? (
+      {service.packages && service.packages.length > 2 && (
+        <div style={{ marginBottom: "16px", position: "relative" }}>
+          <input
+            type="text"
+            placeholder="ابحث عن باقة..."
+            value={packageSearchTerm}
+            onChange={(e) => setPackageSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px 40px 12px 16px",
+              fontSize: "0.95rem",
+              borderRadius: "12px",
+              border: "1px solid var(--border-glass)",
+              background: "rgba(255, 255, 255, 0.05)",
+              color: "var(--text-main)",
+              outline: "none",
+              boxSizing: "border-box"
+            }}
+          />
+          <span style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", opacity: 0.6 }}>🔍</span>
+        </div>
+      )}
+      {filteredPackages && filteredPackages.length > 0 ? (
         <div className="scc-grid">
-          {service.packages.map((pkg, idx) => {
+          {filteredPackages.map((pkg, idx) => {
             const simulatedDiscount = 2 + (idx % 4);
             const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
@@ -471,7 +501,7 @@ export default function ServiceDetail({ params }) {
           })}
         </div>
       ) : (
-        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات حالياً لهذه الخدمة.</div>
+        <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>لا تتوفر باقات مطابقة للبحث.</div>
       )}
     </div>
   );
@@ -529,7 +559,7 @@ export default function ServiceDetail({ params }) {
   return (
     <>
       {/* Main layout */}
-      <div className="service-details-layout" style={{ gridTemplateColumns: "1fr", maxWidth: "700px", margin: "0 auto" }}>
+      <div className="service-details-layout" style={{ gridTemplateColumns: "1fr", maxWidth: "100%", margin: "0" }}>
         {/* Form and Packages Selector */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 

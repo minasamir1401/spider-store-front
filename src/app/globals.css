@@ -2361,13 +2361,23 @@ button, input, textarea, select {
   justify-content: center;
   color: #64748b;
   z-index: 1;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 4px;
+  opacity: 0;
+  transform: translateX(10px);
 }
 
 .scc-card:hover .scc-arrow {
   color: var(--scc-ac, #6366f1);
-  transform: translateX(-3px);
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+  .scc-arrow {
+    opacity: 0.8;
+    transform: translateX(0);
+  }
 }
 
 /* ==========================================================================
