@@ -376,7 +376,7 @@ export default function Home() {
 
       {/* Categories Grid - cc-card style */}
       <section>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
+        <div dir="ltr" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
           <h2 className="section-title" style={{ margin: 0 }}>الأقسام الرئيسية</h2>
           <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "700", cursor: "pointer" }}>عرض الكل</span>
         </div>
@@ -429,7 +429,7 @@ export default function Home() {
                 <div className="scc-wrap" key={cat.id}>
                   <Link
                     className="scc-card"
-                    dir="rtl"
+                    dir="ltr"
                     href={`/category/${cat.id}`}
                     style={{ "--scc-ac": color, "--scc-gl": glow }}
                   >
@@ -473,7 +473,7 @@ export default function Home() {
 
       {/* FAQ Section */}
       <section className="faq-section" style={{ marginTop: "50px", marginBottom: "40px" }}>
-        <h2 className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول {settings.site_name}</h2>
+        <h2 dir="ltr" className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول {settings.site_name}</h2>
         <div className="faq-container">
           <details className="faq-item">
             <summary className="faq-question">ما هو {settings.site_name}؟</summary>
