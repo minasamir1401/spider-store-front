@@ -116,8 +116,6 @@ export default function CategoryServices({ params }) {
   };
 
   useEffect(() => {
-    setLoading(true);
-
     // Fetch category name and all categories
     fetchWithTimeout(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
@@ -157,9 +155,23 @@ export default function CategoryServices({ params }) {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-  const [customerUser, setCustomerUser] = useState(null);
-  const [theme, setTheme] = useState("dark");
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user"));
+  });
+  const [customerUser, setCustomerUser] = useState(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const userStr = localStorage.getItem("customer_user");
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
+  });
   const [serviceSearchTerm, setServiceSearchTerm] = useState("");
 
   const handleSearchSubmit = (e) => {
@@ -170,17 +182,9 @@ export default function CategoryServices({ params }) {
   };
 
   useEffect(() => {
-    // Theme sync
-    if (typeof window !== "undefined") {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      setTheme(currentTheme);
-    }
-
     const token = localStorage.getItem("customer_token");
     const userStr = localStorage.getItem("customer_user");
     if (token && userStr) {
-      setIsCustomerLoggedIn(true);
-      setCustomerUser(JSON.parse(userStr));
     }
   }, []);
 

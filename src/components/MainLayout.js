@@ -9,7 +9,10 @@ export default function MainLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   const [logoFailed, setLogoFailed] = useState(false);
@@ -25,27 +28,46 @@ export default function MainLayout({ children }) {
       })
       .catch(err => console.error("Failed to fetch settings", err));
   }, []);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-  const [customerUser, setCustomerUser] = useState(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user"));
+  });
+  const [customerUser, setCustomerUser] = useState(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const userStr = localStorage.getItem("customer_user");
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [showInstallBanner, setShowInstallBanner] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone
+      || document.referrer.includes('android-app://');
+    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
+    return !isStandalone && !isDismissed;
+  });
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [fontScale, setFontScale] = useState(1);
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("captcha_unlocked") === "true";
+  });
+  const [isMounted, setIsMounted] = useState(() => typeof window !== "undefined");
+  const [fontScale, setFontScale] = useState(() => {
+    if (typeof window === "undefined") return 1;
+    const savedScale = localStorage.getItem("font_scale");
+    const scaleVal = savedScale ? parseFloat(savedScale) : 1;
+    return Number.isFinite(scaleVal) ? scaleVal : 1;
+  });
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedScale = localStorage.getItem("font_scale");
-      if (savedScale) {
-        const scaleVal = parseFloat(savedScale);
-        setFontScale(scaleVal);
-        document.documentElement.style.setProperty('--font-scale', scaleVal);
-      }
-    }
-  }, []);
+    document.documentElement.style.setProperty('--font-scale', fontScale);
+  }, [fontScale]);
 
   const adjustFontScale = (delta) => {
     let nextScale = parseFloat((fontScale + delta).toFixed(2));
@@ -62,13 +84,13 @@ export default function MainLayout({ children }) {
     localStorage.setItem("font_scale", 1);
   };
 
-  useEffect(() => {
-    // Check if already unlocked in this session
-    const alreadyUnlocked = sessionStorage.getItem("captcha_unlocked") === "true";
-    if (alreadyUnlocked) setIsUnlocked(true);
-    setIsMounted(true);
-  }, []);
-
+  const handleCustomerLogout = () => {
+    localStorage.removeItem("customer_token");
+    localStorage.removeItem("customer_user");
+    setIsCustomerLoggedIn(false);
+    setCustomerUser(null);
+    router.push("/login");
+  };
 
   // Fetch customer profile
   const fetchProfile = () => {
@@ -76,9 +98,6 @@ export default function MainLayout({ children }) {
     const userStr = localStorage.getItem("customer_user");
     
     if (token && userStr) {
-      setIsCustomerLoggedIn(true);
-      setCustomerUser(JSON.parse(userStr));
-
       fetch(`${API_BASE_URL}/api/customer/me`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -98,9 +117,6 @@ export default function MainLayout({ children }) {
           }
         })
         .catch(() => {});
-    } else {
-      setIsCustomerLoggedIn(false);
-      setCustomerUser(null);
     }
   };
 
@@ -112,9 +128,6 @@ export default function MainLayout({ children }) {
   // Sync theme and setup PWA prompt
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      setTheme(currentTheme);
-
       // Check if already running in standalone PWA mode
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
         || window.navigator.standalone 
@@ -122,9 +135,6 @@ export default function MainLayout({ children }) {
       
       const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
       
-      if (!isStandalone && !isDismissed) {
-        setShowInstallBanner(true);
-      }
     }
 
     const handleBeforeInstallPrompt = (e) => {
@@ -145,14 +155,6 @@ export default function MainLayout({ children }) {
     setTheme(nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
     localStorage.setItem("theme", nextTheme);
-  };
-
-  const handleCustomerLogout = () => {
-    localStorage.removeItem("customer_token");
-    localStorage.removeItem("customer_user");
-    setIsCustomerLoggedIn(false);
-    setCustomerUser(null);
-    router.push("/login");
   };
 
   const renderBalanceDropdownAndValue = (user) => {

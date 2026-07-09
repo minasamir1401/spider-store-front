@@ -126,14 +126,10 @@ export default function OrdersHistory() {
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [theme, setTheme] = useState("dark");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      setTheme(currentTheme);
-    }
-  }, []);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
+  });
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";

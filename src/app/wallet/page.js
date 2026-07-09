@@ -34,7 +34,10 @@ export default function WalletPage() {
   const [whatsappSent, setWhatsappSent] = useState(false);
   const [pendingWhatsapp, setPendingWhatsapp] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
@@ -67,7 +70,6 @@ export default function WalletPage() {
       .catch(err => console.error("Error loading settings in wallet page:", err));
 
     // Fetch live exchange rates from ExchangeRate-API
-    setLoadingRates(true);
     fetch("https://v6.exchangerate-api.com/v6/182089caed1406b0fb1aa9e6/latest/USD")
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -213,13 +215,6 @@ export default function WalletPage() {
     const clean = number.replace(/[^0-9]/g, "");
     window.open(`https://wa.me/${clean}?text=${encoded}`, "_blank");
   };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      setTheme(currentTheme);
-    }
-  }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
