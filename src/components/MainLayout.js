@@ -162,7 +162,7 @@ export default function MainLayout({ children }) {
     const baseCurr = settings.base_currency || "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
     
-    const availableCurrencies = ["USD"];
+    const availableCurrencies = [baseCurr];
 
     const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
       ? selectedBalanceCurrency
@@ -188,7 +188,7 @@ export default function MainLayout({ children }) {
       <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }} onClick={(e) => e.stopPropagation()}>
         <span>الرصيد:</span>
         <span style={{ fontWeight: 900, color: "var(--primary-color)" }}>
-          {activeCurrency === "USD" ? `$ ${balanceVal.toFixed(2)}` : `${balanceVal.toFixed(2)}`}
+          {(activeCurrency === "USD" || activeCurrency === "USDT") ? `${balanceVal.toFixed(2)} ${activeCurrency}` : `${balanceVal.toFixed(2)}`}
         </span>
         <select
           value={activeCurrency}

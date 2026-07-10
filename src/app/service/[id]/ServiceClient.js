@@ -30,7 +30,7 @@ export default function ServiceDetail({ params }) {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [receiptImage, setReceiptImage] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
-  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [baseCurrency, setBaseCurrency] = useState("USD");
   const [hideManualTransfersSetting, setHideManualTransfersSetting] = useState(false);
   const transferNumber = "01026785879";
 
@@ -373,16 +373,16 @@ export default function ServiceDetail({ params }) {
     let computedPrice = 0;
     if (isDynamic) {
       const usdPrice = (customQuantity / 1000) * (service.price_per_thousand || 0);
-      if (service.category_currency === 'USD') {
-        const usdRate = Number(exchangeRates?.["USD"] || 50);
+      if (service.category_currency === 'USD' || service.category_currency === 'USDT' || service.category_currency === 'USDT') {
+        const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
         computedPrice = Number((usdPrice * usdRate).toFixed(2));
       } else {
         computedPrice = Number(usdPrice.toFixed(2));
       }
     } else {
-      if (service.category_currency === 'USD') {
+      if (service.category_currency === 'USD' || service.category_currency === 'USDT' || service.category_currency === 'USDT') {
         const usdPrice = selectedPackage.usd_price || selectedPackage.price;
-        const usdRate = Number(exchangeRates?.["USD"] || 50);
+        const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
         computedPrice = Number((usdPrice * usdRate).toFixed(2));
       } else {
         computedPrice = selectedPackage.price;
@@ -583,11 +583,11 @@ export default function ServiceDetail({ params }) {
         <div className="scc-grid">
           {filteredPackages.map((pkg, idx) => {
             const simulatedDiscount = 2 + (idx % 4);
-            const isUsd = service.category_currency === 'USD';
+            const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT';
             const usdPrice = pkg.usd_price || pkg.price;
             const originalUsdPrice = usdPrice / (1 - simulatedDiscount / 100);
             
-            const usdRate = Number(exchangeRates?.["USD"] || 50);
+            const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
             const egpPrice = usdPrice * usdRate;
             const originalEgpPrice = originalUsdPrice * usdRate;
 
@@ -648,7 +648,7 @@ export default function ServiceDetail({ params }) {
                     <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "800" }}>{pkg.name}</span>
                     <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "6px" }}>
                       <span style={{ color: "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
-                        {baseCurrency === 'USD' || isUsd
+                        {baseCurrency === 'USD' || baseCurrency === 'USDT' || isUsd
                           ? `$ ${usdPrice.toFixed(2)}`
                           : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
                       </span>
@@ -680,9 +680,9 @@ export default function ServiceDetail({ params }) {
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
-        سعر الـ 1000 وحدة هو: {baseCurrency === 'USD'
+        سعر الـ 1000 وحدة هو: {baseCurrency === 'USD' || baseCurrency === 'USDT'
           ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)}`
-          : (service.category_currency === 'USD'
+          : (service.category_currency === 'USD' || service.category_currency === 'USDT'
               ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
               : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: 100)
       </p>
@@ -727,10 +727,10 @@ export default function ServiceDetail({ params }) {
           السعر الإجمالي للكمية: <strong style={{ color: "#34d399", fontSize: "1.05rem" }}>
             {(() => {
               const usdPrice = ((Number(customQuantity) || 0) / 1000) * (service.price_per_thousand || 0);
-              if (baseCurrency === 'USD') {
+              if (baseCurrency === 'USD' || baseCurrency === 'USDT') {
                 return `$ ${usdPrice.toFixed(2)}`;
               }
-              if (service.category_currency === 'USD') {
+              if (service.category_currency === 'USD' || service.category_currency === 'USDT') {
                 const egpPrice = usdPrice * Number(exchangeRates?.["USD"] || 50);
                 return `$ ${usdPrice.toFixed(2)} (ما يعادل ${egpPrice.toFixed(2)} ${baseCurrency})`;
               } else {
@@ -908,10 +908,10 @@ export default function ServiceDetail({ params }) {
               </h3>
               <span style={{ fontSize: "0.9rem", color: "var(--primary-color)", fontWeight: "bold" }}>
                 المبلغ المستحق: {(() => {
-                  const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
+                  const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT' || baseCurrency === 'USD' || baseCurrency === 'USDT';
                   let usdPrice = 0;
                   let egpPrice = 0;
-                  const usdRate = Number(exchangeRates?.["USD"] || 50);
+                  const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
 
                   if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
                     const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
@@ -930,7 +930,7 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
-                  if (baseCurrency === 'USD' || isUsd) {
+                  if (baseCurrency === 'USD' || baseCurrency === 'USDT' || isUsd) {
                     return `$ ${usdPrice.toFixed(2)}`;
                   } else {
                     return `${egpPrice.toFixed(2)} ${baseCurrency}`;
@@ -1231,10 +1231,10 @@ export default function ServiceDetail({ params }) {
               <span style={{ fontSize: "1rem", fontWeight: "bold", color: "var(--text-main)" }}>الإجمالي المستحق</span>
               <strong style={{ fontSize: "1.25rem", color: "#22c55e", textShadow: "0 0 10px rgba(34, 197, 94, 0.2)" }}>
                 {(() => {
-                  const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
+                  const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT' || baseCurrency === 'USD' || baseCurrency === 'USDT';
                   let usdPrice = 0;
                   let egpPrice = 0;
-                  const usdRate = Number(exchangeRates?.["USD"] || 50);
+                  const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
 
                   if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
                     const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
@@ -1253,7 +1253,7 @@ export default function ServiceDetail({ params }) {
                     }
                   }
 
-                  if (baseCurrency === 'USD' || isUsd) {
+                  if (baseCurrency === 'USD' || baseCurrency === 'USDT' || isUsd) {
                     return `$ ${usdPrice.toFixed(2)}`;
                   } else {
                     return `${egpPrice.toFixed(2)} ${baseCurrency}`;
@@ -1524,10 +1524,10 @@ export default function ServiceDetail({ params }) {
               >
                 <span>المتابعة للدفع وإتمام الطلب {isContinueEnabled && (
                   <span>({(() => {
-                    const isUsd = service.category_currency === 'USD' || baseCurrency === 'USD';
+                    const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT' || baseCurrency === 'USD' || baseCurrency === 'USDT';
                     let usdPrice = 0;
                     let egpPrice = 0;
-                    const usdRate = Number(exchangeRates?.["USD"] || 50);
+                    const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
 
                     if (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic")) {
                       const computedUsd = (customQuantity / 1000) * (service.price_per_thousand || 0);
@@ -1546,7 +1546,7 @@ export default function ServiceDetail({ params }) {
                       }
                     }
 
-                    if (baseCurrency === 'USD' || isUsd) {
+                    if (baseCurrency === 'USD' || baseCurrency === 'USDT' || isUsd) {
                       return `$ ${usdPrice.toFixed(2)}`;
                     } else {
                       return `${egpPrice.toFixed(2)} ج.م`;
@@ -1623,9 +1623,9 @@ export default function ServiceDetail({ params }) {
                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                    <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
                    <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
-                     {baseCurrency === 'USD'
-                       ? `$ ${Number(successData.package_price).toFixed(2)}`
-                       : (service.category_currency === 'USD' 
+                     {baseCurrency === 'USD' || baseCurrency === 'USDT'
+                       ? `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`
+                       : (service.category_currency === 'USD' || service.category_currency === 'USDT' 
                            ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
                            : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
                    </strong>

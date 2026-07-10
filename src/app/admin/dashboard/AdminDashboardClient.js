@@ -146,7 +146,7 @@ export default function AdminDashboard() {
   const [paymentMethodsList, setPaymentMethodsList] = useState([]);
   const [globalCurrencies, setGlobalCurrencies] = useState(["USD", "USDT"]);
   const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
-  const [baseCurrency, setBaseCurrency] = useState("ج.م");
+  const [baseCurrency, setBaseCurrency] = useState("USD");
   const [supportedCurrenciesText, setSupportedCurrenciesText] = useState("USD, USDT");
   const [hideWalletPayment, setHideWalletPayment] = useState(false);
   const [whatsappNumbers, setWhatsappNumbers] = useState([]);
