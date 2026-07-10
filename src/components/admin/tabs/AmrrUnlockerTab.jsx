@@ -44,7 +44,8 @@ export default function AmrrUnlockerTab({
   totalUnlockerPages,
   unlockerCategories,
   apiAutoSubmit,
-  handleToggleAutoSubmit
+  handleToggleAutoSubmit,
+  handleWipeAndSyncAll
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -185,7 +186,29 @@ export default function AmrrUnlockerTab({
           </label>
         </div>
 
-        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginBottom: "20px" }}>
+        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginBottom: "20px", flexWrap: "wrap" }}>
+          <button 
+            onClick={handleWipeAndSyncAll} 
+            className="action-btn"
+            style={{ 
+              padding: "10px 24px", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              gap: "8px", 
+              fontWeight: "bold",
+              background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              marginLeft: "auto"
+            }}
+            disabled={unlockerLoading}
+            title="تحذير: سيقوم بمسح كافة الأقسام والخدمات المحلية ومزامنتها من جديد بالكامل من الـ API"
+          >
+            🔥 مسح الكل والمزامنة الشاملة
+          </button>
           <button 
             onClick={fetchUnlockerServices} 
             className="action-btn btn-edit-premium"

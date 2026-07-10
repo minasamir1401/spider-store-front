@@ -586,6 +586,39 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleWipeAndSyncAll = async () => {
+    if (!confirm("⚠️ تحذير هام جداً:\n\nسيتم مسح كافة الأقسام والخدمات الحالية في موقعك بالكامل من قاعدة البيانات!\nثم سيتم استيراد كافة الأقسام والخدمات من سيرفر Amrr Unlocker بشكل نظيف وجديد.\n\nهل أنت متأكد تماماً من الاستمرار؟")) return;
+
+    setUnlockerLoading(true);
+    setUnlockerSyncMsg("⏳ جاري مسح قاعدة البيانات القديمة والاتصال بسيرفر المزود لجلب البيانات الجديدة...");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/wipe-and-sync-all`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          exchange_rate: parseFloat(unlockerExchangeRate) || 50,
+          markup_percent: parseFloat(unlockerMarkupPercent) || 0,
+          group_as_packages: unlockerGroupAsPackages
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل مسح واستيراد البيانات من السيرفر.");
+
+      setUnlockerSyncMsg(`✅ ${data.message}`);
+      void fetchData();
+    } catch (err) {
+      setUnlockerSyncMsg(`❌ فشل العملية الشاملة: ${err.message}`);
+    } finally {
+      setUnlockerLoading(false);
+    }
+  };
+
+
   const triggerUnlockerOrderApproval = useCallback(async (orderId) => {
     if (!confirm("هل أنت متأكد من تفعيل هذا الطلب وإرساله إلى Amrr Unlocker؟")) return;
     try {
@@ -2579,6 +2612,7 @@ const handleLogout = () => {
                 unlockerCategories={unlockerCategories}
                 apiAutoSubmit={apiAutoSubmit}
                 handleToggleAutoSubmit={handleToggleAutoSubmit}
+                handleWipeAndSyncAll={handleWipeAndSyncAll}
               />
             )}
 </main>
