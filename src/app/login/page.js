@@ -20,7 +20,12 @@ export default function CustomerLogin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Fetch settings on mount
   useEffect(() => {
@@ -175,6 +180,10 @@ export default function CustomerLogin() {
     router.refresh();
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
   if (isLoggedIn) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
@@ -208,13 +217,22 @@ export default function CustomerLogin() {
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {[
                   { label: "👤 اسم المستخدم", value: customer.username, color: "var(--text-main)" },
-                  { label: "✉️ البريد الإلكتروني", value: customer.email || "غير متوفر", color: "var(--text-main)" },
+                  { label: "✉️ البريد الإلكتروني", value: customer.email || "غير متوفر", color: "var(--text-main)", isEmail: true, ltr: true },
                   { label: "📞 رقم الهاتف", value: customer.phone || "غير متوفر", color: "var(--text-main)", ltr: true },
                   { label: "💳 رصيد المحفظة", value: `${Number(customer.balance || 0).toFixed(2)} USD`, color: "var(--primary-color)", fontWeight: "bold" },
                 ].map((row, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)" }}>
-                    <span style={{ fontSize: "0.82rem", color: "var(--text-muted)", fontWeight: "bold" }}>{row.label}</span>
-                    <span style={{ fontSize: "0.9rem", fontWeight: row.fontWeight || "800", color: row.color, direction: row.ltr ? "ltr" : "rtl" }}>{row.value}</span>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)", gap: "10px" }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--text-muted)", fontWeight: "bold", flexShrink: 0 }}>{row.label}</span>
+                    <span style={{ 
+                      fontSize: "0.9rem", 
+                      fontWeight: row.fontWeight || "800", 
+                      color: row.color, 
+                      direction: row.ltr ? "ltr" : "rtl",
+                      wordBreak: row.isEmail ? "break-all" : "normal",
+                      overflowWrap: "anywhere",
+                      textAlign: row.ltr ? "left" : "right",
+                      maxWidth: "65%"
+                    }}>{row.value}</span>
                   </div>
                 ))}
               </div>
