@@ -19,7 +19,9 @@ const getCategoriesAndServices = cache(async function getCategoriesAndServices()
   try {
     const [catRes, serviceRes] = await Promise.all([
       fetch(`${API_BASE_URL}/api/categories`, { next: { revalidate: 3600 } }),
-      fetch(`${API_BASE_URL}/api/services`, { next: { revalidate: 3600 } })
+      // /api/services is ~2.5MB — exceeds Next.js hardcoded 2MB per-item cache limit.
+      // Use no-store to skip the cache entirely and avoid repeated warning logs.
+      fetch(`${API_BASE_URL}/api/services`, { cache: 'no-store' })
     ]);
     if (catRes.ok && serviceRes.ok) {
       return {
