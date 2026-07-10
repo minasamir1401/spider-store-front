@@ -142,7 +142,11 @@ export async function generateMetadata({ params }) {
     9: "أرقام افتراضية",
     10: "برمجة وتصميم",
     11: "حسابات جاهزة",
-    12: "إعلانات ممولة"
+    12: "إعلانات ممولة",
+    13: "خدمات Apple و iCloud",
+    14: "خدمات سيرفر والأدوات",
+    15: "Apple",
+    16: "أدوات وتفعيلات السيرفر (Schematics & Tools)"
   };
   const categoryName = categoryNamesMap[service.category_id] || "خدمات رقمية";
 

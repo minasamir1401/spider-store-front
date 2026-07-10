@@ -14,18 +14,22 @@ const categoryNamesMap = {
   9: "قسم الارقام",
   10: "البرمجة والتصميم",
   11: "حسابات جاهزة",
-  12: "إعلانات ممولة"
+  12: "إعلانات ممولة",
+  13: "خدمات Apple و iCloud",
+  14: "قسم خدمات سيرفر والأدوات",
+  15: "Apple",
+  16: "أدوات وتفعيلات السيرفر (Schematics & Tools)"
 };
 
 const getCategoryData = cache(async function getCategoryData(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/categories`, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error(`HTTP status ${res.status}`);
     const categories = await res.json();
-    const cat = categories.find(c => c.id === Number(id));
+    const cat = (Array.isArray(categories) ? categories : []).find(c => Number(c.id) === Number(id));
     if (cat) return cat;
   } catch (err) {
-    console.error("Error fetching category in metadata:", err);
+    console.error("Error fetching category in metadata:", err.message || err);
   }
   return { id: Number(id), name: categoryNamesMap[id] || "الخدمات المتاحة" };
 });
@@ -35,10 +39,10 @@ const getCategoryServices = cache(async function getCategoryServices(catId) {
     const res = await fetch(`${API_BASE_URL}/api/services`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const services = await res.json();
-      return services.filter(s => s.category_id === Number(catId));
+      return (Array.isArray(services) ? services : []).filter(s => Number(s.category_id) === Number(catId));
     }
   } catch (err) {
-    console.error("Error fetching services in metadata:", err);
+    console.error("Error fetching services in metadata:", err.message || err);
   }
   return [];
 });
