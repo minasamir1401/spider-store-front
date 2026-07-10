@@ -1835,6 +1835,20 @@ export default function AdminDashboardModals() {
                     </button>
                   </>
                 )}
+                {orderDetailsData.status === "cancelled" && (
+                  <button
+                    onClick={async () => {
+                      if (confirm("هل تريد إعادة تفعيل هذا الطلب كـ 'قيد الانتظار'؟ سيقوم النظام بخصم قيمة الباقة من رصيد محفظة العميل مجدداً.")) {
+                        await updateOrderStatus(orderDetailsData.id, "pending");
+                        setShowOrderDetailsModal(false);
+                      }
+                    }}
+                    className="action-btn btn-edit-premium"
+                    style={{ background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)", color: "#38bdf8" }}
+                  >
+                    🔄 إعادة تفعيل الطلب (خصم وتعليق الرصيد)
+                  </button>
+                )}
                 <button
                   onClick={() => { setShowOrderDetailsModal(false); handleOpenCodeModal(orderDetailsData, null); }}
                   className="action-btn btn-edit-premium"
