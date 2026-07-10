@@ -7,47 +7,22 @@ import { API_BASE_URL } from "@/config";
 export default function Home() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("search") || "";
-  });
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   // Customer states
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user"));
-  });
-  const [customerUser, setCustomerUser] = useState(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const userStr = localStorage.getItem("customer_user");
-      return userStr ? JSON.parse(userStr) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
+  const [customerUser, setCustomerUser] = useState(null);
 
   // Theme states
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "dark";
-    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
-  });
+  const [theme, setTheme] = useState("dark");
 
   // PWA states
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone
-      || document.referrer.includes('android-app://');
-    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
-    return !isStandalone && !isDismissed;
-  });
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   // Settings state
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
@@ -104,6 +79,24 @@ export default function Home() {
   const [slides, setSlides] = useState(defaultSlides);
 
   useEffect(() => {
+    // Initial Hydration
+    const urlParams = new URLSearchParams(window.location.search);
+    setSearchTerm(urlParams.get("search") || "");
+    
+    setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
+    setIsCustomerLoggedIn(Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user")));
+    
+    try {
+      const userStr = localStorage.getItem("customer_user");
+      setCustomerUser(userStr ? JSON.parse(userStr) : null);
+    } catch {}
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone
+      || document.referrer.includes('android-app://');
+    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
+    setShowInstallBanner(!isStandalone && !isDismissed);
+
     // PWA Install Prompt Listener
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();

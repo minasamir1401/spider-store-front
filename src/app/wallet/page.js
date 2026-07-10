@@ -7,10 +7,7 @@ import { API_BASE_URL } from "@/config";
 
 export default function WalletPage() {
   const router = useRouter();
-  const [token] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("customer_token") || "";
-  });
+  const [token, setToken] = useState("");
   const [customer, setCustomer] = useState(null);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,12 +31,12 @@ export default function WalletPage() {
   const [whatsappSent, setWhatsappSent] = useState(false);
   const [pendingWhatsapp, setPendingWhatsapp] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "dark";
-    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
-  });
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
+    setToken(localStorage.getItem("customer_token") || "");
+    setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
+    
     fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {

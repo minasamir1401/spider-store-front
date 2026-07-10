@@ -35,6 +35,7 @@ export default function OrdersHistory() {
     setHydrated(true);
     setToken(localStorage.getItem("customer_token") || "");
     setCustomerUserStr(localStorage.getItem("customer_user") || "");
+    setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
 
     fetch(`${API_BASE_URL}/api/settings`)
       .then(res => res.ok ? res.json() : null)
@@ -126,10 +127,7 @@ export default function OrdersHistory() {
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "dark";
-    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
-  });
+  const [theme, setTheme] = useState("dark");
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";

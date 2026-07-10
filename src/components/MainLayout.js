@@ -9,10 +9,7 @@ export default function MainLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "dark";
-    return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
-  });
+  const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   const [logoFailed, setLogoFailed] = useState(false);
@@ -28,42 +25,46 @@ export default function MainLayout({ children }) {
       })
       .catch(err => console.error("Failed to fetch settings", err));
   }, []);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user"));
-  });
-  const [customerUser, setCustomerUser] = useState(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const userStr = localStorage.getItem("customer_user");
-      return userStr ? JSON.parse(userStr) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [showInstallBanner, setShowInstallBanner] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone
-      || document.referrer.includes('android-app://');
-    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
-    return !isStandalone && !isDismissed;
-  });
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
+  const [customerUser, setCustomerUser] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [selectedBalanceCurrency, setSelectedBalanceCurrency] = useState("");
-  const [isUnlocked, setIsUnlocked] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return sessionStorage.getItem("captcha_unlocked") === "true";
-  });
-  const [isMounted, setIsMounted] = useState(() => typeof window !== "undefined");
-  const [fontScale, setFontScale] = useState(() => {
-    if (typeof window === "undefined") return 1;
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
+
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Theme
+    const savedTheme = document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    
+    // Auth
+    setIsCustomerLoggedIn(Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user")));
+    try {
+      const userStr = localStorage.getItem("customer_user");
+      setCustomerUser(userStr ? JSON.parse(userStr) : null);
+    } catch {}
+
+    // PWA
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone
+      || document.referrer.includes('android-app://');
+    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
+    setShowInstallBanner(!isStandalone && !isDismissed);
+
+    // Captcha
+    setIsUnlocked(sessionStorage.getItem("captcha_unlocked") === "true");
+
+    // Font Scale
     const savedScale = localStorage.getItem("font_scale");
     const scaleVal = savedScale ? parseFloat(savedScale) : 1;
-    return Number.isFinite(scaleVal) ? scaleVal : 1;
-  });
+    setFontScale(Number.isFinite(scaleVal) ? scaleVal : 1);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--font-scale', fontScale);
