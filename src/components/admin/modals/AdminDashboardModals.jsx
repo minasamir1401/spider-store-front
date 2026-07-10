@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { AdminDashboardContext } from "../AdminDashboardContext";
 
 export default function AdminDashboardModals() {
-  const { catModal, serviceModal, editCatModal, editServiceModal, bannerModal, editBannerModal, customerModal, orderModal, codeModal } = useContext(AdminDashboardContext);
+  const { catModal, serviceModal, editCatModal, editServiceModal, bannerModal, editBannerModal, customerModal, orderModal, codeModal, errorMsg } = useContext(AdminDashboardContext);
   const { showCatModal, setShowCatModal, handleAddCategory, newCatName, setNewCatName, newCatImage, setNewCatImage, catUploadedFile, setCatUploadedFile, newCatFieldsTitle, setNewCatFieldsTitle, newCatFields, handleAddField, handleRemoveField, handleFieldChange, newCatParentId, setNewCatParentId, categories, API_BASE_URL } = catModal;
   const { showServiceModal, setShowServiceModal, handleAddService, newServiceName, setNewServiceName, newServiceDesc, setNewServiceDesc, newServiceCatId, setNewServiceCatId, newServicePrice, setNewServicePrice, newServiceImage, setNewServiceImage, serviceUploadedFile, setServiceUploadedFile, newServicePriceType, setNewServicePriceType, newServicePricePerThousand, setNewServicePricePerThousand, newServicePackages, handleAddPkgInput, handleRemovePkgInput, handlePkgChange, newServiceFieldsTitle, setNewServiceFieldsTitle, newServiceFields, handleAddCatField, handleRemoveCatField, handleCatFieldChange, newServiceDownloadLink, setNewServiceDownloadLink, newServiceDownloadLinkTitle, setNewServiceDownloadLinkTitle } = serviceModal;
   const { showEditCatModal, setShowEditCatModal, handleEditCategory, editCatName, setEditCatName, editCatImage, setEditCatImage, editCatUploadedFile, setEditCatUploadedFile, editCatFieldsTitle, setEditCatFieldsTitle, editCatFields, handleAddEditCatField, handleRemoveEditCatField, handleEditCatFieldChange, editCatParentId, setEditCatParentId, applyToServices, setApplyToServices } = editCatModal;
@@ -534,7 +534,7 @@ export default function AdminDashboardModals() {
               </div>
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <label>عنوان قسم بيانات الخدمة (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الخدمة، بيانات لاعب ببجي"
@@ -1192,7 +1192,7 @@ export default function AdminDashboardModals() {
               </div>
 
               <div className="form-group" style={{ marginBottom: "14px" }}>
-                <label>عنوان قسم بيانات الحساب (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
+                <label>عنوان قسم بيانات الخدمة (اختياري - في حال رغبتك بتخصيصه لهذه الخدمة فقط):</label>
                 <input
                   type="text"
                   placeholder="مثال: بيانات الخدمة، بيانات لاعب ببجي"

@@ -1713,6 +1713,7 @@ const handleLogout = () => {
   };
 
   const dashboardContextValue = {
+    errorMsg,
     catModal: {
       showCatModal,
       setShowCatModal,
