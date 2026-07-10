@@ -7,11 +7,12 @@ export default function CategoriesTab({
   categories,
   handleOpenEditCat,
   handleDeleteCategory,
+  handleClearAllCategories,
   API_BASE_URL
 }) {
   return (
     <>
-      <div className="table-filter-bar" style={{ justifyContent: "flex-start" }}>
+      <div className="table-filter-bar" style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         <div className="search-input-wrapper">
           <input
             type="text"
@@ -22,6 +23,23 @@ export default function CategoriesTab({
           />
           <span className="search-input-icon">🔍</span>
         </div>
+        <button
+          onClick={handleClearAllCategories}
+          className="action-btn"
+          style={{
+            background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+            color: "#ffffff",
+            boxShadow: "0 0 15px rgba(239, 68, 68, 0.3)",
+            padding: "10px 20px",
+            borderRadius: "10px",
+            fontWeight: "800",
+            fontSize: "0.85rem",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          🗑️ حذف جميع الأقسام نهائياً
+        </button>
       </div>
 
       <div className="category-grid-premium">

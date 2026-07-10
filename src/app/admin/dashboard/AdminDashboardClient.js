@@ -938,6 +938,57 @@ const handleLogout = () => {
     }
   };
 
+  // Clear All Categories (Delete all permanently from server)
+  const handleClearAllCategories = async () => {
+    const confirmation = prompt("يرجى كتابة 'حذف كل الأقسام' لتأكيد حذف جميع الأقسام والخدمات نهائياً من السيرفر:");
+    if (confirmation !== "حذف كل الأقسام") {
+      if (confirmation !== null) alert("لم يتم تأكيد الحذف. يرجى كتابة العبارة المطلوبة بدقة.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/categories/all/clear`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error();
+
+      alert("تم حذف جميع الأقسام والخدمات التابعة لها بنجاح من السيرفر! 📁🗑️");
+      setCategories([]);
+      setServices([]);
+    } catch (err) {
+      alert("فشل حذف الأقسام من السيرفر.");
+    }
+  };
+
+  // Clear All Services (Delete all permanently from server)
+  const handleClearAllServices = async () => {
+    const confirmation = prompt("يرجى كتابة 'حذف كل الخدمات' لتأكيد حذف جميع الخدمات نهائياً من السيرفر:");
+    if (confirmation !== "حذف كل الخدمات") {
+      if (confirmation !== null) alert("لم يتم تأكيد الحذف. يرجى كتابة العبارة المطلوبة بدقة.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/services/all/clear`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error();
+
+      alert("تم حذف جميع الخدمات بنجاح من السيرفر! ⚡🗑️");
+      setServices([]);
+    } catch (err) {
+      alert("فشل حذف الخدمات من السيرفر.");
+    }
+  };
+
   // Package list helpers
   const handleAddPkgInput = () => {
     setNewServicePackages(prev => [...prev, { name: "", price: 0 }]);
@@ -2357,6 +2408,7 @@ const handleLogout = () => {
                 categories={categories}
                 handleOpenEditCat={handleOpenEditCat}
                 handleDeleteCategory={handleDeleteCategory}
+                handleClearAllCategories={handleClearAllCategories}
                 API_BASE_URL={API_BASE_URL}
               />
             )}
@@ -2375,6 +2427,7 @@ const handleLogout = () => {
                 handleSaveGlobalMarkup={handleSaveGlobalMarkup}
                 handleOpenEditService={handleOpenEditService}
                 handleDeleteService={handleDeleteService}
+                handleClearAllServices={handleClearAllServices}
               />
             )}
 

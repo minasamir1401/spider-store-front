@@ -12,7 +12,8 @@ export default function ServicesTab({
   savingMarkup,
   handleSaveGlobalMarkup,
   handleOpenEditService,
-  handleDeleteService
+  handleDeleteService,
+  handleClearAllServices
 }) {
   return (
     <>
@@ -58,6 +59,25 @@ export default function ServicesTab({
             {savingMarkup ? "جاري الحفظ..." : "حفظ الهامش"}
           </button>
         </form>
+
+        <button
+          type="button"
+          onClick={handleClearAllServices}
+          className="action-btn"
+          style={{
+            background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+            color: "#ffffff",
+            boxShadow: "0 0 15px rgba(239, 68, 68, 0.3)",
+            padding: "8px 16px",
+            borderRadius: "10px",
+            fontWeight: "800",
+            fontSize: "0.85rem",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          🗑️ حذف جميع الخدمات نهائياً
+        </button>
       </div>
 
       <div className="premium-table-wrapper">
