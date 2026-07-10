@@ -23,6 +23,9 @@ function buildRemotePattern(value) {
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // /api/services response is ~2.5MB, above the default 2MB limit.
+  // Increase the in-memory data cache to 5MB so SSR pages can cache it properly.
+  cacheMaxMemorySize: 5 * 1024 * 1024, // 5 MB
   images: {
     remotePatterns: [buildRemotePattern(apiUrl)],
   },
