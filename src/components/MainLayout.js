@@ -159,7 +159,7 @@ export default function MainLayout({ children }) {
 
   const renderBalanceDropdownAndValue = (user) => {
     if (!user) return null;
-    const baseCurr = settings.base_currency || "USD";
+    const baseCurr = "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
     
     const availableCurrencies = [baseCurr];

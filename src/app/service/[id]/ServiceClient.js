@@ -74,7 +74,7 @@ export default function ServiceDetail({ params }) {
             }
           }
           if (data.base_currency) {
-            setBaseCurrency(data.base_currency);
+            setBaseCurrency("USD");
           }
           if (data.exchange_rates) {
             setExchangeRates(data.exchange_rates);

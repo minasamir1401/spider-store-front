@@ -358,9 +358,7 @@ export default function AdminDashboard() {
         if (settingsData.exchange_rates) {
           setExchangeRates(settingsData.exchange_rates);
         }
-        if (settingsData.base_currency) {
-          setBaseCurrency(settingsData.base_currency);
-        }
+          setBaseCurrency("USD");
         setHideWalletPayment(settingsData.hide_wallet_payment || false);
         if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
           setWhatsappNumbers(settingsData.whatsapp_numbers);
