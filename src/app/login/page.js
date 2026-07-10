@@ -17,6 +17,9 @@ export default function CustomerLogin() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [customer, setCustomer] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const router = useRouter();
 
   // Fetch settings on mount
@@ -32,19 +35,54 @@ export default function CustomerLogin() {
   }, []);
 
   useEffect(() => {
-    // If already logged in, redirect to home or redirectTo
     const token = localStorage.getItem("customer_token");
-    if (token) {
-      if (typeof window !== "undefined") {
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectTo = urlParams.get("redirectTo");
-        if (redirectTo) {
-          router.push(redirectTo);
-          return;
-        }
-      }
-      router.push("/");
+    if (!token) {
+      setIsLoggedIn(false);
+      setLoadingProfile(false);
+      return;
     }
+
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTo = urlParams.get("redirectTo");
+      if (redirectTo) {
+        router.push(redirectTo);
+        return;
+      }
+    }
+
+    setIsLoggedIn(true);
+    fetch(`${API_BASE_URL}/api/customer/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("customer_token");
+          localStorage.removeItem("customer_user");
+          setIsLoggedIn(false);
+          return null;
+        }
+        return res.ok ? res.json() : null;
+      })
+      .then(data => {
+        if (data) {
+          setCustomer(data);
+          localStorage.setItem("customer_user", JSON.stringify(data));
+        } else {
+          const localUser = localStorage.getItem("customer_user");
+          if (localUser) setCustomer(JSON.parse(localUser));
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch profile:", err);
+        const localUser = localStorage.getItem("customer_user");
+        if (localUser) setCustomer(JSON.parse(localUser));
+      })
+      .finally(() => {
+        setLoadingProfile(false);
+      });
   }, [router]);
 
   const handleSubmit = async (e) => {
@@ -127,6 +165,96 @@ export default function CustomerLogin() {
       setSubmitting(false);
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("customer_token");
+    localStorage.removeItem("customer_user");
+    setIsLoggedIn(false);
+    setCustomer(null);
+    router.push("/");
+    router.refresh();
+  };
+
+  if (isLoggedIn) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
+        <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "20px" }}>
+          
+          {/* Header */}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ display: "inline-flex", justifyContent: "center", marginBottom: "10px" }}>
+              {settings.site_logo && settings.site_logo !== "default" ? (
+                <img 
+                  src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
+                  alt={settings.site_name} 
+                  style={{ width: "64px", height: "64px", borderRadius: "16px", objectFit: "cover" }} 
+                />
+              ) : (
+                <div className="logo-circle" style={{ width: "64px", height: "64px", fontSize: "1.8rem", borderRadius: "16px" }}>
+                  {settings.site_name ? settings.site_name.charAt(0) : "ع"}
+                </div>
+              )}
+            </div>
+            <h2 style={{ fontWeight: 900 }}>الملف الشخصي</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>بيانات حسابك الشخصي والتحكم بالرصيد</p>
+          </div>
+
+          {loadingProfile ? (
+            <div style={{ textAlign: "center", padding: "20px", color: "var(--text-muted)" }}>جاري تحميل بيانات الحساب...</div>
+          ) : customer ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              
+              {/* Profile Details List */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {[
+                  { label: "👤 اسم المستخدم", value: customer.username, color: "var(--text-main)" },
+                  { label: "✉️ البريد الإلكتروني", value: customer.email || "غير متوفر", color: "var(--text-main)" },
+                  { label: "📞 رقم الهاتف", value: customer.phone || "غير متوفر", color: "var(--text-main)", ltr: true },
+                  { label: "💳 رصيد المحفظة", value: `${Number(customer.balance || 0).toFixed(2)} USD`, color: "var(--primary-color)", fontWeight: "bold" },
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--text-muted)", fontWeight: "bold" }}>{row.label}</span>
+                    <span style={{ fontSize: "0.9rem", fontWeight: row.fontWeight || "800", color: row.color, direction: row.ltr ? "ltr" : "rtl" }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Navigation Actions */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                <Link href="/orders" className="glass-btn glass-btn-primary" style={{ padding: "12px", textAlign: "center", textDecoration: "none", width: "100%", borderRadius: "12px", fontWeight: "bold" }}>
+                  📦 تتبع واستعراض طلباتي
+                </Link>
+                <Link href="/wallet" className="glass-btn" style={{ padding: "12px", textAlign: "center", textDecoration: "none", width: "100%", borderRadius: "12px", fontWeight: "bold", background: "rgba(255,255,255,0.05)" }}>
+                  💳 شحن رصيد المحفظة
+                </Link>
+              </div>
+
+              <hr style={{ opacity: 0.08, margin: "10px 0" }} />
+
+              {/* Logout Action */}
+              <button
+                onClick={handleLogout}
+                className="glass-btn"
+                style={{ padding: "12px", width: "100%", borderRadius: "12px", color: "var(--danger-color)", fontWeight: "bold", background: "rgba(244, 63, 94, 0.05)", border: "1px solid rgba(244, 63, 94, 0.15)" }}
+              >
+                🚪 تسجيل الخروج من الحساب
+              </button>
+
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "20px", color: "var(--danger-color)" }}>فشل تحميل الملف الشخصي. يرجى تسجيل الدخول مجدداً.</div>
+          )}
+
+          <div style={{ textAlign: "center", marginTop: "10px" }}>
+            <Link href="/" style={{ fontSize: "0.85rem", color: "var(--accent-color)", fontWeight: "600" }}>
+              ← العودة للموقع الرئيسي للتصفح
+            </Link>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>

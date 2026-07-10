@@ -15,6 +15,7 @@ export default function OrdersTab({
   handleOpenCodeModal,
   updateOrderStatus,
   checkUnlockerOrderStatus,
+  cancelUnlockerOrder,
   deleteOrder,
   walletTransactions,
   filteredWalletTransactions
@@ -168,23 +169,35 @@ export default function OrdersTab({
                 {order.status === "pending" && (
                   <>
                     {order.api_source === "amrr-unlocker" ? (
-                      <button onClick={() => handleApproveOrder(order)} className="action-btn" style={{ background: "rgba(14,165,233,0.18)", border: "1px solid rgba(14,165,233,0.3)", color: "#0ea5e9", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
-                        ⚡ اعتماد وإرسال للـAPI
-                      </button>
+                      <>
+                        <button onClick={() => handleApproveOrder(order)} className="action-btn" style={{ background: "rgba(14,165,233,0.18)", border: "1px solid rgba(14,165,233,0.3)", color: "#0ea5e9", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
+                          ⚡ اعتماد وإرسال للـAPI
+                        </button>
+                        <button onClick={() => cancelUnlockerOrder(order.id)} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                          ❌ إلغاء من المزود
+                        </button>
+                      </>
                     ) : (
-                      <button onClick={() => handleApproveOrder(order)} className="action-btn btn-success-premium">
-                        ✅ تم الشحن
-                      </button>
+                      <>
+                        <button onClick={() => handleApproveOrder(order)} className="action-btn btn-success-premium">
+                          ✅ تم الشحن
+                        </button>
+                        <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium">
+                          ❌ إلغاء
+                        </button>
+                      </>
                     )}
-                    <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium">
-                      ❌ إلغاء
-                    </button>
                   </>
                 )}
                 {order.status === "processing" && order.api_source === "amrr-unlocker" && (
-                  <button onClick={() => checkUnlockerOrderStatus(order.id)} className="action-btn" style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
-                    🔄 تحديث حالة API
-                  </button>
+                  <>
+                    <button onClick={() => checkUnlockerOrderStatus(order.id)} className="action-btn" style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
+                      🔄 تحديث حالة API
+                    </button>
+                    <button onClick={() => cancelUnlockerOrder(order.id)} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                      ❌ إلغاء واسترداد
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => handleOpenCodeModal(order, null)}

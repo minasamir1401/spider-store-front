@@ -12,7 +12,7 @@ export default function AdminDashboardModals() {
   const { showBannerModal, setShowBannerModal, handleAddBanner, newBannerTitle, setNewBannerTitle, newBannerHighlight, setNewBannerHighlight, newBannerDesc, setNewBannerDesc, newBannerBadge, setNewBannerBadge, newBannerColor, setNewBannerColor, newBannerIcon, setNewBannerIcon, bannerUploadedFile, setBannerUploadedFile } = bannerModal;
   const { showEditBannerModal, setShowEditBannerModal, handleEditBanner, editBannerTitle, setEditBannerTitle, editBannerHighlight, setEditBannerHighlight, editBannerDesc, setEditBannerDesc, editBannerBadge, setEditBannerBadge, editBannerColor, setEditBannerColor, editBannerIcon, setEditBannerIcon, editBannerUploadedFile, setEditBannerUploadedFile } = editBannerModal;
   const { showEditCustomerModal, setShowEditCustomerModal, handleUpdateCustomer, editCustomerUsername, setEditCustomerUsername, editCustomerEmail, setEditCustomerEmail, editCustomerPhone, setEditCustomerPhone, editCustomerBalance, setEditCustomerBalance, globalCurrencies, editCustomerBalances, setEditCustomerBalances, editCustomerNewPassword, setEditCustomerNewPassword } = customerModal;
-  const { showOrderDetailsModal, setShowOrderDetailsModal, orderDetailsData, baseCurrency, isUnlockerOrder, handleApproveOrder, handleOpenCodeModal, updateOrderStatus } = orderModal;
+  const { showOrderDetailsModal, setShowOrderDetailsModal, orderDetailsData, baseCurrency, isUnlockerOrder, handleApproveOrder, handleOpenCodeModal, updateOrderStatus, cancelUnlockerOrder } = orderModal;
   const { codeModalOrder, showCodeModal, setShowCodeModal, codeModalStatusToUpdate, codeValue, setCodeValue, orderDownloadLinkValue, setOrderDownloadLinkValue, orderDownloadLinkTitleValue, setOrderDownloadLinkTitleValue, handleSubmitCodeModal, updateOrderCodeAndStatus } = codeModal;
   return (
     <React.Fragment>
@@ -1821,7 +1821,14 @@ export default function AdminDashboardModals() {
                       {isUnlockerOrder(orderDetailsData) ? "⚡ اعتماد وإرسال للـAPI" : "✅ تم الشحن"}
                     </button>
                     <button
-                      onClick={() => { updateOrderStatus(orderDetailsData.id, "cancelled"); setShowOrderDetailsModal(false); }}
+                      onClick={() => {
+                        if (isUnlockerOrder(orderDetailsData) && cancelUnlockerOrder) {
+                          cancelUnlockerOrder(orderDetailsData.id);
+                        } else {
+                          updateOrderStatus(orderDetailsData.id, "cancelled");
+                        }
+                        setShowOrderDetailsModal(false);
+                      }}
                       className="action-btn btn-danger-premium"
                     >
                       ❌ إلغاء

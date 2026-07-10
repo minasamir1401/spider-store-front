@@ -149,6 +149,7 @@ export default function AdminDashboard() {
   const [baseCurrency, setBaseCurrency] = useState("USD");
   const [supportedCurrenciesText, setSupportedCurrenciesText] = useState("USD, USDT");
   const [hideWalletPayment, setHideWalletPayment] = useState(false);
+  const [apiAutoSubmit, setApiAutoSubmit] = useState(true);
   const [whatsappNumbers, setWhatsappNumbers] = useState([]);
   const [newWhatsappNumber, setNewWhatsappNumber] = useState("");
   const [waStatus, setWaStatus] = useState("disconnected"); // 'disconnected'|'loading'|'qr'|'ready'
@@ -360,6 +361,9 @@ export default function AdminDashboard() {
         }
           setBaseCurrency("USD");
         setHideWalletPayment(settingsData.hide_wallet_payment || false);
+        if (settingsData.api_auto_submit !== undefined) {
+          setApiAutoSubmit(settingsData.api_auto_submit);
+        }
         if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
           setWhatsappNumbers(settingsData.whatsapp_numbers);
         }
@@ -627,6 +631,26 @@ export default function AdminDashboard() {
       alert(`خطأ: ${err.message}`);
     }
   };
+
+  const cancelUnlockerOrder = useCallback(async (orderId) => {
+    if (!confirm("هل أنت متأكد من إلغاء هذا الطلب؟ سيتم إلغاؤه من المزود واسترداد الرصيد للعميل.")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/unlocker/cancel-order/${orderId}`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل إلغاء الطلب.");
+      
+      alert(data.message);
+      void fetchData();
+    } catch (err) {
+      alert(`خطأ: ${err.message}`);
+    }
+  }, [fetchData, token]);
 
 const handleLogout = () => {
     localStorage.removeItem("admin_token");
@@ -1556,6 +1580,27 @@ const handleLogout = () => {
     }
   };
 
+  const handleToggleAutoSubmit = async (newValue) => {
+    setApiAutoSubmit(newValue);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ api_auto_submit: newValue })
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "فشل تحديث وضع التقديم التلقائي.");
+      }
+    } catch (err) {
+      alert(err.message);
+      setApiAutoSubmit(!newValue);
+    }
+  };
+
   const handleSaveGlobalMarkup = async (e) => {
     if (e) e.preventDefault();
     setSavingMarkup(true);
@@ -1887,7 +1932,8 @@ const handleLogout = () => {
       isUnlockerOrder,
       handleApproveOrder,
       handleOpenCodeModal,
-      updateOrderStatus
+      updateOrderStatus,
+      cancelUnlockerOrder
     },
     codeModal: {
       codeModalOrder,
@@ -2265,6 +2311,7 @@ const handleLogout = () => {
         handleOpenCodeModal={handleOpenCodeModal}
         updateOrderStatus={updateOrderStatus}
         checkUnlockerOrderStatus={checkUnlockerOrderStatus}
+        cancelUnlockerOrder={cancelUnlockerOrder}
         deleteOrder={deleteOrder}
                 walletTransactions={walletTransactions}
                 filteredWalletTransactions={filteredWalletTransactions}
@@ -2477,6 +2524,8 @@ const handleLogout = () => {
                 setUnlockerCustomDiscounts={setUnlockerCustomDiscounts}
                 totalUnlockerPages={totalUnlockerPages}
                 unlockerCategories={unlockerCategories}
+                apiAutoSubmit={apiAutoSubmit}
+                handleToggleAutoSubmit={handleToggleAutoSubmit}
               />
             )}
 </main>

@@ -42,7 +42,9 @@ export default function AmrrUnlockerTab({
   unlockerCustomDiscounts,
   setUnlockerCustomDiscounts,
   totalUnlockerPages,
-  unlockerCategories
+  unlockerCategories,
+  apiAutoSubmit,
+  handleToggleAutoSubmit
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -75,6 +77,35 @@ export default function AmrrUnlockerTab({
             >
               {unlockerBalanceLoading ? "انتظر..." : "🔄 تحديث"}
             </button>
+          </div>
+        </div>
+
+        {/* Auto-Submit Toggle */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px", padding: "14px 18px", background: apiAutoSubmit ? "rgba(34, 197, 94, 0.06)" : "rgba(239, 68, 68, 0.06)", borderRadius: "10px", border: `1px solid ${apiAutoSubmit ? "rgba(34, 197, 94, 0.2)" : "rgba(239, 68, 68, 0.2)"}`, transition: "all 0.3s ease" }}>
+          <div 
+            onClick={() => handleToggleAutoSubmit(!apiAutoSubmit)}
+            style={{ 
+              width: "48px", height: "26px", borderRadius: "13px", cursor: "pointer", position: "relative", transition: "all 0.3s ease",
+              background: apiAutoSubmit ? "rgba(34, 197, 94, 0.6)" : "rgba(100, 116, 139, 0.4)",
+              border: `1px solid ${apiAutoSubmit ? "rgba(34, 197, 94, 0.5)" : "rgba(100, 116, 139, 0.3)"}`,
+              flexShrink: 0
+            }}
+          >
+            <div style={{ 
+              width: "20px", height: "20px", borderRadius: "50%", background: "#fff", position: "absolute", top: "2px",
+              transition: "all 0.3s ease", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              ...(apiAutoSubmit ? { right: "2px" } : { left: "2px" })
+            }} />
+          </div>
+          <div>
+            <div style={{ fontSize: "0.9rem", fontWeight: 800, color: apiAutoSubmit ? "#4ade80" : "#f87171" }}>
+              {apiAutoSubmit ? "⚡ الإرسال التلقائي مُفعّل" : "🔒 وضع المراجعة اليدوية"}
+            </div>
+            <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: "2px" }}>
+              {apiAutoSubmit 
+                ? "الطلبات المدفوعة من المحفظة تُرسل فوراً للمزود بدون مراجعة." 
+                : "الطلبات تبقى \"قيد الانتظار\" حتى يعتمدها المسؤول يدوياً من لوحة التحكم."}
+            </div>
           </div>
         </div>
       </div>
