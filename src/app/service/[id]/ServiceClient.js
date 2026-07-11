@@ -341,9 +341,17 @@ export default function ServiceDetail({ params }) {
       return;
     }
 
-    if (isDynamic && (!customQuantity || customQuantity < 100)) {
-      setErrorMessage("من فضلك أدخل كمية صالحة (الحد الأدنى 100).");
-      return;
+    if (isDynamic) {
+      const minQty = service.min_quantity || 100;
+      const maxQty = service.max_quantity || 0;
+      if (!customQuantity || customQuantity < minQty) {
+        setErrorMessage(`من فضلك أدخل كمية صالحة (الحد الأدنى ${minQty}).`);
+        return;
+      }
+      if (maxQty > 0 && customQuantity > maxQty) {
+        setErrorMessage(`الكمية المطلوبة تتجاوز الحد الأقصى المسموح به (${maxQty}).`);
+        return;
+      }
     }
 
     if (paymentMethod === "wallet" && !isCustomerLoggedIn) {
@@ -682,37 +690,43 @@ export default function ServiceDetail({ params }) {
     </div>
   );
 
+  const minQty = service?.min_quantity || 100;
+  const maxQty = service?.max_quantity || 0;
+
   const customQuantitySection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "10px" }}>1. أدخل الكمية المطلوبة:</h3>
       <p style={{ fontSize: "0.85rem", color: "var(--accent-color)", marginBottom: "12px", fontWeight: "bold" }}>
         سعر الـ 1000 وحدة هو: {baseCurrency === 'USD' || baseCurrency === 'USDT'
-          ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)}`
-          : (service.category_currency === 'USD' || service.category_currency === 'USDT'
-              ? `$ ${Number(service.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
-              : `${Number(service.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: 100)
+          ? `$ ${Number(service?.price_per_thousand || 0).toFixed(2)}`
+          : (service?.category_currency === 'USD' || service?.category_currency === 'USDT'
+              ? `$ ${Number(service?.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service?.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
+              : `${Number(service?.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: {minQty}{maxQty > 0 ? `، أقصى كمية: ${maxQty}` : ''})
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
           type="number"
-          min="100"
+          min={minQty}
+          max={maxQty > 0 ? maxQty : undefined}
           step="100"
           value={customQuantity}
           onFocus={() => {
-            if (service.price_type === "both") {
+            if (service?.price_type === "both") {
               setCustomerPricingMode("dynamic");
             }
           }}
           onChange={(e) => {
-            if (service.price_type === "both") {
+            if (service?.price_type === "both") {
               setCustomerPricingMode("dynamic");
             }
             const val = e.target.value === "" ? "" : parseInt(e.target.value);
             setCustomQuantity(val);
           }}
           onBlur={() => {
-            if (!customQuantity || customQuantity < 100) {
-              setCustomQuantity(100);
+            if (!customQuantity || customQuantity < minQty) {
+              setCustomQuantity(minQty);
+            } else if (maxQty > 0 && customQuantity > maxQty) {
+              setCustomQuantity(maxQty);
             }
           }}
           style={{
@@ -749,8 +763,8 @@ export default function ServiceDetail({ params }) {
     </div>
   );
 
-  const isContinueEnabled = (service.price_type === "dynamic" || (service.price_type === "both" && customerPricingMode === "dynamic"))
-    ? (Number(customQuantity) >= 100)
+  const isContinueEnabled = (service?.price_type === "dynamic" || (service?.price_type === "both" && customerPricingMode === "dynamic"))
+    ? (Number(customQuantity) >= (service?.min_quantity || 100))
     : (selectedPackage !== null);
 
   const checkoutPage = (
@@ -801,7 +815,7 @@ export default function ServiceDetail({ params }) {
       {/* Header */}
       <div style={{ marginBottom: "24px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "16px" }}>
         <h2 style={{ fontSize: "1.5rem", fontWeight: "900", color: "var(--text-main)", margin: 0 }}>
-          إتمام الدفع وتأكيد الطلب
+          {fieldsSectionTitle}
         </h2>
         <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", marginTop: "6px", marginBottom: 0 }}>
           الخدمة المختارة: <strong style={{ color: "var(--primary-color)", fontWeight: "800" }}>{service.name}</strong>
@@ -825,7 +839,7 @@ export default function ServiceDetail({ params }) {
           }}>
             <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
-              {fieldsSectionTitle}:
+              البيانات المطلوبة:
             </h3>
             {activeFields.map((field, idx) => (
               <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
