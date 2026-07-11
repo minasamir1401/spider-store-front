@@ -1119,7 +1119,7 @@ export default function AdminDashboardModals() {
                             </button>
                           )}
                         </div>
-                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
                           <div style={{ flex: "2 1 180px", display: "flex", flexDirection: "column", gap: "4px" }}>
                             <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>اسم الباقة (مثلاً: 325 شدة):</span>
                             <input
@@ -1142,6 +1142,46 @@ export default function AdminDashboardModals() {
                               required
                             />
                           </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                          <div style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>تفعيل الكمية لهذه الباقة:</span>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "0.85rem", color: "#ffffff", padding: "8px", background: "rgba(255,255,255,0.02)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                              <input
+                                type="checkbox"
+                                checked={!!pkg.requires_quantity}
+                                onChange={(e) => handleEditPkgChange(idx, "requires_quantity", e.target.checked)}
+                                style={{ width: "16px", height: "16px", accentColor: "#3b82f6" }}
+                              />
+                              الباقة تطلب كمية (مثال: سيرفرات)
+                            </label>
+                          </div>
+                          {pkg.requires_quantity && (
+                            <>
+                              <div style={{ flex: "1 1 80px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>الحد الأدنى:</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  placeholder="1"
+                                  value={pkg.min_quantity || ""}
+                                  onChange={(e) => handleEditPkgChange(idx, "min_quantity", parseInt(e.target.value))}
+                                  style={{ direction: "ltr" }}
+                                />
+                              </div>
+                              <div style={{ flex: "1 1 80px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>الحد الأقصى (0 = غير محدود):</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  value={pkg.max_quantity || ""}
+                                  onChange={(e) => handleEditPkgChange(idx, "max_quantity", parseInt(e.target.value))}
+                                  style={{ direction: "ltr" }}
+                                />
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}
