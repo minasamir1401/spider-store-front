@@ -1100,7 +1100,7 @@ const handleLogout = () => {
     if (newServicePriceType === "fixed") {
       validPackages = newServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ ...p, id: idx + 1 }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -1113,7 +1113,7 @@ const handleLogout = () => {
     } else {
       validPackages = newServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ ...p, id: idx + 1 }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -1410,7 +1410,7 @@ const handleLogout = () => {
     if (editServicePriceType === "fixed") {
       validPackages = editServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ ...p, id: idx + 1 }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
@@ -1423,7 +1423,7 @@ const handleLogout = () => {
     } else {
       validPackages = editServicePackages
         .filter(p => p.name.trim())
-        .map((p, idx) => ({ id: idx + 1, name: p.name, price: p.price }));
+        .map((p, idx) => ({ ...p, id: idx + 1 }));
 
       if (validPackages.length === 0) {
         setErrorMsg("يجب إضافة باقة واحدة على الأقل للخدمة.");
