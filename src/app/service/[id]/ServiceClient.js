@@ -914,7 +914,7 @@ export default function ServiceDetail({ params }) {
             {selectedPackage?.requires_quantity && (
               <div className="form-group" style={{ marginBottom: "0px", marginTop: "4px" }}>
                 <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                  الكمية (الحد الأدنى {selectedPackage.min_quantity || 1}):
+                  الكمية (الحد الأدنى {selectedPackage.min_quantity || 1}{selectedPackage.max_quantity > 0 ? `، الحد الأقصى ${selectedPackage.max_quantity}` : ''}):
                 </label>
                 <input
                   type="number"
