@@ -685,6 +685,26 @@ export default function AdminDashboard() {
     }
   }, [fetchData, token]);
 
+  const handleManualRefund = useCallback(async (orderId) => {
+    if (!confirm("هل أنت متأكد من إرجاع رصيد هذا الطلب يدوياً إلى محفظة العميل؟ سيؤدي ذلك أيضاً إلى إلغاء الطلب.")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/refund`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "فشل إرجاع الرصيد.");
+      
+      alert(data.message);
+      void fetchData();
+    } catch (err) {
+      alert(`خطأ: ${err.message}`);
+    }
+  }, [fetchData, token]);
+
 const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
@@ -2396,6 +2416,7 @@ const handleLogout = () => {
         updateOrderStatus={updateOrderStatus}
         checkUnlockerOrderStatus={checkUnlockerOrderStatus}
         cancelUnlockerOrder={cancelUnlockerOrder}
+        handleManualRefund={handleManualRefund}
         deleteOrder={deleteOrder}
                 walletTransactions={walletTransactions}
                 filteredWalletTransactions={filteredWalletTransactions}

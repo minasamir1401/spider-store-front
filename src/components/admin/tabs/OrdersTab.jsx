@@ -16,13 +16,13 @@ export default function OrdersTab({
   updateOrderStatus,
   checkUnlockerOrderStatus,
   cancelUnlockerOrder,
+  handleManualRefund,
   deleteOrder,
   walletTransactions,
   filteredWalletTransactions
 }) {
   return (
     <>
-      {/* Stats Counters */}
       <div className="premium-stats-grid">
         <div className="premium-stat-card" style={{ "--glow-color": "rgba(99, 102, 241, 0.15)" }}>
           <div className="stat-card-info">
@@ -173,6 +173,12 @@ export default function OrdersTab({
                         <button onClick={() => handleApproveOrder(order)} className="action-btn" style={{ background: "rgba(14,165,233,0.18)", border: "1px solid rgba(14,165,233,0.3)", color: "#0ea5e9", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
                           ⚡ اعتماد وإرسال للـAPI
                         </button>
+                        <button onClick={() => handleOpenCodeModal(order, "completed")} className="action-btn btn-success-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                          ✅ تم الشحن (يدوي)
+                        </button>
+                        <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                          ❌ إلغاء (يدوي)
+                        </button>
                         <button onClick={() => cancelUnlockerOrder(order.id)} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
                           ❌ إلغاء من المزود
                         </button>
@@ -194,10 +200,25 @@ export default function OrdersTab({
                     <button onClick={() => checkUnlockerOrderStatus(order.id)} className="action-btn" style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}>
                       🔄 تحديث حالة API
                     </button>
+                    <button onClick={() => handleOpenCodeModal(order, "completed")} className="action-btn btn-success-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                      ✅ تم الشحن (يدوي)
+                    </button>
+                    <button onClick={() => updateOrderStatus(order.id, "cancelled")} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
+                      ❌ إلغاء (يدوي)
+                    </button>
                     <button onClick={() => cancelUnlockerOrder(order.id)} className="action-btn btn-danger-premium" style={{ fontSize: "0.8rem", padding: "6px 14px" }}>
                       ❌ إلغاء واسترداد
                     </button>
                   </>
+                )}
+                {order.payment_method === "wallet" && (
+                  <button
+                    onClick={() => handleManualRefund(order.id)}
+                    className="action-btn"
+                    style={{ background: "rgba(234,179,8,0.12)", border: "1px solid rgba(234,179,8,0.25)", color: "#facc15", fontSize: "0.8rem", padding: "6px 14px", fontWeight: "bold" }}
+                  >
+                    💸 إرجاع رصيد
+                  </button>
                 )}
                 <button
                   onClick={() => handleOpenCodeModal(order, null)}

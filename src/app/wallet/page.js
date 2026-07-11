@@ -32,6 +32,7 @@ export default function WalletPage() {
   const [pendingWhatsapp, setPendingWhatsapp] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setToken(localStorage.getItem("customer_token") || "");
@@ -77,18 +78,20 @@ export default function WalletPage() {
           });
         }
         setLoadingRates(false);
+        setHydrated(true);
       })
       .catch(err => {
         console.error("Error fetching live rates:", err);
         setLoadingRates(false);
+        setHydrated(true);
       });
   }, []);
 
   useEffect(() => {
-    if (!token) {
+    if (hydrated && !token) {
       router.push("/login");
     }
-  }, [router, token]);
+  }, [router, token, hydrated]);
 
   useEffect(() => {
     if (!token) return;
@@ -225,6 +228,10 @@ export default function WalletPage() {
     localStorage.removeItem("customer_user");
     router.push("/login");
   };
+
+  if (!hydrated) {
+    return <div style={{ textAlign: "center", padding: "50px", color: "var(--text-muted)" }}>جاري تحميل المحفظة...</div>;
+  }
 
   return (
     <>
