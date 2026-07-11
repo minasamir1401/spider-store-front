@@ -1300,11 +1300,12 @@ export default function ServiceDetail({ params }) {
                       egpPrice = computedUsd;
                     }
                   } else if (selectedPackage) {
+                    let multiplier = selectedPackage.requires_quantity ? (customQuantity || 1) : 1;
                     if (isUsd) {
-                      usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                      usdPrice = (selectedPackage.usd_price || selectedPackage.price) * multiplier;
                       egpPrice = usdPrice * usdRate;
                     } else {
-                      egpPrice = selectedPackage.price;
+                      egpPrice = (selectedPackage.price) * multiplier;
                     }
                   }
 
