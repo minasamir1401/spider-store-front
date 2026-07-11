@@ -63,7 +63,7 @@ export default function CustomerLogin() {
       }
     })
       .then(res => {
-        if (res.status === 401 || res.status === 403) {
+        if (res.status === 401 || res.status === 403 || res.status === 404) {
           localStorage.removeItem("customer_token");
           localStorage.removeItem("customer_user");
           setIsLoggedIn(false);

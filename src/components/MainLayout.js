@@ -105,7 +105,7 @@ export default function MainLayout({ children }) {
         }
       })
         .then((res) => {
-          if (res.status === 401 || res.status === 403) {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
             handleCustomerLogout();
             return null;
           }
