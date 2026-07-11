@@ -20,9 +20,7 @@ export default function Home() {
   // Theme states
   const [theme, setTheme] = useState("dark");
 
-  // PWA states
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
 
   // Settings state
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
@@ -91,19 +89,7 @@ export default function Home() {
       setCustomerUser(userStr ? JSON.parse(userStr) : null);
     } catch {}
 
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone
-      || document.referrer.includes('android-app://');
-    const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
-    setShowInstallBanner(!isStandalone && !isDismissed);
 
-    // PWA Install Prompt Listener
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Check customer login
     const token = localStorage.getItem("customer_token");
@@ -172,7 +158,6 @@ export default function Home() {
       .catch((err) => console.error("Failed to fetch settings:", err));
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
 
@@ -183,14 +168,6 @@ export default function Home() {
     localStorage.setItem("theme", nextTheme);
   };
 
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User choice outcome: ${outcome}`);
-    setDeferredPrompt(null);
-    setShowInstallBanner(false);
-  };
 
   // Auto-scroll hero banner carousel
   useEffect(() => {
