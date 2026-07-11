@@ -633,7 +633,7 @@ export default function ServiceDetail({ params }) {
                     <div className="scc-img-ring" style={{ borderColor: accentColor }}>
                       <div className="scc-img-inner">
                         <img 
-                          alt={pkg.name} 
+                          alt={(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name} 
                           className="scc-img" 
                           src={service.image.startsWith("http") || service.image.startsWith("/") || service.image.startsWith("data:") ? service.image : `${API_BASE_URL}/${service.image}`}
                           onError={() => {
@@ -645,7 +645,7 @@ export default function ServiceDetail({ params }) {
                   )}
 
                   <div className="scc-content" style={{ paddingRight: hasImage ? "0px" : "4px" }}>
-                    <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "800" }}>{pkg.name}</span>
+                    <span className="scc-name" style={{ fontSize: "1rem", fontWeight: "800" }}>{(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name}</span>
                     <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "6px" }}>
                       <span style={{ color: "var(--primary-color)", fontWeight: "900", fontSize: "0.95rem" }}>
                         {baseCurrency === 'USD' || baseCurrency === 'USDT' || isUsd

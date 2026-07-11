@@ -461,7 +461,7 @@ export default function CategoryServices({ params }) {
                                 <div className="scc-img-inner">
                                   <img 
                                     src={imgSrc} 
-                                    alt={pkg.name} 
+                                    alt={(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name} 
                                     loading="lazy" 
                                     className="scc-img" 
                                     onError={(e) => {
@@ -476,7 +476,7 @@ export default function CategoryServices({ params }) {
                               </div>
                             )}
                             <div className="scc-content">
-                              <span className="scc-name">{pkg.name}</span>
+                              <span className="scc-name">{(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name}</span>
                               <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4.5px" }}>
                                 <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.95rem" }}>
                                   $ {Number(pkg.price).toFixed(2)}
