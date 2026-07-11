@@ -394,17 +394,18 @@ export default function ServiceDetail({ params }) {
         computedPrice = Number(usdPrice.toFixed(2));
       }
     } else {
+      let multiplier = selectedPackage?.requires_quantity ? (customQuantity || 1) : 1;
       if (service.category_currency === 'USD' || service.category_currency === 'USDT' || service.category_currency === 'USDT') {
         const usdPrice = selectedPackage.usd_price || selectedPackage.price;
         const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
-        computedPrice = Number((usdPrice * usdRate).toFixed(2));
+        computedPrice = Number((usdPrice * usdRate * multiplier).toFixed(2));
       } else {
-        computedPrice = selectedPackage.price;
+        computedPrice = Number((selectedPackage.price * multiplier).toFixed(2));
       }
     }
     const computedPackageName = isDynamic
       ? `كمية: ${customQuantity}`
-      : selectedPackage.name;
+      : (selectedPackage?.requires_quantity ? `${selectedPackage.name} (الكمية: ${customQuantity || 1})` : selectedPackage.name);
 
     try {
       const headers = {
@@ -429,7 +430,7 @@ export default function ServiceDetail({ params }) {
           sender_phone: senderPhone,
           transfer_to: paymentMethod === "wallet" ? "" : (paymentMethods.find(pm => pm.id === paymentMethod)?.value || ""),
           custom_fields: formData,
-          quantity: isDynamic ? customQuantity : 1,
+          quantity: (isDynamic || selectedPackage?.requires_quantity) ? customQuantity : 1,
           receipt_image: receiptImage,
           transfer_amount: paymentMethod === "wallet" ? 0 : parseFloat(transferAmount)
         })
@@ -765,7 +766,7 @@ export default function ServiceDetail({ params }) {
 
   const isContinueEnabled = (service?.price_type === "dynamic" || (service?.price_type === "both" && customerPricingMode === "dynamic"))
     ? (Number(customQuantity) >= (service?.min_quantity || 100))
-    : (selectedPackage !== null);
+    : (selectedPackage !== null && (!selectedPackage.requires_quantity || Number(customQuantity) >= (selectedPackage.min_quantity || 1)));
 
   const checkoutPage = (
     <div className="glass-panel" style={{
@@ -909,6 +910,39 @@ export default function ServiceDetail({ params }) {
                 )}
               </div>
             ))}
+            
+            {selectedPackage?.requires_quantity && (
+              <div className="form-group" style={{ marginBottom: "0px", marginTop: "4px" }}>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                  الكمية (الحد الأدنى {selectedPackage.min_quantity || 1}):
+                </label>
+                <input
+                  type="number"
+                  min={selectedPackage.min_quantity || 1}
+                  max={selectedPackage.max_quantity > 0 ? selectedPackage.max_quantity : undefined}
+                  value={customQuantity}
+                  onChange={(e) => {
+                    const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                    setCustomQuantity(val);
+                  }}
+                  onBlur={() => {
+                    const min = selectedPackage.min_quantity || 1;
+                    const max = selectedPackage.max_quantity || 0;
+                    if (!customQuantity || customQuantity < min) setCustomQuantity(min);
+                    else if (max > 0 && customQuantity > max) setCustomQuantity(max);
+                  }}
+                  style={{
+                    width: "100%", padding: "12px 14px", fontSize: "0.9rem", borderRadius: "10px",
+                    border: "1px solid rgba(255, 255, 255, 0.1)", background: "var(--input-bg)",
+                    color: "var(--text-main)", outline: "none", transition: "all 0.2s ease"
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--primary-color)";
+                    e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Step 2: Payment Method */}
@@ -942,11 +976,12 @@ export default function ServiceDetail({ params }) {
                       egpPrice = computedUsd;
                     }
                   } else if (selectedPackage) {
+                    let multiplier = selectedPackage.requires_quantity ? (customQuantity || 1) : 1;
                     if (isUsd) {
-                      usdPrice = selectedPackage.usd_price || selectedPackage.price;
+                      usdPrice = (selectedPackage.usd_price || selectedPackage.price) * multiplier;
                       egpPrice = usdPrice * usdRate;
                     } else {
-                      egpPrice = selectedPackage.price;
+                      egpPrice = (selectedPackage.price) * multiplier;
                     }
                   }
 
