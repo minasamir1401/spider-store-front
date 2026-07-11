@@ -2482,6 +2482,8 @@ const handleLogout = () => {
                 handleOpenEditService={handleOpenEditService}
                 handleDeleteService={handleDeleteService}
                 handleClearAllServices={handleClearAllServices}
+                token={token}
+                setServices={setServices}
               />
             )}
 

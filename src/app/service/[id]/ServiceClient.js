@@ -260,7 +260,7 @@ export default function ServiceDetail({ params }) {
   }, [service]);
 
   const defaultFields = useMemo(() => ([
-    { name: "player_id", label: "معرّف اللاعب / حساب الخدمة (Player ID / Email)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا (مثال: 512495910)", required: true }
+    { name: "player_id", label: "معرّف الحساب (ID)", type: "text", placeholder: "أدخل معرّف الحساب بدقة هنا", required: true }
   ]), []);
 
   const activeFields = useMemo(() => {
@@ -270,6 +270,7 @@ export default function ServiceDetail({ params }) {
 
     for (const f of rawFields) {
       if (!f) continue;
+      // Support both 'name' and 'id' as field identifier
       const fieldId = String(f.name || f.id || "").toLowerCase().trim();
       const fieldLabel = String(f.label || "").toLowerCase().trim();
       if (!fieldId && !fieldLabel) continue;
@@ -287,10 +288,15 @@ export default function ServiceDetail({ params }) {
     }
 
     return uniqueFields
-      .filter(f => (f.name || f.id) !== "phone")
+      .filter(f => {
+        const fid = (f.name || f.id || "").toLowerCase().trim();
+        // Hide standalone phone/tel fields (they are collected separately in payment section)
+        return fid !== "phone" && fid !== "tel";
+      })
       .map(f => ({
         ...f,
-        name: f.name || f.id || ""
+        // Normalize: always use 'name' as the key for formData, falling back to 'id'
+        name: (f.name || f.id || "").trim()
       }));
   }, [serviceFields, defaultFields]);
 
