@@ -173,21 +173,23 @@ export default function OrdersHistory() {
                       <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                         الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</strong>
                       </p>
-                      <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                        حساب الخدمة (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
-                      </p>
-                      {order.custom_fields && (() => {
-                        try {
-                          const parsed = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
-                          return Object.entries(parsed).map(([key, value]) => (
-                            <p key={key} style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                              {key}: <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{value}</span>
-                            </p>
-                          ));
-                        } catch (e) {
-                          return null;
-                        }
-                      })()}
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                        <div style={{ background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.82rem" }}>
+                          <span style={{ color: "var(--text-muted)" }}>حساب الخدمة (ID):</span> <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
+                        </div>
+                        {order.custom_fields && (() => {
+                          try {
+                            const parsed = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
+                            return Object.entries(parsed).map(([key, value]) => (
+                              <div key={key} style={{ background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.82rem" }}>
+                                <span style={{ color: "var(--text-muted)" }}>{key}:</span> <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{value}</span>
+                              </div>
+                            ));
+                          } catch (e) {
+                            return null;
+                          }
+                        })()}
+                      </div>
                       {order.code && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
                           <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
