@@ -264,11 +264,20 @@ export default function ServiceDetail({ params }) {
   ]), []);
 
   const activeFields = useMemo(() => {
-    let rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+    let rawFields = serviceFields;
+    if (serviceFields.length === 0) {
+      if (!service?.api_source) {
+        rawFields = defaultFields;
+      }
+    }
 
     // Use specific package fields if available (especially for grouped services)
-    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
-      rawFields = selectedPackage.fields;
+    if (selectedPackage && Array.isArray(selectedPackage.fields)) {
+      if (selectedPackage.fields.length > 0) {
+        rawFields = selectedPackage.fields;
+      } else if (service?.api_source) {
+        rawFields = [];
+      }
     }
 
     const seen = new Set();
@@ -835,15 +844,16 @@ export default function ServiceDetail({ params }) {
         <div className="checkout-main-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           
           {/* Step 1: Account Details */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
-            border: "1px solid rgba(255,255,255,0.06)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "14px"
-          }}>
+          {(activeFields.length > 0 || selectedPackage?.requires_quantity) && (
+            <div className="glass-panel" style={{ 
+              background: "rgba(255, 255, 255, 0.01)", 
+              padding: "20px", 
+              borderRadius: "16px", 
+              border: "1px solid rgba(255,255,255,0.06)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px"
+            }}>
             <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
               البيانات المطلوبة:
@@ -950,6 +960,7 @@ export default function ServiceDetail({ params }) {
               </div>
             )}
           </div>
+          )}
 
           {/* Step 2: Payment Method */}
           <div className="glass-panel" style={{ 
