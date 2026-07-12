@@ -176,6 +176,18 @@ export default function OrdersHistory() {
                       <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                         حساب الخدمة (ID): <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
                       </p>
+                      {order.custom_fields && (() => {
+                        try {
+                          const parsed = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
+                          return Object.entries(parsed).map(([key, value]) => (
+                            <p key={key} style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                              {key}: <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{value}</span>
+                            </p>
+                          ));
+                        } catch (e) {
+                          return null;
+                        }
+                      })()}
                       {order.code && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
                           <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
@@ -390,6 +402,19 @@ export default function OrdersHistory() {
                       <span style={{ color: "#cbd5e1" }}>معرّف الحساب (ID):</span>
                       <strong style={{ color: "#22d3ee", direction: "ltr", textAlign: "left" }}>{singleOrder.player_id}</strong>
                     </div>
+                    {singleOrder.custom_fields && (() => {
+                      try {
+                        const parsed = typeof singleOrder.custom_fields === 'string' ? JSON.parse(singleOrder.custom_fields) : singleOrder.custom_fields;
+                        return Object.entries(parsed).map(([key, value]) => (
+                          <div key={key} style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
+                            <span style={{ color: "#cbd5e1" }}>{key}:</span>
+                            <strong style={{ color: "#22d3ee", direction: "ltr", textAlign: "left" }}>{value}</strong>
+                          </div>
+                        ));
+                      } catch (e) {
+                        return null;
+                      }
+                    })()}
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>القيمة الإجمالية:</span>
                       <strong style={{ color: "#34d399" }}>{Number(singleOrder.package_price || 0).toFixed(2)} {baseCurrency}</strong>

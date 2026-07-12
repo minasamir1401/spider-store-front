@@ -1805,9 +1805,8 @@ export default function AdminDashboardModals() {
                   try {
                     const parsed = typeof orderDetailsData.custom_fields === 'string' ? JSON.parse(orderDetailsData.custom_fields) : orderDetailsData.custom_fields;
                     return Object.entries(parsed)
-                      .filter(([key]) => key.startsWith('custom_'))
                       .map(([key, val]) => ({
-                        label: key.replace('custom_', ''),
+                        label: key,
                         value: String(val),
                         color: "#22d3ee"
                       }));

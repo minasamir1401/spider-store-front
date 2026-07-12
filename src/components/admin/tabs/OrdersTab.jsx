@@ -143,11 +143,32 @@ export default function OrdersTab({
                   <div style={{ fontWeight: 700, color: order.customer_username && order.customer_username.includes("زائر") ? "#94a3b8" : "#fbbf24", fontSize: "0.9rem" }}>
                     {order.customer_username || "زائر"}
                   </div>
+                  <div style={{ fontSize: "0.8rem", color: "#c084fc", marginTop: "4px", direction: "ltr", textAlign: "right" }}>
+                    ID: {order.player_id}
+                  </div>
                 </div>
                 <div style={{ flex: 2, minWidth: "140px" }}>
                   <div style={{ fontSize: "0.73rem", color: "#64748b", marginBottom: "2px" }}>الخدمة</div>
                   <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{order.service_name}</div>
                   <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{order.package_name} • <span style={{ color: "#34d399" }}>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</span></div>
+                  {order.custom_fields && (() => {
+                    try {
+                      const parsed = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
+                      const entries = Object.entries(parsed);
+                      if (entries.length === 0) return null;
+                      return (
+                        <div style={{ marginTop: "6px", fontSize: "0.8rem", color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: "8px" }}>
+                          {entries.map(([key, val]) => (
+                            <div key={key}>
+                              <span style={{ color: "#64748b" }}>{key}:</span> <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block" }}>{val}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    } catch {
+                      return null;
+                    }
+                  })()}
                   {order.api_order_id && (
                     <div style={{ fontSize: "0.75rem", background: "rgba(14,165,233,0.12)", color: "#38bdf8", padding: "4px 10px", borderRadius: "8px", display: "inline-flex", gap: "6px", alignItems: "center", marginTop: "6px", fontWeight: "bold" }}>
                       <span>🔓 طلب API خارجي: #{order.api_order_id}</span>
