@@ -264,7 +264,13 @@ export default function ServiceDetail({ params }) {
   ]), []);
 
   const activeFields = useMemo(() => {
-    const rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+    let rawFields = serviceFields.length > 0 ? serviceFields : defaultFields;
+
+    // Use specific package fields if available (especially for grouped services)
+    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
+      rawFields = selectedPackage.fields;
+    }
+
     const seen = new Set();
     const uniqueFields = [];
 
