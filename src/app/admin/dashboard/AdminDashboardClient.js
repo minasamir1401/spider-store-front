@@ -17,6 +17,7 @@ import CustomersTab from "@/components/admin/tabs/CustomersTab";
 import CategoriesTab from "@/components/admin/tabs/CategoriesTab";
 import ServicesTab from "@/components/admin/tabs/ServicesTab";
 import BannersTab from "@/components/admin/tabs/BannersTab";
+import BackupsTab from "@/components/admin/tabs/BackupsTab";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -2163,6 +2164,7 @@ const handleLogout = () => {
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
           { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
           { tab: "amrr_unlocker", icon: "🔓", label: "بوابة Amrr Unlocker" },
+          { tab: "backups", icon: "💾", label: "النسخ الاحتياطي" },
         ].map(item => (
           <button key={item.tab}
             className={`mobile-drawer-link ${activeTab === item.tab ? "active" : ""}`}
@@ -2285,6 +2287,15 @@ const handleLogout = () => {
               <span>بوابة Amrr Unlocker</span>
             </div>
 
+            <div
+              className={`nav-item-premium ${activeTab === "backups" ? "active" : ""}`}
+              onClick={() => setActiveTab("backups")}
+              style={{ background: activeTab === "backups" ? "rgba(59,130,246,0.1)" : "", borderColor: activeTab === "backups" ? "rgba(59,130,246,0.3)" : "" }}
+            >
+              <span className="nav-icon">💾</span>
+              <span>النسخ الاحتياطي</span>
+            </div>
+
             <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
@@ -2319,6 +2330,7 @@ const handleLogout = () => {
                 {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
                 {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
               {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
+              {activeTab === "backups" && "نظام النسخ الاحتياطي واستعادة البيانات"}
               </h1>
               <p>
                 {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
@@ -2331,6 +2343,7 @@ const handleLogout = () => {
                 {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
                 {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
               {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
+              {activeTab === "backups" && "إنشاء نسخ احتياطية للموقع وتنزيلها محلياً أو استرجاعها مباشرة لضمان سلامة البيانات"}
               </p>
             </div>
 
@@ -2547,6 +2560,11 @@ const handleLogout = () => {
                 token={token}
                 API_BASE_URL={API_BASE_URL}
               />
+            )}
+
+            {/* Backups Section */}
+            {activeTab === "backups" && (
+              <BackupsTab token={token} API_BASE_URL={API_BASE_URL} />
             )}
           </>
         )}
