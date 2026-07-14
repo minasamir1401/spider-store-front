@@ -54,25 +54,17 @@ export default function BackupsTab({ token, API_BASE_URL }) {
     }
   };
 
-  const handleDownloadBackup = async (filename) => {
+  const handleDownloadBackup = (filename) => {
     setErrorMsg("");
     setSuccessMsg("");
     try {
-      const response = await fetch(`${API_BASE_URL}/api/backups/download/${filename}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error("فشل تحميل ملف النسخة الاحتياطية.");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const downloadUrl = `${API_BASE_URL}/api/backups/download/${filename}?token=${encodeURIComponent(token)}`;
       const a = document.createElement("a");
-      a.href = url;
+      a.href = downloadUrl;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
     } catch (err) {
       setErrorMsg(err.message || "حدث خطأ أثناء تحميل الملف.");
     }
