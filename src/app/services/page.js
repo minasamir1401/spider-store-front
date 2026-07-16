@@ -38,15 +38,15 @@ const getCategoriesAndServices = cache(async function getCategoriesAndServices()
 export async function generateMetadata() {
   const siteName = await getSiteName();
 
-  const title = `كافة الخدمات الرقمية وباقات الشحن المتاحة | ${siteName}`;
-  const description = `تصفح وابحث في كافة الخدمات الرقمية المتوفرة للشحن والدفع المباشر. أفضل الأسعار وسرعة شحن تلقائية على متجر ${siteName}.`;
+  const title = `كافة خدمات السوفت وير والاشتراكات المتاحة | ${siteName}`;
+  const description = `تصفح وابحث في كافة خدمات السوفت وير وتفعيلات الدونجلات والبرامج المتاحة. أفضل الأسعار وسرعة تفعيل تلقائية على متجر ${siteName}.`;
 
   return {
     title,
     description,
     keywords: [
-      "خدمات شحن الألعاب",
-      "شحن شدات وجواهر",
+      "خدمات السوفت وير",
+      "تفعيل دونجلات وبوكسات",
       "اشتراكات ترفيهية",
       "بطاقات هدايا",
       siteName,

@@ -242,7 +242,7 @@ export default function OrdersHistory() {
               <div className="glass-panel" style={{ textAlign: "center", padding: "50px 20px" }}>
                 <span style={{ fontSize: "3.5rem" }}>🛍️</span>
                 <h3 style={{ margin: "15px 0" }}>لم تقم بأي عمليات شراء بعد!</h3>
-                <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>تصفح أقسام الألعاب والتطبيقات واشحن حسابك فوراً.</p>
+                <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>تصفح أقسام البرمجيات والخدمات وتفعيل السوفت وير فوراً.</p>
                 <Link href="/" className="glass-btn glass-btn-primary">قم بطلب خدمة</Link>
               </div>
             ) : (

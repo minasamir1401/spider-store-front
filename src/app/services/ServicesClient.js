@@ -208,7 +208,7 @@ export default function ServicesClient() {
         </span>
       </div>
       <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", margin: "0 0 20px 0" }}>
-        تصفح وابحث في كافة الخدمات الرقمية المتوفرة للشحن والدفع المباشر.
+        تصفح وابحث في كافة خدمات السوفت وير وتفعيلات الدونجلات والبرامج المتاحة.
       </p>
 
       {/* Centered Search Bar */}
@@ -216,7 +216,7 @@ export default function ServicesClient() {
         <input
           type="text"
           className="search-input-center"
-          placeholder="ابحث عن خدمة شحن، بطاقات، ألعاب..."
+          placeholder="ابحث عن خدمة سوفت وير، تفعيلات، أدوات..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

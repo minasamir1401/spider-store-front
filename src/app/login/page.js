@@ -437,7 +437,7 @@ export default function CustomerLogin() {
             )}
           </div>
           <h2 style={{ fontWeight: 900 }}>حساب {settings.site_name}</h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>تابع مشترياتك واشحن ألعابك بسرعة فائقة</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>تابع مشترياتك واحصل على خدماتك بسرعة فائقة</p>
         </div>
 
         {/* Tab switcher */}

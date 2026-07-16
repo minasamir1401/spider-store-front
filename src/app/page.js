@@ -335,7 +335,7 @@ export default function Home() {
         <input
           type="text"
           className="search-input-center"
-          placeholder="ابحث عن قسم أو خدمة شحن..."
+          placeholder="ابحث عن قسم أو خدمة سوفت وير..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -451,9 +451,9 @@ export default function Home() {
           </details>
 
           <details className="faq-item">
-            <summary className="faq-question">كيف يمكنني شحن شدات ببجي أو جواهر فري فاير؟</summary>
+            <summary className="faq-question">كيف يمكنني تفعيل البرامج وتجديد اشتراكات الأدوات؟</summary>
             <p className="faq-answer">
-              عملية الشحن سهلة للغاية: اختر اللعبة المفضلة لديك (like ببجي موبايل أو فري فاير)، حدد كمية الشدات أو الجواهر التي تريدها، أدخل معرّف اللاعب (Player ID) الخاص بك، ثم اختر وسيلة الدفع المناسبة. يتم تنفيذ الشحن تلقائياً فور تأكيد الدفع.
+              عملية التفعيل سهلة للغاية: اختر البرنامج أو الأداة المطلوبة، حدد باقة التفعيل المناسبة، أدخل البيانات المطلوبة للخدمة، ثم اختر وسيلة الدفع المناسبة. يتم تنفيذ التفعيل تلقائياً فور تأكيد الدفع.
             </p>
           </details>
 
@@ -465,9 +465,9 @@ export default function Home() {
           </details>
 
           <details className="faq-item">
-            <summary className="faq-question">هل شحن الألعاب من خلال {settings.site_name} آمن وحساباتي محمية؟</summary>
+            <summary className="faq-question">هل تفعيل البرامج من خلال {settings.site_name} آمن وحساباتي محمية؟</summary>
             <p className="faq-answer">
-              نعم، {settings.site_name} يعتمد على قنوات شحن رسمية ومعتمدة 100% ومضمونة لحماية حسابات اللاعبين من الحظر أو المشاكل الأمنية. كافة تفاصيل المدفوعات والمعلومات الشخصية تخضع لأعلى معايير الحماية والأمان.
+              نعم، {settings.site_name} يعتمد على قنوات تفعيل رسمية ومعتمدة 100% ومضمونة لحماية حسابات المستخدمين. كافة تفاصيل المدفوعات والمعلومات الشخصية تخضع لأعلى معايير الحماية والأمان.
             </p>
           </details>
 
