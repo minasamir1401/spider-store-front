@@ -90,23 +90,26 @@ export default function MembershipClient() {
     );
   }
 
-  const { customer_level = "bronze", is_vip = false, total_orders = 0, balance = 0, discounts = [] } = profile;
+  const { customer_level = "bronze", is_vip = false, total_orders = 0, total_deposited = 0, balance = 0, discounts = [], all_tiers = [], active_tiers = [], manual_memberships = [] } = profile;
 
-  // Level configuration
+  // Build a set of active tier IDs (auto + manual combined)
+  const activeTierIds = new Set([
+    ...active_tiers.map(t => Number(t.id)),
+    ...manual_memberships.map(m => Number(m.tier_id))
+  ]);
+
+  // Fallback level config for old bronze/silver/gold/diamond if no dynamic tiers exist
   const levelConfig = {
-    bronze: { name: "البرونزية (Bronze)", label: "برونزي", color: "#cd7f32", icon: "🥉", nextLevel: "silver", nextLevelName: "الفضية", requiredOrders: 5 },
-    silver: { name: "الفضية (Silver)", label: "فضي", color: "#c0c0c0", icon: "🥈", nextLevel: "gold", nextLevelName: "الذهبية", requiredOrders: 15 },
-    gold: { name: "الذهبية (Gold)", label: "ذهبي", color: "#ffd700", icon: "🥇", nextLevel: "diamond", nextLevelName: "الماسية", requiredOrders: 30 },
-    diamond: { name: "الماسية (Diamond)", label: "ماسي", color: "#b9f2ff", icon: "💎", nextLevel: null, nextLevelName: "", requiredOrders: 99999 }
+    bronze: { name: "البرونزية (Bronze)", label: "برونزي", color: "#cd7f32", icon: "🥉" },
+    silver: { name: "الفضية (Silver)", label: "فضي", color: "#c0c0c0", icon: "🥈" },
+    gold: { name: "الذهبية (Gold)", label: "ذهبي", color: "#ffd700", icon: "🥇" },
+    diamond: { name: "الماسية (Diamond)", label: "ماسي", color: "#b9f2ff", icon: "💎" }
   };
 
   const currentLevelInfo = levelConfig[customer_level] || levelConfig.bronze;
-  const progressPercent = currentLevelInfo.nextLevel
-    ? Math.min(100, (total_orders / currentLevelInfo.requiredOrders) * 100)
-    : 100;
-  const remainingOrders = currentLevelInfo.nextLevel
-    ? currentLevelInfo.requiredOrders - total_orders
-    : 0;
+
+  // Determine highest active tier for main display
+  const highestActiveTier = active_tiers.length > 0 ? active_tiers[active_tiers.length - 1] : null;
 
   return (
     <div style={{ maxWidth: "850px", margin: "0 auto 40px auto", padding: "10px", direction: "rtl" }}>
@@ -140,14 +143,14 @@ export default function MembershipClient() {
               width: "65px", 
               height: "65px", 
               borderRadius: "20px", 
-              background: "rgba(99, 102, 241, 0.1)", 
-              border: "2px dashed rgba(99, 102, 241, 0.3)",
+              background: highestActiveTier ? `${highestActiveTier.color}10` : "rgba(99, 102, 241, 0.1)", 
+              border: highestActiveTier ? `2px dashed ${highestActiveTier.color}40` : "2px dashed rgba(99, 102, 241, 0.3)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: "2rem"
             }}>
-              {currentLevelInfo.icon}
+              {highestActiveTier ? highestActiveTier.icon : currentLevelInfo.icon}
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -167,8 +170,10 @@ export default function MembershipClient() {
                 )}
               </div>
               <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "4px 0" }}>{profile.email}</p>
-              <div style={{ display: "flex", gap: "15px", fontSize: "0.82rem", color: "#94a3b8", marginTop: "6px" }}>
+              <div style={{ display: "flex", gap: "15px", fontSize: "0.82rem", color: "#94a3b8", marginTop: "6px", flexWrap: "wrap" }}>
                 <span>إجمالي الطلبات: <strong style={{ color: "#fff" }}>{total_orders}</strong></span>
+                <span>•</span>
+                <span>إجمالي الشحن: <strong style={{ color: "#fff" }}>{Number(total_deposited).toFixed(2)} USD</strong></span>
                 <span>•</span>
                 <span>المحفظة: <strong style={{ color: "var(--primary-color)" }}>{balance.toFixed(2)} USD</strong></span>
               </div>
@@ -180,160 +185,110 @@ export default function MembershipClient() {
             <span style={{ 
               fontSize: "1.25rem", 
               fontWeight: "900", 
-              color: currentLevelInfo.color,
+              color: highestActiveTier ? highestActiveTier.color : currentLevelInfo.color,
               display: "flex",
               alignItems: "center",
               gap: "6px",
               marginTop: "4px",
               justifyContent: "flex-end"
             }}>
-              {currentLevelInfo.icon} {currentLevelInfo.name}
+              {highestActiveTier ? `${highestActiveTier.icon} ${highestActiveTier.name}` : `${currentLevelInfo.icon} ${currentLevelInfo.name}`}
             </span>
           </div>
         </div>
 
-        {/* Progress Tracker Card */}
-        {currentLevelInfo.nextLevel && (
-          <div className="glass-panel" style={{ padding: "25px" }}>
-            <h4 style={{ fontWeight: 800, margin: "0 0 15px 0", fontSize: "1.05rem", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span>🚀</span> طريق الترقية للمستوى القادم
-            </h4>
-            
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#cbd5e1", marginBottom: "8px" }}>
-              <span>مستوى العضوية: {currentLevelInfo.label}</span>
-              <span>المستوى القادم: {levelConfig[currentLevelInfo.nextLevel].label}</span>
-            </div>
+        {/* Dynamic Tiers Grid from Backend */}
+        {all_tiers.length > 0 && (
+          <div>
+            <h4 style={{ fontWeight: 800, margin: "10px 0 15px 0", fontSize: "1.1rem" }}>📋 مستويات العضوية المتاحة</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }}>
+              {all_tiers.map(tier => {
+                const isActive = activeTierIds.has(Number(tier.id));
+                const isManual = manual_memberships.some(m => Number(m.tier_id) === Number(tier.id));
+                
+                return (
+                  <div key={tier.id} className="glass-panel" style={{ 
+                    padding: "20px", 
+                    border: isActive ? `1px solid ${tier.color}` : "1px solid rgba(255,255,255,0.06)",
+                    background: isActive ? `${tier.color}08` : "transparent",
+                    transition: "all 0.3s ease"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                      <span style={{ fontWeight: 800, color: tier.color, fontSize: "1rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                        {tier.icon} {tier.name}
+                      </span>
+                      {isActive && (
+                        <span style={{ 
+                          background: `${tier.color}20`, 
+                          color: tier.color, 
+                          padding: "2px 8px", 
+                          borderRadius: "6px", 
+                          fontSize: "0.72rem", 
+                          fontWeight: "bold" 
+                        }}>
+                          {isManual ? "✓ مفعّل يدوياً" : "✓ نشط تلقائياً"}
+                        </span>
+                      )}
+                    </div>
+                    <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
+                      <li>
+                        الشرط: {tier.condition_type === 'total_deposited' ? 'شحن رصيد بقيمة' : 'طلبات مكتملة بعدد'}{' '}
+                        <strong style={{ color: "#fff" }}>
+                          {tier.condition_value} {tier.condition_type === 'total_deposited' ? 'USD' : 'طلب'}
+                        </strong>
+                        {' '}أو إضافة يدوية بواسطة الإدارة.
+                      </li>
+                      <li>خصومات وميزات خاصة تُطبّق تلقائياً عند الدفع.</li>
+                      {isActive && <li style={{ color: tier.color, fontWeight: "bold" }}>🎉 أنت مُفعّل على هذا المستوى!</li>}
+                    </ul>
+                  </div>
+                );
+              })}
 
-            {/* Progress Bar Container */}
-            <div style={{ 
-              width: "100%", 
-              height: "12px", 
-              background: "rgba(255,255,255,0.06)", 
-              borderRadius: "6px", 
-              overflow: "hidden",
-              border: "1px solid rgba(255,255,255,0.05)",
-              position: "relative"
-            }}>
-              <div style={{ 
-                width: `${progressPercent}%`, 
-                height: "100%", 
-                background: `linear-gradient(90deg, var(--primary-color) 0%, ${levelConfig[currentLevelInfo.nextLevel].color} 100%)`, 
-                borderRadius: "6px",
-                transition: "width 0.8s ease"
-              }} />
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "8px" }}>
-              <span>{total_orders} طلب</span>
-              <span>{currentLevelInfo.requiredOrders} طلب</span>
-            </div>
-
-            <div style={{ 
-              marginTop: "15px", 
-              padding: "10px 14px", 
-              background: "rgba(99, 102, 241, 0.05)", 
-              borderRight: "3px solid var(--primary-color)", 
-              borderRadius: "8px",
-              fontSize: "0.82rem",
-              lineHeight: "1.5"
-            }}>
-              💡 متبقي لك <strong style={{ color: "#ffffff" }}>{remainingOrders} من الطلبات الناجحة</strong> للترقية تلقائياً إلى العضوية <strong style={{ color: levelConfig[currentLevelInfo.nextLevel].color }}>{levelConfig[currentLevelInfo.nextLevel].label}</strong> والحصول على خصومات وميزات أفضل!
+              {/* VIP benefits card */}
+              <div className="glass-panel" style={{ 
+                padding: "20px", 
+                border: is_vip ? "1px solid #ca8a04" : "1px solid rgba(255,255,255,0.06)",
+                background: is_vip ? "rgba(202, 138, 4, 0.05)" : "transparent"
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <span style={{ fontWeight: 800, color: "#eab308", fontSize: "1rem" }}>👑 العضوية الممتازة VIP</span>
+                  {is_vip && <span style={{ background: "rgba(234, 179, 8, 0.2)", color: "#eab308", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
+                </div>
+                <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
+                  <li>تُمنح يدوياً فقط للموزعين وأصحاب المتاجر الكبيرة.</li>
+                  <li>الحصول على أسعار الجملة الخاصة والحصرية (خارج التصنيف).</li>
+                  <li>خدمة عملاء مخصصة وإمكانية إيداع وحجز أرصدة خاصة.</li>
+                </ul>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Benefits Grid */}
-        <div>
-          <h4 style={{ fontWeight: 800, margin: "10px 0 15px 0", fontSize: "1.1rem" }}>📋 جدول الميزات والمستويات</h4>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }}>
-            
-            {/* Bronze benefits */}
-            <div className="glass-panel" style={{ 
-              padding: "20px", 
-              border: customer_level === "bronze" ? "1px solid #cd7f32" : "1px solid rgba(255,255,255,0.06)",
-              background: customer_level === "bronze" ? "rgba(205, 127, 50, 0.05)" : "transparent"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontWeight: 800, color: "#cd7f32", fontSize: "1rem" }}>🥉 العضوية البرونزية</span>
-                {customer_level === "bronze" && <span style={{ background: "rgba(205, 127, 50, 0.2)", color: "#cd7f32", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
-              </div>
-              <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
-                <li>المستوى الافتراضي لجميع المسجلين.</li>
-                <li>أسعار التجزئة العادية لجميع الخدمات.</li>
-                <li>دعم فني عادي عبر تذاكر واتساب.</li>
-              </ul>
+        {/* Fallback: old static grid if no dynamic tiers */}
+        {all_tiers.length === 0 && (
+          <div>
+            <h4 style={{ fontWeight: 800, margin: "10px 0 15px 0", fontSize: "1.1rem" }}>📋 جدول الميزات والمستويات</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }}>
+              {Object.entries(levelConfig).map(([key, level]) => (
+                <div key={key} className="glass-panel" style={{ 
+                  padding: "20px", 
+                  border: customer_level === key ? `1px solid ${level.color}` : "1px solid rgba(255,255,255,0.06)",
+                  background: customer_level === key ? `${level.color}08` : "transparent"
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <span style={{ fontWeight: 800, color: level.color, fontSize: "1rem" }}>{level.icon} {level.name}</span>
+                    {customer_level === key && <span style={{ background: `${level.color}20`, color: level.color, padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
+                  </div>
+                  <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
+                    <li>المستوى: <strong style={{ color: "#fff" }}>{level.label}</strong></li>
+                    <li>خصومات وميزات خاصة تُطبّق تلقائياً.</li>
+                  </ul>
+                </div>
+              ))}
             </div>
-
-            {/* Silver benefits */}
-            <div className="glass-panel" style={{ 
-              padding: "20px", 
-              border: customer_level === "silver" ? "1px solid #c0c0c0" : "1px solid rgba(255,255,255,0.06)",
-              background: customer_level === "silver" ? "rgba(192, 192, 192, 0.05)" : "transparent"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontWeight: 800, color: "#c0c0c0", fontSize: "1rem" }}>🥈 العضوية الفضية</span>
-                {customer_level === "silver" && <span style={{ background: "rgba(192, 192, 192, 0.2)", color: "#c0c0c0", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
-              </div>
-              <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
-                <li>متطلبات الترقية: <strong style={{ color: "#fff" }}>5 طلبات ناجحة</strong>.</li>
-                <li>خصم تلقائي بقيمة <strong style={{ color: "#fff" }}>1%</strong> على الخدمات.</li>
-                <li>أولوية متوسطة في مراجعة وتنفيذ الطلبات.</li>
-              </ul>
-            </div>
-
-            {/* Gold benefits */}
-            <div className="glass-panel" style={{ 
-              padding: "20px", 
-              border: customer_level === "gold" ? "1px solid #ffd700" : "1px solid rgba(255,255,255,0.06)",
-              background: customer_level === "gold" ? "rgba(255, 215, 0, 0.05)" : "transparent"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontWeight: 800, color: "#ffd700", fontSize: "1rem" }}>🥇 العضوية الذهبية</span>
-                {customer_level === "gold" && <span style={{ background: "rgba(255, 215, 0, 0.2)", color: "#ffd700", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
-              </div>
-              <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
-                <li>متطلبات الترقية: <strong style={{ color: "#fff" }}>15 طلب ناجح</strong>.</li>
-                <li>خصم تلقائي بقيمة <strong style={{ color: "#fff" }}>2.5%</strong> على كافة الخدمات.</li>
-                <li>أولوية عالية وسرعة تواصل مع الإدارة.</li>
-              </ul>
-            </div>
-
-            {/* Diamond benefits */}
-            <div className="glass-panel" style={{ 
-              padding: "20px", 
-              border: customer_level === "diamond" ? "1px solid #b9f2ff" : "1px solid rgba(255,255,255,0.06)",
-              background: customer_level === "diamond" ? "rgba(185, 242, 255, 0.05)" : "transparent"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontWeight: 800, color: "#b9f2ff", fontSize: "1rem" }}>💎 العضوية الماسية</span>
-                {customer_level === "diamond" && <span style={{ background: "rgba(185, 242, 255, 0.2)", color: "#b9f2ff", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
-              </div>
-              <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
-                <li>متطلبات الترقية: <strong style={{ color: "#fff" }}>30 طلب ناجح</strong>.</li>
-                <li>خصم تلقائي بقيمة <strong style={{ color: "#fff" }}>4%</strong> على كافة الخدمات.</li>
-                <li>تواصل فوري وأولوية مطلقة في طابور التنفيذ.</li>
-              </ul>
-            </div>
-
-            {/* VIP benefits */}
-            <div className="glass-panel" style={{ 
-              padding: "20px", 
-              border: is_vip ? "1px solid #ca8a04" : "1px solid rgba(255,255,255,0.06)",
-              background: is_vip ? "rgba(202, 138, 4, 0.05)" : "transparent"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontWeight: 800, color: "#eab308", fontSize: "1rem" }}>👑 العضوية الممتازة VIP</span>
-                {is_vip && <span style={{ background: "rgba(234, 179, 8, 0.2)", color: "#eab308", padding: "2px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "bold" }}>نشط حالياً</span>}
-              </div>
-              <ul style={{ paddingRight: "15px", margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: "1.7" }}>
-                <li>تُمنح يدوياً فقط للموزعين وأصحاب المتاجر الكبيرة.</li>
-                <li>الحصول على أسعار الجملة الخاصة والحصرية (خارج التصنيف).</li>
-                <li>خدمة عملاء مخصصة وإمكانية إيداع وحجز أرصدة خاصة.</li>
-              </ul>
-            </div>
-
           </div>
-        </div>
+        )}
 
         {/* Custom Discounts List */}
         <div className="glass-panel" style={{ padding: "25px" }}>

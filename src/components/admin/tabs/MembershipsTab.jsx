@@ -20,10 +20,17 @@ export default function MembershipsTab({ token }) {
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
 
+  // Members management
+  const [allCustomers, setAllCustomers] = useState([]);
+  const [tierMembers, setTierMembers] = useState([]);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [addMemberNote, setAddMemberNote] = useState("");
+
   useEffect(() => {
     if (!token) return;
     fetchTiers();
     fetchCategoriesAndServices();
+    fetchAllCustomers();
   }, [token]);
 
   const fetchTiers = async () => {
@@ -111,9 +118,79 @@ export default function MembershipsTab({ token }) {
     }
   };
 
+  const fetchAllCustomers = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/customer/admin/customers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setAllCustomers(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchTierMembers = async (tierId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/memberships/tiers/${tierId}/members`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setTierMembers(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleSelectTier = (tier) => {
     setSelectedTier(tier);
     fetchDiscounts(tier.id);
+    fetchTierMembers(tier.id);
+    setMemberSearch("");
+    setAddMemberNote("");
+  };
+
+  const handleAddMember = async (customerId) => {
+    if (!selectedTier) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/memberships/tiers/${selectedTier.id}/members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ customer_id: customerId, notes: addMemberNote })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "فشل إضافة المستخدم.");
+      setSuccessMsg(data.message || "تم إضافة المستخدم بنجاح.");
+      setMemberSearch("");
+      setAddMemberNote("");
+      fetchTierMembers(selectedTier.id);
+      setTimeout(() => setSuccessMsg(""), 3000);
+    } catch (err) {
+      setErrorMsg(err.message);
+      setTimeout(() => setErrorMsg(""), 3000);
+    }
+  };
+
+  const handleRemoveMember = async (membershipId) => {
+    if (!confirm("هل أنت متأكد من إزالة هذا المستخدم من العضوية؟")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/memberships/members/${membershipId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSuccessMsg("تم إزالة المستخدم من العضوية بنجاح.");
+        if (selectedTier) fetchTierMembers(selectedTier.id);
+        setTimeout(() => setSuccessMsg(""), 3000);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleAddDiscount = async (e) => {
@@ -505,12 +582,130 @@ export default function MembershipsTab({ token }) {
                   })
                 )}
               </div>
+
+              {/* ──── Members Management Section ──── */}
+              <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "20px" }}>
+                <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#a78bfa", display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+                  👥 أعضاء العضوية (إضافة يدوية)
+                </h4>
+
+                {/* Search and Add */}
+                <div style={subCardStyle}>
+                  <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: "bold" }}>ابحث باسم المستخدم لإضافته يدوياً:</span>
+                  <input 
+                    type="text"
+                    placeholder="اكتب اسم المستخدم للبحث..."
+                    value={memberSearch}
+                    onChange={e => setMemberSearch(e.target.value)}
+                    style={inputStyle}
+                  />
+
+                  {/* Search Results Dropdown */}
+                  {memberSearch.trim().length >= 1 && (() => {
+                    const existingMemberIds = new Set(tierMembers.map(m => Number(m.customer_id)));
+                    const filtered = allCustomers.filter(c =>
+                      c.username.toLowerCase().includes(memberSearch.toLowerCase()) &&
+                      !existingMemberIds.has(Number(c.id))
+                    ).slice(0, 8);
+                    
+                    return filtered.length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "220px", overflowY: "auto" }}>
+                        {filtered.map(c => (
+                          <div 
+                            key={c.id}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "10px 14px",
+                              background: "rgba(255,255,255,0.02)",
+                              border: "1px solid rgba(255,255,255,0.05)",
+                              borderRadius: "10px",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease"
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(167, 139, 250, 0.3)"}
+                            onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)"}
+                          >
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#fff" }}>👤 {c.username}</div>
+                              <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+                                {c.email || "—"} • الرصيد: {Number(c.balance || 0).toFixed(2)} USD
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleAddMember(c.id)}
+                              style={{
+                                background: "rgba(167, 139, 250, 0.15)",
+                                border: "1px solid rgba(167, 139, 250, 0.3)",
+                                color: "#a78bfa",
+                                padding: "5px 12px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.78rem",
+                                fontWeight: "bold"
+                              }}
+                            >
+                              + إضافة
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: "center", padding: "10px", color: "#94a3b8", fontSize: "0.82rem" }}>
+                        لا يوجد مستخدم بهذا الاسم أو مضاف بالفعل.
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Current Members List */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "14px" }}>
+                  {tierMembers.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "18px", color: "var(--text-muted)", fontSize: "0.82rem" }}>
+                      لا يوجد أعضاء مضافين يدوياً لهذا المستوى.
+                    </div>
+                  ) : (
+                    tierMembers.map(m => (
+                      <div
+                        key={m.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 16px",
+                          backgroundColor: "rgba(167, 139, 250, 0.03)",
+                          border: "1px solid rgba(167, 139, 250, 0.08)",
+                          borderRadius: "12px"
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: "800", color: "#fff", fontSize: "0.88rem" }}>
+                            👤 {m.username || `مستخدم #${m.customer_id}`}
+                          </div>
+                          <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "2px" }}>
+                            {m.email || "—"} {m.notes ? ` • ${m.notes}` : ""}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveMember(m.id)}
+                          className="action-btn btn-danger-premium"
+                          style={{ padding: "5px 10px", fontSize: "0.75rem" }}
+                        >
+                          إزالة
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "350px", color: "var(--text-muted)", textAlign: "center", gap: "12px" }}>
               <span style={{ fontSize: "3rem" }}>👑</span>
               <div style={{ fontSize: "0.9rem", fontWeight: "bold", maxWidth: "280px", lineHeight: 1.6 }}>
-                يرجى اختيار مستوى عضوية من القائمة الجانبية لعرض وتعديل خصوماته المحددة.
+                يرجى اختيار مستوى عضوية من القائمة الجانبية لعرض وتعديل خصوماته وأعضائه.
               </div>
             </div>
           )}
