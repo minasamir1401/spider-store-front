@@ -28,6 +28,11 @@ export default function CustomerLogin() {
   const [otpCode, setOtpCode] = useState("");
   const [otpInfo, setOtpInfo] = useState("");
 
+  // Forgot Password State
+  const [forgotStep, setForgotStep] = useState(0); // 0=none, 1=request, 2=verify, 3=reset
+  const [forgotIdentifier, setForgotIdentifier] = useState("");
+  const [forgotToken, setForgotToken] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -231,6 +236,84 @@ export default function CustomerLogin() {
     }
   };
 
+  const handleForgotPasswordRequest = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess(""); setSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: forgotIdentifier })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "حدث خطأ.");
+      setSuccess(data.message);
+      setForgotStep(2);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleForgotPasswordVerify = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess("");
+    if (!otpCode.trim() || otpCode.trim().length < 4) {
+      setError("يرجى إدخال الكود بشكل صحيح.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/verify-forgot-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: forgotIdentifier, code: otpCode.trim() })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "الكود غير صحيح.");
+      setForgotToken(data.token);
+      setSuccess(data.message);
+      setOtpCode(""); // clear for next time
+      setForgotStep(3);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleForgotPasswordReset = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess("");
+    if (!password || password !== confirmPassword) {
+      setError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: forgotToken, newPassword: password })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "حدث خطأ.");
+      setSuccess(data.message);
+      setTimeout(() => {
+        setForgotStep(0);
+        setActiveTab("login");
+        setPassword("");
+        setConfirmPassword("");
+        setSuccess("");
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("customer_token");
     localStorage.removeItem("customer_user");
@@ -358,7 +441,7 @@ export default function CustomerLogin() {
         </div>
 
         {/* Tab switcher */}
-        {!otpStep && (
+        {!otpStep && forgotStep === 0 && (
           <div className="auth-tabs">
             <div
               className={`auth-tab ${activeTab === "login" ? "active" : ""}`}
@@ -443,6 +526,105 @@ export default function CustomerLogin() {
               ← العودة وتعديل البيانات
             </button>
           </form>
+        ) : forgotStep > 0 ? (
+          <>
+            {forgotStep === 1 && (
+              <form onSubmit={handleForgotPasswordRequest} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>استعادة كلمة المرور</h3>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
+                  يرجى إدخال البريد الإلكتروني، رقم الهاتف، أو اسم المستخدم لإرسال كود التحقق.
+                </p>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>المُعرّف الخاص بك:</label>
+                  <input
+                    type="text"
+                    placeholder="example@gmail.com أو 01012345678"
+                    value={forgotIdentifier}
+                    onChange={(e) => setForgotIdentifier(e.target.value)}
+                    required
+                  />
+                </div>
+                {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
+                {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                  {submitting ? "جاري الإرسال..." : "إرسال كود التحقق"}
+                </button>
+                <button type="button" onClick={() => { setForgotStep(0); setError(""); setSuccess(""); }} className="glass-btn" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
+                  ← العودة لتسجيل الدخول
+                </button>
+              </form>
+            )}
+            {forgotStep === 2 && (
+              <form onSubmit={handleForgotPasswordVerify} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>إدخال كود التحقق</h3>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
+                  تم إرسال الكود إلى حسابك. يرجى إدخاله هنا.
+                </p>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>كود التحقق (OTP):</label>
+                  <input
+                    type="text"
+                    placeholder="1 2 3 4 5 6"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    maxLength={6}
+                    style={{ textAlign: "center", fontSize: "1.5rem", letterSpacing: "8px", fontWeight: 900 }}
+                    required
+                  />
+                </div>
+                {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
+                {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                  {submitting ? "جاري التحقق..." : "تأكيد الكود"}
+                </button>
+                <button type="button" onClick={() => { setForgotStep(1); setOtpCode(""); setError(""); setSuccess(""); }} className="glass-btn" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
+                  ← إعادة طلب الكود
+                </button>
+              </form>
+            )}
+            {forgotStep === 3 && (
+              <form onSubmit={handleForgotPasswordReset} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>تعيين كلمة مرور جديدة</h3>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>كلمة المرور الجديدة:</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="أدخل كلمة المرور الجديدة"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{ width: "100%", paddingLeft: "48px" }}
+                      required
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-btn">
+                      {showPassword ? "إخفاء" : "إظهار"}
+                    </button>
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>تأكيد كلمة المرور:</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="أعد إدخال كلمة المرور"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      style={{ width: "100%", paddingLeft: "48px" }}
+                      required
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-btn">
+                      {showPassword ? "إخفاء" : "إظهار"}
+                    </button>
+                  </div>
+                </div>
+                {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
+                {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                  {submitting ? "جاري الحفظ..." : "حفظ كلمة المرور"}
+                </button>
+              </form>
+            )}
+          </>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {activeTab === "login" ? (
@@ -593,6 +775,17 @@ export default function CustomerLogin() {
             >
               {submitting ? "جاري المعالجة..." : activeTab === "login" ? "تسجيل الدخول" : "إنشاء الحساب الجديد"}
             </button>
+            {activeTab === "login" && (
+              <div style={{ textAlign: "center", marginTop: "5px" }}>
+                <button
+                  type="button"
+                  onClick={() => { setForgotStep(1); setError(""); setSuccess(""); }}
+                  style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "underline", cursor: "pointer" }}
+                >
+                  هل نسيت كلمة المرور؟
+                </button>
+              </div>
+            )}
           </form>
         )}
 
