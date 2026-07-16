@@ -410,12 +410,13 @@ export default function ServiceDetail({ params }) {
       }
     } else {
       let multiplier = selectedPackage?.requires_quantity ? (customQuantity || 1) : 1;
-      if (service.category_currency === 'USD' || service.category_currency === 'USDT' || service.category_currency === 'USDT') {
-        const usdPrice = selectedPackage.usd_price || selectedPackage.price;
+      if (service.category_currency === 'USD' || service.category_currency === 'USDT') {
+        // Use ?? (nullish coalescing) so that price=0 (free services) is NOT treated as falsy
+        const usdPrice = (selectedPackage.usd_price != null) ? Number(selectedPackage.usd_price) : Number(selectedPackage.price ?? 0);
         const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
         computedPrice = Number((usdPrice * usdRate * multiplier).toFixed(2));
       } else {
-        computedPrice = Number((selectedPackage.price * multiplier).toFixed(2));
+        computedPrice = Number(((selectedPackage.price ?? 0) * multiplier).toFixed(2));
       }
     }
     const computedPackageName = isDynamic
@@ -995,10 +996,12 @@ export default function ServiceDetail({ params }) {
                   } else if (selectedPackage) {
                     let multiplier = selectedPackage.requires_quantity ? (customQuantity || 1) : 1;
                     if (isUsd) {
-                      usdPrice = (selectedPackage.usd_price || selectedPackage.price) * multiplier;
+                      // Use explicit null check so price=0 (free services) is NOT skipped by ||
+                      const pkgUsdPrice = (selectedPackage.usd_price != null) ? Number(selectedPackage.usd_price) : Number(selectedPackage.price ?? 0);
+                      usdPrice = pkgUsdPrice * multiplier;
                       egpPrice = usdPrice * usdRate;
                     } else {
-                      egpPrice = (selectedPackage.price) * multiplier;
+                      egpPrice = Number(selectedPackage.price ?? 0) * multiplier;
                     }
                   }
 
