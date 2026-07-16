@@ -14,6 +14,8 @@ export default function OrdersHistory() {
   const [loading, setLoading] = useState(false);
   const [baseCurrency, setBaseCurrency] = useState("USD");
 
+  const [services, setServices] = useState([]);
+
   // Guest tracking states
   const [trackId, setTrackId] = useState("");
   const [trackPhone, setTrackPhone] = useState("");
@@ -36,6 +38,11 @@ export default function OrdersHistory() {
     setToken(localStorage.getItem("customer_token") || "");
     setCustomerUserStr(localStorage.getItem("customer_user") || "");
     setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
+
+    fetch(`${API_BASE_URL}/api/services`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setServices(data))
+      .catch(err => console.error("Error loading services in orders page:", err));
 
     fetch(`${API_BASE_URL}/api/settings`)
       .then(res => res.ok ? res.json() : null)
@@ -136,6 +143,88 @@ export default function OrdersHistory() {
     localStorage.setItem("theme", nextTheme);
   };
 
+  const renderOrderFields = (order) => {
+    const serviceObj = services.find(s => Number(s.id) === Number(order.service_id));
+    let fieldsConfig = [];
+    if (serviceObj) {
+      fieldsConfig = Array.isArray(serviceObj.fields) ? serviceObj.fields : [];
+      if (fieldsConfig.length === 0) {
+        fieldsConfig = Array.isArray(serviceObj.category_fields) ? serviceObj.category_fields : [];
+      }
+    }
+
+    let customFieldsMap = {};
+    if (order.custom_fields) {
+      try {
+        customFieldsMap = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
+      } catch (e) {}
+    }
+
+    // Ensure player_id value is always rendered
+    if (order.player_id && !customFieldsMap.player_id && !customFieldsMap.PlayerID) {
+      customFieldsMap.player_id = order.player_id;
+    }
+
+    return Object.entries(customFieldsMap).map(([key, value]) => {
+      if (value === null || value === undefined || String(value).trim() === '') return null;
+      
+      const field = fieldsConfig.find(f => (f.name || f.id || "").toLowerCase().trim() === key.toLowerCase().trim());
+      let label = field?.label || key;
+      if (label === 'player_id' || label === 'playerID' || label === 'PlayerID') {
+        label = "معرّف الحساب (ID)";
+      } else if (label === 'phone' || label === 'tel') {
+        label = "رقم الهاتف";
+      }
+
+      return (
+        <div key={key} style={{ background: "rgba(255, 255, 255, 0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.08)", fontSize: "0.82rem" }}>
+          <span style={{ color: "var(--text-muted)" }}>{label}:</span> <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{String(value)}</span>
+        </div>
+      );
+    });
+  };
+
+  const renderGuestOrderFields = (order) => {
+    const serviceObj = services.find(s => Number(s.id) === Number(order.service_id));
+    let fieldsConfig = [];
+    if (serviceObj) {
+      fieldsConfig = Array.isArray(serviceObj.fields) ? serviceObj.fields : [];
+      if (fieldsConfig.length === 0) {
+        fieldsConfig = Array.isArray(serviceObj.category_fields) ? serviceObj.category_fields : [];
+      }
+    }
+
+    let customFieldsMap = {};
+    if (order.custom_fields) {
+      try {
+        customFieldsMap = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
+      } catch (e) {}
+    }
+
+    if (order.player_id && !customFieldsMap.player_id && !customFieldsMap.PlayerID) {
+      customFieldsMap.player_id = order.player_id;
+    }
+
+    return Object.entries(customFieldsMap).map(([key, value]) => {
+      if (value === null || value === undefined || String(value).trim() === '') return null;
+      
+      const field = fieldsConfig.find(f => (f.name || f.id || "").toLowerCase().trim() === key.toLowerCase().trim());
+      let label = field?.label || key;
+      if (label === 'player_id' || label === 'playerID' || label === 'PlayerID') {
+        label = "معرّف الحساب (ID)";
+      } else if (label === 'phone' || label === 'tel') {
+        label = "رقم الهاتف";
+      }
+
+      return (
+        <div key={key} style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
+          <span style={{ color: "#cbd5e1" }}>{label}:</span>
+          <strong style={{ color: "#22d3ee", direction: "ltr", textAlign: "left" }}>{String(value)}</strong>
+        </div>
+      );
+    });
+  };
+
   if (!hydrated) return null;
 
   return (
@@ -165,6 +254,7 @@ export default function OrdersHistory() {
                         <span style={{ fontWeight: 900, color: "var(--accent-color)" }}>طلب رقم #{order.id}</span>
                         <span className={`badge badge-${order.status}`} style={{ fontSize: "0.75rem" }}>
                           {order.status === "pending" && "انتظار"}
+                          {order.status === "processing" && "قيد المعالجة"}
                           {order.status === "completed" && "مكتمل"}
                           {order.status === "cancelled" && "ملغي"}
                         </span>
@@ -174,21 +264,7 @@ export default function OrdersHistory() {
                         الباقة: <strong>{order.package_name}</strong> | القيمة: <strong>{Number(order.package_price || 0).toFixed(2)} {baseCurrency}</strong>
                       </p>
                       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
-                        <div style={{ background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.82rem" }}>
-                          <span style={{ color: "var(--text-muted)" }}>حساب الخدمة (ID):</span> <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{order.player_id}</span>
-                        </div>
-                        {order.custom_fields && (() => {
-                          try {
-                            const parsed = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
-                            return Object.entries(parsed).map(([key, value]) => (
-                              <div key={key} style={{ background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.82rem" }}>
-                                <span style={{ color: "var(--text-muted)" }}>{key}:</span> <span style={{ direction: "ltr", display: "inline-block", fontWeight: "bold", color: "white" }}>{value}</span>
-                              </div>
-                            ));
-                          } catch (e) {
-                            return null;
-                          }
-                        })()}
+                        {renderOrderFields(order)}
                       </div>
                       {order.code && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
@@ -374,6 +450,7 @@ export default function OrdersHistory() {
                     <div style={{ display: "inline-block", marginTop: "10px" }}>
                       <span className={`badge badge-${singleOrder.status}`} style={{ fontSize: "0.9rem", padding: "6px 16px" }}>
                         {singleOrder.status === "pending" && "طلبك قيد الانتظار"}
+                        {singleOrder.status === "processing" && "طلبك قيد المعالجة ⚡"}
                         {singleOrder.status === "completed" && "تم تنفيذ طلبك بنجاح ✅"}
                         {singleOrder.status === "cancelled" && "تم إلغاء الطلب ❌"}
                       </span>
@@ -391,23 +468,7 @@ export default function OrdersHistory() {
                       <span style={{ color: "#cbd5e1" }}>الباقة المطلوبة:</span>
                       <strong style={{ color: "#ffffff", textAlign: "left" }}>{singleOrder.package_name}</strong>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
-                      <span style={{ color: "#cbd5e1" }}>معرّف الحساب (ID):</span>
-                      <strong style={{ color: "#22d3ee", direction: "ltr", textAlign: "left" }}>{singleOrder.player_id}</strong>
-                    </div>
-                    {singleOrder.custom_fields && (() => {
-                      try {
-                        const parsed = typeof singleOrder.custom_fields === 'string' ? JSON.parse(singleOrder.custom_fields) : singleOrder.custom_fields;
-                        return Object.entries(parsed).map(([key, value]) => (
-                          <div key={key} style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
-                            <span style={{ color: "#cbd5e1" }}>{key}:</span>
-                            <strong style={{ color: "#22d3ee", direction: "ltr", textAlign: "left" }}>{value}</strong>
-                          </div>
-                        ));
-                      } catch (e) {
-                        return null;
-                      }
-                    })()}
+                    {renderGuestOrderFields(singleOrder)}
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                       <span style={{ color: "#cbd5e1" }}>القيمة الإجمالية:</span>
                       <strong style={{ color: "#34d399" }}>{Number(singleOrder.package_price || 0).toFixed(2)} {baseCurrency}</strong>

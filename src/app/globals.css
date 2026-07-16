@@ -1256,6 +1256,12 @@ button, input, textarea, select {
   color: var(--warning-color);
 }
 
+.badge-processing {
+  background: #fbbf24;
+  color: #000000 !important;
+  font-weight: bold;
+}
+
 .badge-approved,
 .badge-completed {
   background: rgba(16, 185, 129, 0.15);

@@ -430,6 +430,13 @@ const dashboardStyles = `
         }
         .premium-badge-pending .badge-dot { background: #fbbf24; }
 
+        .premium-badge-processing {
+          background: #fbbf24;
+          color: #000000 !important;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .premium-badge-processing .badge-dot { background: #000000; }
+
         .premium-badge-approved {
           background: rgba(16, 185, 129, 0.1);
           color: #34d399;
