@@ -188,19 +188,13 @@ export default function ServicesClient() {
           {/* Copy 1 */}
           <div className="announcement-ticker-content">
             <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة 1: +1 (672) 897-2935
-            </a>
-            <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة 2: +20 15 52672948
+              🟢 واتساب الإدارة: +1 (672) 897-2935
             </a>
           </div>
           {/* Copy 2 (Seamless loop) */}
           <div className="announcement-ticker-content">
             <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة 1: +1 (672) 897-2935
-            </a>
-            <a href="https://wa.me/201552672948" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة 2: +20 15 52672948
+              🟢 واتساب الإدارة: +1 (672) 897-2935
             </a>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 const WHATSAPP_SUPPORT_1 = "https://wa.me/16728972935";
-const WHATSAPP_SUPPORT_2 = "https://wa.me/201552672948";
+
 const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5";
 const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H";
 const TELEGRAM_CHANNEL = "https://t.me/ARABTECSUPPURT";

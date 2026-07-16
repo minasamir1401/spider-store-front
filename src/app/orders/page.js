@@ -295,16 +295,7 @@ export default function OrdersHistory() {
                             className="glass-btn"
                             style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
                           >
-                            ⚡ تسريع الخدمة (1)
-                          </a>
-                          <a
-                            href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلبي رقم #${order.id} للخدمة ${order.service_name}`)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="glass-btn"
-                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
-                          >
-                            ⚡ تسريع الخدمة (2)
+                            ⚡ تسريع الخدمة
                           </a>
                         </div>
                       )}
@@ -526,16 +517,7 @@ export default function OrdersHistory() {
                         className="glass-btn"
                         style={{ padding: "10px", width: "100%", borderRadius: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
                       >
-                        💬 تواصل مع الدعم (1) لتسريع الخدمة
-                      </a>
-                      <a
-                        href={`https://wa.me/201552672948?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلب الخدمة رقم #${singleOrder.id}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass-btn"
-                        style={{ padding: "10px", width: "100%", borderRadius: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
-                      >
-                        💬 تواصل مع الدعم (2) لتسريع الخدمة
+                        💬 تواصل مع الدعم لتسريع الخدمة
                       </a>
                     </div>
                   )}
