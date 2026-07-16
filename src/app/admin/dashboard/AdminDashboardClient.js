@@ -1928,7 +1928,8 @@ const handleLogout = () => {
       editCatParentId,
       setEditCatParentId,
       applyToServices,
-      setApplyToServices
+      setApplyToServices,
+      editCatId
     },
     editServiceModal: {
       showEditServiceModal,

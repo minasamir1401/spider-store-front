@@ -1270,12 +1270,12 @@ button, input, textarea, select {
 }
 
 /* Force all inputs, selects, and textareas in the Admin Dashboard and Premium Modals to have white text */
-.admin-layout input,
-.admin-layout select,
-.admin-layout textarea,
-.admin-content input,
-.admin-content select,
-.admin-content textarea,
+.admin-dashboard-root input,
+.admin-dashboard-root select,
+.admin-dashboard-root textarea,
+.premium-content input,
+.premium-content select,
+.premium-content textarea,
 .premium-modal input,
 .premium-modal select,
 .premium-modal textarea,
