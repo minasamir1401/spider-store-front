@@ -233,7 +233,8 @@ export default function MainLayout({ children }) {
     { href: "/", label: "الرئيسية", icon: "🏠" },
     { href: "/services", label: "الخدمات", icon: "🛒" },
     { href: "/orders", label: "طلباتي", icon: "📦" },
-    { href: "/wallet", label: "المحفظة", icon: "💳" }
+    { href: "/wallet", label: "المحفظة", icon: "💳" },
+    { href: "/membership", label: "العضوية", icon: "⭐" }
   ];
 
   const isActive = (href) => {
@@ -245,6 +246,7 @@ export default function MainLayout({ children }) {
     if (pathname === "/" || pathname === "/Home") return "الرئيسية";
     if (pathname.startsWith("/orders")) return "طلباتي";
     if (pathname.startsWith("/wallet")) return "المحفظة";
+    if (pathname.startsWith("/membership")) return "العضوية";
     if (pathname.startsWith("/category")) return "القسم";
     if (pathname.startsWith("/service")) return "الخدمة";
     if (pathname.startsWith("/login")) return "تسجيل الدخول";
@@ -475,6 +477,7 @@ export default function MainLayout({ children }) {
         <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🛒 الخدمات المتاحة</Link>
         <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>📦 تتبع الطلبات</Link>
         {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
+        {isCustomerLoggedIn && <Link href="/membership" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>⭐ عضوية الحساب</Link>}
         <button 
           type="button" 
           onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }} 
@@ -729,6 +732,9 @@ export default function MainLayout({ children }) {
                 </Link>
                 <Link href="/wallet" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
                   💳 شحن المحفظة
+                </Link>
+                <Link href="/membership" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
+                  ⭐ مستوى العضوية
                 </Link>
                 <button 
                   onClick={() => { handleCustomerLogout(); setProfileMenuOpen(false); }}
