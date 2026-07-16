@@ -39,19 +39,10 @@ export default function ContactFloatingButton() {
             className="glass-btn glass-btn-primary"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem" }}
           >
-            🟢 واتساب الدعم (1)
+            🟢 واتساب الدعم
           </a>
 
-          {/* WhatsApp Support 2 */}
-          <a
-            href={WHATSAPP_SUPPORT_2}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass-btn glass-btn-primary"
-            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem" }}
-          >
-            🟢 واتساب الدعم (2)
-          </a>
+
 
           {/* WhatsApp Community */}
           <a

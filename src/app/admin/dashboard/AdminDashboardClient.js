@@ -19,6 +19,7 @@ import CategoriesTab from "@/components/admin/tabs/CategoriesTab";
 import ServicesTab from "@/components/admin/tabs/ServicesTab";
 import BannersTab from "@/components/admin/tabs/BannersTab";
 import BackupsTab from "@/components/admin/tabs/BackupsTab";
+import MembershipsTab from "@/components/admin/tabs/MembershipsTab";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -2149,6 +2150,7 @@ const handleLogout = () => {
           { tab: "categories", icon: "📁", label: "إدارة الأقسام" },
           { tab: "services", icon: "⚡", label: "إدارة الخدمات" },
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
+          { tab: "memberships", icon: "⭐", label: "العضويات والخصومات" },
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
@@ -2226,6 +2228,14 @@ const handleLogout = () => {
             <span className="nav-icon">🖼️</span>
             <span>إدارة البانر الإعلاني</span>
           </div>
+
+            <div
+              className={`nav-item-premium ${activeTab === "memberships" ? "active" : ""}`}
+              onClick={() => setActiveTab("memberships")}
+            >
+              <span className="nav-icon">⭐</span>
+              <span>نظام العضويات</span>
+            </div>
 
             <div
               className={`nav-item-premium ${activeTab === "wallets" ? "active" : ""}`}
@@ -2324,6 +2334,7 @@ const handleLogout = () => {
               {activeTab === "categories" && "الأقسام والتبويبات"}
                 {activeTab === "services" && "الخدمات والمنتجات"}
                 {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
+                {activeTab === "memberships" && "نظام العضويات والخصومات"}
                 {activeTab === "wallets" && "طلبات شحن الرصيد"}
                 {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
                 {activeTab === "settings" && "إعدادات معلومات الموقع"}
@@ -2338,6 +2349,7 @@ const handleLogout = () => {
                 {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
                 {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
                 {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
+                {activeTab === "memberships" && "إدارة مستويات العضويات (مثل الفضية والذهبية) وتحديد خصومات خاصة لكل مستوى"}
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
                 {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
                 {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
@@ -2511,6 +2523,11 @@ const handleLogout = () => {
                 handleOpenEditBanner={handleOpenEditBanner}
                 handleDeleteBanner={handleDeleteBanner}
               />
+            )}
+
+            {/* Memberships Section */}
+            {activeTab === "memberships" && (
+              <MembershipsTab token={token} />
             )}
 
             {/* Settings Section */}

@@ -3161,3 +3161,10 @@ select:-webkit-autofill:focus {
   -webkit-text-fill-color: #000000 !important;
   -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
 }
+
+/* Ensure input text is black in light mode */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  color: #000000 !important;
+}
