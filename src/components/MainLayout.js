@@ -629,6 +629,37 @@ export default function MainLayout({ children }) {
 
           {/* Right Section: Theme Toggle + Language Switcher + Notifications + Profile Initials/Login */}
           <div className="flex items-center gap-1" style={{ position: "relative" }}>
+            {/* Contact WhatsApp Link */}
+            <a 
+              href={`https://wa.me/${settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0 ? settings.whatsapp_numbers[0] : "16728972935"}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header-btn"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "0 10px",
+                borderRadius: "8px",
+                background: "rgba(34, 197, 94, 0.1)",
+                border: "1px solid rgba(34, 197, 94, 0.2)",
+                color: "#22c55e",
+                textDecoration: "none",
+                height: "36px",
+                fontSize: "0.82rem",
+                fontWeight: "bold",
+                transition: "all 0.3s ease",
+                whiteSpace: "nowrap"
+              }}
+            >
+              <span className="flex items-center justify-center" style={{ fontSize: "1.1rem" }}>🟢</span>
+              <span style={{ direction: "ltr" }}>
+                {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0 
+                  ? `+${settings.whatsapp_numbers[0]}` 
+                  : "+1 (672) 897-2935"}
+              </span>
+            </a>
+
             {/* Theme Toggle */}
             <button 
               className="header-btn w-9 h-9" 

@@ -9,6 +9,16 @@ export default function ServicesClient() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [settings, setSettings] = useState({ announcement_text: "🟢 واتساب الإدارة: +1 (672) 897-2935" });
+
+  const getWhatsappLink = (text) => {
+    if (!text) return "https://wa.me/16728972935";
+    const digits = text.replace(/\D/g, "");
+    if (digits.length >= 8) {
+      return `https://wa.me/${digits}`;
+    }
+    return "https://wa.me/16728972935";
+  };
 
   const staticCategories = [
     { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
@@ -88,6 +98,13 @@ export default function ServicesClient() {
 
   useEffect(() => {
     setLoading(true);
+
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setSettings(data);
+      })
+      .catch(() => {});
 
     // Fetch categories
     fetch(`${API_BASE_URL}/api/categories`)
@@ -187,14 +204,14 @@ export default function ServicesClient() {
         <div className="announcement-ticker-wrapper">
           {/* Copy 1 */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة: +1 (672) 897-2935
+            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
             </a>
           </div>
           {/* Copy 2 (Seamless loop) */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة: +1 (672) 897-2935
+            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
             </a>
           </div>
         </div>

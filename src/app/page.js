@@ -22,8 +22,16 @@ export default function Home() {
 
 
 
-  // Settings state
-  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
+  const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg", announcement_text: "🟢 واتساب الإدارة: +1 (672) 897-2935" });
+
+  const getWhatsappLink = (text) => {
+    if (!text) return "https://wa.me/16728972935";
+    const digits = text.replace(/\D/g, "");
+    if (digits.length >= 8) {
+      return `https://wa.me/${digits}`;
+    }
+    return "https://wa.me/16728972935";
+  };
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
@@ -222,14 +230,14 @@ export default function Home() {
         <div className="announcement-ticker-wrapper">
           {/* Copy 1 */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة: +1 (672) 897-2935
+            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
             </a>
           </div>
           {/* Copy 2 (Seamless loop) */}
           <div className="announcement-ticker-content">
-            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              🟢 واتساب الإدارة: +1 (672) 897-2935
+            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
             </a>
           </div>
         </div>

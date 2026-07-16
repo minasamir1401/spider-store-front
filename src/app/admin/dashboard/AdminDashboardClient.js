@@ -142,6 +142,7 @@ export default function AdminDashboard() {
   const [editBannerUploadedFile, setEditBannerUploadedFile] = useState(null);
 
   const [siteName, setSiteName] = useState("");
+  const [announcementText, setAnnouncementText] = useState("🟢 واتساب الإدارة: +1 (672) 897-2935");
   const [siteLogo, setSiteLogo] = useState("");
   const [siteFavicon, setSiteFavicon] = useState("");
   const [logoUploadedFile, setLogoUploadedFile] = useState(null);
@@ -443,6 +444,9 @@ export default function AdminDashboard() {
         if (settingsData.email_pass !== undefined) setEmailPass(settingsData.email_pass);
         if (settingsData.global_markup_percent !== undefined) {
           setGlobalMarkupPercent(settingsData.global_markup_percent);
+        }
+        if (settingsData.announcement_text !== undefined) {
+          setAnnouncementText(settingsData.announcement_text);
         }
       }
 
@@ -1660,7 +1664,8 @@ const handleLogout = () => {
           whatsapp_numbers: whatsappNumbers,
           email_user: emailUser,
           email_pass: emailPass,
-          global_markup_percent: globalMarkupPercent
+          global_markup_percent: globalMarkupPercent,
+          announcement_text: announcementText
         })
       });
 
@@ -2570,6 +2575,8 @@ const handleLogout = () => {
                 setEmailUser={setEmailUser}
                 emailPass={emailPass}
                 setEmailPass={setEmailPass}
+                announcementText={announcementText}
+                setAnnouncementText={setAnnouncementText}
                 errorMsg={errorMsg}
                 handleUpdateSettings={handleUpdateSettings}
                 handleUpdateCredentials={handleUpdateCredentials}

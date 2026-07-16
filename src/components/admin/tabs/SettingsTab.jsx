@@ -37,6 +37,8 @@ export default function SettingsTab({
   setEmailUser,
   emailPass,
   setEmailPass,
+  announcementText,
+  setAnnouncementText,
   errorMsg,
   handleUpdateSettings,
   handleUpdateCredentials,
@@ -96,6 +98,18 @@ export default function SettingsTab({
               onChange={(e) => setGlobalMarkupPercent(parseFloat(e.target.value) || 0)}
               placeholder="مثال: 10 للزيادة بنسبة 10% (0 للتعطيل)"
               step="0.1"
+            />
+          </div>
+
+          <div className="form-group">
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#cbd5e1" }}>📢 نص شريط الإعلانات المتحرك (أعلى الموقع):</label>
+            <input
+              type="text"
+              className="search-input-premium"
+              style={{ padding: "12px 16px !important" }}
+              value={announcementText || ""}
+              onChange={(e) => setAnnouncementText(e.target.value)}
+              placeholder="مثال: 🟢 واتساب الإدارة: +1 (672) 897-2935"
             />
           </div>
 
