@@ -330,39 +330,7 @@ export default function MainLayout({ children }) {
         </nav>
 
         <div className="sidebar-footer" style={{ display: "flex", flexDirection: "column", gap: "10px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "15px" }}>
-          {/* Font Scale Toggle in Sidebar */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
-            <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "1.1rem" }}>📝</span>
-              <span>حجم الخط</span>
-            </span>
-            <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-              <button 
-                onClick={() => adjustFontScale(-0.05)}
-                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
-                title="تصغير الخط"
-                type="button"
-              >
-                A-
-              </button>
-              <button 
-                onClick={resetFontScale}
-                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
-                title="حجم افتراضي"
-                type="button"
-              >
-                A
-              </button>
-              <button 
-                onClick={() => adjustFontScale(0.05)}
-                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
-                title="تكبير الخط"
-                type="button"
-              >
-                A+
-              </button>
-            </div>
-          </div>
+
 
           {/* Theme Toggle in Sidebar */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
