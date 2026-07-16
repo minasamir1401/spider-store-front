@@ -444,9 +444,6 @@ export default function CategoryServices({ params }) {
 
                   if (service.packages && service.packages.length > 0) {
                     return service.packages.map((pkg, idx) => {
-                      const simulatedDiscount = 2 + (idx % 4);
-                      const originalPrice = pkg.price / (1 - simulatedDiscount / 100);
-
                       return (
                         <div className="scc-wrap" key={`${service.id}-${pkg.id}`}>
                           <Link 
@@ -481,14 +478,6 @@ export default function CategoryServices({ params }) {
                                 <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.95rem" }}>
                                   $ {Number(pkg.price).toFixed(2)}
                                 </span>
-                                <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "0.75rem" }}>
-                                  {Number(originalPrice).toFixed(2)}
-                                </span>
-                                {simulatedDiscount > 0 && (
-                                  <span style={{ background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
-                                    خصم {simulatedDiscount}%
-                                  </span>
-                                )}
                               </div>
                             </div>
                             <div className="scc-arrow">

@@ -613,14 +613,11 @@ export default function ServiceDetail({ params }) {
       {filteredPackages && filteredPackages.length > 0 ? (
         <div className="scc-grid">
           {filteredPackages.map((pkg, idx) => {
-            const simulatedDiscount = 2 + (idx % 4);
             const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT';
             const usdPrice = pkg.usd_price || pkg.price;
-            const originalUsdPrice = usdPrice / (1 - simulatedDiscount / 100);
             
             const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
             const egpPrice = usdPrice * usdRate;
-            const originalEgpPrice = originalUsdPrice * usdRate;
 
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
             
@@ -683,11 +680,7 @@ export default function ServiceDetail({ params }) {
                           ? `$ ${usdPrice.toFixed(2)}`
                           : `${Number(pkg.price).toFixed(2)} ${baseCurrency}`}
                       </span>
-                      {simulatedDiscount > 0 && (
-                        <span style={{ background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "bold" }}>
-                          خصم {simulatedDiscount}%
-                        </span>
-                      )}
+                      {/* No simulated discount */}
                     </div>
                   </div>
 
