@@ -7,6 +7,12 @@ export default function BackupsTab({ token, API_BASE_URL }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  // OTP Deletion Gate for Backups
+  const [backupOtpModal, setBackupOtpModal] = useState({ isOpen: false, filename: "", message: "" });
+  const [backupOtpCode, setBackupOtpCode] = useState("");
+  const [backupOtpLoading, setBackupOtpLoading] = useState(false);
+  const [backupOtpError, setBackupOtpError] = useState("");
+
   const fetchBackups = useCallback(async () => {
     setLoading(true);
     setErrorMsg("");
@@ -83,6 +89,14 @@ export default function BackupsTab({ token, API_BASE_URL }) {
         },
       });
       const data = await response.json();
+      if (response.status === 403 && data && data.requireOtp) {
+        setBackupOtpModal({
+          isOpen: true,
+          filename,
+          message: data.message || "يرجى إدخال كود التحقق (OTP) المرسل على الواتساب لإتمام حذف ملف النسخة الاحتياطية."
+        });
+        return;
+      }
       if (!response.ok) throw new Error(data.message || "فشل حذف الملف.");
       setSuccessMsg("✓ تم حذف ملف النسخة الاحتياطية بنجاح.");
       fetchBackups();
@@ -90,6 +104,32 @@ export default function BackupsTab({ token, API_BASE_URL }) {
       setErrorMsg(err.message || "حدث خطأ أثناء حذف النسخة الاحتياطية.");
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleConfirmBackupOtp = async (e) => {
+    e.preventDefault();
+    if (!backupOtpModal.filename || !backupOtpCode) return;
+    setBackupOtpLoading(true);
+    setBackupOtpError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/backups/${backupOtpModal.filename}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "X-OTP-Code": backupOtpCode
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "كود التحقق غير صحيح أو منتهي الصلاحية.");
+      setSuccessMsg("✓ تم حذف ملف النسخة الاحتياطية بنجاح عبر كود الواتساب.");
+      setBackupOtpModal({ isOpen: false, filename: "", message: "" });
+      setBackupOtpCode("");
+      fetchBackups();
+    } catch (err) {
+      setBackupOtpError(err.message || "فشل حذف الملف باستخدام الكود.");
+    } finally {
+      setBackupOtpLoading(false);
     }
   };
 
@@ -341,6 +381,79 @@ export default function BackupsTab({ token, API_BASE_URL }) {
           </div>
         )}
       </div>
+
+      {/* Backup Deletion OTP Modal */}
+      {backupOtpModal.isOpen && (
+        <div className="modal-overlay" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0, 0, 0, 0.75)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999, padding: "20px" }}>
+          <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", padding: "28px", borderRadius: "20px", border: "1px solid rgba(239, 68, 68, 0.4)", boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: "12px" }}>
+                🔒
+              </div>
+              <h3 style={{ fontSize: "1.25rem", fontWeight: "800", color: "#fff", margin: 0 }}>تأكيد حذف النسخة الاحتياطية</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "6px" }}>حماية كود الواتساب (OTP)</p>
+            </div>
+
+            <div style={{ padding: "12px 14px", background: "rgba(34, 197, 94, 0.12)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: "10px", color: "#4ade80", fontSize: "0.86rem", lineHeight: "1.6", textAlign: "center", marginBottom: "18px" }}>
+              📲 {backupOtpModal.message}
+            </div>
+
+            <form onSubmit={handleConfirmBackupOtp} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={{ display: "block", textAlign: "center", fontWeight: "700", marginBottom: "8px", color: "#f87171" }}>
+                  أدخل كود التحقق (6 أرقام):
+                </label>
+                <input
+                  type="text"
+                  placeholder="1 2 3 4 5 6"
+                  maxLength={6}
+                  value={backupOtpCode}
+                  onChange={(e) => setBackupOtpCode(e.target.value.replace(/\D/g, ""))}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "1.6rem",
+                    letterSpacing: "8px",
+                    fontWeight: "800",
+                    padding: "12px",
+                    borderRadius: "12px",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    border: "2px solid #f87171",
+                    color: "#fff"
+                  }}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {backupOtpError && (
+                <div style={{ padding: "10px 14px", background: "rgba(239, 68, 68, 0.15)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                  ❌ {backupOtpError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "6px" }}>
+                <button
+                  type="submit"
+                  disabled={backupOtpLoading || backupOtpCode.length < 6}
+                  className="glass-btn"
+                  style={{ flex: 1, padding: "14px", background: "#ef4444", color: "#fff", fontWeight: "800", borderRadius: "12px", fontSize: "0.95rem" }}
+                >
+                  {backupOtpLoading ? "جاري التحقق والتنفيذ..." : "🚀 تأكيد وحذف الآن"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setBackupOtpModal({ isOpen: false, filename: "", message: "" }); setBackupOtpCode(""); setBackupOtpError(""); }}
+                  className="glass-btn"
+                  style={{ padding: "14px 20px", background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", fontWeight: "700", borderRadius: "12px" }}
+                >
+                  إلغاء ✕
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { AdminDashboardContext } from "@/components/admin/AdminDashboardContext"
 import AdminDashboardModals from "@/components/admin/modals/AdminDashboardModals";
 import SettingsTab from "@/components/admin/tabs/SettingsTab";
 import WhatsAppTab from "@/components/admin/tabs/WhatsAppTab";
+import GmailTab from "@/components/admin/tabs/GmailTab";
 import ExcelPricesTab from "@/components/admin/tabs/ExcelPricesTab";
 import AmrrUnlockerTab from "@/components/admin/tabs/AmrrUnlockerTab";
 import OrdersTab from "@/components/admin/tabs/OrdersTab";
@@ -153,6 +154,8 @@ export default function AdminDashboard() {
   const [apiAutoSubmit, setApiAutoSubmit] = useState(true);
   const [whatsappNumbers, setWhatsappNumbers] = useState([]);
   const [newWhatsappNumber, setNewWhatsappNumber] = useState("");
+  const [emailUser, setEmailUser] = useState("");
+  const [emailPass, setEmailPass] = useState("");
   const [waStatus, setWaStatus] = useState("disconnected"); // 'disconnected'|'loading'|'qr'|'ready'
   const [waQR, setWaQR] = useState(null);
   const waPollingRef = useRef(null);
@@ -212,6 +215,73 @@ export default function AdminDashboard() {
   const [unlockerBalanceLoading, setUnlockerBalanceLoading] = useState(false);
   const [unlockerBalanceEmail, setUnlockerBalanceEmail] = useState("");
   const [unlockerCurrency, setUnlockerCurrency] = useState("USD");
+
+  // Deletion Gate (OTP verification modal for sensitive deletes)
+  const [deleteOtpModal, setDeleteOtpModal] = useState({
+    isOpen: false,
+    url: "",
+    message: "",
+    onSuccess: null,
+  });
+  const [deleteOtpCode, setDeleteOtpCode] = useState("");
+  const [deleteOtpLoading, setDeleteOtpLoading] = useState(false);
+  const [deleteOtpError, setDeleteOtpError] = useState("");
+
+  const secureDeleteFetch = async (url, onSuccessCallback) => {
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (response.status === 403 && data && data.requireOtp) {
+        setDeleteOtpModal({
+          isOpen: true,
+          url,
+          message: data.message || "يرجى إدخال كود التحقق (OTP) المرسل على الواتساب لإتمام عملية الحذف.",
+          onSuccess: onSuccessCallback
+        });
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(data.message || "فشل عملية الحذف.");
+      }
+      onSuccessCallback(data);
+    } catch (err) {
+      alert(err.message || "فشل عملية الحذف.");
+    }
+  };
+
+  const handleConfirmDeleteOtp = async (e) => {
+    e.preventDefault();
+    if (!deleteOtpModal.url || !deleteOtpCode) return;
+    setDeleteOtpLoading(true);
+    setDeleteOtpError("");
+    try {
+      const response = await fetch(deleteOtpModal.url, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "X-OTP-Code": deleteOtpCode
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "كود التحقق غير صحيح أو انتهت صلاحيته.");
+      }
+      if (deleteOtpModal.onSuccess) {
+        deleteOtpModal.onSuccess(data);
+      }
+      setDeleteOtpModal({ isOpen: false, url: "", message: "", onSuccess: null });
+      setDeleteOtpCode("");
+    } catch (err) {
+      setDeleteOtpError(err.message || "فشل الحذف باستخدام كود الواتساب.");
+    } finally {
+      setDeleteOtpLoading(false);
+    }
+  };
 
   const fetchUnlockerBalance = useCallback(async () => {
     if (!token) return;
@@ -368,6 +438,8 @@ export default function AdminDashboard() {
         if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
           setWhatsappNumbers(settingsData.whatsapp_numbers);
         }
+        if (settingsData.email_user !== undefined) setEmailUser(settingsData.email_user);
+        if (settingsData.email_pass !== undefined) setEmailPass(settingsData.email_pass);
         if (settingsData.global_markup_percent !== undefined) {
           setGlobalMarkupPercent(settingsData.global_markup_percent);
         }
@@ -805,22 +877,10 @@ const handleLogout = () => {
   const deleteOrder = async (orderId) => {
     if (!confirm("هل أنت متأكد من حذف هذا الطلب؟")) return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "فشل حذف الطلب.");
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/orders/${orderId}`, () => {
       setOrders(prev => prev.filter(o => o.id !== orderId));
       setWalletTransactions(prev => prev.filter(tx => !((tx.reference_type === "order" || tx.reference_type === "order_refund") && tx.reference_id === orderId)));
-    } catch (err) {
-      alert(err.message || "فشل حذف الطلب.");
-    }
+    });
   };
 
   const handleOpenEditCustomer = (customer) => {
@@ -880,30 +940,14 @@ const handleLogout = () => {
       return;
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/admin/${customerId}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "فشل حذف العميل.");
-
-      // Remove customer from state
+    await secureDeleteFetch(`${API_BASE_URL}/api/customer/admin/${customerId}`, () => {
       setCustomers(prev => prev.filter(c => c.id !== customerId));
-      
-      // Clear selected customer details if they were deleted
       if (selectedCustomerId === customerId) {
         setSelectedCustomerId(null);
         setSelectedCustomerTransactions([]);
       }
-
       alert("تم حذف العميل والبيانات المرتبطة به بنجاح.");
-    } catch (err) {
-      alert(err.message || "فشل حذف العميل.");
-    }
+    });
   };
 
   const updateWalletRequestStatus = async (requestId, newStatus, adminNote = "") => {
@@ -969,27 +1013,15 @@ const handleLogout = () => {
   const handleDeleteCategory = async (id) => {
     if (!confirm("هل أنت متأكد من حذف هذا القسم؟ سيتم حذف جميع الخدمات التابعة له تلقائياً!")) return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error();
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/categories/${id}`, () => {
       setCategories(prev => prev.filter(c => c.id !== id).map(c => {
         if (Number(c.parent_id) === Number(id)) {
           return { ...c, parent_id: null };
         }
         return c;
       }));
-      // Filter out deleted services
       setServices(prev => prev.filter(s => s.category_id !== id));
-    } catch (err) {
-      alert("فشل حذف القسم.");
-    }
+    });
   };
 
   // Clear All Categories (Delete all permanently from server)
@@ -1000,22 +1032,11 @@ const handleLogout = () => {
       return;
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/all/clear`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error();
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/categories/all/clear`, () => {
       alert("تم حذف جميع الأقسام والخدمات التابعة لها بنجاح من السيرفر! 📁🗑️");
       setCategories([]);
       setServices([]);
-    } catch (err) {
-      alert("فشل حذف الأقسام من السيرفر.");
-    }
+    });
   };
 
   // Clear All Services (Delete all permanently from server)
@@ -1026,21 +1047,10 @@ const handleLogout = () => {
       return;
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/services/all/clear`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error();
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/services/all/clear`, () => {
       alert("تم حذف جميع الخدمات بنجاح من السيرفر! ⚡🗑️");
       setServices([]);
-    } catch (err) {
-      alert("فشل حذف الخدمات من السيرفر.");
-    }
+    });
   };
 
   // Package list helpers
@@ -1177,20 +1187,9 @@ const handleLogout = () => {
   const handleDeleteService = async (id) => {
     if (!confirm("هل أنت متأكد من حذف هذه الخدمة؟")) return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/services/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error();
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/services/${id}`, () => {
       setServices(prev => prev.filter(s => s.id !== id));
-    } catch (err) {
-      alert("فشل حذف الخدمة.");
-    }
+    });
   };
 
   // Open Edit Category Modal
@@ -1597,20 +1596,9 @@ const handleLogout = () => {
   const handleDeleteBanner = async (id) => {
     if (!confirm("هل أنت متأكد من حذف هذه الشريحة من البانر؟")) return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/banners/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error();
-
+    await secureDeleteFetch(`${API_BASE_URL}/api/banners/${id}`, () => {
       setBanners(prev => prev.filter(b => b.id !== id));
-    } catch (err) {
-      alert("فشل حذف الشريحة.");
-    }
+    });
   };
 
   // ── WhatsApp status polling ───────────────────────────────────────────────
@@ -1669,6 +1657,8 @@ const handleLogout = () => {
           base_currency: baseCurrency,
           hide_wallet_payment: hideWalletPayment,
           whatsapp_numbers: whatsappNumbers,
+          email_user: emailUser,
+          email_pass: emailPass,
           global_markup_percent: globalMarkupPercent
         })
       });
@@ -2163,6 +2153,7 @@ const handleLogout = () => {
           { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
           { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
+          { tab: "gmail", icon: "📧", label: "بوابة ربط الجميل" },
           { tab: "amrr_unlocker", icon: "🔓", label: "بوابة Amrr Unlocker" },
           { tab: "backups", icon: "💾", label: "النسخ الاحتياطي" },
         ].map(item => (
@@ -2270,6 +2261,15 @@ const handleLogout = () => {
             </div>
 
             <div
+              className={`nav-item-premium ${activeTab === "gmail" ? "active" : ""}`}
+              onClick={() => setActiveTab("gmail")}
+              style={{ background: activeTab === "gmail" ? "rgba(234,67,53,0.1)" : "", borderColor: activeTab === "gmail" ? "rgba(234,67,53,0.3)" : "" }}
+            >
+              <span className="nav-icon">📧</span>
+              <span>بوابة ربط الجميل</span>
+            </div>
+
+            <div
               className={`nav-item-premium ${activeTab === "excel_prices" ? "active" : ""}`}
               onClick={() => setActiveTab("excel_prices")}
               style={{ background: activeTab === "excel_prices" ? "rgba(168,85,247,0.1)" : "", borderColor: activeTab === "excel_prices" ? "rgba(168,85,247,0.3)" : "" }}
@@ -2328,6 +2328,7 @@ const handleLogout = () => {
                 {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
                 {activeTab === "settings" && "إعدادات معلومات الموقع"}
                 {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
+                {activeTab === "gmail" && "بوابة ربط البريد الإلكتروني (Gmail Portal)"}
                 {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
               {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
               {activeTab === "backups" && "نظام النسخ الاحتياطي واستعادة البيانات"}
@@ -2341,6 +2342,7 @@ const handleLogout = () => {
                 {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
                 {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
                 {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
+                {activeTab === "gmail" && "التحكم ببيانات خادم Gmail، إرسال رسائل تجريبية، وإدارة أكواد تحقق الـ OTP للعملاء"}
                 {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
               {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
               {activeTab === "backups" && "إنشاء نسخ احتياطية للموقع وتنزيلها محلياً أو استرجاعها مباشرة لضمان سلامة البيانات"}
@@ -2546,6 +2548,10 @@ const handleLogout = () => {
                 setWhatsappNumbers={setWhatsappNumbers}
                 newWhatsappNumber={newWhatsappNumber}
                 setNewWhatsappNumber={setNewWhatsappNumber}
+                emailUser={emailUser}
+                setEmailUser={setEmailUser}
+                emailPass={emailPass}
+                setEmailPass={setEmailPass}
                 errorMsg={errorMsg}
                 handleUpdateSettings={handleUpdateSettings}
                 handleUpdateCredentials={handleUpdateCredentials}
@@ -2585,6 +2591,9 @@ const handleLogout = () => {
             fetchWaStatus={fetchWaStatus}
           />
         )}
+
+        {/* ===================== Gmail TAB ===================== */}
+        {activeTab === "gmail" && <GmailTab />}
 
             {/* Excel & Server Prices Tab */}
             {activeTab === "excel_prices" && (
@@ -2657,6 +2666,79 @@ const handleLogout = () => {
               />
             )}
 </main>
+
+      {/* Universal Deletion 2FA OTP Gate Modal */}
+      {deleteOtpModal.isOpen && (
+        <div className="modal-overlay" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0, 0, 0, 0.75)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999, padding: "20px" }}>
+          <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", padding: "28px", borderRadius: "20px", border: "1px solid rgba(239, 68, 68, 0.4)", boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: "12px" }}>
+                🔒
+              </div>
+              <h3 style={{ fontSize: "1.25rem", fontWeight: "800", color: "#fff", margin: 0 }}>تأكيد الحذف بواسطة كود الواتساب</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "6px" }}>أمان عالي لمنع الحذف غير المصرح به من لوحة التحكم</p>
+            </div>
+
+            <div style={{ padding: "12px 14px", background: "rgba(34, 197, 94, 0.12)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: "10px", color: "#4ade80", fontSize: "0.86rem", lineHeight: "1.6", textAlign: "center", marginBottom: "18px" }}>
+              📲 {deleteOtpModal.message}
+            </div>
+
+            <form onSubmit={handleConfirmDeleteOtp} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={{ display: "block", textAlign: "center", fontWeight: "700", marginBottom: "8px", color: "#f87171" }}>
+                  أدخل كود التحقق (6 أرقام):
+                </label>
+                <input
+                  type="text"
+                  placeholder="1 2 3 4 5 6"
+                  maxLength={6}
+                  value={deleteOtpCode}
+                  onChange={(e) => setDeleteOtpCode(e.target.value.replace(/\D/g, ""))}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "1.6rem",
+                    letterSpacing: "8px",
+                    fontWeight: "800",
+                    padding: "12px",
+                    borderRadius: "12px",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    border: "2px solid #f87171",
+                    color: "#fff"
+                  }}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {deleteOtpError && (
+                <div style={{ padding: "10px 14px", background: "rgba(239, 68, 68, 0.15)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                  ❌ {deleteOtpError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "6px" }}>
+                <button
+                  type="submit"
+                  disabled={deleteOtpLoading || deleteOtpCode.length < 6}
+                  className="glass-btn"
+                  style={{ flex: 1, padding: "14px", background: "#ef4444", color: "#fff", fontWeight: "800", borderRadius: "12px", fontSize: "0.95rem" }}
+                >
+                  {deleteOtpLoading ? "جاري التحقق والتنفيذ..." : "🚀 تأكيد وحذف الآن"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setDeleteOtpModal({ isOpen: false, url: "", message: "", onSuccess: null }); setDeleteOtpCode(""); setDeleteOtpError(""); }}
+                  className="glass-btn"
+                  style={{ padding: "14px 20px", background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", fontWeight: "700", borderRadius: "12px" }}
+                >
+                  إلغاء ✕
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <AdminDashboardContext.Provider value={dashboardContextValue}>
         <AdminDashboardModals />

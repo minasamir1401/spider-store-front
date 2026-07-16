@@ -21,6 +21,13 @@ export default function CustomerLogin() {
   const [customer, setCustomer] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+
+  // OTP State
+  const [otpStep, setOtpStep] = useState(false);
+  const [otpKey, setOtpKey] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpInfo, setOtpInfo] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -96,8 +103,8 @@ export default function CustomerLogin() {
     setSuccess("");
 
     if (activeTab === "register") {
-      if (!username.trim() || !email.trim() || !password) {
-        setError("جميع الحقول المطلوبة (اسم المستخدم، البريد الإلكتروني، كلمة المرور) يجب ملؤها.");
+      if (!username.trim() || !email.trim() || !password || !phone.trim()) {
+        setError("جميع الحقول المطلوبة (اسم المستخدم، البريد الإلكتروني، كلمة المرور، ورقم الواتساب) يجب ملؤها.");
         return;
       }
 
@@ -145,7 +152,17 @@ export default function CustomerLogin() {
         throw new Error(data.message || "حدث خطأ أثناء معالجة الطلب.");
       }
 
-      // Save credentials in localStorage
+      // If backend asks for OTP confirmation via WhatsApp/Gmail
+      if (data.requireOtp) {
+        setOtpKey(data.otpKey);
+        setOtpInfo(data.targetInfo || "");
+        setSuccess(data.message || "تم إرسال كود التحقق بنجاح.");
+        setOtpStep(true);
+        setSubmitting(false);
+        return;
+      }
+
+      // Fallback direct login if OTP not required
       localStorage.setItem("customer_token", data.token);
       localStorage.setItem("customer_user", JSON.stringify(data.customer));
 
@@ -166,6 +183,49 @@ export default function CustomerLogin() {
       }, 1000);
     } catch (err) {
       setError(err.message || "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!otpCode.trim() || otpCode.trim().length < 4) {
+      setError("يرجى إدخال كود التحقق المكون من 6 أرقام.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/verify-auth-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otpKey, code: otpCode.trim() })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "كود التحقق غير صحيح.");
+      }
+      localStorage.setItem("customer_token", data.token);
+      localStorage.setItem("customer_user", JSON.stringify(data.customer));
+      setSuccess("تم تأكيد هويتك وتفعيل الحساب بنجاح! 🚀");
+      setOtpStep(false);
+      setTimeout(() => {
+        if (typeof window !== "undefined") {
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTo = urlParams.get("redirectTo");
+          if (redirectTo) {
+            router.push(redirectTo);
+            router.refresh();
+            return;
+          }
+        }
+        router.push("/");
+        router.refresh();
+      }, 1000);
+    } catch (err) {
+      setError(err.message || "تعذر التحقق من الكود.");
     } finally {
       setSubmitting(false);
     }
@@ -298,26 +358,28 @@ export default function CustomerLogin() {
         </div>
 
         {/* Tab switcher */}
-        <div className="auth-tabs">
-          <div
-            className={`auth-tab ${activeTab === "login" ? "active" : ""}`}
-            onClick={() => {
-              setActiveTab("login");
-              setError("");
-            }}
-          >
-            تسجيل الدخول
+        {!otpStep && (
+          <div className="auth-tabs">
+            <div
+              className={`auth-tab ${activeTab === "login" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("login");
+                setError("");
+              }}
+            >
+              تسجيل الدخول
+            </div>
+            <div
+              className={`auth-tab ${activeTab === "register" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("register");
+                setError("");
+              }}
+            >
+              إنشاء حساب جديد
+            </div>
           </div>
-          <div
-            className={`auth-tab ${activeTab === "register" ? "active" : ""}`}
-            onClick={() => {
-              setActiveTab("register");
-              setError("");
-            }}
-          >
-            إنشاء حساب جديد
-          </div>
-        </div>
+        )}
 
         {/* Form */}
         <style>{`
@@ -327,191 +389,248 @@ export default function CustomerLogin() {
             }
           }
         `}</style>
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          {activeTab === "login" ? (
+
+        {otpStep ? (
+          <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div style={{ textAlign: "center", background: "rgba(56, 189, 248, 0.08)", border: "1px dashed rgba(56, 189, 248, 0.3)", borderRadius: "14px", padding: "16px" }}>
+              <div style={{ fontSize: "2rem", marginBottom: "6px" }}>📲</div>
+              <h3 style={{ fontWeight: 800, color: "#38bdf8", margin: "0 0 6px 0" }}>تأكيد الهوية وتفعيل الحساب</h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+                تم إرسال كود تحقق (OTP) مكون من 6 أرقام إلى <strong>{otpInfo || "حسابك"}</strong>. يرجى إدخاله أدناه لإتمام العملية.
+              </p>
+            </div>
+
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label htmlFor="username">البريد الإلكتروني (الجميل) أو اسم المستخدم:</label>
+              <label style={{ fontWeight: 700, color: "var(--text-main)", marginBottom: "8px", display: "block" }}>كود التحقق (OTP):</label>
               <input
-                id="username"
                 type="text"
-                placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="1 2 3 4 5 6"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                maxLength={6}
+                style={{ width: "100%", textAlign: "center", fontSize: "1.5rem", letterSpacing: "8px", fontWeight: 900, padding: "14px", borderRadius: "12px", background: "rgba(0,0,0,0.3)", border: "2px solid rgba(255,255,255,0.15)" }}
                 required
               />
             </div>
-          ) : (
-            <>
+
+            {error && (
+              <div style={{ padding: "10px 14px", background: "rgba(244, 63, 94, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ⚠️ {error}
+              </div>
+            )}
+
+            {success && (
+              <div style={{ padding: "10px 14px", background: "rgba(16, 185, 129, 0.1)", borderRight: "4px solid var(--success-color)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ✓ {success}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="glass-btn glass-btn-primary"
+              style={{ padding: "14px", width: "100%", borderRadius: "12px", fontWeight: 800, fontSize: "1.05rem" }}
+            >
+              {submitting ? "جاري التحقق..." : "🚀 تأكيد والدخول الآن"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setOtpStep(false); setOtpCode(""); setError(""); setSuccess(""); }}
+              className="glass-btn"
+              style={{ padding: "10px", width: "100%", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}
+            >
+              ← العودة وتعديل البيانات
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            {activeTab === "login" ? (
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="username">اسم المستخدم:</label>
+                <label htmlFor="username">البريد الإلكتروني (الجميل) أو اسم المستخدم:</label>
                 <input
                   id="username"
                   type="text"
-                  placeholder="مثال: zoom_player"
+                  placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="email">البريد الإلكتروني (الجميل - Gmail):</label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="example@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </>
-          )}
-
-          {activeTab === "register" && (
-            <>
-              <div className="register-password-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", width: "100%", margin: "0 auto" }}>
+            ) : (
+              <>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label htmlFor="password">كلمة المرور:</label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="أدخل كلمة المرور"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      style={{ width: "100%", paddingLeft: "48px" }}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                      style={{
-                        position: "absolute",
-                        left: "8px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "rgba(255, 255, 255, 0.06)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        color: "#fff",
-                        borderRadius: "10px",
-                        padding: "6px 10px",
-                        cursor: "pointer",
-                        fontSize: "0.8rem"
-                      }}
-                    >
-                      {showPassword ? "إخفاء" : "إظهار"}
-                    </button>
+                  <label htmlFor="username">اسم المستخدم:</label>
+                  <input
+                    id="username"
+                    type="text"
+                    placeholder="مثال: zoom_player"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="email">البريد الإلكتروني (الجميل - Gmail):</label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="example@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {activeTab === "register" && (
+              <>
+                <div className="register-password-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", width: "100%", margin: "0 auto" }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label htmlFor="password">كلمة المرور:</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="أدخل كلمة المرور"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={{ width: "100%", paddingLeft: "48px" }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                        style={{
+                          position: "absolute",
+                          left: "8px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          color: "#fff",
+                          borderRadius: "10px",
+                          padding: "6px 10px",
+                          cursor: "pointer",
+                          fontSize: "0.8rem"
+                        }}
+                      >
+                        {showPassword ? "إخفاء" : "إظهار"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label htmlFor="confirmPassword">تأكيد كلمة المرور:</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="أعد إدخال كلمة المرور"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        style={{ width: "100%", paddingLeft: "48px" }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                        style={{
+                          position: "absolute",
+                          left: "8px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          color: "#fff",
+                          borderRadius: "10px",
+                          padding: "6px 10px",
+                          cursor: "pointer",
+                          fontSize: "0.8rem"
+                        }}
+                      >
+                        {showPassword ? "إخفاء" : "إظهار"}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label htmlFor="confirmPassword">تأكيد كلمة المرور:</label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      id="confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="أعد إدخال كلمة المرور"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      style={{ width: "100%", paddingLeft: "48px" }}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                      style={{
-                        position: "absolute",
-                        left: "8px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "rgba(255, 255, 255, 0.06)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        color: "#fff",
-                        borderRadius: "10px",
-                        padding: "6px 10px",
-                        cursor: "pointer",
-                        fontSize: "0.8rem"
-                      }}
-                    >
-                      {showPassword ? "إخفاء" : "إظهار"}
-                    </button>
-                  </div>
+                  <label htmlFor="phone">رقم الهاتف (واتساب) - مطلوب:</label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder="مثال: 01023456789"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {activeTab === "login" && (
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="password">كلمة المرور:</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="أدخل كلمة المرور"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ width: "100%", paddingLeft: "48px" }}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                    style={{
+                      position: "absolute",
+                      left: "8px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "rgba(255, 255, 255, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      color: "#fff",
+                      borderRadius: "10px",
+                      padding: "6px 10px",
+                      cursor: "pointer",
+                      fontSize: "0.8rem"
+                    }}
+                  >
+                    {showPassword ? "إخفاء" : "إظهار"}
+                  </button>
                 </div>
               </div>
+            )}
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="phone">رقم الهاتف (واتساب) - اختياري:</label>
-                <input
-                  id="phone"
-                  type="tel"
-                  placeholder="مثال: 01023456789"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+            {error && (
+              <div style={{ padding: "10px 14px", background: "rgba(244, 63, 94, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ⚠️ {error}
               </div>
-            </>
-          )}
+            )}
 
-          {activeTab === "login" && (
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label htmlFor="password">كلمة المرور:</label>
-              <div style={{ position: "relative" }}>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="أدخل كلمة المرور"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: "100%", paddingLeft: "48px" }}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                  style={{
-                    position: "absolute",
-                    left: "8px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    color: "#fff",
-                    borderRadius: "10px",
-                    padding: "6px 10px",
-                    cursor: "pointer",
-                    fontSize: "0.8rem"
-                  }}
-                >
-                  {showPassword ? "إخفاء" : "إظهار"}
-                </button>
+            {success && (
+              <div style={{ padding: "10px 14px", background: "rgba(16, 185, 129, 0.1)", borderRight: "4px solid var(--success-color)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ✓ {success}
               </div>
-            </div>
-          )}
+            )}
 
-          {error && (
-            <div style={{ padding: "10px 14px", background: "rgba(244, 63, 94, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
-              ⚠️ {error}
-            </div>
-          )}
-
-          {success && (
-            <div style={{ padding: "10px 14px", background: "rgba(16, 185, 129, 0.1)", borderRight: "4px solid var(--success-color)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
-              ✓ {success}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="glass-btn glass-btn-primary"
-            style={{ padding: "12px", width: "100%", borderRadius: "12px" }}
-          >
-            {submitting ? "جاري المعالجة..." : activeTab === "login" ? "تسجيل الدخول" : "إنشاء الحساب الجديد"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="glass-btn glass-btn-primary"
+              style={{ padding: "12px", width: "100%", borderRadius: "12px" }}
+            >
+              {submitting ? "جاري المعالجة..." : activeTab === "login" ? "تسجيل الدخول" : "إنشاء الحساب الجديد"}
+            </button>
+          </form>
+        )}
 
         <hr style={{ opacity: 0.1 }} />
 

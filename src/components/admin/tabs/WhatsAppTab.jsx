@@ -16,6 +16,27 @@ export default function WhatsAppTab({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "680px" }}>
 
+      {/* Standalone Portal Notice */}
+      <div style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.05))", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "18px", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
+        <div>
+          <h4 style={{ color: "#34d399", fontWeight: "800", fontSize: "1.05rem", margin: "0 0 4px" }}>
+            🔐 بوابة إدارة الواتساب المستقلة 2FA
+          </h4>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", margin: 0 }}>
+            يمكنك الوصول إلى صفحة إدارة مسح الكيو آر كود وتغيير كلمة مرور البوت بشكل منفصل وآمن عبر الرابط الخاص.
+          </p>
+        </div>
+        <a
+          href="/whatsapp-portal"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="glass-btn"
+          style={{ padding: "10px 18px", background: "#10b981", color: "#fff", fontWeight: "800", borderRadius: "12px", textDecoration: "none", fontSize: "0.88rem" }}
+        >
+          🚀 فتح البوابة المنفصلة ←
+        </a>
+      </div>
+
       {/* Connection Status Card */}
       <div style={{ background: "rgba(37,211,102,0.05)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: "20px", padding: "28px", backdropFilter: "blur(25px)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "24px" }}>

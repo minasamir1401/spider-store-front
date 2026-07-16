@@ -393,16 +393,16 @@ export default function AdminDashboardModals() {
                     fontWeight: "bold",
                     borderRadius: "14px",
                     border: "2px solid #3b82f6",
-                    background: "#ffffff",
-                    color: "#000000",
+                    background: "rgba(13, 18, 36, 0.9)",
+                    color: "#ffffff",
                     width: "100%",
                     boxSizing: "border-box",
                     outline: "none"
                   }}
                 >
-                  <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
-                  <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
-                  <option value="both" style={{ color: "#000000", background: "#ffffff" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
+                  <option value="fixed" style={{ color: "#ffffff", background: "#0d1224" }}>📦 باقات (Packages)</option>
+                  <option value="dynamic" style={{ color: "#ffffff", background: "#0d1224" }}>⚡ عادي (Normal / SMM)</option>
+                  <option value="both" style={{ color: "#ffffff", background: "#0d1224" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
                 </select>
               </div>
 
@@ -1051,16 +1051,16 @@ export default function AdminDashboardModals() {
                     fontWeight: "bold",
                     borderRadius: "14px",
                     border: "2px solid #3b82f6",
-                    background: "#ffffff",
-                    color: "#000000",
+                    background: "rgba(13, 18, 36, 0.9)",
+                    color: "#ffffff",
                     width: "100%",
                     boxSizing: "border-box",
                     outline: "none"
                   }}
                 >
-                  <option value="fixed" style={{ color: "#000000", background: "#ffffff" }}>📦 باقات (Packages)</option>
-                  <option value="dynamic" style={{ color: "#000000", background: "#ffffff" }}>⚡ عادي (Normal / SMM)</option>
-                  <option value="both" style={{ color: "#000000", background: "#ffffff" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
+                  <option value="fixed" style={{ color: "#ffffff", background: "#0d1224" }}>📦 باقات (Packages)</option>
+                  <option value="dynamic" style={{ color: "#ffffff", background: "#0d1224" }}>⚡ عادي (Normal / SMM)</option>
+                  <option value="both" style={{ color: "#ffffff", background: "#0d1224" }}>🔄 الاثنين معاً (باقات وبالكمية)</option>
                 </select>
               </div>
 

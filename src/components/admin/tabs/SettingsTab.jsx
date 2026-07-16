@@ -33,6 +33,10 @@ export default function SettingsTab({
   setWhatsappNumbers,
   newWhatsappNumber,
   setNewWhatsappNumber,
+  emailUser,
+  setEmailUser,
+  emailPass,
+  setEmailPass,
   errorMsg,
   handleUpdateSettings,
   handleUpdateCredentials,
@@ -479,6 +483,42 @@ export default function SettingsTab({
             </div>
             <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "8px" }}>
               ⚠️ اكتب الرقم بالصيغة الدولية بدون + (مثال: 201012345678 للمصري، 966501234567 للسعودي)
+            </div>
+          </div>
+
+          {/* Gmail / HTML Email Notification Settings */}
+          <div className="form-group" style={{ border: "1px solid rgba(239,68,68,0.25)", padding: "18px", borderRadius: "16px", background: "rgba(239,68,68,0.03)", marginTop: "10px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#fca5a5" }}>
+              📧 إعدادات البريد الإلكتروني (Gmail) لإرسال الإشعارات للعملاء تلقائياً:
+            </label>
+            <p style={{ fontSize: "0.8rem", color: "#cbd5e1", marginBottom: "14px", lineHeight: "1.5" }}>
+              يتم إرسال رسائل شيكة بتصميم HTML احترافي للعميل عند طلب الخدمة وعند اكتمالها. يرجى إدخال حساب الـ Gmail و<strong>كلمة مرور التطبيقات (App Password)</strong> المكونة من 16 حرفاً من إعدادات أمان جوجل.
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "bold", color: "#94a3b8", marginBottom: "6px" }}>البريد الإلكتروني (Gmail):</label>
+                <input
+                  type="email"
+                  value={emailUser || ""}
+                  onChange={(e) => setEmailUser && setEmailUser(e.target.value)}
+                  placeholder="مثال: example@gmail.com"
+                  className="search-input-premium"
+                  style={{ width: "100%", padding: "10px 14px", direction: "ltr" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "bold", color: "#94a3b8", marginBottom: "6px" }}>كلمة مرور التطبيقات (App Password):</label>
+                <input
+                  type="password"
+                  value={emailPass || ""}
+                  onChange={(e) => setEmailPass && setEmailPass(e.target.value)}
+                  placeholder="xxxx xxxx xxxx xxxx"
+                  className="search-input-premium"
+                  style={{ width: "100%", padding: "10px 14px", direction: "ltr", fontFamily: "monospace" }}
+                />
+              </div>
             </div>
           </div>
 
