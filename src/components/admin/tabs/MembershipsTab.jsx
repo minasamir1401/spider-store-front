@@ -600,16 +600,20 @@ export default function MembershipsTab({ token }) {
                     style={inputStyle}
                   />
 
-                  {/* Search Results Dropdown */}
-                  {memberSearch.trim().length >= 1 && (() => {
+                  {/* Search Results / Users List */}
+                  {(() => {
                     const existingMemberIds = new Set(tierMembers.map(m => Number(m.customer_id)));
-                    const filtered = allCustomers.filter(c =>
-                      c.username.toLowerCase().includes(memberSearch.toLowerCase()) &&
-                      !existingMemberIds.has(Number(c.id))
-                    ).slice(0, 8);
+                    const filtered = allCustomers.filter(c => {
+                      const matchesSearch = memberSearch.trim() === "" || 
+                        c.username.toLowerCase().includes(memberSearch.toLowerCase()) ||
+                        (c.email && c.email.toLowerCase().includes(memberSearch.toLowerCase())) ||
+                        (c.phone && c.phone.includes(memberSearch));
+                      return matchesSearch && !existingMemberIds.has(Number(c.id));
+                    }).slice(0, 10);
                     
                     return filtered.length > 0 ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "220px", overflowY: "auto" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "250px", overflowY: "auto", marginTop: "10px" }}>
+                        <span style={{ fontSize: "0.72rem", color: "#a78bfa", fontWeight: "bold" }}>المستخدمين المتاحين للإضافة:</span>
                         {filtered.map(c => (
                           <div 
                             key={c.id}
@@ -654,7 +658,7 @@ export default function MembershipsTab({ token }) {
                       </div>
                     ) : (
                       <div style={{ textAlign: "center", padding: "10px", color: "#94a3b8", fontSize: "0.82rem" }}>
-                        لا يوجد مستخدم بهذا الاسم أو مضاف بالفعل.
+                        {memberSearch.trim() !== "" ? "لا يوجد مستخدم بهذا الاسم أو مضاف بالفعل." : "لا يوجد مستخدمين آخرين متاحين للإضافة."}
                       </div>
                     );
                   })()}
