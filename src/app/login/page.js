@@ -503,19 +503,7 @@ export default function CustomerLogin() {
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
                         aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                        style={{
-                          position: "absolute",
-                          left: "8px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255, 255, 255, 0.06)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          color: "#fff",
-                          borderRadius: "10px",
-                          padding: "6px 10px",
-                          cursor: "pointer",
-                          fontSize: "0.8rem"
-                        }}
+                        className="password-toggle-btn"
                       >
                         {showPassword ? "إخفاء" : "إظهار"}
                       </button>
@@ -538,19 +526,7 @@ export default function CustomerLogin() {
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
                         aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                        style={{
-                          position: "absolute",
-                          left: "8px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255, 255, 255, 0.06)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          color: "#fff",
-                          borderRadius: "10px",
-                          padding: "6px 10px",
-                          cursor: "pointer",
-                          fontSize: "0.8rem"
-                        }}
+                        className="password-toggle-btn"
                       >
                         {showPassword ? "إخفاء" : "إظهار"}
                       </button>
@@ -589,19 +565,7 @@ export default function CustomerLogin() {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                    style={{
-                      position: "absolute",
-                      left: "8px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      background: "rgba(255, 255, 255, 0.06)",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
-                      color: "#fff",
-                      borderRadius: "10px",
-                      padding: "6px 10px",
-                      cursor: "pointer",
-                      fontSize: "0.8rem"
-                    }}
+                    className="password-toggle-btn"
                   >
                     {showPassword ? "إخفاء" : "إظهار"}
                   </button>

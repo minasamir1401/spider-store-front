@@ -3076,10 +3076,62 @@ select option {
 }
 
 /* ==========================================================================
-   GLOBAL SAFEGUARD: FORCE WHITE TEXT ON ALL INPUTS / SELECTS / AUTOFILL
+   GLOBAL SAFEGUARD: FORCE APPROPRIATE TEXT COLOR ON ALL INPUTS / SELECTS / AUTOFILL
    ========================================================================== */
 input, select, textarea, option {
   color: #ffffff !important;
+}
+
+[data-theme="light"] input, 
+[data-theme="light"] select, 
+[data-theme="light"] textarea, 
+[data-theme="light"] option {
+  color: #000000 !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="light"] .nav-search-input {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nav-search-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Password Toggle Button Class */
+.password-toggle-btn {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .password-toggle-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #000000;
+}
+
+[data-theme="light"] .password-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 /* Prevent browser autofill from turning text black or overriding dark background */
@@ -3095,4 +3147,17 @@ select:-webkit-autofill:focus {
   -webkit-text-fill-color: #ffffff !important;
   -webkit-box-shadow: 0 0 0px 1000px #0d1224 inset !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover,
+[data-theme="light"] input:-webkit-autofill:focus,
+[data-theme="light"] textarea:-webkit-autofill,
+[data-theme="light"] textarea:-webkit-autofill:hover,
+[data-theme="light"] textarea:-webkit-autofill:focus,
+[data-theme="light"] select:-webkit-autofill,
+[data-theme="light"] select:-webkit-autofill:hover,
+[data-theme="light"] select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
 }
