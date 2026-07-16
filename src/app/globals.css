@@ -3197,3 +3197,37 @@ select:-webkit-autofill:focus {
 [data-theme="light"] select {
   color: #000000 !important;
 }
+
+/* Force white text inside admin dashboard and admin modals even in light mode */
+.admin-dashboard-root input,
+.admin-dashboard-root select,
+.admin-dashboard-root textarea,
+.admin-dashboard-root option,
+.premium-content input,
+.premium-content select,
+.premium-content textarea,
+.premium-content option,
+.premium-modal input,
+.premium-modal select,
+.premium-modal textarea,
+.premium-modal option,
+.premium-overlay input,
+.premium-overlay select,
+.premium-overlay textarea,
+.premium-overlay option,
+.white-text-input {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.admin-dashboard-root input::placeholder,
+.admin-dashboard-root textarea::placeholder,
+.premium-content input::placeholder,
+.premium-content textarea::placeholder,
+.premium-modal input::placeholder,
+.premium-modal textarea::placeholder,
+.premium-overlay input::placeholder,
+.premium-overlay textarea::placeholder,
+.white-text-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
