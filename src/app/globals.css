@@ -1269,6 +1269,22 @@ button, input, textarea, select {
   color: rgba(255, 255, 255, 0.4) !important;
 }
 
+/* Force all inputs, selects, and textareas in the Admin Dashboard and Premium Modals to have white text */
+.admin-layout input,
+.admin-layout select,
+.admin-layout textarea,
+.admin-content input,
+.admin-content select,
+.admin-content textarea,
+.premium-modal input,
+.premium-modal select,
+.premium-modal textarea,
+.premium-overlay input,
+.premium-overlay select,
+.premium-overlay textarea {
+  color: #ffffff !important;
+}
+
 .badge-approved,
 .badge-completed {
   background: rgba(16, 185, 129, 0.15);

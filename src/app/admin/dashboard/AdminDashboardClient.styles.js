@@ -666,7 +666,7 @@ const dashboardStyles = `
           display: block;
         }
 
-        .premium-modal select, .premium-modal textarea, .premium-modal input[type="file"], .premium-modal input[type="color"] {
+        .premium-modal select, .premium-modal textarea, .premium-modal input, .premium-modal input[type="file"], .premium-modal input[type="color"] {
           width: 100%;
           background: rgba(255, 255, 255, 0.02) !important;
           border: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -678,7 +678,7 @@ const dashboardStyles = `
           transition: all 0.2s ease;
         }
 
-        .premium-modal select:focus, .premium-modal textarea:focus {
+        .premium-modal select:focus, .premium-modal textarea:focus, .premium-modal input:focus {
           border-color: rgba(239, 68, 68, 0.4) !important;
           background: rgba(255, 255, 255, 0.04) !important;
         }
