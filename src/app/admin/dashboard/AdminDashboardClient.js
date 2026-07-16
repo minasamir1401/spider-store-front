@@ -142,7 +142,7 @@ export default function AdminDashboard() {
   const [editBannerUploadedFile, setEditBannerUploadedFile] = useState(null);
 
   const [siteName, setSiteName] = useState("");
-  const [announcementText, setAnnouncementText] = useState("🟢 واتساب الإدارة: +1 (672) 897-2935");
+  const [announcementText, setAnnouncementText] = useState("🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227");
   const [siteLogo, setSiteLogo] = useState("");
   const [siteFavicon, setSiteFavicon] = useState("");
   const [logoUploadedFile, setLogoUploadedFile] = useState(null);

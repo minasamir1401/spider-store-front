@@ -9,7 +9,7 @@ export default function ServicesClient() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [settings, setSettings] = useState({ announcement_text: "🟢 واتساب الإدارة: +1 (672) 897-2935" });
+  const [settings, setSettings] = useState({ announcement_text: "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227" });
 
   const getWhatsappLink = (text) => {
     if (!text) return "https://wa.me/16728972935";
@@ -205,13 +205,13 @@ export default function ServicesClient() {
           {/* Copy 1 */}
           <div className="announcement-ticker-content">
             <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
+              {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
             </a>
           </div>
           {/* Copy 2 (Seamless loop) */}
           <div className="announcement-ticker-content">
             <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              {settings.announcement_text || "🟢 واتساب الإدارة: +1 (672) 897-2935"}
+              {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
             </a>
           </div>
         </div>
