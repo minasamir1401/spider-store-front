@@ -169,6 +169,7 @@ export default function GmailTab() {
                 placeholder="example@gmail.com"
                 value={emailUser}
                 onChange={(e) => setEmailUser(e.target.value)}
+                className="white-text-input"
                 style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", fontSize: "0.95rem", direction: "ltr", textAlign: "left" }}
                 required
               />
@@ -183,6 +184,7 @@ export default function GmailTab() {
                 placeholder="xxxx xxxx xxxx xxxx"
                 value={emailPass}
                 onChange={(e) => setEmailPass(e.target.value)}
+                className="white-text-input"
                 style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", fontSize: "1.1rem", direction: "ltr", textAlign: "left", letterSpacing: "2px" }}
                 required
               />
@@ -235,6 +237,7 @@ export default function GmailTab() {
                 placeholder="أدخل بريد الاستلام للاختبار"
                 value={testEmailInput}
                 onChange={(e) => setTestEmailInput(e.target.value)}
+                className="white-text-input"
                 style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", fontSize: "0.95rem", direction: "ltr", textAlign: "left" }}
                 required
               />

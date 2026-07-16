@@ -1262,6 +1262,13 @@ button, input, textarea, select {
   font-weight: bold;
 }
 
+.white-text-input {
+  color: #ffffff !important;
+}
+.white-text-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
 .badge-approved,
 .badge-completed {
   background: rgba(16, 185, 129, 0.15);
