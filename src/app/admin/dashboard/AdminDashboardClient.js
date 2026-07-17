@@ -396,8 +396,8 @@ export default function AdminDashboard() {
     }
   }, [hydrated, token, router]);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
     setErrorMsg("");
     try {
       const headers = { "Authorization": `Bearer ${token}` };
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
       console.error("Error fetching admin data:", err);
       setErrorMsg("حدث خطأ أثناء تحميل البيانات من الخادم.");
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   }, [router, token, selectedCustomerId]);
 
@@ -526,6 +526,15 @@ export default function AdminDashboard() {
       void fetchData();
     }, 0);
     return () => clearTimeout(timer);
+  }, [fetchData, token]);
+
+  // Auto-refresh data silently in the background every 8 seconds
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      void fetchData(true);
+    }, 8000);
+    return () => clearInterval(interval);
   }, [fetchData, token]);
 
   useEffect(() => {

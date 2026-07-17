@@ -483,11 +483,118 @@ export default function CustomerLogin() {
         }}
       />
 
-      <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes revealFromHeart {
+          0% {
+            opacity: 0;
+            transform: scale(0.4) translateY(30px);
+            filter: blur(8px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            filter: blur(0);
+          }
+        }
+
+        .animate-line {
+          opacity: 0;
+          animation: revealFromHeart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .line-1 { animation-delay: 0.05s; }
+        .line-2 { animation-delay: 0.1s; }
+        .line-3 { animation-delay: 0.15s; }
+        .line-4 { animation-delay: 0.2s; }
+        .line-5 { animation-delay: 0.25s; }
+        .line-6 { animation-delay: 0.3s; }
+        .line-7 { animation-delay: 0.35s; }
+        .line-8 { animation-delay: 0.4s; }
+        .line-9 { animation-delay: 0.45s; }
+        .line-10 { animation-delay: 0.5s; }
+        .line-11 { animation-delay: 0.55s; }
+
+        .custom-login-panel {
+          width: 100%;
+          max-width: 440px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          padding: 20px !important;
+        }
+
+        .custom-login-panel .form-group label {
+          color: #ffffff !important;
+          font-weight: 700 !important;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+          font-size: 0.9rem !important;
+          margin-bottom: 6px !important;
+        }
+
+        .custom-login-panel .form-group input {
+          background: rgba(0, 0, 0, 0.45) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: #ffffff !important;
+          border-radius: 14px !important;
+          padding: 14px 18px !important;
+          font-size: 0.95rem !important;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+        }
+
+        .custom-login-panel .form-group input:focus {
+          border-color: var(--primary-color) !important;
+          background: rgba(0, 0, 0, 0.6) !important;
+          box-shadow: 0 0 15px rgba(0, 180, 216, 0.35), inset 0 2px 4px rgba(0,0,0,0.2) !important;
+          transform: translateY(-2px);
+        }
+
+        .custom-login-panel .glass-btn-primary {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
+          border: none !important;
+          color: #ffffff !important;
+          box-shadow: 0 8px 25px rgba(0, 180, 216, 0.35) !important;
+          font-weight: 800 !important;
+          font-size: 1rem !important;
+          padding: 14px !important;
+          border-radius: 14px !important;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          cursor: pointer;
+        }
+
+        .custom-login-panel .glass-btn-primary:hover {
+          box-shadow: 0 12px 30px rgba(0, 180, 216, 0.55) !important;
+          transform: translateY(-2px) scale(1.02);
+        }
+
+        .custom-login-panel .glass-btn {
+          border-radius: 14px !important;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          cursor: pointer;
+        }
+
+        .custom-login-panel .glass-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+        }
+
+        @media (max-width: 640px) {
+          .register-password-grid {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+          }
+        }
+      ` }} />
+
+      <div key={`${activeTab}-${forgotStep}-${otpStep}`} className="custom-login-panel">
         
         {/* Header */}
         <div style={{ textAlign: "center" }}>
-          <div style={{ display: "inline-flex", justifyContent: "center", marginBottom: "10px" }}>
+          <div className="animate-line line-1" style={{ display: "inline-flex", justifyContent: "center", marginBottom: "10px" }}>
             {settings.site_logo && settings.site_logo !== "default" ? (
               <img 
                 src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
@@ -500,46 +607,13 @@ export default function CustomerLogin() {
               </div>
             )}
           </div>
-          <h2 style={{ fontWeight: 900 }}>حساب {settings.site_name}</h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>تابع مشترياتك واحصل على خدماتك بسرعة فائقة</p>
+          <h2 className="animate-line line-2" style={{ fontWeight: 900, margin: 0 }}>حساب {settings.site_name}</h2>
+          <p className="animate-line line-3" style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "4px" }}>تابع مشترياتك واحصل على خدماتك بسرعة فائقة</p>
         </div>
-
-        {/* Tab switcher */}
-        {!otpStep && forgotStep === 0 && (
-          <div className="auth-tabs">
-            <div
-              className={`auth-tab ${activeTab === "login" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("login");
-                setError("");
-              }}
-            >
-              تسجيل الدخول
-            </div>
-            <div
-              className={`auth-tab ${activeTab === "register" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("register");
-                setError("");
-              }}
-            >
-              إنشاء حساب جديد
-            </div>
-          </div>
-        )}
-
-        {/* Form */}
-        <style>{`
-          @media (max-width: 640px) {
-            .register-password-grid {
-              grid-template-columns: 1fr !important;
-            }
-          }
-        `}</style>
 
         {otpStep ? (
           <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-            <div style={{ textAlign: "center", background: "rgba(56, 189, 248, 0.08)", border: "1px dashed rgba(56, 189, 248, 0.3)", borderRadius: "14px", padding: "16px" }}>
+            <div className="animate-line line-4" style={{ textAlign: "center", background: "rgba(56, 189, 248, 0.08)", border: "1px dashed rgba(56, 189, 248, 0.3)", borderRadius: "14px", padding: "16px" }}>
               <div style={{ fontSize: "2rem", marginBottom: "6px" }}>📲</div>
               <h3 style={{ fontWeight: 800, color: "#38bdf8", margin: "0 0 6px 0" }}>تأكيد الهوية وتفعيل الحساب</h3>
               <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
@@ -547,7 +621,7 @@ export default function CustomerLogin() {
               </p>
             </div>
 
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group animate-line line-5" style={{ marginBottom: 0 }}>
               <label style={{ fontWeight: 700, color: "var(--text-main)", marginBottom: "8px", display: "block" }}>كود التحقق (OTP):</label>
               <input
                 type="text"
@@ -575,7 +649,7 @@ export default function CustomerLogin() {
             <button
               type="submit"
               disabled={submitting}
-              className="glass-btn glass-btn-primary"
+              className="glass-btn glass-btn-primary animate-line line-6"
               style={{ padding: "14px", width: "100%", borderRadius: "12px", fontWeight: 800, fontSize: "1.05rem" }}
             >
               {submitting ? "جاري التحقق..." : "🚀 تأكيد والدخول الآن"}
@@ -584,7 +658,7 @@ export default function CustomerLogin() {
             <button
               type="button"
               onClick={() => { setOtpStep(false); setOtpCode(""); setError(""); setSuccess(""); }}
-              className="glass-btn"
+              className="glass-btn animate-line line-7"
               style={{ padding: "10px", width: "100%", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}
             >
               ← العودة وتعديل البيانات
@@ -594,11 +668,11 @@ export default function CustomerLogin() {
           <>
             {forgotStep === 1 && (
               <form onSubmit={handleForgotPasswordRequest} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>استعادة كلمة المرور</h3>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
+                <h3 className="animate-line line-4" style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>استعادة كلمة المرور</h3>
+                <p className="animate-line line-5" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
                   يرجى إدخال البريد الإلكتروني، رقم الهاتف، أو اسم المستخدم لإرسال كود التحقق.
                 </p>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-6" style={{ marginBottom: 0 }}>
                   <label>المُعرّف الخاص بك:</label>
                   <input
                     type="text"
@@ -610,21 +684,21 @@ export default function CustomerLogin() {
                 </div>
                 {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
                 {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
-                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary animate-line line-7" style={{ padding: "12px", borderRadius: "12px" }}>
                   {submitting ? "جاري الإرسال..." : "إرسال كود التحقق"}
                 </button>
-                <button type="button" onClick={() => { setForgotStep(0); setError(""); setSuccess(""); }} className="glass-btn" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
+                <button type="button" onClick={() => { setForgotStep(0); setError(""); setSuccess(""); }} className="glass-btn animate-line line-8" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
                   ← العودة لتسجيل الدخول
                 </button>
               </form>
             )}
             {forgotStep === 2 && (
               <form onSubmit={handleForgotPasswordVerify} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>إدخال كود التحقق</h3>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
+                <h3 className="animate-line line-4" style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>إدخال كود التحقق</h3>
+                <p className="animate-line line-5" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
                   تم إرسال الكود إلى حسابك. يرجى إدخاله هنا.
                 </p>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-6" style={{ marginBottom: 0 }}>
                   <label>كود التحقق (OTP):</label>
                   <input
                     type="text"
@@ -638,18 +712,18 @@ export default function CustomerLogin() {
                 </div>
                 {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
                 {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
-                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary animate-line line-7" style={{ padding: "12px", borderRadius: "12px" }}>
                   {submitting ? "جاري التحقق..." : "تأكيد الكود"}
                 </button>
-                <button type="button" onClick={() => { setForgotStep(1); setOtpCode(""); setError(""); setSuccess(""); }} className="glass-btn" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
+                <button type="button" onClick={() => { setForgotStep(1); setOtpCode(""); setError(""); setSuccess(""); }} className="glass-btn animate-line line-8" style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.04)" }}>
                   ← إعادة طلب الكود
                 </button>
               </form>
             )}
             {forgotStep === 3 && (
               <form onSubmit={handleForgotPasswordReset} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <h3 style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>تعيين كلمة مرور جديدة</h3>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <h3 className="animate-line line-4" style={{ margin: "0 0 10px 0", color: "var(--text-main)", textAlign: "center" }}>تعيين كلمة مرور جديدة</h3>
+                <div className="form-group animate-line line-5" style={{ marginBottom: 0 }}>
                   <label>كلمة المرور الجديدة:</label>
                   <div style={{ position: "relative" }}>
                     <input
@@ -665,7 +739,7 @@ export default function CustomerLogin() {
                     </button>
                   </div>
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-6" style={{ marginBottom: 0 }}>
                   <label>تأكيد كلمة المرور:</label>
                   <div style={{ position: "relative" }}>
                     <input
@@ -683,7 +757,7 @@ export default function CustomerLogin() {
                 </div>
                 {error && <div style={{ padding: "10px", background: "rgba(244, 63, 94, 0.1)", color: "var(--danger-color)", borderRadius: "8px", fontSize: "0.85rem" }}>⚠️ {error}</div>}
                 {success && <div style={{ padding: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success-color)", borderRadius: "8px", fontSize: "0.85rem" }}>✓ {success}</div>}
-                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
+                <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary animate-line line-7" style={{ padding: "12px", borderRadius: "12px" }}>
                   {submitting ? "جاري الحفظ..." : "حفظ كلمة المرور"}
                 </button>
               </form>
@@ -692,20 +766,44 @@ export default function CustomerLogin() {
         ) : (
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {activeTab === "login" ? (
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="username">البريد الإلكتروني (الجميل) أو اسم المستخدم:</label>
-                <input
-                  id="username"
-                  type="text"
-                  placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
+              <>
+                <div className="form-group animate-line line-4" style={{ marginBottom: 0 }}>
+                  <label htmlFor="username">البريد الإلكتروني (الجميل) أو اسم المستخدم:</label>
+                  <input
+                    id="username"
+                    type="text"
+                    placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group animate-line line-5" style={{ marginBottom: 0 }}>
+                  <label htmlFor="password">كلمة المرور:</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="أدخل كلمة المرور"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{ width: "100%", paddingLeft: "48px" }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                      className="password-toggle-btn"
+                    >
+                      {showPassword ? "إخفاء" : "إظهار"}
+                    </button>
+                  </div>
+                </div>
+              </>
             ) : (
               <>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-4" style={{ marginBottom: 0 }}>
                   <label htmlFor="username">اسم المستخدم:</label>
                   <input
                     id="username"
@@ -716,7 +814,7 @@ export default function CustomerLogin() {
                     required
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-5" style={{ marginBottom: 0 }}>
                   <label htmlFor="email">البريد الإلكتروني (الجميل - Gmail):</label>
                   <input
                     id="email"
@@ -727,12 +825,7 @@ export default function CustomerLogin() {
                     required
                   />
                 </div>
-              </>
-            )}
-
-            {activeTab === "register" && (
-              <>
-                <div className="register-password-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", width: "100%", margin: "0 auto" }}>
+                <div className="register-password-grid animate-line line-6" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", width: "100%", margin: "0 auto" }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label htmlFor="password">كلمة المرور:</label>
                     <div style={{ position: "relative" }}>
@@ -779,8 +872,7 @@ export default function CustomerLogin() {
                     </div>
                   </div>
                 </div>
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group animate-line line-7" style={{ marginBottom: 0 }}>
                   <label htmlFor="phone">رقم الهاتف (واتساب) - مطلوب:</label>
                   <input
                     id="phone"
@@ -792,31 +884,6 @@ export default function CustomerLogin() {
                   />
                 </div>
               </>
-            )}
-
-            {activeTab === "login" && (
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label htmlFor="password">كلمة المرور:</label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="أدخل كلمة المرور"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{ width: "100%", paddingLeft: "48px" }}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                    className="password-toggle-btn"
-                  >
-                    {showPassword ? "إخفاء" : "إظهار"}
-                  </button>
-                </div>
-              </div>
             )}
 
             {error && (
@@ -834,28 +901,54 @@ export default function CustomerLogin() {
             <button
               type="submit"
               disabled={submitting}
-              className="glass-btn glass-btn-primary"
+              className={`glass-btn glass-btn-primary animate-line ${activeTab === "login" ? "line-6" : "line-8"}`}
               style={{ padding: "12px", width: "100%", borderRadius: "12px" }}
             >
               {submitting ? "جاري المعالجة..." : activeTab === "login" ? "تسجيل الدخول" : "إنشاء الحساب الجديد"}
             </button>
+
             {activeTab === "login" && (
-              <div style={{ textAlign: "center", marginTop: "5px" }}>
+              <div className="animate-line line-7" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "8px" }}>
                 <button
                   type="button"
                   onClick={() => { setForgotStep(1); setError(""); setSuccess(""); }}
-                  style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "underline", cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "underline", cursor: "pointer", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => e.target.style.color = "var(--primary-color)"}
+                  onMouseLeave={(e) => e.target.style.color = "var(--text-muted)"}
                 >
                   هل نسيت كلمة المرور؟
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab("register"); setError(""); setSuccess(""); }}
+                  style={{ background: "none", border: "none", color: "var(--primary-color)", fontSize: "0.95rem", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", transition: "transform 0.2s" }}
+                  onMouseEnter={(e) => e.target.style.transform = "scale(1.05)"}
+                  onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+                >
+                  ✨ ليس لديك حساب؟ إنشاء حساب جديد
+                </button>
+              </div>
+            )}
+
+            {activeTab === "register" && (
+              <div className="animate-line line-9" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", marginTop: "10px" }}>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab("login"); setError(""); setSuccess(""); }}
+                  style={{ background: "none", border: "none", color: "var(--primary-color)", fontSize: "0.95rem", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", transition: "transform 0.2s" }}
+                  onMouseEnter={(e) => e.target.style.transform = "scale(1.05)"}
+                  onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+                >
+                  💬 لديك حساب بالفعل؟ تسجيل الدخول
                 </button>
               </div>
             )}
           </form>
         )}
 
-        <hr style={{ opacity: 0.1 }} />
+        <hr className={`animate-line ${activeTab === "login" ? "line-8" : "line-10"}`} style={{ opacity: 0.1 }} />
 
-        <div style={{ textAlign: "center" }}>
+        <div className={`animate-line ${activeTab === "login" ? "line-9" : "line-11"}`} style={{ textAlign: "center" }}>
           <Link href="/" style={{ fontSize: "0.85rem", color: "var(--accent-color)", fontWeight: "600" }}>
             ← العودة للموقع الرئيسي للتصفح
           </Link>
