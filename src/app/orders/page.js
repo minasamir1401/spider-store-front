@@ -146,7 +146,7 @@ export default function OrdersHistory() {
   const getSpeedUpWhatsAppUrl = (phoneNum, orderObj, customerName = "") => {
     const custName = customerName || orderObj.customer_username || (orderObj.phone ? `زائر (${orderObj.phone})` : "عميل");
     const text = `🟢 *طلب تسريع خدمة (عرب تك)* ⚡\n\n` +
-                 `▫️ *رقم الطلب في الداشبورد:* #${orderObj.id}\n` +
+                 `▫️ *رقم الطلب:* #${orderObj.id}\n` +
                  `▫️ *اسم العميل:* ${custName}\n` +
                  `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
                  (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
