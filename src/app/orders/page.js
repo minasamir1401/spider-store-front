@@ -143,6 +143,18 @@ export default function OrdersHistory() {
     localStorage.setItem("theme", nextTheme);
   };
 
+  const getSpeedUpWhatsAppUrl = (phoneNum, orderObj, customerName = "") => {
+    const custName = customerName || orderObj.customer_username || (orderObj.phone ? `زائر (${orderObj.phone})` : "عميل");
+    const text = `🟢 *طلب تسريع خدمة (عرب تك)* ⚡\n\n` +
+                 `▫️ *رقم الطلب في الداشبورد:* #${orderObj.id}\n` +
+                 `▫️ *اسم العميل:* ${custName}\n` +
+                 `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
+                 (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
+                 (orderObj.player_id ? `▫️ *معرف الحساب / ID:* ${orderObj.player_id}\n` : "") +
+                 `\nأرجو تسريع معالجة هذا الطلب في أسرع وقت ممكن، وشكراً لكم. 🙏`;
+    return `https://wa.me/${phoneNum}?text=${encodeURIComponent(text)}`;
+  };
+
   const renderOrderFields = (order) => {
     const serviceObj = services.find(s => Number(s.id) === Number(order.service_id));
     let fieldsConfig = [];
@@ -362,16 +374,25 @@ export default function OrdersHistory() {
                       <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
                         {new Date(order.created_at).toLocaleString("ar-EG")}
                       </span>
-                      {order.status === "pending" && (
-                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      {(order.status === "pending" || order.status === "processing") && (
+                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end", marginTop: "6px" }}>
                           <a
-                            href={`https://wa.me/16728972935?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلبي رقم #${order.id} للخدمة ${order.service_name}`)}`}
+                            href={getSpeedUpWhatsAppUrl("16728972935", order, customer?.username)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="glass-btn"
-                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", borderColor: "rgba(16, 185, 129, 0.2)", color: "var(--success-color)" }}
+                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.35)", color: "#4ade80", fontWeight: "bold", display: "inline-flex", alignItems: "center", gap: "6px" }}
                           >
-                            ⚡ تسريع الخدمة
+                            <span>⚡ تسريع الطلب (إدارة 1)</span>
+                          </a>
+                          <a
+                            href={getSpeedUpWhatsAppUrl("249123667227", order, customer?.username)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass-btn"
+                            style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "8px", background: "rgba(34, 197, 94, 0.15)", border: "1px solid rgba(34, 197, 94, 0.35)", color: "#86efac", fontWeight: "bold", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                          >
+                            <span>⚡ تسريع الطلب (إدارة 2)</span>
                           </a>
                         </div>
                       )}
@@ -569,17 +590,31 @@ export default function OrdersHistory() {
                     )}
                   </div>
 
-                  {singleOrder.status === "pending" && (
-                    <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexDirection: "column" }}>
-                      <a
-                        href={`https://wa.me/16728972935?text=${encodeURIComponent(`مرحباً دعم عرب تك، أريد تسريع طلب الخدمة رقم #${singleOrder.id}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glass-btn"
-                        style={{ padding: "10px", width: "100%", borderRadius: "10px", background: "rgba(16, 185, 129, 0.14)", borderColor: "rgba(16, 185, 129, 0.35)", color: "#86efac", fontWeight: "bold", textAlign: "center" }}
-                      >
-                        💬 تواصل مع الدعم لتسريع الخدمة
-                      </a>
+                  {(singleOrder.status === "pending" || singleOrder.status === "processing") && (
+                    <div style={{ display: "flex", gap: "10px", marginTop: "14px", flexDirection: "column", background: "rgba(16, 185, 129, 0.06)", padding: "16px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+                      <div style={{ fontSize: "0.92rem", color: "#4ade80", textAlign: "center", fontWeight: "bold" }}>
+                        ⚡ لتسريع تنفيذ الطلب فوراً عبر واتساب الإدارة:
+                      </div>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        <a
+                          href={getSpeedUpWhatsAppUrl("16728972935", singleOrder, customer?.username)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="glass-btn"
+                          style={{ flex: "1 1 200px", padding: "12px 14px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.2)", border: "1px solid rgba(16, 185, 129, 0.4)", color: "#ffffff", fontWeight: "bold", textAlign: "center", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                        >
+                          <span>🟢 واتساب الإدارة 1 (+1 672-897-2935)</span>
+                        </a>
+                        <a
+                          href={getSpeedUpWhatsAppUrl("249123667227", singleOrder, customer?.username)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="glass-btn"
+                          style={{ flex: "1 1 200px", padding: "12px 14px", borderRadius: "10px", background: "rgba(34, 197, 94, 0.2)", border: "1px solid rgba(34, 197, 94, 0.4)", color: "#ffffff", fontWeight: "bold", textAlign: "center", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                        >
+                          <span>🟢 واتساب الإدارة 2 (+249 12-366-7227)</span>
+                        </a>
+                      </div>
                     </div>
                   )}
                 </div>
