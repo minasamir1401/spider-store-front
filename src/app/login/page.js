@@ -329,7 +329,39 @@ export default function CustomerLogin() {
 
   if (isLoggedIn) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px", position: "relative" }}>
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: -2,
+            opacity: 0.45
+          }}
+        >
+          <source src="https://c.top4top.io/m_38509r2tv1.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay for readability */}
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.55)",
+            zIndex: -1
+          }}
+        />
+
         <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "20px" }}>
           
           {/* Header */}
@@ -418,7 +450,39 @@ export default function CustomerLogin() {
   }
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px", position: "relative" }}>
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          zIndex: -2,
+          opacity: 0.45
+        }}
+      >
+        <source src="https://c.top4top.io/m_38509r2tv1.mp4" type="video/mp4" />
+      </video>
+      {/* Dark overlay for readability */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.55)",
+          zIndex: -1
+        }}
+      />
+
       <div className="glass-panel" style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "20px" }}>
         
         {/* Header */}
