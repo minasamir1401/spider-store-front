@@ -311,6 +311,20 @@ export default function ServiceDetail({ params }) {
       }
     }
 
+    // Aggressive filter: If there are ANY custom fields, forcefully remove IMEI/player_id
+    // This handles cases where the DB has stale data from old syncs.
+    const hasCustomFields = rawFields.some(f => {
+      const n = (f.name || f.id || "").toLowerCase();
+      return n.startsWith("custom_") || n.startsWith("field_");
+    });
+
+    if (hasCustomFields) {
+      rawFields = rawFields.filter(f => {
+        const n = (f.name || f.id || "").toLowerCase();
+        return n !== "player_id" && !n.includes("imei");
+      });
+    }
+
     const seen = new Set();
     const uniqueFields = [];
 
