@@ -178,15 +178,15 @@
 /* ===== SCC-CARD — Premium List Category Cards ===== */
 .scc-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   margin-bottom: 30px;
 }
 @media (min-width: 680px) {
-  .scc-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .scc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 }
 
-.scc-wrap { position: relative; width: 100%; }
+.scc-wrap { position: relative; width: 100%; min-width: 0; }
 
 .scc-card {
   display: flex; align-items: center; gap: 14px;
@@ -201,6 +201,7 @@
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   width: 100%;
+  min-width: 0;
 }
 /* Top shimmer line */
 .scc-card::before {
@@ -687,8 +688,8 @@
   .footer-top { flex-direction: column; gap: 20px; }
   .footer-column { min-width: 0; }
   .auth-tab { font-size: 0.85rem; padding: 8px; }
-  .scc-grid { grid-template-columns: 1fr; }
-  .scc-card { padding: 10px 12px; gap: 10px; }
+  .scc-grid { grid-template-columns: minmax(0, 1fr); }
+  .scc-card { padding: 10px 12px; gap: 10px; min-width: 0; width: 100%; }
   .scc-img-ring { width: 44px; height: 44px; }
   .cc-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }

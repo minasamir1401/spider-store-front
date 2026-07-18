@@ -810,14 +810,14 @@
 /* scc-card (Subcategory Cards list) */
 .scc-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   margin-bottom: 30px;
 }
 
 @media (max-width: 640px) {
   .scc-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
 }
@@ -825,6 +825,7 @@
 .scc-wrap {
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 .scc-card {
@@ -844,6 +845,8 @@
   min-height: 76px;
   height: auto;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .scc-card::before {
@@ -922,7 +925,7 @@
   justify-content: center;
   gap: 3px;
   flex-grow: 1;
-  text-align: left;
+  text-align: right;
   z-index: 1;
   min-width: 0;
 }
