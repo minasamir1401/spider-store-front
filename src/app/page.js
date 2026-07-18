@@ -227,24 +227,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Announcement Banner */}
-      <div className="announcement-banner">
-        <div className="announcement-ticker-wrapper">
-          {/* Copy 1 */}
-          <div className="announcement-ticker-content">
-            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
-            </a>
-          </div>
-          {/* Copy 2 (Seamless loop) */}
-          <div className="announcement-ticker-content">
-            <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
-              {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* Hero Slide Banner */}
       <motion.section
         className="hero-banner"
@@ -252,6 +234,24 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
+        {/* Integrated Announcement Banner */}
+        <div className="hero-announcement">
+          <div className="announcement-ticker-wrapper">
+            {/* Copy 1 */}
+            <div className="announcement-ticker-content">
+              <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+                {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
+              </a>
+            </div>
+            {/* Copy 2 (Seamless loop) */}
+            <div className="announcement-ticker-content">
+              <a href={getWhatsappLink(settings.announcement_text)} target="_blank" rel="noopener noreferrer" className="announcement-ticker-link">
+                {settings.announcement_text || "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227"}
+              </a>
+            </div>
+          </div>
+        </div>
+
         {slides.map((slide, idx) => (
           <div
             key={idx}
@@ -325,8 +325,20 @@ export default function Home() {
           </div>
         ))}
 
+        {/* Integrated Search Bar */}
+        <div className="hero-search-container">
+          <input
+            type="text"
+            className="search-input-center"
+            placeholder="ابحث عن قسم أو خدمة سوفت وير..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <span className="search-icon-center">🔍</span>
+        </div>
+
         {/* Carousel Dots */}
-        <div style={{ position: "absolute", bottom: "15px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px" }}>
+        <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px", zIndex: 10 }}>
           {slides.map((_, idx) => (
             <button
               key={idx}
@@ -344,24 +356,6 @@ export default function Home() {
           ))}
         </div>
       </motion.section>
-
-      {/* Centered Search Bar */}
-      <motion.div
-        className="search-container-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <input
-          type="text"
-          className="search-input-center"
-          placeholder="ابحث عن قسم أو خدمة سوفت وير..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <span className="search-icon-center">🔍</span>
-      </motion.div>
 
       {/* Categories Grid - cc-card style */}
       <motion.section
