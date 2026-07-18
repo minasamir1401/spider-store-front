@@ -296,7 +296,7 @@ export default function ServiceDetail({ params }) {
           }
         }
       }
-    } else if (Array.isArray(serviceFields) && service.fields !== null && service.fields !== undefined) {
+    } else if (Array.isArray(serviceFields) && service?.fields !== null && service?.fields !== undefined) {
       // Only use serviceFields directly if it's explicitly set (even if empty `[]`)
       rawFields = [...serviceFields];
     } else {
