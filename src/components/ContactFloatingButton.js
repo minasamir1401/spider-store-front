@@ -54,6 +54,39 @@ export default function ContactFloatingButton() {
             🟢 واتساب الإدارة 2
           </a>
 
+          {/* WhatsApp Community */}
+          <a
+            href={WHATSAPP_COMMUNITY}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(52, 211, 153, 0.1)", borderColor: "rgba(52, 211, 153, 0.2)", color: "#34d399" }}
+          >
+            💬 مجتمع واتساب عرب تك
+          </a>
+
+          {/* Facebook Page */}
+          <a
+            href={FACEBOOK_PAGE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(24, 119, 242, 0.1)", borderColor: "rgba(24, 119, 242, 0.2)", color: "#478bfb" }}
+          >
+            📘 صفحة فيسبوك عرب تك
+          </a>
+
+          {/* TikTok Account */}
+          <a
+            href={TIKTOK_ACCOUNT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(254, 44, 85, 0.1)", borderColor: "rgba(254, 44, 85, 0.2)", color: "#fe2c55" }}
+          >
+            🎵 حساب تيك توك عرب تك
+          </a>
+
 
 
           {/* Email Support 1 */}

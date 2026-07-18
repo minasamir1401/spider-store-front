@@ -62,6 +62,9 @@ export default function Footer() {
           <div className="footer-links" style={{ marginTop: "5px" }}>
             <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 1 (+1 672-897-2935)</a>
             <a href="https://wa.me/249123667227" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 2 (+249 12 366 7227)</a>
+            <a href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5" target="_blank" rel="noopener noreferrer">💬 مجتمع واتساب عرب تك</a>
+            <a href="https://www.facebook.com/ARABTECHSERVEROnline" target="_blank" rel="noopener noreferrer">📘 صفحة فيسبوك عرب تك</a>
+            <a href="https://tiktok.com/@arabtechsuppurt" target="_blank" rel="noopener noreferrer">🎵 تيك توك عرب تك</a>
             <a href="mailto:arab.tech.services1@gmail.com">📧 البريد الإلكتروني (arab.tech.services1@gmail.com)</a>
           </div>
         </div>
