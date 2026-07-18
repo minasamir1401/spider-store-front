@@ -1909,7 +1909,42 @@ export default function ServiceDetail({ params }) {
                 )}
               </div>
 
-
+              {/* Speed up buttons */}
+              <div style={{
+                marginTop: "16px",
+                padding: "16px",
+                borderRadius: "16px",
+                background: "rgba(16, 185, 129, 0.08)",
+                border: "1px solid rgba(16, 185, 129, 0.25)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#4ade80", fontWeight: "bold", fontSize: "0.95rem", justifyContent: "center" }}>
+                  <span>⚡</span>
+                  <span>لتسريع تنفيذ الطلب فوراً تواصل مع واتساب الإدارة:</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <a
+                    href={getSpeedUpWhatsAppUrl("16728972935", successData, customerUser?.username)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass-btn"
+                    style={{ flex: "1 1 200px", padding: "12px 14px", borderRadius: "12px", background: "rgba(16, 185, 129, 0.2)", border: "1px solid rgba(16, 185, 129, 0.4)", color: "#ffffff", fontWeight: "bold", textAlign: "center", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                  >
+                    <span>🟢 إدارة 1 (+1 672-897-2935)</span>
+                  </a>
+                  <a
+                    href={getSpeedUpWhatsAppUrl("249123667227", successData, customerUser?.username)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass-btn"
+                    style={{ flex: "1 1 200px", padding: "12px 14px", borderRadius: "12px", background: "rgba(34, 197, 94, 0.2)", border: "1px solid rgba(34, 197, 94, 0.4)", color: "#ffffff", fontWeight: "bold", textAlign: "center", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                  >
+                    <span>🟢 إدارة 2 (+249 12-366-7227)</span>
+                  </a>
+                </div>
+              </div>
 
             </div>
 
