@@ -2093,9 +2093,24 @@ const handleLogout = () => {
     const parentCat = Array.isArray(categories) ? categories.find(c => c.id === s.category_id) : null;
     const catName = parentCat ? parentCat.name : "";
     const query = (serviceSearch || "").trim().toLowerCase();
+    
+    let hasMatchingPackage = false;
+    if (query) {
+      let parsedPackages = [];
+      try {
+        parsedPackages = typeof s.packages === "string" ? JSON.parse(s.packages) : (s.packages || []);
+      } catch (e) {
+        parsedPackages = [];
+      }
+      if (Array.isArray(parsedPackages)) {
+        hasMatchingPackage = parsedPackages.some(pkg => (pkg.name || "").toLowerCase().includes(query));
+      }
+    }
+
     return (s.name || "").toLowerCase().includes(query) || 
            catName.toLowerCase().includes(query) ||
-           String(s.id).includes(query);
+           String(s.id).includes(query) ||
+           hasMatchingPackage;
   }) : [];
 
   const filteredWalletRequests = Array.isArray(walletRequests) ? walletRequests.filter((request) => {
