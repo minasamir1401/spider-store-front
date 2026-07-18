@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { API_BASE_URL } from "@/config";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [categories, setCategories] = useState([]);
@@ -35,20 +36,20 @@ export default function Home() {
 
   // Backup static categories if backend is unreachable
   const staticCategories = [
-    { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
-    { id: 2,  name: "تطبيقات اللايف",    image: "/uploads/live-apps.png",            color: "#eab308", icon: "credit-card"  },
-    { id: 3,  name: "بطاقات الكترونية",  image: "/uploads/electronic-cards.png",     color: "#6366f1", icon: "credit-card"  },
-    { id: 4,  name: "الأرصدة والعملات",  image: "/uploads/balances-currencies.png",  color: "#eab308", icon: "credit-card"  },
-    { id: 5,  name: "سوشال ميديا",       image: "/uploads/social-media.png",         color: "#eab308", icon: "credit-card"  },
-    { id: 6,  name: "خدمات السيرفر",     image: "/uploads/server-services.png",      color: "#6366f1", icon: "gamepad2"     },
-    { id: 7,  name: "اشتراكات",          image: "/uploads/subscriptions.png",        color: "#d946ef", icon: "credit-card"  },
-    { id: 8,  name: "الذكاء الاصطناعي",  image: "/uploads/ai-section.png",           color: "#eab308", icon: "credit-card"  },
-    { id: 9,  name: "قسم الارقام",       image: "/uploads/numbers-section.png",      color: "#6366f1", icon: "credit-card"  },
-    { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
-    { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
-    { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
-    { id: 13, name: "خدمات APPLE",          image: null,                                color: "#a855f7", icon: "credit-card"  },
-    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null,                                color: "#10b981", icon: "credit-card"  },
+    { id: 1, name: "قسم الالعاب", image: "/uploads/games-section.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 2, name: "تطبيقات اللايف", image: "/uploads/live-apps.png", color: "#eab308", icon: "credit-card" },
+    { id: 3, name: "بطاقات الكترونية", image: "/uploads/electronic-cards.png", color: "#6366f1", icon: "credit-card" },
+    { id: 4, name: "الأرصدة والعملات", image: "/uploads/balances-currencies.png", color: "#eab308", icon: "credit-card" },
+    { id: 5, name: "سوشال ميديا", image: "/uploads/social-media.png", color: "#eab308", icon: "credit-card" },
+    { id: 6, name: "خدمات السيرفر", image: "/uploads/server-services.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 7, name: "اشتراكات", image: "/uploads/subscriptions.png", color: "#d946ef", icon: "credit-card" },
+    { id: 8, name: "الذكاء الاصطناعي", image: "/uploads/ai-section.png", color: "#eab308", icon: "credit-card" },
+    { id: 9, name: "قسم الارقام", image: "/uploads/numbers-section.png", color: "#6366f1", icon: "credit-card" },
+    { id: 10, name: "البرمجة والتصميم", image: "/uploads/programming-design.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 11, name: "حسابات جاهزة", image: "/uploads/ready-accounts.png", color: "#eab308", icon: "credit-card" },
+    { id: 12, name: "إعلانات ممولة", image: "/uploads/ads-section.png", color: "#ec4899", icon: "share2" },
+    { id: 13, name: "خدمات APPLE", image: null, color: "#a855f7", icon: "credit-card" },
+    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null, color: "#10b981", icon: "credit-card" },
   ];
 
 
@@ -88,14 +89,14 @@ export default function Home() {
     // Initial Hydration
     const urlParams = new URLSearchParams(window.location.search);
     setSearchTerm(urlParams.get("search") || "");
-    
+
     setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
     setIsCustomerLoggedIn(Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user")));
-    
+
     try {
       const userStr = localStorage.getItem("customer_user");
       setCustomerUser(userStr ? JSON.parse(userStr) : null);
-    } catch {}
+    } catch { }
 
 
 
@@ -116,7 +117,7 @@ export default function Home() {
             localStorage.setItem("customer_user", JSON.stringify(profile));
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // Fetch categories from backend
@@ -244,7 +245,12 @@ export default function Home() {
       </div>
 
       {/* Hero Slide Banner */}
-      <section className="hero-banner">
+      <motion.section
+        className="hero-banner"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         {slides.map((slide, idx) => (
           <div
             key={idx}
@@ -304,10 +310,10 @@ export default function Home() {
             </div>
             <div className="banner-graphic">
               {slide.icon && (slide.icon.startsWith("data:image") || slide.icon.startsWith("http") || slide.icon.startsWith("/uploads")) ? (
-                <img 
-                  src={slide.icon.startsWith("/uploads") ? `${API_BASE_URL}${slide.icon}` : slide.icon} 
-                  alt={slide.title} 
-                  style={{ width: "220px", height: "220px", objectFit: "contain", filter: `drop-shadow(0 0 25px ${slide.color}66)` }} 
+                <img
+                  src={slide.icon.startsWith("/uploads") ? `${API_BASE_URL}${slide.icon}` : slide.icon}
+                  alt={slide.title}
+                  style={{ width: "220px", height: "220px", objectFit: "contain", filter: `drop-shadow(0 0 25px ${slide.color}66)` }}
                 />
               ) : (
                 <span className="coin-icon" style={{ color: slide.color, filter: `drop-shadow(0 0 25px ${slide.color}66)` }}>
@@ -336,10 +342,16 @@ export default function Home() {
             />
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Centered Search Bar */}
-      <div className="search-container-center">
+      <motion.div
+        className="search-container-center"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <input
           type="text"
           className="search-input-center"
@@ -348,10 +360,15 @@ export default function Home() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <span className="search-icon-center">🔍</span>
-      </div>
+      </motion.div>
 
       {/* Categories Grid - cc-card style */}
-      <section>
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+      >
         <div dir="ltr" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
           <h2 className="section-title" style={{ margin: 0 }}>الأقسام الرئيسية</h2>
           <span style={{ fontSize: "0.85rem", color: "var(--primary-color)", fontWeight: "700", cursor: "pointer" }}>عرض الكل</span>
@@ -445,10 +462,16 @@ export default function Home() {
             })}
           </div>
         )}
-      </section>
+      </motion.section>
 
       {/* FAQ Section */}
-      <section className="faq-section" style={{ marginTop: "50px", marginBottom: "40px" }}>
+      <motion.section
+        className="faq-section" style={{ marginTop: "50px", marginBottom: "40px" }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7 }}
+      >
         <h2 dir="ltr" className="section-title" style={{ marginBottom: "25px" }}>الأسئلة الشائعة حول {settings.site_name}</h2>
         <div className="faq-container">
           <details className="faq-item">
@@ -486,7 +509,7 @@ export default function Home() {
             </p>
           </details>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 }

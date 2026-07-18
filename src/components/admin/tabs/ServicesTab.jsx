@@ -38,7 +38,7 @@ export default function ServicesTab({
       required: f.required !== false
     })).filter(f => f.id !== "phone" && f.id !== "tel");
 
-    setQuickFields(normalized.length > 0 ? normalized : [{ id: "player_id", label: "معرّف الحساب", placeholder: "أدخل معرّف الحساب", type: "text", required: true }]);
+    setQuickFields(normalized);
     setQuickFieldsTitle(service.fields_title || "بيانات الخدمة");
     setQuickFieldsServiceId(service.id);
     setQuickFieldsMsg("");
@@ -315,7 +315,7 @@ export default function ServicesTab({
                             {/* Fields List */}
                             <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
                               {quickFields.map((f, idx) => (
-                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1.5fr auto auto", gap: "8px", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1.5fr auto auto auto", gap: "8px", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                                   <input
                                     type="text"
                                     value={f.id}
@@ -346,6 +346,16 @@ export default function ServicesTab({
                                     <option value="email">إيميل</option>
                                     <option value="number">رقم</option>
                                   </select>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={f.required}
+                                      onChange={e => handleQuickFieldChange(idx, "required", e.target.checked)}
+                                      id={`req_${idx}`}
+                                      style={{ cursor: "pointer", accentColor: "#38bdf8" }}
+                                    />
+                                    <label htmlFor={`req_${idx}`} style={{ fontSize: "0.75rem", color: "#94a3b8", cursor: "pointer" }}>مطلوب</label>
+                                  </div>
                                   <button
                                     onClick={() => removeQuickField(idx)}
                                     style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "1rem", padding: "0 4px" }}

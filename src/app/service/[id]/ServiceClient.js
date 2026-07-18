@@ -19,7 +19,7 @@ export default function ServiceDetail({ params }) {
   const [customerPricingMode, setCustomerPricingMode] = useState("packages");
   const [packageSearchTerm, setPackageSearchTerm] = useState("");
   const [exchangeRates, setExchangeRates] = useState({ "USD": 50, "USDT": 51 });
-  
+
   // Form state - dynamic fields
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -237,25 +237,25 @@ export default function ServiceDetail({ params }) {
   // Parse dynamic fields from service
   const serviceFields = useMemo(() => {
     if (!service) return [];
-    
+
     // Check service fields first
     let sFields = [];
     if (Array.isArray(service.fields)) sFields = service.fields;
     else if (typeof service.fields === 'string') {
-      try { sFields = JSON.parse(service.fields); } catch {}
+      try { sFields = JSON.parse(service.fields); } catch { }
     }
-    
+
     if (sFields && sFields.length > 0) return sFields;
-    
+
     // Fallback to category fields
     let catFields = [];
     if (Array.isArray(service.category_fields)) catFields = service.category_fields;
     else if (typeof service.category_fields === 'string') {
-      try { catFields = JSON.parse(service.category_fields); } catch {}
+      try { catFields = JSON.parse(service.category_fields); } catch { }
     }
-    
+
     if (catFields && catFields.length > 0) return catFields;
-    
+
     return [];
   }, [service]);
 
@@ -348,12 +348,12 @@ export default function ServiceDetail({ params }) {
   const getSpeedUpWhatsAppUrl = (phoneNum, orderObj, customerName = "") => {
     const custName = customerName || orderObj.customer_username || (orderObj.phone ? `زائر (${orderObj.phone})` : "عميل");
     const text = `🟢 *طلب تسريع خدمة (عرب تك)* ⚡\n\n` +
-                 `▫️ *رقم الطلب:* #${orderObj.id}\n` +
-                 `▫️ *اسم العميل:* ${custName}\n` +
-                 `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
-                 (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
-                 (orderObj.player_id ? `▫️ *معرف الحساب / ID:* ${orderObj.player_id}\n` : "") +
-                 `\nأرجو تسريع معالجة هذا الطلب في أسرع وقت ممكن، وشكراً لكم. 🙏`;
+      `▫️ *رقم الطلب:* #${orderObj.id}\n` +
+      `▫️ *اسم العميل:* ${custName}\n` +
+      `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
+      (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
+      (orderObj.player_id ? `▫️ *معرف الحساب / ID:* ${orderObj.player_id}\n` : "") +
+      `\nأرجو تسريع معالجة هذا الطلب في أسرع وقت ممكن، وشكراً لكم. 🙏`;
     return `https://wa.me/${phoneNum}?text=${encodeURIComponent(text)}`;
   };
 
@@ -495,7 +495,7 @@ export default function ServiceDetail({ params }) {
   const getFallbackEmoji = (name = "", image = "") => {
     const lowerName = (name || "").toLowerCase();
     const lowerImg = (image || "").toLowerCase();
-    
+
     if (lowerImg.includes("pubg") || lowerName.includes("pubg") || lowerName.includes("ببجي")) return "🔫";
     if (lowerImg.includes("freefire") || lowerImg.includes("free fire") || lowerName.includes("فري فاير") || lowerName.includes("free fire") || lowerName.includes("freefire")) return "🔥";
     if (lowerImg.includes("bigo") || lowerName.includes("بيجو")) return "💬";
@@ -504,23 +504,23 @@ export default function ServiceDetail({ params }) {
     if (lowerImg.includes("canva") || lowerName.includes("كانفا")) return "🎨";
     if (lowerImg.includes("netflix") || lowerName.includes("نتفليكس")) return "🎬";
     if (lowerName.includes("ايفون") || lowerName.includes("iphone") || lowerName.includes("ipad") || lowerName.includes("ايباد") || lowerName.includes("bypass") || lowerName.includes("تخط") || lowerName.includes("icloud") || lowerName.includes("ايكلاود") || lowerName.includes("hello") || lowerName.includes("removal") || lowerName.includes("hfz") || lowerName.includes("smd") || lowerName.includes("otix")) return "📱";
-    
+
     return "⚡";
   };
 
   const getServiceIcon = (image, name = "") => {
     if (!image) return getFallbackEmoji(name, image);
     if (image.startsWith("data:image") || image.startsWith("http") || image.includes("uploads")) {
-      const src = image.startsWith("http") || image.startsWith("data:") 
-        ? image 
+      const src = image.startsWith("http") || image.startsWith("data:")
+        ? image
         : (image.startsWith("/") ? `${API_BASE_URL}${image}` : `${API_BASE_URL}/${image}`);
-      return <img 
-        src={src} 
-        alt="Service Icon" 
+      return <img
+        src={src}
+        alt="Service Icon"
         onError={(e) => {
           setImageError(true);
         }}
-        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }} 
+        style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "inherit" }}
       />;
     }
     if (image.includes("pubg")) return "🔫";
@@ -536,12 +536,12 @@ export default function ServiceDetail({ params }) {
   const filteredPackages = !service?.packages
     ? []
     : (() => {
-        const query = (packageSearchTerm || "").trim().toLowerCase();
-        if (!query) return service.packages;
-        return service.packages.filter(pkg =>
-          (pkg.name || "").toLowerCase().includes(query)
-        );
-      })();
+      const query = (packageSearchTerm || "").trim().toLowerCase();
+      if (!query) return service.packages;
+      return service.packages.filter(pkg =>
+        (pkg.name || "").toLowerCase().includes(query)
+      );
+    })();
 
   if (loading || !service) {
     return (
@@ -571,7 +571,7 @@ export default function ServiceDetail({ params }) {
   const packagesSection = (
     <div>
       <h3 style={{ fontWeight: 800, marginBottom: "15px", fontSize: "1.1rem" }}>1. اختر الباقة المطلوبة:</h3>
-      
+
       {service.packages && service.packages.length > 3 && (
         <div style={{ marginBottom: "20px", position: "relative" }}>
           <input
@@ -627,12 +627,12 @@ export default function ServiceDetail({ params }) {
           {filteredPackages.map((pkg, idx) => {
             const isUsd = service.category_currency === 'USD' || service.category_currency === 'USDT';
             const usdPrice = pkg.usd_price || pkg.price;
-            
+
             const usdRate = (baseCurrency === 'USD' || baseCurrency === 'USDT') ? 1 : Number(exchangeRates?.["USD"] || 50);
             const egpPrice = usdPrice * usdRate;
 
             const isSelected = selectedPackage?.id === pkg.id && (service.price_type !== "both" || customerPricingMode === "packages");
-            
+
             // Generate a dynamic accent color for the side border line
             const accentColors = ["#6366f1", "#3b82f6", "#10b981", "#ec4899", "#f59e0b"];
             const accentColor = accentColors[idx % accentColors.length];
@@ -648,11 +648,11 @@ export default function ServiceDetail({ params }) {
                       setCustomerPricingMode("packages");
                     }
                     setSelectedPackage(pkg);
-                    
+
                     // Directly transition to checkout step 2
                     setTimeout(() => {
                       setStep(2);
-                      
+
                       // Smooth scroll to top of checkout container
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }, 200);
@@ -668,13 +668,13 @@ export default function ServiceDetail({ params }) {
                   }}
                 >
                   <div className="scc-side-line"></div>
-                  
+
                   {hasImage && (
                     <div className="scc-img-ring" style={{ borderColor: accentColor }}>
                       <div className="scc-img-inner">
-                        <img 
-                          alt={(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name} 
-                          className="scc-img" 
+                        <img
+                          alt={(pkg.name === "تفعيل فوري تلقائي" || !pkg.name) ? service.name : pkg.name}
+                          className="scc-img"
                           src={service.image.startsWith("http") || service.image.startsWith("/") || service.image.startsWith("data:") ? service.image : `${API_BASE_URL}/${service.image}`}
                           onError={() => {
                             setImageError(true);
@@ -722,8 +722,8 @@ export default function ServiceDetail({ params }) {
         سعر الـ 1000 وحدة هو: {baseCurrency === 'USD' || baseCurrency === 'USDT'
           ? `$ ${Number(service?.price_per_thousand || 0).toFixed(2)}`
           : (service?.category_currency === 'USD' || service?.category_currency === 'USDT'
-              ? `$ ${Number(service?.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service?.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
-              : `${Number(service?.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: {minQty}{maxQty > 0 ? `، أقصى كمية: ${maxQty}` : ''})
+            ? `$ ${Number(service?.price_per_thousand || 0).toFixed(2)} (ما يعادل ${Number((service?.price_per_thousand || 0) * (exchangeRates?.["USD"] || 50)).toFixed(2)} ${baseCurrency})`
+            : `${Number(service?.price_per_thousand || 0).toFixed(2)} ${baseCurrency}`)} (أقل كمية: {minQty}{maxQty > 0 ? `، أقصى كمية: ${maxQty}` : ''})
       </p>
       <div className="form-group" style={{ marginBottom: "20px" }}>
         <input
@@ -804,8 +804,8 @@ export default function ServiceDetail({ params }) {
       WebkitBackdropFilter: "blur(24px)"
     }}>
       {/* Back button */}
-      <button 
-        type="button" 
+      <button
+        type="button"
         onClick={() => setStep(1)}
         style={{
           color: "var(--primary-color)",
@@ -845,134 +845,200 @@ export default function ServiceDetail({ params }) {
       </div>
 
       <form onSubmit={handleSubmit} className="service-details-layout">
-        
+
         {/* Main section: Col 1 */}
         <div className="checkout-main-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
+
           {/* Step 1: Account Details */}
           {(activeFields.length > 0 || selectedPackage?.requires_quantity) && (
-            <div className="glass-panel" style={{ 
-              background: "rgba(255, 255, 255, 0.01)", 
-              padding: "20px", 
-              borderRadius: "16px", 
+            <div className="glass-panel" style={{
+              background: "rgba(255, 255, 255, 0.01)",
+              padding: "20px",
+              borderRadius: "16px",
               border: "1px solid rgba(255,255,255,0.06)",
               display: "flex",
               flexDirection: "column",
               gap: "14px"
             }}>
-            <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
-              البيانات المطلوبة:
-            </h3>
-            {activeFields.map((field, idx) => (
-              <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
-                <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                  {field.label}:
-                </label>
-                {field.type === "select" && field.options ? (
-                  <select
-                    id={`field_${field.name}`}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    style={{
-                      width: "100%",
-                      padding: "12px 14px",
-                      fontSize: "0.9rem",
-                      borderRadius: "10px",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      background: "var(--input-bg)",
-                      color: "var(--text-main)",
-                      outline: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease"
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--primary-color)";
-                      e.target.style.background = "rgba(255, 255, 255, 0.06)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                      e.target.style.background = "var(--input-bg)";
-                    }}
-                  >
-                    <option value="" style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>-- اختر --</option>
-                    {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
-                      <option key={i} value={opt.trim()} style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>{opt.trim()}</option>
-                    ))}
-                  </select>
-                ) : (
+              <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: "var(--primary-color)", color: "#fff", fontSize: "0.9rem", fontWeight: "bold" }}>١</span>
+                البيانات المطلوبة:
+              </h3>
+              {activeFields.map((field, idx) => (
+                <div className="form-group" key={field.name || idx} style={{ marginBottom: "0px" }}>
+                  <label htmlFor={`field_${field.name}`} style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                    {field.label}:
+                  </label>
+                  {field.type === "select" && field.options ? (
+                    <select
+                      id={`field_${field.name}`}
+                      value={formData[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        fontSize: "0.9rem",
+                        borderRadius: "10px",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        background: "var(--input-bg)",
+                        color: "var(--text-main)",
+                        outline: "none",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "var(--primary-color)";
+                        e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                        e.target.style.background = "var(--input-bg)";
+                      }}
+                    >
+                      <option value="" style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>-- اختر --</option>
+                      {(typeof field.options === 'string' ? field.options.split(',') : field.options).map((opt, i) => (
+                        <option key={i} value={opt.trim()} style={{ color: "var(--text-main)", background: "var(--bg-color)" }}>{opt.trim()}</option>
+                      ))}
+                    </select>
+                  ) : (field.name || "").toLowerCase().includes("imei") ? (
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <input
+                        id={`field_${field.name}`}
+                        type="text"
+                        maxLength="15"
+                        placeholder="15-digit IMEI"
+                        value={formData[field.name] || ""}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, '');
+                          handleFieldChange(field.name, val);
+                        }}
+                        required={field.required !== false}
+                        style={{
+                          flex: 1,
+                          padding: "12px 14px",
+                          fontSize: "1rem",
+                          letterSpacing: "2px",
+                          fontFamily: "monospace",
+                          borderRadius: "10px",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          background: "var(--input-bg)",
+                          color: "var(--text-main)",
+                          outline: "none",
+                          transition: "all 0.2s ease",
+                          textAlign: "center"
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = "var(--primary-color)";
+                          e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                          e.target.style.background = "var(--input-bg)";
+                        }}
+                      />
+                    </div>
+                  ) : field.type === "textarea" ? (
+                    <textarea
+                      id={`field_${field.name}`}
+                      placeholder={field.placeholder || ""}
+                      value={formData[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      rows={3}
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        fontSize: "0.9rem",
+                        borderRadius: "10px",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        background: "var(--input-bg)",
+                        color: "var(--text-main)",
+                        outline: "none",
+                        transition: "all 0.2s ease",
+                        resize: "vertical"
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "var(--primary-color)";
+                        e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                        e.target.style.background = "var(--input-bg)";
+                      }}
+                    />
+                  ) : (
+                    <input
+                      id={`field_${field.name}`}
+                      type={field.type || "text"}
+                      placeholder={field.placeholder || ""}
+                      value={formData[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        fontSize: "0.9rem",
+                        borderRadius: "10px",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        background: "var(--input-bg)",
+                        color: "var(--text-main)",
+                        outline: "none",
+                        transition: "all 0.2s ease"
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "var(--primary-color)";
+                        e.target.style.background = "rgba(255, 255, 255, 0.06)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                        e.target.style.background = "var(--input-bg)";
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {selectedPackage?.requires_quantity && (
+                <div className="form-group" style={{ marginBottom: "0px", marginTop: "4px" }}>
+                  <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
+                    الكمية (الحد الأدنى {selectedPackage.min_quantity || 1}{selectedPackage.max_quantity > 0 ? `، الحد الأقصى ${selectedPackage.max_quantity}` : ''}):
+                  </label>
                   <input
-                    id={`field_${field.name}`}
-                    type={field.type || "text"}
-                    placeholder={field.placeholder || ""}
-                    value={formData[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    required={field.required !== false}
+                    type="number"
+                    min={selectedPackage.min_quantity || 1}
+                    max={selectedPackage.max_quantity > 0 ? selectedPackage.max_quantity : undefined}
+                    value={customQuantity}
+                    onChange={(e) => {
+                      const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                      setCustomQuantity(val);
+                    }}
+                    onBlur={() => {
+                      const min = selectedPackage.min_quantity || 1;
+                      const max = selectedPackage.max_quantity || 0;
+                      if (!customQuantity || customQuantity < min) setCustomQuantity(min);
+                      else if (max > 0 && customQuantity > max) setCustomQuantity(max);
+                    }}
                     style={{
-                      width: "100%",
-                      padding: "12px 14px",
-                      fontSize: "0.9rem",
-                      borderRadius: "10px",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      background: "var(--input-bg)",
-                      color: "var(--text-main)",
-                      outline: "none",
-                      transition: "all 0.2s ease"
+                      width: "100%", padding: "12px 14px", fontSize: "0.9rem", borderRadius: "10px",
+                      border: "1px solid rgba(255, 255, 255, 0.1)", background: "var(--input-bg)",
+                      color: "var(--text-main)", outline: "none", transition: "all 0.2s ease"
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = "var(--primary-color)";
                       e.target.style.background = "rgba(255, 255, 255, 0.06)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                      e.target.style.background = "var(--input-bg)";
                     }}
                   />
-                )}
-              </div>
-            ))}
-            
-            {selectedPackage?.requires_quantity && (
-              <div className="form-group" style={{ marginBottom: "0px", marginTop: "4px" }}>
-                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                  الكمية (الحد الأدنى {selectedPackage.min_quantity || 1}{selectedPackage.max_quantity > 0 ? `، الحد الأقصى ${selectedPackage.max_quantity}` : ''}):
-                </label>
-                <input
-                  type="number"
-                  min={selectedPackage.min_quantity || 1}
-                  max={selectedPackage.max_quantity > 0 ? selectedPackage.max_quantity : undefined}
-                  value={customQuantity}
-                  onChange={(e) => {
-                    const val = e.target.value === "" ? "" : parseInt(e.target.value);
-                    setCustomQuantity(val);
-                  }}
-                  onBlur={() => {
-                    const min = selectedPackage.min_quantity || 1;
-                    const max = selectedPackage.max_quantity || 0;
-                    if (!customQuantity || customQuantity < min) setCustomQuantity(min);
-                    else if (max > 0 && customQuantity > max) setCustomQuantity(max);
-                  }}
-                  style={{
-                    width: "100%", padding: "12px 14px", fontSize: "0.9rem", borderRadius: "10px",
-                    border: "1px solid rgba(255, 255, 255, 0.1)", background: "var(--input-bg)",
-                    color: "var(--text-main)", outline: "none", transition: "all 0.2s ease"
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "var(--primary-color)";
-                    e.target.style.background = "rgba(255, 255, 255, 0.06)";
-                  }}
-                />
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Step 2: Payment Method */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
+          <div className="glass-panel" style={{
+            background: "rgba(255, 255, 255, 0.01)",
+            padding: "20px",
+            borderRadius: "16px",
             border: "1px solid rgba(255,255,255,0.06)",
             display: "flex",
             flexDirection: "column",
@@ -1020,32 +1086,32 @@ export default function ServiceDetail({ params }) {
             </div>
 
             <div style={{ display: "grid", gap: "10px", marginTop: "4px" }}>
-              <label style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "12px", 
-                cursor: isCustomerLoggedIn ? "pointer" : "not-allowed", 
-                padding: "14px 16px", 
-                borderRadius: "12px", 
-                border: paymentMethod === "wallet" ? "2px solid #22c55e" : "1px solid rgba(255, 255, 255, 0.08)", 
-                background: paymentMethod === "wallet" ? "rgba(34, 197, 94, 0.06)" : "rgba(255, 255, 255, 0.02)", 
+              <label style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                cursor: isCustomerLoggedIn ? "pointer" : "not-allowed",
+                padding: "14px 16px",
+                borderRadius: "12px",
+                border: paymentMethod === "wallet" ? "2px solid #22c55e" : "1px solid rgba(255, 255, 255, 0.08)",
+                background: paymentMethod === "wallet" ? "rgba(34, 197, 94, 0.06)" : "rgba(255, 255, 255, 0.02)",
                 opacity: isCustomerLoggedIn ? 1 : 0.6,
                 transition: "all 0.2s ease"
               }}>
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
-                  value="wallet" 
-                  checked={paymentMethod === "wallet"} 
-                  onChange={() => setPaymentMethod("wallet")} 
-                  disabled={!isCustomerLoggedIn} 
-                  style={{ width: "18px", height: "18px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed" }} 
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="wallet"
+                  checked={paymentMethod === "wallet"}
+                  onChange={() => setPaymentMethod("wallet")}
+                  disabled={!isCustomerLoggedIn}
+                  style={{ width: "18px", height: "18px", cursor: isCustomerLoggedIn ? "pointer" : "not-allowed" }}
                 />
                 <div style={{ flexGrow: 1 }}>
                   <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💳 دفع عبر محفظة الموقع الرقمية</strong>
                   <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
-                    {isCustomerLoggedIn 
-                      ? `سيتم خصم القيمة من رصيدك تلقائياً. رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}` 
+                    {isCustomerLoggedIn
+                      ? `سيتم خصم القيمة من رصيدك تلقائياً. رصيدك الحالي: ${Number(customerUser?.balance || 0).toFixed(2)} ${baseCurrency}`
                       : "يرجى تسجيل الدخول أولاً لتتمكن من استخدام المحفظة."}
                   </span>
                 </div>
@@ -1054,24 +1120,24 @@ export default function ServiceDetail({ params }) {
               {!hideManualTransfersSetting && paymentMethods.map((pm) => {
                 const isSelected = paymentMethod === pm.id;
                 return (
-                  <label key={pm.id} style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "12px", 
-                    cursor: "pointer", 
-                    padding: "14px 16px", 
-                    borderRadius: "12px", 
-                    border: isSelected ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)", 
+                  <label key={pm.id} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    cursor: "pointer",
+                    padding: "14px 16px",
+                    borderRadius: "12px",
+                    border: isSelected ? "2px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.08)",
                     background: isSelected ? "rgba(59, 130, 246, 0.06)" : "rgba(255, 255, 255, 0.02)",
                     transition: "all 0.2s ease"
                   }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value={pm.id} 
-                      checked={isSelected} 
-                      onChange={() => setPaymentMethod(pm.id)} 
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }} 
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={pm.id}
+                      checked={isSelected}
+                      onChange={() => setPaymentMethod(pm.id)}
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <div style={{ flexGrow: 1 }}>
                       <strong style={{ color: "var(--text-main)", fontSize: "0.95rem", display: "block" }}>💸 تحويل يدوي مباشر: {pm.name}</strong>
@@ -1090,18 +1156,18 @@ export default function ServiceDetail({ params }) {
                 if (!currentPM) return null;
                 return (
                   <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "14px" }}>
-                    
+
                     {/* Clipboard copy box */}
-                    <div style={{ 
-                      padding: "12px 16px", 
-                      borderRadius: "10px", 
-                      background: "rgba(59, 130, 246, 0.05)", 
-                      border: "1px solid rgba(59, 130, 246, 0.2)", 
-                      color: "#38bdf8", 
-                      fontSize: "0.88rem", 
-                      display: "flex", 
-                      justifyContent: "space-between", 
-                      alignItems: "center", 
+                    <div style={{
+                      padding: "12px 16px",
+                      borderRadius: "10px",
+                      background: "rgba(59, 130, 246, 0.05)",
+                      border: "1px solid rgba(59, 130, 246, 0.2)",
+                      color: "#38bdf8",
+                      fontSize: "0.88rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                       gap: "12px",
                       flexWrap: "wrap"
                     }}>
@@ -1191,7 +1257,7 @@ export default function ServiceDetail({ params }) {
                         required
                       />
                     </div>
-                    
+
                     <div className="form-group" style={{ marginBottom: "0px" }}>
                       <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "var(--text-muted)", fontSize: "0.85rem" }}>
                         ارفع صورة إيصال التحويل (لقطة شاشة) *إجباري*:
@@ -1214,14 +1280,14 @@ export default function ServiceDetail({ params }) {
                           textAlign: "center",
                           transition: "all 0.2s"
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "var(--primary-color)";
-                          e.currentTarget.style.background = "rgba(59, 130, 246, 0.05)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
-                        }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "var(--primary-color)";
+                            e.currentTarget.style.background = "rgba(59, 130, 246, 0.05)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
+                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+                          }}
                         >
                           <span>📁 {receiptImage ? "✓ تغيير صورة الإيصال" : "اختر صورة إيصال التحويل أو اسحبها هنا"}</span>
                         </label>
@@ -1257,12 +1323,12 @@ export default function ServiceDetail({ params }) {
 
         {/* Side section: Col 2 */}
         <div className="checkout-side-section" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
+
           {/* Summary Box */}
-          <div className="glass-panel" style={{ 
-            background: "rgba(255, 255, 255, 0.01)", 
-            padding: "20px", 
-            borderRadius: "16px", 
+          <div className="glass-panel" style={{
+            background: "rgba(255, 255, 255, 0.01)",
+            padding: "20px",
+            borderRadius: "16px",
             border: "1px solid rgba(255,255,255,0.06)",
             display: "flex",
             flexDirection: "column",
@@ -1271,7 +1337,7 @@ export default function ServiceDetail({ params }) {
             <h3 style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "var(--text-main)", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "10px" }}>
               📋 ملخص الطلب
             </h3>
-            
+
             <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed rgba(255, 255, 255, 0.08)", paddingBottom: "8px", fontSize: "0.9rem" }}>
               <span style={{ color: "var(--text-muted)" }}>الخدمة</span>
               <strong style={{ color: "var(--text-main)" }}>{service.name}</strong>
@@ -1358,10 +1424,10 @@ export default function ServiceDetail({ params }) {
           <button
             type="submit"
             disabled={submitting}
-            style={{ 
-              width: "100%", 
-              padding: "16px", 
-              fontSize: "1.05rem", 
+            style={{
+              width: "100%",
+              padding: "16px",
+              fontSize: "1.05rem",
               fontWeight: "bold",
               borderRadius: "12px",
               display: "flex",
@@ -1425,19 +1491,19 @@ export default function ServiceDetail({ params }) {
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
       `}</style>
-      
+
       {step === 1 ? (
         <div className="service-details-layout" style={{ gridTemplateColumns: "1fr" }}>
           <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            
+
             {isCustomerLoggedIn && customerUser && (
-              <div style={{ 
-                background: "rgba(59, 130, 246, 0.08)", 
-                border: "1px solid rgba(59, 130, 246, 0.2)", 
-                padding: "12px 18px", 
-                borderRadius: "14px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "rgba(59, 130, 246, 0.08)",
+                border: "1px solid rgba(59, 130, 246, 0.2)",
+                padding: "12px 18px",
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
                 gap: "10px",
                 fontSize: "0.95rem",
                 color: "#38bdf8",
@@ -1469,17 +1535,17 @@ export default function ServiceDetail({ params }) {
             {service.download_link && (
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px", flexWrap: "wrap" }}>
                 <span style={{ color: "var(--text-muted)", fontSize: "0.88rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة:</span>
-                <a 
-                  href={service.download_link} 
-                  target="_blank" 
+                <a
+                  href={service.download_link}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  style={{ 
-                    display: "inline-flex", 
-                    alignItems: "center", 
-                    gap: "6px", 
-                    background: "rgba(56, 189, 248, 0.1)", 
-                    padding: "6px 14px", 
-                    borderRadius: "8px", 
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(56, 189, 248, 0.1)",
+                    padding: "6px 14px",
+                    borderRadius: "8px",
                     border: "1px solid rgba(56, 189, 248, 0.25)",
                     color: "#38bdf8",
                     fontWeight: "bold",
@@ -1504,10 +1570,10 @@ export default function ServiceDetail({ params }) {
             <div>
               {service.price_type === "both" ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                  
-                  <div 
+
+                  <div
                     onClick={() => setCustomerPricingMode("packages")}
-                    style={{ 
+                    style={{
                       border: customerPricingMode === "packages" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
                       borderRadius: "16px",
                       padding: "20px 16px 16px 16px",
@@ -1517,20 +1583,20 @@ export default function ServiceDetail({ params }) {
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                      <input 
-                        type="radio" 
-                        name="pricing_mode_selector" 
-                        checked={customerPricingMode === "packages"} 
-                        onChange={() => setCustomerPricingMode("packages")} 
+                      <input
+                        type="radio"
+                        name="pricing_mode_selector"
+                        checked={customerPricingMode === "packages"}
+                        onChange={() => setCustomerPricingMode("packages")}
                         style={{ width: "18px", height: "18px", cursor: "pointer" }}
                       />
                       <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "packages" ? "#3b82f6" : "var(--text-main)" }}>
                         📦 الخيار الأول: اختر باقة شحن جاهزة
                       </strong>
                     </div>
-                    
-                    <div style={{ 
-                      opacity: customerPricingMode === "packages" ? 1 : 0.6, 
+
+                    <div style={{
+                      opacity: customerPricingMode === "packages" ? 1 : 0.6,
                       pointerEvents: customerPricingMode === "packages" ? "auto" : "none",
                       transition: "opacity 0.2s"
                     }}>
@@ -1538,9 +1604,9 @@ export default function ServiceDetail({ params }) {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setCustomerPricingMode("dynamic")}
-                    style={{ 
+                    style={{
                       border: customerPricingMode === "dynamic" ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.08)",
                       borderRadius: "16px",
                       padding: "20px 16px 16px 16px",
@@ -1550,20 +1616,20 @@ export default function ServiceDetail({ params }) {
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                      <input 
-                        type="radio" 
-                        name="pricing_mode_selector" 
-                        checked={customerPricingMode === "dynamic"} 
-                        onChange={() => setCustomerPricingMode("dynamic")} 
+                      <input
+                        type="radio"
+                        name="pricing_mode_selector"
+                        checked={customerPricingMode === "dynamic"}
+                        onChange={() => setCustomerPricingMode("dynamic")}
                         style={{ width: "18px", height: "18px", cursor: "pointer" }}
                       />
                       <strong style={{ fontSize: "1.05rem", color: customerPricingMode === "dynamic" ? "#3b82f6" : "var(--text-main)" }}>
                         ⚡ الخيار الثاني: الشحن بالكمية المخصصة (حسب الطلب)
                       </strong>
                     </div>
-                    
-                    <div style={{ 
-                      opacity: customerPricingMode === "dynamic" ? 1 : 0.6, 
+
+                    <div style={{
+                      opacity: customerPricingMode === "dynamic" ? 1 : 0.6,
                       transition: "opacity 0.2s"
                     }}>
                       {customQuantitySection}
@@ -1648,13 +1714,13 @@ export default function ServiceDetail({ params }) {
       {/* Success Modal */}
       {successData && (
         <div className="overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, padding: "20px", backdropFilter: "blur(8px)" }}>
-          <div className="modal-content" style={{ 
-            textAlign: "center", 
-            padding: "30px clamp(12px, 5vw, 24px)", 
-            width: "95%", 
-            maxWidth: "650px", 
-            borderRadius: "30px", 
-            maxHeight: "90vh", 
+          <div className="modal-content" style={{
+            textAlign: "center",
+            padding: "30px clamp(12px, 5vw, 24px)",
+            width: "95%",
+            maxWidth: "650px",
+            borderRadius: "30px",
+            maxHeight: "90vh",
             overflowY: "auto",
             background: "rgba(15, 23, 42, 0.95)",
             border: "1px solid rgba(255,255,255,0.12)",
@@ -1664,17 +1730,17 @@ export default function ServiceDetail({ params }) {
             <div className="success-ring-pulse">
               <span style={{ fontSize: "3rem", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>✓</span>
             </div>
-            
+
             <h2 style={{ fontWeight: 800, fontSize: "1.8rem", color: "#ffffff", marginBottom: "10px" }}>تم استلام طلبك بنجاح!</h2>
             <p style={{ margin: "0 auto 30px auto", maxWidth: "480px", lineHeight: "1.6", color: "#94a3b8", fontSize: "0.95rem" }}>
               شكراً لثقتك بـ <strong style={{ color: "#38bdf8" }}>عرب تك</strong>. تم استلام وتسجيل طلب الخدمة الخاص بك وهو الآن قيد التنفيذ التلقائي الفوري.
             </p>
-            
-            <div style={{ 
-              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8))", 
-              border: "1px solid rgba(255,255,255,0.06)", 
-              padding: "24px", 
-              borderRadius: "20px", 
+
+            <div style={{
+              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8))",
+              border: "1px solid rgba(255,255,255,0.06)",
+              padding: "24px",
+              borderRadius: "20px",
               textAlign: "right",
               marginBottom: "24px",
               boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)"
@@ -1683,11 +1749,11 @@ export default function ServiceDetail({ params }) {
                 <span style={{ fontSize: "1.2rem" }}>📄</span>
                 <strong style={{ color: "#e2e8f0", fontSize: "1.05rem" }}>تفاصيل فاتورة الخدمة</strong>
               </div>
-              
-              <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
-                gap: "14px 20px" 
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "14px 20px"
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                   <span style={{ color: "#94a3b8" }}>رقم الطلب:</span>
@@ -1701,16 +1767,16 @@ export default function ServiceDetail({ params }) {
                   <span style={{ color: "#94a3b8" }}>الباقة / الكمية:</span>
                   <strong style={{ color: "#f1f5f9" }}>{successData.package_name}</strong>
                 </div>
-                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
-                   <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
-                   <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
-                     {baseCurrency === 'USD' || baseCurrency === 'USDT'
-                       ? `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`
-                       : (service.category_currency === 'USD' || service.category_currency === 'USDT' 
-                           ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}` 
-                           : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
-                   </strong>
-                 </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
+                  <span style={{ color: "#94a3b8" }}>القيمة المستحقة:</span>
+                  <strong style={{ color: "#4ade80", fontSize: "1.05rem" }}>
+                    {baseCurrency === 'USD' || baseCurrency === 'USDT'
+                      ? `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`
+                      : (service.category_currency === 'USD' || service.category_currency === 'USDT'
+                        ? `$ ${Number((successData.package_price) / (Number(exchangeRates?.["USD"] || 50))).toFixed(2)}`
+                        : `${Number(successData.package_price).toFixed(2)} ${baseCurrency}`)}
+                  </strong>
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px", gridColumn: "1 / -1" }}>
                   <span style={{ color: "#94a3b8" }}>حساب الخدمة (Player ID):</span>
                   <strong style={{ color: "#22d3ee", direction: "ltr", display: "inline-block", letterSpacing: "0.5px" }}>{successData.player_id}</strong>
@@ -1725,9 +1791,9 @@ export default function ServiceDetail({ params }) {
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px", gridColumn: "1 / -1", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "12px", textAlign: "right" }}>
                     <span style={{ color: "#94a3b8" }}>صورة إيصال التحويل المرفقة:</span>
                     <div style={{ marginTop: "4px" }}>
-                      <img 
-                        src={`${API_BASE_URL}${successData.receipt_image}`} 
-                        alt="Receipt Screenshot" 
+                      <img
+                        src={`${API_BASE_URL}${successData.receipt_image}`}
+                        alt="Receipt Screenshot"
                         style={{ maxWidth: "150px", maxHeight: "150px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
                         onClick={() => window.open(`${API_BASE_URL}${successData.receipt_image}`, '_self')}
                         title="انقر لفتح الصورة في نفس الصفحة"
@@ -1738,7 +1804,7 @@ export default function ServiceDetail({ params }) {
                 {typeof successData.customer_balance === "number" && (
                   <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
                     <span style={{ color: "#94a3b8" }}>الرصيد المتبقي:</span>
-                     <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} {baseCurrency}</strong>
+                    <strong style={{ color: "#86efac" }}>{successData.customer_balance.toFixed(2)} {baseCurrency}</strong>
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "8px" }}>
@@ -1748,11 +1814,11 @@ export default function ServiceDetail({ params }) {
               </div>
 
               {/* Payment Method Details inside Receipt */}
-              <div style={{ 
-                marginTop: "20px", 
-                padding: "12px 16px", 
-                borderRadius: "12px", 
-                background: "rgba(255,255,255,0.03)", 
+              <div style={{
+                marginTop: "20px",
+                padding: "12px 16px",
+                borderRadius: "12px",
+                background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.05)",
                 display: "flex",
                 flexDirection: "column",

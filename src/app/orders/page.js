@@ -93,7 +93,7 @@ export default function OrdersHistory() {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [hydrated, token, customerUserStr]);
 
   const handleTrackSingleOrder = async (e) => {
@@ -146,12 +146,12 @@ export default function OrdersHistory() {
   const getSpeedUpWhatsAppUrl = (phoneNum, orderObj, customerName = "") => {
     const custName = customerName || orderObj.customer_username || (orderObj.phone ? `زائر (${orderObj.phone})` : "عميل");
     const text = `🟢 *طلب تسريع خدمة (عرب تك)* ⚡\n\n` +
-                 `▫️ *رقم الطلب:* #${orderObj.id}\n` +
-                 `▫️ *اسم العميل:* ${custName}\n` +
-                 `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
-                 (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
-                 (orderObj.player_id ? `▫️ *معرف الحساب / ID:* ${orderObj.player_id}\n` : "") +
-                 `\nأرجو تسريع معالجة هذا الطلب في أسرع وقت ممكن، وشكراً لكم. 🙏`;
+      `▫️ *رقم الطلب:* #${orderObj.id}\n` +
+      `▫️ *اسم العميل:* ${custName}\n` +
+      `▫️ *الخدمة:* ${orderObj.service_name || "خدمة"}\n` +
+      (orderObj.package_name ? `▫️ *الباقة:* ${orderObj.package_name}\n` : "") +
+      (orderObj.player_id ? `▫️ *معرف الحساب / ID:* ${orderObj.player_id}\n` : "") +
+      `\nأرجو تسريع معالجة هذا الطلب في أسرع وقت ممكن، وشكراً لكم. 🙏`;
     return `https://wa.me/${phoneNum}?text=${encodeURIComponent(text)}`;
   };
 
@@ -169,7 +169,7 @@ export default function OrdersHistory() {
     if (order.custom_fields) {
       try {
         customFieldsMap = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Ensure player_id value is always rendered
@@ -179,7 +179,7 @@ export default function OrdersHistory() {
 
     return Object.entries(customFieldsMap).map(([key, value]) => {
       if (value === null || value === undefined || String(value).trim() === '') return null;
-      
+
       const field = fieldsConfig.find(f => (f.name || f.id || "").toLowerCase().trim() === key.toLowerCase().trim());
       let label = field?.label || key;
       if (label === 'player_id' || label === 'playerID' || label === 'PlayerID') {
@@ -210,7 +210,7 @@ export default function OrdersHistory() {
     if (order.custom_fields) {
       try {
         customFieldsMap = typeof order.custom_fields === 'string' ? JSON.parse(order.custom_fields) : order.custom_fields;
-      } catch (e) {}
+      } catch (e) { }
     }
 
     if (order.player_id && !customFieldsMap.player_id && !customFieldsMap.PlayerID) {
@@ -219,7 +219,7 @@ export default function OrdersHistory() {
 
     return Object.entries(customFieldsMap).map(([key, value]) => {
       if (value === null || value === undefined || String(value).trim() === '') return null;
-      
+
       const field = fieldsConfig.find(f => (f.name || f.id || "").toLowerCase().trim() === key.toLowerCase().trim());
       let label = field?.label || key;
       if (label === 'player_id' || label === 'playerID' || label === 'PlayerID') {
@@ -247,7 +247,7 @@ export default function OrdersHistory() {
           /* Logged In: Show purchase history */
           <div>
             <h2 className="section-title">مشترياتي وطلباتي السابقة</h2>
-            
+
             {loading ? (
               <div style={{ textAlign: "center", padding: "40px", fontWeight: "bold" }}>جاري تحميل طلباتك...</div>
             ) : orders.length === 0 ? (
@@ -281,29 +281,29 @@ export default function OrdersHistory() {
                       {order.code && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
                           <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
-                          <div style={{ 
-                            display: "flex", 
-                            alignItems: "center", 
-                            justifyContent: "space-between", 
-                            gap: "12px", 
-                            background: "rgba(10, 12, 26, 0.4)", 
-                            padding: "10px 14px", 
-                            borderRadius: "10px", 
-                            border: "1px solid rgba(255, 255, 255, 0.06)" 
+                          <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "12px",
+                            background: "rgba(10, 12, 26, 0.4)",
+                            padding: "10px 14px",
+                            borderRadius: "10px",
+                            border: "1px solid rgba(255, 255, 255, 0.06)"
                           }}>
-                            <span style={{ 
-                              fontFamily: "monospace", 
-                              fontWeight: "bold", 
-                              fontSize: "1.1rem", 
-                              color: "#ffffff", 
-                              whiteSpace: "pre-wrap", 
+                            <span style={{
+                              fontFamily: "monospace",
+                              fontWeight: "bold",
+                              fontSize: "1.1rem",
+                              color: "#ffffff",
+                              whiteSpace: "pre-wrap",
                               wordBreak: "break-all",
                               direction: "ltr",
                               textAlign: "left"
                             }}>
                               {order.code}
                             </span>
-                            <button 
+                            <button
                               onClick={() => {
                                 navigator.clipboard.writeText(order.code);
                                 alert("تم نسخ الكود بنجاح! 📋");
@@ -336,18 +336,18 @@ export default function OrdersHistory() {
                       {order.download_link && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px", maxWidth: "400px" }}>
                           <span style={{ color: "#38bdf8", fontSize: "0.85rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة / التطبيق:</span>
-                          <a 
-                            href={order.download_link} 
-                            target="_blank" 
+                          <a
+                            href={order.download_link}
+                            target="_blank"
                             rel="noopener noreferrer"
-                            style={{ 
-                              display: "inline-flex", 
-                              alignItems: "center", 
-                              justifyContent: "center", 
-                              gap: "8px", 
-                              background: "rgba(56, 189, 248, 0.1)", 
-                              padding: "12px 18px", 
-                              borderRadius: "12px", 
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "8px",
+                              background: "rgba(56, 189, 248, 0.1)",
+                              padding: "12px 18px",
+                              borderRadius: "12px",
                               border: "1px solid rgba(56, 189, 248, 0.25)",
                               color: "#38bdf8",
                               fontWeight: "bold",
@@ -405,7 +405,7 @@ export default function OrdersHistory() {
         ) : (
           /* Guest: Search by ID & Phone form */
           <div className="orders-layout">
-            
+
             {/* Form Column */}
             <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <div>
@@ -467,7 +467,7 @@ export default function OrdersHistory() {
                   <div style={{ textAlign: "center" }}>
                     <span style={{ fontSize: "3rem" }}>📦</span>
                     <h3 style={{ fontWeight: 900, marginTop: "10px", color: "#ffffff" }}>تفاصيل الطلب #{singleOrder.id}</h3>
-                    
+
                     <div style={{ display: "inline-block", marginTop: "10px" }}>
                       <span className={`badge badge-${singleOrder.status}`} style={{ fontSize: "0.9rem", padding: "6px 16px" }}>
                         {singleOrder.status === "pending" && "طلبك قيد الانتظار"}
@@ -501,29 +501,29 @@ export default function OrdersHistory() {
                     {singleOrder.code && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
                         <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: "bold" }}>🔑 كود التفعيل / رسالة الخدمة:</span>
-                        <div style={{ 
-                          display: "flex", 
-                          alignItems: "center", 
-                          justifyContent: "space-between", 
-                          gap: "12px", 
-                          background: "rgba(10, 12, 26, 0.4)", 
-                          padding: "10px 14px", 
-                          borderRadius: "10px", 
-                          border: "1px solid rgba(255, 255, 255, 0.06)" 
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "12px",
+                          background: "rgba(10, 12, 26, 0.4)",
+                          padding: "10px 14px",
+                          borderRadius: "10px",
+                          border: "1px solid rgba(255, 255, 255, 0.06)"
                         }}>
-                          <span style={{ 
-                            fontFamily: "monospace", 
-                            fontWeight: "bold", 
-                            fontSize: "1.1rem", 
-                            color: "#ffffff", 
-                            whiteSpace: "pre-wrap", 
+                          <span style={{
+                            fontFamily: "monospace",
+                            fontWeight: "bold",
+                            fontSize: "1.1rem",
+                            color: "#ffffff",
+                            whiteSpace: "pre-wrap",
                             wordBreak: "break-all",
                             direction: "ltr",
                             textAlign: "left"
                           }}>
                             {singleOrder.code}
                           </span>
-                          <button 
+                          <button
                             onClick={() => {
                               navigator.clipboard.writeText(singleOrder.code);
                               alert("تم نسخ الكود بنجاح! 📋");
@@ -556,18 +556,18 @@ export default function OrdersHistory() {
                     {singleOrder.download_link && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
                         <span style={{ color: "#38bdf8", fontSize: "0.85rem", fontWeight: "bold" }}>📥 رابط تحميل الأداة / التطبيق:</span>
-                        <a 
-                          href={singleOrder.download_link} 
-                          target="_blank" 
+                        <a
+                          href={singleOrder.download_link}
+                          target="_blank"
                           rel="noopener noreferrer"
-                          style={{ 
-                            display: "inline-flex", 
-                            alignItems: "center", 
-                            justifyContent: "center", 
-                            gap: "8px", 
-                            background: "rgba(56, 189, 248, 0.1)", 
-                            padding: "12px 18px", 
-                            borderRadius: "12px", 
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                            background: "rgba(56, 189, 248, 0.1)",
+                            padding: "12px 18px",
+                            borderRadius: "12px",
                             border: "1px solid rgba(56, 189, 248, 0.25)",
                             color: "#38bdf8",
                             fontWeight: "bold",

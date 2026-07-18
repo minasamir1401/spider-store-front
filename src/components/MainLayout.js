@@ -8,12 +8,12 @@ import { API_BASE_URL } from "@/config";
 export default function MainLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
   const [logoFailed, setLogoFailed] = useState(false);
-  
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
       .then(res => res.ok ? res.json() : null)
@@ -38,17 +38,17 @@ export default function MainLayout({ children }) {
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     // Theme
     const savedTheme = document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
-    
+
     // Auth
     setIsCustomerLoggedIn(Boolean(localStorage.getItem("customer_token") && localStorage.getItem("customer_user")));
     try {
       const userStr = localStorage.getItem("customer_user");
       setCustomerUser(userStr ? JSON.parse(userStr) : null);
-    } catch {}
+    } catch { }
 
     // PWA
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
@@ -97,7 +97,7 @@ export default function MainLayout({ children }) {
   const fetchProfile = () => {
     const token = localStorage.getItem("customer_token");
     const userStr = localStorage.getItem("customer_user");
-    
+
     if (token && userStr) {
       fetch(`${API_BASE_URL}/api/customer/me`, {
         headers: {
@@ -117,7 +117,7 @@ export default function MainLayout({ children }) {
             localStorage.setItem("customer_user", JSON.stringify(profile));
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   };
 
@@ -130,12 +130,12 @@ export default function MainLayout({ children }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Check if already running in standalone PWA mode
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-        || window.navigator.standalone 
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone
         || document.referrer.includes('android-app://');
-      
+
       const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
-      
+
     }
 
     const handleBeforeInstallPrompt = (e) => {
@@ -162,7 +162,7 @@ export default function MainLayout({ children }) {
     if (!user) return null;
     const baseCurr = "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
-    
+
     const availableCurrencies = [baseCurr];
 
     const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
@@ -233,8 +233,7 @@ export default function MainLayout({ children }) {
     { href: "/", label: "الرئيسية", icon: "🏠" },
     { href: "/services", label: "الخدمات", icon: "🛒" },
     { href: "/orders", label: "طلباتي", icon: "📦" },
-    { href: "/wallet", label: "المحفظة", icon: "💳" },
-    { href: "/membership", label: "العضوية", icon: "⭐" }
+    { href: "/wallet", label: "المحفظة", icon: "💳" }
   ];
 
   const isActive = (href) => {
@@ -261,6 +260,43 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="app-layout">
+      {/* Premium Video Background */}
+      <div className="video-background-container" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: -3,
+        overflow: 'hidden',
+        background: 'var(--bg-color)'
+      }}>
+        {theme === "dark" && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 0.15,
+              filter: 'blur(4px) saturate(150%) hue-rotate(20deg)'
+            }}
+          >
+            {/* Generic tech abstract video loop */}
+            <source src="https://cdn.pixabay.com/video/2020/05/24/40061-424694769_large.mp4" type="video/mp4" />
+          </video>
+        )}
+      </div>
+
+      {/* Abstract Animated Shapes — 4 colorful orbs */}
+      <div className="animated-shape shape-1"></div>
+      <div className="animated-shape shape-2"></div>
+      <div className="animated-shape shape-3"></div>
+      <div className="animated-shape shape-4"></div>
+
       {isMounted && !isUnlocked && (
         <div style={{
           position: "fixed",
@@ -289,11 +325,11 @@ export default function MainLayout({ children }) {
       <aside className="app-sidebar">
         <div className="sidebar-logo-section" style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
           {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
-            <img 
-              src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
-              alt={settings.site_name} 
+            <img
+              src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
+              alt={settings.site_name}
               onError={() => setLogoFailed(true)}
-              style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover" }} 
+              style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover" }}
             />
           ) : (
             <div className="logo-circle" style={{ width: "44px", height: "44px", borderRadius: "12px" }}>
@@ -308,8 +344,8 @@ export default function MainLayout({ children }) {
 
         <nav style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "10px", flexGrow: 1 }}>
           {navLinks.map((link) => (
-            <Link 
-              key={link.href} 
+            <Link
+              key={link.href}
               href={link.href}
               className={`sidebar-nav-item ${isActive(link.href) ? "active" : ""}`}
             >
@@ -317,8 +353,8 @@ export default function MainLayout({ children }) {
               <span>{link.label}</span>
             </Link>
           ))}
-          
-          <button 
+
+          <button
             type="button"
             onClick={() => setSupportModalOpen(true)}
             className="sidebar-nav-item"
@@ -338,7 +374,7 @@ export default function MainLayout({ children }) {
               <span style={{ fontSize: "1.1rem" }}>{theme === "dark" ? "🌙" : "☀️"}</span>
               <span>المظهر الليلي</span>
             </span>
-            <button 
+            <button
               onClick={toggleTheme}
               style={{
                 background: theme === "dark" ? "var(--primary-color)" : "rgba(0, 0, 0, 0.15)",
@@ -378,7 +414,7 @@ export default function MainLayout({ children }) {
                   {renderBalanceDropdownAndValue(customerUser)}
                 </div>
               </div>
-              <button 
+              <button
                 onClick={handleCustomerLogout}
                 className="glass-btn"
                 style={{ width: "100%", padding: "10px", borderRadius: "12px", color: "var(--danger-color)", fontWeight: "bold" }}
@@ -388,8 +424,8 @@ export default function MainLayout({ children }) {
               </button>
             </div>
           ) : (
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="glass-btn glass-btn-primary"
               style={{ width: "100%", padding: "12px", borderRadius: "12px", textAlign: "center", display: "block", textDecoration: "none" }}
             >
@@ -409,11 +445,11 @@ export default function MainLayout({ children }) {
         <div className="mobile-drawer-header">
           <span className="mobile-drawer-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
-              <img 
-                src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
-                alt={settings.site_name} 
+              <img
+                src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
+                alt={settings.site_name}
                 onError={() => setLogoFailed(true)}
-                style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} 
+                style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }}
               />
             ) : (
               <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>
@@ -424,7 +460,7 @@ export default function MainLayout({ children }) {
           </span>
           <button className="mobile-drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
         </div>
-        
+
         {isCustomerLoggedIn && customerUser ? (
           <div className="mobile-drawer-user-card" style={{ marginBottom: "10px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
             <div>مرحباً، {customerUser.username}</div>
@@ -438,23 +474,22 @@ export default function MainLayout({ children }) {
             حسابي (تسجيل الدخول)
           </Link>
         )}
-        
+
         <div className="mobile-drawer-divider" />
-        
+
         <Link href="/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🏠 الرئيسية</Link>
         <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🛒 الخدمات المتاحة</Link>
         <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>📦 تتبع الطلبات</Link>
         {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
-        {isCustomerLoggedIn && <Link href="/membership" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>⭐ عضوية الحساب</Link>}
-        <button 
-          type="button" 
-          onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }} 
+        <button
+          type="button"
+          onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }}
           className="mobile-drawer-link"
           style={{ width: "100%", textAlign: "right", border: "none", display: "flex", alignItems: "center" }}
         >
           💬 الدعم الفني
         </button>
-        
+
         <div className="mobile-drawer-divider" />
 
         {/* Font Scale Toggle in Mobile Drawer */}
@@ -464,7 +499,7 @@ export default function MainLayout({ children }) {
             <span>حجم الخط</span>
           </span>
           <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-            <button 
+            <button
               onClick={() => adjustFontScale(-0.05)}
               style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
               title="تصغير الخط"
@@ -472,7 +507,7 @@ export default function MainLayout({ children }) {
             >
               A-
             </button>
-            <button 
+            <button
               onClick={resetFontScale}
               style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
               title="حجم افتراضي"
@@ -480,7 +515,7 @@ export default function MainLayout({ children }) {
             >
               A
             </button>
-            <button 
+            <button
               onClick={() => adjustFontScale(0.05)}
               style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
               title="تكبير الخط"
@@ -497,7 +532,7 @@ export default function MainLayout({ children }) {
             <span style={{ fontSize: "1.1rem" }}>{theme === "dark" ? "🌙" : "☀️"}</span>
             <span>المظهر الليلي</span>
           </span>
-          <button 
+          <button
             onClick={toggleTheme}
             style={{
               background: theme === "dark" ? "var(--primary-color)" : "rgba(0, 0, 0, 0.15)",
@@ -527,7 +562,7 @@ export default function MainLayout({ children }) {
             }} />
           </button>
         </div>
-        
+
         {isCustomerLoggedIn && (
           <>
             <div className="mobile-drawer-divider" />
@@ -551,18 +586,18 @@ export default function MainLayout({ children }) {
               </div>
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <button 
-                onClick={handleInstallClick} 
-                className="glass-btn glass-btn-primary" 
+              <button
+                onClick={handleInstallClick}
+                className="glass-btn glass-btn-primary"
                 style={{ padding: "6px 14px", borderRadius: "8px", fontSize: "0.82rem" }}
               >
                 تثبيت الآن
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setShowInstallBanner(false);
                   localStorage.setItem("pwa_dismissed", "true");
-                }} 
+                }}
                 style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "0 5px", fontSize: "1.1rem" }}
               >
                 ✕
@@ -574,12 +609,12 @@ export default function MainLayout({ children }) {
         {/* Top Navbar (Reference style matching tsmart-one.online) */}
         <header className="custom-navbar">
           <div className="custom-navbar-glow"></div>
-          
+
           {/* Left Section: Burger Button (mobile) / Back Button (mobile subpages) + Logo (mobile) / Page Title (desktop) */}
           <div className="flex items-center gap-3">
             {/* Drawer menu button (shown on mobile, hidden on desktop) */}
-            <button 
-              className="header-btn lg-hidden w-9 h-9" 
+            <button
+              className="header-btn lg-hidden w-9 h-9"
               onClick={() => setMenuOpen(!menuOpen)}
               type="button"
               aria-label="القائمة"
@@ -593,9 +628,9 @@ export default function MainLayout({ children }) {
 
             {/* Back Button (mobile subpages) */}
             {pathname !== "/" && (
-              <button 
-                className="header-btn lg-hidden w-9 h-9" 
-                onClick={() => router.back()} 
+              <button
+                className="header-btn lg-hidden w-9 h-9"
+                onClick={() => router.back()}
                 title="رجوع"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right w-5 h-5">
@@ -607,11 +642,11 @@ export default function MainLayout({ children }) {
             {/* Logo Link (shown on mobile, hidden on desktop) */}
             <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none", minWidth: 0, flex: 1 }}>
               {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
-                <img 
-                  src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} 
-                  alt={settings.site_name} 
+                <img
+                  src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
+                  alt={settings.site_name}
                   onError={() => setLogoFailed(true)}
-                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} 
+                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }}
                 />
               ) : (
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px", flexShrink: 0 }}>
@@ -630,7 +665,7 @@ export default function MainLayout({ children }) {
           {/* Right Section: Theme Toggle + Language Switcher + Notifications + Profile Initials/Login */}
           <div className="flex items-center gap-1" style={{ position: "relative" }}>
             {/* Contact WhatsApp Link */}
-            <a 
+            <a
               href={`https://wa.me/${settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0 ? settings.whatsapp_numbers[0] : "16728972935"}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -654,15 +689,15 @@ export default function MainLayout({ children }) {
             >
               <span className="flex items-center justify-center" style={{ fontSize: "1.1rem" }}>🟢</span>
               <span style={{ direction: "ltr" }}>
-                {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0 
-                  ? `+${settings.whatsapp_numbers[0]}` 
+                {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0
+                  ? `+${settings.whatsapp_numbers[0]}`
                   : "+1 (672) 897-2935"}
               </span>
             </a>
 
             {/* Theme Toggle */}
-            <button 
-              className="header-btn w-9 h-9" 
+            <button
+              className="header-btn w-9 h-9"
               onClick={toggleTheme}
               title={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
               type="button"
@@ -690,31 +725,31 @@ export default function MainLayout({ children }) {
 
             {/* User Profile Menu Trigger — desktop only, mobile uses drawer */}
             <div className="lg-block">
-            {isCustomerLoggedIn && customerUser ? (
-              <button 
-                className="header-user-btn" 
-                type="button" 
-                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                title="الملف الشخصي"
-              >
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
-                  {customerUser.username ? customerUser.username.charAt(0).toLowerCase() : "u"}
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
-              </button>
-            ) : (
-              <button 
-                className="header-user-btn" 
-                type="button" 
-                onClick={() => router.push("/login")}
-                title="تسجيل الدخول"
-              >
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
-                  🔑
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
-              </button>
-            )}
+              {isCustomerLoggedIn && customerUser ? (
+                <button
+                  className="header-user-btn"
+                  type="button"
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  title="الملف الشخصي"
+                >
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
+                    {customerUser.username ? customerUser.username.charAt(0).toLowerCase() : "u"}
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              ) : (
+                <button
+                  className="header-user-btn"
+                  type="button"
+                  onClick={() => router.push("/login")}
+                  title="تسجيل الدخول"
+                >
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
+                    🔑
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              )}
             </div>
 
             {/* Profile Dropdown Menu */}
@@ -732,12 +767,9 @@ export default function MainLayout({ children }) {
                 <Link href="/wallet" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
                   💳 شحن المحفظة
                 </Link>
-                <Link href="/membership" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
-                  ⭐ مستوى العضوية
-                </Link>
-                <button 
+                <button
                   onClick={() => { handleCustomerLogout(); setProfileMenuOpen(false); }}
-                  className="header-dropdown-item" 
+                  className="header-dropdown-item"
                   style={{ color: "var(--danger-color)" }}
                   type="button"
                 >
@@ -746,7 +778,7 @@ export default function MainLayout({ children }) {
               </div>
             )}
           </div>
-          
+
 
         </header>
 
@@ -778,7 +810,7 @@ export default function MainLayout({ children }) {
 
       {/* Support Channels Modal */}
       {supportModalOpen && (
-        <div 
+        <div
           onClick={() => setSupportModalOpen(false)}
           style={{
             position: "fixed",
@@ -794,7 +826,7 @@ export default function MainLayout({ children }) {
             animation: "fadeIn 0.2s ease"
           }}
         >
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             style={{
               background: "rgba(17, 22, 45, 0.95)",
@@ -811,7 +843,7 @@ export default function MainLayout({ children }) {
               <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 900, color: "#ffffff", display: "flex", alignItems: "center", gap: "8px" }}>
                 <span>💬</span> الدعم الفني وتواصل الإدارة
               </h3>
-              <button 
+              <button
                 onClick={() => setSupportModalOpen(false)}
                 style={{
                   background: "rgba(255,255,255,0.05)",
@@ -830,16 +862,16 @@ export default function MainLayout({ children }) {
                 ✕
               </button>
             </div>
-            
+
             <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginTop: 0, marginBottom: "20px", lineHeight: "1.5" }}>
               اختر أحد قنوات الدعم الفني الرسمية للتواصل معنا أو الانضمام إلى مجتمعنا:
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {/* WhatsApp Support 1 */}
-              <a 
-                href="https://wa.me/16728972935" 
-                target="_blank" 
+              <a
+                href="https://wa.me/16728972935"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -864,9 +896,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* WhatsApp Support 2 */}
-              <a 
-                href="https://wa.me/249123667227" 
-                target="_blank" 
+              <a
+                href="https://wa.me/249123667227"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -891,9 +923,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* WhatsApp Community */}
-              <a 
-                href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5" 
-                target="_blank" 
+              <a
+                href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -918,9 +950,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* WhatsApp Channel */}
-              <a 
-                href="https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H" 
-                target="_blank" 
+              <a
+                href="https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -945,9 +977,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* Telegram Channel */}
-              <a 
-                href="https://t.me/ARABTECSUPPURT" 
-                target="_blank" 
+              <a
+                href="https://t.me/ARABTECSUPPURT"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -972,9 +1004,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* Facebook Page */}
-              <a 
-                href="https://www.facebook.com/ARABTECHSERVEROnline" 
-                target="_blank" 
+              <a
+                href="https://www.facebook.com/ARABTECHSERVEROnline"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -999,9 +1031,9 @@ export default function MainLayout({ children }) {
               </a>
 
               {/* TikTok Account */}
-              <a 
-                href="https://tiktok.com/@arabtechsuppurt" 
-                target="_blank" 
+              <a
+                href="https://tiktok.com/@arabtechsuppurt"
+                target="_blank"
                 rel="noopener noreferrer"
                 style={{
                   display: "flex",
@@ -1113,7 +1145,7 @@ const SliderCaptcha = ({ onSuccess }) => {
       </p>
 
       {/* Slider Track */}
-      <div 
+      <div
         ref={trackRef}
         style={{
           position: "relative",
@@ -1129,9 +1161,9 @@ const SliderCaptcha = ({ onSuccess }) => {
         }}
       >
         {/* Background text */}
-        <span style={{ 
-          fontSize: "0.85rem", 
-          color: "#64748b", 
+        <span style={{
+          fontSize: "0.85rem",
+          color: "#64748b",
           pointerEvents: "none",
           zIndex: 1,
           opacity: isSuccess ? 0 : 1,
@@ -1147,15 +1179,15 @@ const SliderCaptcha = ({ onSuccess }) => {
           top: 0,
           bottom: 0,
           width: `${dragX + 25}px`,
-          background: isSuccess 
-            ? "linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.4) 100%)" 
+          background: isSuccess
+            ? "linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.4) 100%)"
             : "linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.3) 100%)",
           transition: isDragging ? "none" : "width 0.3s ease",
           zIndex: 0
         }} />
 
         {/* Handle */}
-        <div 
+        <div
           onMouseDown={handleStart}
           onTouchStart={handleStart}
           style={{
@@ -1169,8 +1201,8 @@ const SliderCaptcha = ({ onSuccess }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: isSuccess 
-              ? "0 0 15px rgba(34, 197, 94, 0.6)" 
+            boxShadow: isSuccess
+              ? "0 0 15px rgba(34, 197, 94, 0.6)"
               : "0 0 15px rgba(79, 70, 229, 0.6)",
             transition: isDragging ? "none" : "left 0.3s ease, background-color 0.3s",
             zIndex: 2,

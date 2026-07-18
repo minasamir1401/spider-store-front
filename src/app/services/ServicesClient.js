@@ -21,20 +21,20 @@ export default function ServicesClient() {
   };
 
   const staticCategories = [
-    { id: 1,  name: "قسم الالعاب",       image: "/uploads/games-section.png",        color: "#6366f1", icon: "gamepad2"     },
-    { id: 2,  name: "تطبيقات اللايف",    image: "/uploads/live-apps.png",            color: "#eab308", icon: "credit-card"  },
-    { id: 3,  name: "بطاقات الكترونية",  image: "/uploads/electronic-cards.png",     color: "#6366f1", icon: "credit-card"  },
-    { id: 4,  name: "الأرصدة والعملات",  image: "/uploads/balances-currencies.png",  color: "#eab308", icon: "credit-card"  },
-    { id: 5,  name: "سوشال ميديا",       image: "/uploads/social-media.png",         color: "#eab308", icon: "credit-card"  },
-    { id: 6,  name: "خدمات السيرفر",     image: "/uploads/server-services.png",      color: "#6366f1", icon: "gamepad2"     },
-    { id: 7,  name: "اشتراكات",          image: "/uploads/subscriptions.png",        color: "#d946ef", icon: "credit-card"  },
-    { id: 8,  name: "الذكاء الاصطناعي",  image: "/uploads/ai-section.png",           color: "#eab308", icon: "credit-card"  },
-    { id: 9,  name: "قسم الارقام",       image: "/uploads/numbers-section.png",      color: "#6366f1", icon: "credit-card"  },
-    { id: 10, name: "البرمجة والتصميم",  image: "/uploads/programming-design.png",   color: "#6366f1", icon: "gamepad2"     },
-    { id: 11, name: "حسابات جاهزة",      image: "/uploads/ready-accounts.png",       color: "#eab308", icon: "credit-card"  },
-    { id: 12, name: "إعلانات ممولة",     image: "/uploads/ads-section.png",          color: "#ec4899", icon: "share2"       },
-    { id: 13, name: "خدمات APPLE",          image: null,                                color: "#a855f7", icon: "credit-card"  },
-    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null,                                color: "#10b981", icon: "credit-card"  },
+    { id: 1, name: "قسم الالعاب", image: "/uploads/games-section.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 2, name: "تطبيقات اللايف", image: "/uploads/live-apps.png", color: "#eab308", icon: "credit-card" },
+    { id: 3, name: "بطاقات الكترونية", image: "/uploads/electronic-cards.png", color: "#6366f1", icon: "credit-card" },
+    { id: 4, name: "الأرصدة والعملات", image: "/uploads/balances-currencies.png", color: "#eab308", icon: "credit-card" },
+    { id: 5, name: "سوشال ميديا", image: "/uploads/social-media.png", color: "#eab308", icon: "credit-card" },
+    { id: 6, name: "خدمات السيرفر", image: "/uploads/server-services.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 7, name: "اشتراكات", image: "/uploads/subscriptions.png", color: "#d946ef", icon: "credit-card" },
+    { id: 8, name: "الذكاء الاصطناعي", image: "/uploads/ai-section.png", color: "#eab308", icon: "credit-card" },
+    { id: 9, name: "قسم الارقام", image: "/uploads/numbers-section.png", color: "#6366f1", icon: "credit-card" },
+    { id: 10, name: "البرمجة والتصميم", image: "/uploads/programming-design.png", color: "#6366f1", icon: "gamepad2" },
+    { id: 11, name: "حسابات جاهزة", image: "/uploads/ready-accounts.png", color: "#eab308", icon: "credit-card" },
+    { id: 12, name: "إعلانات ممولة", image: "/uploads/ads-section.png", color: "#ec4899", icon: "share2" },
+    { id: 13, name: "خدمات APPLE", image: null, color: "#a855f7", icon: "credit-card" },
+    { id: 14, name: "قسم خدمات سيرفر والأدوات", image: null, color: "#10b981", icon: "credit-card" },
   ];
 
   const staticServices = [
@@ -104,7 +104,7 @@ export default function ServicesClient() {
       .then((data) => {
         if (data) setSettings(data);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Fetch categories
     fetch(`${API_BASE_URL}/api/categories`)
@@ -146,7 +146,7 @@ export default function ServicesClient() {
   const getFallbackEmoji = (name = "", image = "") => {
     const lowerName = (name || "").toLowerCase();
     const lowerImg = (image || "").toLowerCase();
-    
+
     if (lowerImg.includes("pubg") || lowerName.includes("pubg") || lowerName.includes("ببجي")) return "🔫";
     if (lowerImg.includes("freefire") || lowerImg.includes("free fire") || lowerName.includes("فري فاير") || lowerName.includes("free fire") || lowerName.includes("freefire")) return "🔥";
     if (lowerImg.includes("bigo") || lowerName.includes("بيجو")) return "💬";
@@ -155,19 +155,19 @@ export default function ServicesClient() {
     if (lowerImg.includes("canva") || lowerName.includes("كانفا")) return "🎨";
     if (lowerImg.includes("netflix") || lowerName.includes("نتفليكس")) return "🎬";
     if (lowerName.includes("ايفون") || lowerName.includes("iphone") || lowerName.includes("ipad") || lowerName.includes("ايباد") || lowerName.includes("bypass") || lowerName.includes("تخط") || lowerName.includes("icloud") || lowerName.includes("ايكلاود") || lowerName.includes("hello") || lowerName.includes("removal") || lowerName.includes("hfz") || lowerName.includes("smd") || lowerName.includes("otix")) return "📱";
-    
+
     return "⚡";
   };
 
   const getServiceIcon = (image, name = "") => {
     if (!image) return getFallbackEmoji(name, image);
     if (image.startsWith("data:image") || image.startsWith("http") || image.includes("uploads")) {
-      const src = image.startsWith("http") || image.startsWith("data:") 
-        ? image 
+      const src = image.startsWith("http") || image.startsWith("data:")
+        ? image
         : (image.startsWith("/") ? `${API_BASE_URL}${image}` : `${API_BASE_URL}/${image}`);
-      return <img 
-        src={src} 
-        alt="Service Icon" 
+      return <img
+        src={src}
+        alt="Service Icon"
         onError={(e) => {
           e.target.style.display = 'none';
           const parent = e.target.parentElement;
@@ -175,7 +175,7 @@ export default function ServicesClient() {
             parent.innerText = getFallbackEmoji(name, image);
           }
         }}
-        style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "8px" }} 
+        style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "8px" }}
       />;
     }
     if (image.includes("pubg")) return "🔫";
@@ -261,23 +261,23 @@ export default function ServicesClient() {
             return (
               <div key={cat.id} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
                 {/* Category Header */}
-                <div style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: "12px", 
-                  paddingBottom: "12px", 
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  paddingBottom: "12px",
                   borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
                   position: "relative"
                 }}>
                   {cat.image && cat.image !== "default" && cat.image !== "null" && (
-                    <div style={{ 
-                      width: "36px", 
-                      height: "36px", 
-                      borderRadius: "10px", 
-                      background: "rgba(255, 255, 255, 0.03)", 
-                      border: "1px solid rgba(255, 255, 255, 0.05)", 
-                      display: "flex", 
-                      alignItems: "center", 
+                    <div style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "10px",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      display: "flex",
+                      alignItems: "center",
                       justifyContent: "center",
                       overflow: "hidden"
                     }}>
@@ -289,14 +289,14 @@ export default function ServicesClient() {
                     </div>
                   )}
                   <h3 className="cat-section-header">{cat.name}</h3>
-                  <span style={{ 
-                    fontSize: "0.75rem", 
-                    color: "#a855f7", 
-                    background: "rgba(168, 85, 247, 0.12)", 
+                  <span style={{
+                    fontSize: "0.75rem",
+                    color: "#a855f7",
+                    background: "rgba(168, 85, 247, 0.12)",
                     border: "1px solid rgba(168, 85, 247, 0.15)",
-                    padding: "2px 8px", 
-                    borderRadius: "10px", 
-                    fontWeight: "700" 
+                    padding: "2px 8px",
+                    borderRadius: "10px",
+                    fontWeight: "700"
                   }}>
                     {catServices.length} {catServices.length === 1 ? "خدمة" : catServices.length === 2 ? "خدمتين" : "خدمات"}
                   </span>
@@ -306,7 +306,7 @@ export default function ServicesClient() {
                 <div className="scc-grid">
                   {catServices.map((service) => {
                     const isCustomImg = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.includes("uploads"));
-                    
+
                     const categoryColors = {
                       1: '#6366f1', // games
                       2: '#eab308', // live apps
@@ -322,7 +322,7 @@ export default function ServicesClient() {
                       12: '#ec4899'  // ads
                     };
                     const catColor = categoryColors[service.category_id] || '#6366f1';
-                    
+
                     const hexToRgb = (hex) => {
                       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                       return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '99, 102, 241';
@@ -330,28 +330,28 @@ export default function ServicesClient() {
                     const catGlow = `rgba(${hexToRgb(catColor)}, 0.35)`;
 
                     const imgSrc = isCustomImg
-                      ? (service.image.startsWith("http") || service.image.startsWith("data:") 
-                          ? service.image 
-                          : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
+                      ? (service.image.startsWith("http") || service.image.startsWith("data:")
+                        ? service.image
+                        : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
                       : null;
 
                     return (
                       <div className="scc-wrap" key={service.id}>
-                        <Link 
-                          href={`/service/${service.id}`} 
-                          className="scc-card" 
-                          dir="ltr" 
+                        <Link
+                          href={`/service/${service.id}`}
+                          className="scc-card"
+                          dir="ltr"
                           style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                         >
                           <div className="scc-side-line"></div>
                           {imgSrc && (
                             <div className="scc-img-ring">
                               <div className="scc-img-inner">
-                                <img 
-                                  src={imgSrc} 
-                                  alt={service.name} 
-                                  loading="lazy" 
-                                  className="scc-img" 
+                                <img
+                                  src={imgSrc}
+                                  alt={service.name}
+                                  loading="lazy"
+                                  className="scc-img"
                                   onError={(e) => {
                                     e.target.style.display = 'none';
                                     const ring = e.target.closest('.scc-img-ring');
@@ -394,36 +394,36 @@ export default function ServicesClient() {
 
           {uncategorizedServices.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              <div style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "12px", 
-                paddingBottom: "12px", 
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                paddingBottom: "12px",
                 borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
                 position: "relative"
               }}>
-                <div style={{ 
-                  width: "36px", 
-                  height: "36px", 
-                  borderRadius: "10px", 
-                  background: "rgba(255, 255, 255, 0.03)", 
-                  border: "1px solid rgba(255, 255, 255, 0.05)", 
-                  display: "flex", 
-                  alignItems: "center", 
+                <div style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10px",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                  display: "flex",
+                  alignItems: "center",
                   justifyContent: "center",
                   overflow: "hidden"
                 }}>
                   <span style={{ fontSize: "1.2rem" }}>⚡</span>
                 </div>
                 <h3 className="cat-section-header">خدمات أخرى</h3>
-                <span style={{ 
-                  fontSize: "0.75rem", 
-                  color: "#cbd5e1", 
-                  background: "rgba(255, 255, 255, 0.05)", 
+                <span style={{
+                  fontSize: "0.75rem",
+                  color: "#cbd5e1",
+                  background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
-                  padding: "2px 8px", 
-                  borderRadius: "10px", 
-                  fontWeight: "700" 
+                  padding: "2px 8px",
+                  borderRadius: "10px",
+                  fontWeight: "700"
                 }}>
                   {uncategorizedServices.length} خدمة
                 </span>
@@ -435,28 +435,28 @@ export default function ServicesClient() {
                   const catColor = '#6366f1';
                   const catGlow = 'rgba(99, 102, 241, 0.35)';
                   const imgSrc = isCustomImg
-                    ? (service.image.startsWith("http") || service.image.startsWith("data:") 
-                        ? service.image 
-                        : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
+                    ? (service.image.startsWith("http") || service.image.startsWith("data:")
+                      ? service.image
+                      : (service.image.startsWith("/") ? `${API_BASE_URL}${service.image}` : `${API_BASE_URL}/${service.image}`))
                     : null;
 
                   return (
                     <div className="scc-wrap" key={service.id}>
-                      <Link 
-                        href={`/service/${service.id}`} 
-                        className="scc-card" 
-                        dir="ltr" 
+                      <Link
+                        href={`/service/${service.id}`}
+                        className="scc-card"
+                        dir="ltr"
                         style={{ '--scc-ac': catColor, '--scc-gl': catGlow }}
                       >
                         <div className="scc-side-line"></div>
                         {imgSrc && (
                           <div className="scc-img-ring">
                             <div className="scc-img-inner">
-                              <img 
-                                src={imgSrc} 
-                                alt={service.name} 
-                                loading="lazy" 
-                                className="scc-img" 
+                              <img
+                                src={imgSrc}
+                                alt={service.name}
+                                loading="lazy"
+                                className="scc-img"
                                 onError={(e) => {
                                   e.target.style.display = 'none';
                                   const ring = e.target.closest('.scc-img-ring');
