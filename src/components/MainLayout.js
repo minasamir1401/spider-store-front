@@ -690,7 +690,7 @@ export default function MainLayout({ children }) {
               }}
             >
               <span className="flex items-center justify-center" style={{ fontSize: "1.1rem" }}>🟢</span>
-              <span style={{ direction: "ltr" }}>
+              <span className="nav-mobile-hidden" style={{ direction: "ltr" }}>
                 {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0
                   ? `+${settings.whatsapp_numbers[0]}`
                   : "+1 (672) 897-2935"}

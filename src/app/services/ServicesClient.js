@@ -264,10 +264,12 @@ export default function ServicesClient() {
                 <div style={{
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: "space-between",
                   gap: "12px",
                   paddingBottom: "12px",
                   borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
-                  position: "relative"
+                  position: "relative",
+                  flexWrap: "wrap"
                 }}>
                   {cat.image && cat.image !== "default" && cat.image !== "null" && (
                     <div style={{
@@ -288,7 +290,7 @@ export default function ServicesClient() {
                       })()}
                     </div>
                   )}
-                  <h3 className="cat-section-header">{cat.name}</h3>
+                  <h3 className="cat-section-header" style={{ flex: "1 1 auto", wordBreak: "break-word", lineHeight: "1.4" }}>{cat.name}</h3>
                   <span style={{
                     fontSize: "0.75rem",
                     color: "#a855f7",
@@ -420,10 +422,12 @@ export default function ServicesClient() {
               <div style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 gap: "12px",
                 paddingBottom: "12px",
                 borderBottom: "2px solid rgba(255, 255, 255, 0.05)",
-                position: "relative"
+                position: "relative",
+                flexWrap: "wrap"
               }}>
                 <div style={{
                   width: "36px",
@@ -438,7 +442,7 @@ export default function ServicesClient() {
                 }}>
                   <span style={{ fontSize: "1.2rem" }}>⚡</span>
                 </div>
-                <h3 className="cat-section-header">خدمات أخرى</h3>
+                <h3 className="cat-section-header" style={{ flex: "1 1 auto", wordBreak: "break-word", lineHeight: "1.4" }}>خدمات أخرى</h3>
                 <span style={{
                   fontSize: "0.75rem",
                   color: "#cbd5e1",
