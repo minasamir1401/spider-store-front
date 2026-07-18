@@ -373,6 +373,8 @@ export default function ServicesClient() {
                                     <div key={idx} style={{ 
                                       display: "flex", 
                                       justifyContent: "space-between", 
+                                      alignItems: "center",
+                                      gap: "8px",
                                       fontSize: "0.85rem", 
                                       background: "rgba(255, 255, 255, 0.03)", 
                                       padding: "4px 8px", 
@@ -499,14 +501,18 @@ export default function ServicesClient() {
                                   <div key={idx} style={{ 
                                     display: "flex", 
                                     justifyContent: "space-between", 
+                                    alignItems: "center",
+                                    gap: "8px",
                                     fontSize: "0.85rem", 
                                     background: "rgba(255, 255, 255, 0.03)", 
                                     padding: "4px 8px", 
                                     borderRadius: "6px",
-                                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                                    width: "100%",
+                                    boxSizing: "border-box"
                                   }}>
-                                    <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "70%" }} title={pkg.name}>{pkg.name}</span>
-                                    <span style={{ color: "var(--primary-color)", fontWeight: "bold" }}>${Number(pkg.price).toFixed(2)}</span>
+                                    <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: "1 1 auto", minWidth: 0 }} title={pkg.name}>{pkg.name}</span>
+                                    <span style={{ color: "var(--primary-color)", fontWeight: "bold", flexShrink: 0 }}>${Number(pkg.price).toFixed(2)}</span>
                                   </div>
                                 ))}
                                 {service.packages.length > 3 && (

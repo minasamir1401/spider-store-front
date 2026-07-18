@@ -687,5 +687,7 @@
   .footer-column { min-width: 0; }
   .auth-tab { font-size: 0.85rem; padding: 8px; }
   .scc-grid { grid-template-columns: 1fr; }
+  .scc-card { padding: 10px 12px; gap: 10px; }
+  .scc-img-ring { width: 44px; height: 44px; }
   .cc-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
