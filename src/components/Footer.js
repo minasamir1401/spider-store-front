@@ -60,11 +60,9 @@ export default function Footer() {
             فريق الدعم الفني متواجد لمساعدتكم 24 ساعة طوال أيام الأسبوع لحل أي مشكلة تتعلق بالخدمات أو الدفع.
           </p>
           <div className="footer-links" style={{ marginTop: "5px" }}>
-            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 1</a>
-            <a href="https://wa.me/249123667227" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 2</a>
-            <a href="https://t.me/ARABTECSUPPURT" target="_blank" rel="noopener noreferrer">✈️ تلجرام الدعم</a>
-            <a href="https://tiktok.com/@arabtechsuppurt" target="_blank" rel="noopener noreferrer">🎵 تيك توك عرب تك</a>
-            <a href="mailto:arab.tech.services1@gmail.com">📧 البريد الإلكتروني</a>
+            <a href="https://wa.me/16728972935" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 1 (+1 672-897-2935)</a>
+            <a href="https://wa.me/249123667227" target="_blank" rel="noopener noreferrer">💬 واتساب الإدارة 2 (+249 12 366 7227)</a>
+            <a href="mailto:arab.tech.services1@gmail.com">📧 البريد الإلكتروني (arab.tech.services1@gmail.com)</a>
           </div>
         </div>
       </div>

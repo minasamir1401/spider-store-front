@@ -890,7 +890,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>🟢</span>
-                  <span>واتساب الإدارة 1 (+1 (672) 897-2935)</span>
+                  <span>واتساب الإدارة 1 (+1 672-897-2935)</span>
                 </div>
                 <span style={{ color: "#22d3ee" }}>←</span>
               </a>
@@ -922,20 +922,18 @@ export default function MainLayout({ children }) {
                 <span style={{ color: "#10b981" }}>←</span>
               </a>
 
-              {/* WhatsApp Community */}
+              {/* Email Support */}
               <a
-                href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:arab.tech.services1@gmail.com"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "12px 16px",
-                  background: "rgba(52, 211, 153, 0.08)",
-                  border: "1px solid rgba(52, 211, 153, 0.15)",
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.15)",
                   borderRadius: "14px",
-                  color: "#34d399",
+                  color: "#ef4444",
                   textDecoration: "none",
                   fontWeight: "bold",
                   fontSize: "0.92rem",
@@ -943,118 +941,10 @@ export default function MainLayout({ children }) {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "1.2rem" }}>💬</span>
-                  <span>مجتمع واتساب عرب تك</span>
+                  <span style={{ fontSize: "1.2rem" }}>✉️</span>
+                  <span>البريد الإلكتروني (arab.tech.services1@gmail.com)</span>
                 </div>
-                <span style={{ color: "#34d399" }}>←</span>
-              </a>
-
-              {/* WhatsApp Channel */}
-              <a
-                href="https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 16px",
-                  background: "rgba(52, 211, 153, 0.08)",
-                  border: "1px solid rgba(52, 211, 153, 0.15)",
-                  borderRadius: "14px",
-                  color: "#34d399",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "0.92rem",
-                  transition: "transform 0.2s"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "1.2rem" }}>📢</span>
-                  <span>قناة واتساب عرب تك</span>
-                </div>
-                <span style={{ color: "#34d399" }}>←</span>
-              </a>
-
-              {/* Telegram Channel */}
-              <a
-                href="https://t.me/ARABTECSUPPURT"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 16px",
-                  background: "rgba(96, 165, 250, 0.08)",
-                  border: "1px solid rgba(96, 165, 250, 0.15)",
-                  borderRadius: "14px",
-                  color: "#60a5fa",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "0.92rem",
-                  transition: "transform 0.2s"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "1.2rem" }}>✈️</span>
-                  <span>قناة تلجرام عرب تك</span>
-                </div>
-                <span style={{ color: "#60a5fa" }}>←</span>
-              </a>
-
-              {/* Facebook Page */}
-              <a
-                href="https://www.facebook.com/ARABTECHSERVEROnline"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 16px",
-                  background: "rgba(24, 119, 242, 0.08)",
-                  border: "1px solid rgba(24, 119, 242, 0.15)",
-                  borderRadius: "14px",
-                  color: "#478bfb",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "0.92rem",
-                  transition: "transform 0.2s"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "1.2rem" }}>📘</span>
-                  <span>صفحة فيسبوك عرب تك</span>
-                </div>
-                <span style={{ color: "#478bfb" }}>←</span>
-              </a>
-
-              {/* TikTok Account */}
-              <a
-                href="https://tiktok.com/@arabtechsuppurt"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 16px",
-                  background: "rgba(254, 44, 85, 0.08)",
-                  border: "1px solid rgba(254, 44, 85, 0.15)",
-                  borderRadius: "14px",
-                  color: "#fe2c55",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "0.92rem",
-                  transition: "transform 0.2s"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "1.2rem" }}>🎵</span>
-                  <span>حساب تيك توك عرب تك</span>
-                </div>
-                <span style={{ color: "#fe2c55" }}>←</span>
+                <span style={{ color: "#ef4444" }}>←</span>
               </a>
             </div>
           </div>
