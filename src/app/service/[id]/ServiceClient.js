@@ -264,28 +264,52 @@ export default function ServiceDetail({ params }) {
   ]), []);
 
   const activeFields = useMemo(() => {
-    let combinedFields = [];
+    let rawFields = [];
 
-    // Admin edited service fields take priority
-    if (Array.isArray(serviceFields) && serviceFields.length > 0) {
-      combinedFields = [...serviceFields];
-    }
+    const hasServiceFields = Array.isArray(serviceFields) && serviceFields.length > 0;
+    const hasPackageFields = selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0;
 
-    // Then package-specific fields
-    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
-      combinedFields = [...combinedFields, ...selectedPackage.fields];
-    }
+    if (hasServiceFields && hasPackageFields) {
+      // 1. serviceFields acts as the master config
+      const serviceFieldMap = new Map();
+      for (const sf of serviceFields) {
+        const id = (sf.name || sf.id || "").toLowerCase().trim();
+        if (id) serviceFieldMap.set(id, sf);
+      }
 
-    // Fallback if none of the above are set
-    if (combinedFields.length === 0) {
+      // 2. Filter package fields: keep only if they exist in serviceFields (admin didn't delete them)
+      //    And update their config (label, type, etc) to match serviceFields
+      const merged = [];
+      const packageFieldNames = new Set();
+      
+      for (const pf of selectedPackage.fields) {
+        const id = (pf.name || pf.id || "").toLowerCase().trim();
+        if (id && serviceFieldMap.has(id)) {
+          merged.push({ ...pf, ...serviceFieldMap.get(id) });
+          packageFieldNames.add(id);
+        }
+      }
+
+      // 3. Add any fields from serviceFields that weren't in packageFields (admin added them globally)
+      for (const sf of serviceFields) {
+        const id = (sf.name || sf.id || "").toLowerCase().trim();
+        if (id && !packageFieldNames.has(id)) {
+          merged.push(sf);
+        }
+      }
+
+      rawFields = merged;
+    } else if (hasServiceFields) {
+      rawFields = [...serviceFields];
+    } else if (hasPackageFields) {
+      rawFields = [...selectedPackage.fields];
+    } else {
       if (service && service.api_source) {
-        combinedFields = [];
+        rawFields = [];
       } else {
-        combinedFields = [...defaultFields];
+        rawFields = [...defaultFields];
       }
     }
-
-    let rawFields = combinedFields;
 
     const seen = new Set();
     const uniqueFields = [];
