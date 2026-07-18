@@ -365,8 +365,29 @@ export default function ServicesClient() {
                           )}
                           <div className="scc-content">
                             <span className="scc-name">{service.name}</span>
-                            <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
-                              {service.price > 0 ? (
+                            <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%" }}>
+                              {service.packages && service.packages.length > 0 ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px" }}>
+                                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "bold" }}>الباقات المتوفرة:</span>
+                                  {service.packages.slice(0, 3).map((pkg, idx) => (
+                                    <div key={idx} style={{ 
+                                      display: "flex", 
+                                      justifyContent: "space-between", 
+                                      fontSize: "0.85rem", 
+                                      background: "rgba(255, 255, 255, 0.03)", 
+                                      padding: "4px 8px", 
+                                      borderRadius: "6px",
+                                      border: "1px solid rgba(255, 255, 255, 0.05)"
+                                    }}>
+                                      <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "70%" }} title={pkg.name}>{pkg.name}</span>
+                                      <span style={{ color: "var(--primary-color)", fontWeight: "bold" }}>${Number(pkg.price).toFixed(2)}</span>
+                                    </div>
+                                  ))}
+                                  {service.packages.length > 3 && (
+                                    <span style={{ fontSize: "0.75rem", color: "var(--primary-color)", marginTop: "2px" }}>+ عرض المزيد ({service.packages.length - 3})</span>
+                                  )}
+                                </div>
+                              ) : service.price > 0 ? (
                                 <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
                                   $ {Number(service.price).toFixed(2)}
                                 </span>
@@ -470,8 +491,29 @@ export default function ServicesClient() {
                         )}
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
-                          <div className="scc-meta" style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
-                            {service.price > 0 ? (
+                          <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%" }}>
+                            {service.packages && service.packages.length > 0 ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px" }}>
+                                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "bold" }}>الباقات المتوفرة:</span>
+                                {service.packages.slice(0, 3).map((pkg, idx) => (
+                                  <div key={idx} style={{ 
+                                    display: "flex", 
+                                    justifyContent: "space-between", 
+                                    fontSize: "0.85rem", 
+                                    background: "rgba(255, 255, 255, 0.03)", 
+                                    padding: "4px 8px", 
+                                    borderRadius: "6px",
+                                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                                  }}>
+                                    <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "70%" }} title={pkg.name}>{pkg.name}</span>
+                                    <span style={{ color: "var(--primary-color)", fontWeight: "bold" }}>${Number(pkg.price).toFixed(2)}</span>
+                                  </div>
+                                ))}
+                                {service.packages.length > 3 && (
+                                  <span style={{ fontSize: "0.75rem", color: "var(--primary-color)", marginTop: "2px" }}>+ عرض المزيد ({service.packages.length - 3})</span>
+                                )}
+                              </div>
+                            ) : service.price > 0 ? (
                               <span style={{ color: "var(--primary-color)", fontWeight: 900, fontSize: "0.9rem" }}>
                                 $ {Number(service.price).toFixed(2)}
                               </span>
