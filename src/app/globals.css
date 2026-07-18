@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap');
-
+@import './components.css';
+@import './layout.css';
+@import './navbar.css';
 /* ============================================================
    SPIDER STORE — PREMIUM DESIGN SYSTEM
    Dark Mode + Light Mode | Full Animations | Glassmorphism
@@ -767,6 +769,3 @@ button, input, textarea, select { font-family: var(--font-cairo); }
 /* ==========================================================================
    SPLIT CSS FILES - Imported for performance and maintainability
    ========================================================================== */
-@import './components.css';
-@import './layout.css';
-@import './navbar.css';
