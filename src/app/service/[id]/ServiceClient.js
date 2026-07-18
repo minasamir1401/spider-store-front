@@ -264,21 +264,28 @@ export default function ServiceDetail({ params }) {
   ]), []);
 
   const activeFields = useMemo(() => {
-    let rawFields = serviceFields;
-    if (serviceFields.length === 0) {
-      if (!service?.api_source) {
-        rawFields = defaultFields;
+    let combinedFields = [];
+
+    // Admin edited service fields take priority
+    if (Array.isArray(serviceFields) && serviceFields.length > 0) {
+      combinedFields = [...serviceFields];
+    }
+
+    // Then package-specific fields
+    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
+      combinedFields = [...combinedFields, ...selectedPackage.fields];
+    }
+
+    // Fallback if none of the above are set
+    if (combinedFields.length === 0) {
+      if (service && service.api_source) {
+        combinedFields = [];
+      } else {
+        combinedFields = [...defaultFields];
       }
     }
 
-    // Use specific package fields if available (especially for grouped services)
-    if (selectedPackage && Array.isArray(selectedPackage.fields)) {
-      if (selectedPackage.fields.length > 0) {
-        rawFields = selectedPackage.fields;
-      } else if (service?.api_source) {
-        rawFields = [];
-      }
-    }
+    let rawFields = combinedFields;
 
     const seen = new Set();
     const uniqueFields = [];
