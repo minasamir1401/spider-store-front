@@ -27,8 +27,9 @@ export default function Home() {
 
   const getWhatsappLink = (text) => {
     if (!text) return "https://wa.me/16728972935";
-    const digits = text.replace(/\D/g, "");
-    if (digits.length >= 8) {
+    const match = text.match(/\+?\d[\d\s()-]{8,}/);
+    if (match) {
+      const digits = match[0].replace(/\D/g, "");
       return `https://wa.me/${digits}`;
     }
     return "https://wa.me/16728972935";

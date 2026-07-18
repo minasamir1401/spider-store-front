@@ -663,13 +663,25 @@ button, input, textarea, select { font-family: var(--font-cairo); }
 .hero-banner {
   position: relative;
   overflow: hidden;
-  height: 280px;
+  height: 320px;
   margin-bottom: 35px;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-glass);
+  border-radius: 0;
+  border: none;
+  border-bottom: var(--border-glass);
   box-shadow: var(--shadow-glass), 0 0 60px rgba(0,198,224,0.08);
   background: var(--card-bg);
   color: var(--text-main);
+  margin-left: -15px;
+  margin-right: -15px;
+  margin-top: -15px;
+}
+@media (min-width: 993px) {
+  .hero-banner {
+    height: 400px;
+    margin-left: -40px;
+    margin-right: -40px;
+    margin-top: -20px;
+  }
 }
 /* Animated gradient bottom border on hero */
 .hero-banner::after {
@@ -687,16 +699,38 @@ button, input, textarea, select { font-family: var(--font-cairo); }
 .banner-content {
   position: absolute;
   inset: 0;
-  padding: 30px 50px;
+  padding: 40px 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: linear-gradient(90deg, var(--bg-glass-deep) 35%, transparent 100%);
 }
+@media (max-width: 992px) {
+  .banner-content {
+    padding: 20px 20px;
+    flex-direction: column-reverse;
+    justify-content: center;
+    background: linear-gradient(0deg, var(--bg-glass-deep) 40%, rgba(10,14,28,0.4) 100%);
+  }
+}
+
 .banner-info {
   max-width: 60%;
   display: flex; flex-direction: column; gap: 14px;
+  z-index: 2;
 }
+@media (max-width: 992px) {
+  .banner-info {
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  .banner-info a {
+    align-self: center !important;
+  }
+}
+
 .banner-badge {
   align-self: flex-start;
   padding: 5px 16px;
@@ -705,10 +739,22 @@ button, input, textarea, select { font-family: var(--font-cairo); }
   text-transform: uppercase; letter-spacing: 0.5px;
   backdrop-filter: blur(8px);
 }
+@media (max-width: 992px) {
+  .banner-badge {
+    align-self: center;
+  }
+}
+
 .banner-title {
   font-size: 2.2rem; font-weight: 900; line-height: 1.25;
   color: var(--text-main);
 }
+@media (max-width: 992px) {
+  .banner-title {
+    font-size: 1.45rem;
+  }
+}
+
 .banner-title span {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-purple) 100%);
   -webkit-background-clip: text;
@@ -717,12 +763,34 @@ button, input, textarea, select { font-family: var(--font-cairo); }
 .banner-desc {
   font-size: 0.92rem; color: var(--text-muted); font-weight: 500; line-height: 1.6;
 }
+@media (max-width: 992px) {
+  .banner-desc {
+    font-size: 0.85rem;
+  }
+}
+
 .banner-graphic {
   position: absolute;
   left: 60px; top: 50%;
   transform: translateY(-50%);
   width: 320px; height: 180px;
   display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+}
+@media (max-width: 992px) {
+  .banner-graphic {
+    position: relative;
+    left: auto; top: auto;
+    transform: none;
+    width: 160px; height: 120px;
+    margin-bottom: 15px;
+  }
+  .banner-graphic img {
+    max-height: 100%;
+  }
+  .coin-icon {
+    font-size: 5rem;
+  }
 }
 .coin-icon {
   font-size: 6.5rem;
