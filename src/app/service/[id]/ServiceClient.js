@@ -266,49 +266,41 @@ export default function ServiceDetail({ params }) {
   const activeFields = useMemo(() => {
     let rawFields = [];
 
-    const hasServiceFields = Array.isArray(serviceFields) && serviceFields.length > 0;
-    const hasPackageFields = selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0;
-
-    if (hasServiceFields && hasPackageFields) {
-      // 1. serviceFields acts as the master config
-      const serviceFieldMap = new Map();
+    // serviceFields (from Dashboard) represents the ADMIN's approved list of fields.
+    // If a field is NOT in serviceFields, the admin deleted it, so we must hide it.
+    const adminApprovedFields = new Map();
+    if (Array.isArray(serviceFields)) {
       for (const sf of serviceFields) {
         const id = (sf.name || sf.id || "").toLowerCase().trim();
-        if (id) serviceFieldMap.set(id, sf);
+        if (id) adminApprovedFields.set(id, sf);
       }
+    }
 
-      // 2. Filter package fields: keep only if they exist in serviceFields (admin didn't delete them)
-      //    And update their config (label, type, etc) to match serviceFields
-      const merged = [];
+    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
+      // 1. Intersection: Package fields that are ALSO approved by admin
       const packageFieldNames = new Set();
-      
       for (const pf of selectedPackage.fields) {
         const id = (pf.name || pf.id || "").toLowerCase().trim();
-        if (id && serviceFieldMap.has(id)) {
-          merged.push({ ...pf, ...serviceFieldMap.get(id) });
+        if (id && adminApprovedFields.has(id)) {
+          rawFields.push({ ...pf, ...adminApprovedFields.get(id) });
           packageFieldNames.add(id);
         }
       }
 
-      // 3. Add any fields from serviceFields that weren't in packageFields (admin added them globally)
-      for (const sf of serviceFields) {
-        const id = (sf.name || sf.id || "").toLowerCase().trim();
-        if (id && !packageFieldNames.has(id)) {
-          merged.push(sf);
+      // 2. Add any admin fields that were not in this package (global custom fields added by admin)
+      if (Array.isArray(serviceFields)) {
+        for (const sf of serviceFields) {
+          const id = (sf.name || sf.id || "").toLowerCase().trim();
+          if (id && !packageFieldNames.has(id)) {
+            rawFields.push(sf);
+          }
         }
       }
-
-      rawFields = merged;
-    } else if (hasServiceFields) {
+    } else if (Array.isArray(serviceFields) && service.fields !== null && service.fields !== undefined) {
+      // Only use serviceFields directly if it's explicitly set (even if empty `[]`)
       rawFields = [...serviceFields];
-    } else if (hasPackageFields) {
-      rawFields = [...selectedPackage.fields];
     } else {
-      if (service && service.api_source) {
-        rawFields = [];
-      } else {
-        rawFields = [...defaultFields];
-      }
+      rawFields = [...defaultFields];
     }
 
     // Aggressive filter: If there are ANY custom fields, forcefully remove IMEI/player_id
