@@ -163,7 +163,9 @@ export default function MainLayout({ children }) {
     const baseCurr = "USD";
     const userBalances = user.balances ? (typeof user.balances === 'string' ? JSON.parse(user.balances) : user.balances) : {};
 
-    const availableCurrencies = [baseCurr];
+    const availableCurrencies = settings.supported_currencies && settings.supported_currencies.length > 0
+      ? settings.supported_currencies
+      : [baseCurr];
 
     const activeCurrency = (selectedBalanceCurrency && availableCurrencies.includes(selectedBalanceCurrency))
       ? selectedBalanceCurrency

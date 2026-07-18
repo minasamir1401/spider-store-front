@@ -200,7 +200,15 @@ export default function ServiceDetail({ params }) {
       .then(data => {
         setService(data);
         if (data.packages && data.packages.length > 0) {
-          setSelectedPackage(data.packages[0]);
+          const urlParams = new URLSearchParams(window.location.search);
+          const pkgId = urlParams.get('package');
+          const preselectedPkg = data.packages.find(p => String(p.id) === String(pkgId));
+          if (preselectedPkg) {
+            setSelectedPackage(preselectedPkg);
+            setTimeout(() => setStep(2), 300);
+          } else {
+            setSelectedPackage(data.packages[0]);
+          }
         }
         if (data.price_type === "dynamic") {
           setCustomerPricingMode("dynamic");
@@ -214,7 +222,15 @@ export default function ServiceDetail({ params }) {
         if (fallback) {
           setService(fallback);
           if (fallback.packages && fallback.packages.length > 0) {
-            setSelectedPackage(fallback.packages[0]);
+            const urlParams = new URLSearchParams(window.location.search);
+            const pkgId = urlParams.get('package');
+            const preselectedPkg = fallback.packages.find(p => String(p.id) === String(pkgId));
+            if (preselectedPkg) {
+              setSelectedPackage(preselectedPkg);
+              setTimeout(() => setStep(2), 300);
+            } else {
+              setSelectedPackage(fallback.packages[0]);
+            }
           }
           if (fallback.price_type === "dynamic") {
             setCustomerPricingMode("dynamic");
@@ -733,7 +749,20 @@ export default function ServiceDetail({ params }) {
                     </div>
                   </div>
 
-                  <div className="scc-arrow">
+                  <div className="scc-arrow" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const url = `${window.location.origin}/service/${serviceId}?package=${pkg.id}`;
+                        navigator.clipboard.writeText(url).then(() => alert("تم نسخ رابط الباقة بنجاح!"));
+                      }}
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "var(--text-muted)", cursor: "pointer", padding: "4px 8px", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease" }}
+                      title="نسخ رابط الباقة للمشاركة"
+                      onMouseOver={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "var(--primary-color)"; }}
+                      onMouseOut={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </button>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left" style={{ opacity: 0.8 }}>
                       <path d="m15 18-6-6 6-6"></path>
                     </svg>
@@ -1951,9 +1980,15 @@ export default function ServiceDetail({ params }) {
             <button
               className="glass-btn glass-btn-primary"
               style={{ width: "100%", padding: "14px", fontSize: "1.05rem", borderRadius: "14px", fontWeight: "bold" }}
-              onClick={() => router.push("/")}
+              onClick={() => {
+                if (service?.category_id) {
+                  router.push(`/category/${service.category_id}`);
+                } else {
+                  router.push("/");
+                }
+              }}
             >
-              حسناً، العودة للرئيسية
+              العودة لقسم الخدمة
             </button>
           </div>
         </div>

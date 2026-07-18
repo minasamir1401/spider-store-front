@@ -1719,7 +1719,7 @@ export default function AdminDashboardModals() {
                   <div style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "10px" }}>لا توجد عملات إضافية مضافة في إعدادات الموقع العامة.</div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "10px" }}>
-                    {globalCurrencies.map((currency) => (
+                    {globalCurrencies.filter(c => c !== baseCurrency).map((currency) => (
                       <div key={currency} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                         <span style={{ minWidth: "80px", fontSize: "0.85rem", color: "#cbd5e1", fontWeight: "bold" }}>رصيد {currency}:</span>
                         <input
