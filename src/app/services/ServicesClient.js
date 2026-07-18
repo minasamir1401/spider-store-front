@@ -9,6 +9,7 @@ export default function ServicesClient() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [visibleCategories, setVisibleCategories] = useState(5);
   const [settings, setSettings] = useState({ announcement_text: "🟢 واتساب الإدارة 1: +1 (672) 897-2935 | 🟢 واتساب الإدارة 2: +249 12 366 7227" });
 
   const getWhatsappLink = (text) => {
@@ -254,7 +255,10 @@ export default function ServicesClient() {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-          {categories.map((cat) => {
+          {categories.filter(cat => {
+            if (searchTerm.trim().length > 0) return true;
+            return true;
+          }).slice(0, searchTerm.trim().length > 0 ? categories.length : visibleCategories).map((cat) => {
             const catServices = filteredServices.filter(s => s.category_id === cat.id).sort((a, b) => a.name.localeCompare(b.name, 'en'));
             if (catServices.length === 0) return null;
 
@@ -367,9 +371,9 @@ export default function ServicesClient() {
                           )}
                           <div className="scc-content">
                             <span className="scc-name">{service.name}</span>
-                            <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%" }}>
+                            <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%", minWidth: 0 }}>
                               {service.packages && service.packages.length > 0 ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px", minWidth: 0 }}>
                                   <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "bold" }}>الباقات المتوفرة:</span>
                                   {service.packages.slice(0, 3).map((pkg, idx) => (
                                     <div key={idx} style={{ 
@@ -381,7 +385,10 @@ export default function ServicesClient() {
                                       background: "rgba(255, 255, 255, 0.03)", 
                                       padding: "4px 8px", 
                                       borderRadius: "6px",
-                                      border: "1px solid rgba(255, 255, 255, 0.05)"
+                                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                                      width: "100%",
+                                      boxSizing: "border-box",
+                                      minWidth: 0
                                     }}>
                                       <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: "1 1 auto", minWidth: 0 }} title={pkg.name}>{pkg.name}</span>
                                       <span style={{ color: "var(--primary-color)", fontWeight: "bold", flexShrink: 0 }}>${Number(pkg.price).toFixed(2)}</span>
@@ -497,9 +504,9 @@ export default function ServicesClient() {
                         )}
                         <div className="scc-content">
                           <span className="scc-name">{service.name}</span>
-                          <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%" }}>
+                          <div className="scc-meta" style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginTop: "4px", width: "100%", minWidth: 0 }}>
                             {service.packages && service.packages.length > 0 ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginTop: "6px", minWidth: 0 }}>
                                 <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "bold" }}>الباقات المتوفرة:</span>
                                 {service.packages.slice(0, 3).map((pkg, idx) => (
                                   <div key={idx} style={{ 
@@ -513,7 +520,8 @@ export default function ServicesClient() {
                                     borderRadius: "6px",
                                     border: "1px solid rgba(255, 255, 255, 0.05)",
                                     width: "100%",
-                                    boxSizing: "border-box"
+                                    boxSizing: "border-box",
+                                    minWidth: 0
                                   }}>
                                     <span style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: "1 1 auto", minWidth: 0 }} title={pkg.name}>{pkg.name}</span>
                                     <span style={{ color: "var(--primary-color)", fontWeight: "bold", flexShrink: 0 }}>${Number(pkg.price).toFixed(2)}</span>
@@ -545,6 +553,18 @@ export default function ServicesClient() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {searchTerm.trim().length === 0 && visibleCategories < categories.length && (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+              <button
+                onClick={() => setVisibleCategories(prev => prev + 5)}
+                className="glass-btn glass-btn-primary"
+                style={{ padding: "12px 30px", borderRadius: "100px", fontSize: "1.05rem", fontWeight: "bold" }}
+              >
+                عرض المزيد من الأقسام ⬇️
+              </button>
             </div>
           )}
         </div>
