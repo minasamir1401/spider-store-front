@@ -304,7 +304,8 @@ export default function ServiceDetail({ params }) {
       }
 
       // 2. Add any admin fields that were not in this package (global custom fields added by admin)
-      if (Array.isArray(serviceFields)) {
+      // Only do this if it's NOT a grouped API service (where serviceFields contains combined fields from other packages)
+      if (service?.api_service_id !== 'grouped' && Array.isArray(serviceFields)) {
         for (const sf of serviceFields) {
           const id = (sf.name || sf.id || "").toLowerCase().trim();
           if (id && !packageFieldNames.has(id)) {
