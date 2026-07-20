@@ -269,7 +269,7 @@ export default function ServiceDetail({ params }) {
       const svcType = (service.api_service_type || '').toLowerCase();
       if (svcType === 'imei') {
         return [
-          { name: "imei", label: "IMEI الجهاز", type: "text", placeholder: "أدخل رقم IMEI المكوّن من 15 رقماً", required: true }
+          { name: "imei", label: "IMEI / SN / ECID", type: "text", placeholder: "أدخل رقم IMEI أو الرقم التسلسلي (SN) أو ECID", required: true }
         ];
       }
       // For non-IMEI API services (server/remote) with no custom fields, add player_id
@@ -981,11 +981,11 @@ export default function ServiceDetail({ params }) {
                       <input
                         id={`field_${field.name}`}
                         type="text"
-                        maxLength="15"
-                        placeholder="15-digit IMEI"
+                        maxLength="30"
+                        placeholder="IMEI / SN / ECID"
                         value={formData[field.name] || ""}
                         onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9]/g, '');
+                          const val = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, '').toUpperCase();
                           handleFieldChange(field.name, val);
                         }}
                         required={field.required !== false}
