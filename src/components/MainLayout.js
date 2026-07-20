@@ -158,13 +158,9 @@ export default function MainLayout({ children }) {
     localStorage.setItem("theme", nextTheme);
   };
 
-  // Prevent background scrolling when mobile menu is open
+  // Removed overflow: hidden to prevent mobile flickering
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    // Menu state changes handled here without breaking mobile scroll/layout
   }, [menuOpen]);
 
   const renderBalanceDropdownAndValue = (user) => {
