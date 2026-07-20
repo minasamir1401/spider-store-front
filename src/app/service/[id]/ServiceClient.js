@@ -262,8 +262,21 @@ export default function ServiceDetail({ params }) {
     }
 
     if (sFields && sFields.length > 0) return sFields;
-    // For synced API services, if fields is explicitly empty [], do NOT fallback to category fields!
-    if (sFields !== null && Array.isArray(sFields) && service?.api_service_id) return sFields;
+
+    // For synced API services with empty fields, add IMEI field if service type is imei
+    if (sFields !== null && Array.isArray(sFields) && service?.api_service_id) {
+      // If it's an IMEI service type but has no fields, inject IMEI fallback
+      const svcType = (service.api_service_type || '').toLowerCase();
+      if (svcType === 'imei') {
+        return [
+          { name: "imei", label: "IMEI الجهاز", type: "text", placeholder: "أدخل رقم IMEI المكوّن من 15 رقماً", required: true }
+        ];
+      }
+      // For non-IMEI API services (server/remote) with no custom fields, add player_id
+      return [
+        { name: "player_id", label: "معرّف الجهاز / ID", type: "text", placeholder: "أدخل معرّف الجهاز بدقة هنا", required: true }
+      ];
+    }
 
     // Fallback to category fields
     let catFields = [];
@@ -314,6 +327,11 @@ export default function ServiceDetail({ params }) {
             rawFields.push(sf);
           }
         }
+      }
+
+      // 3. If still empty (package had no fields, or none matched admin list), use serviceFields as fallback
+      if (rawFields.length === 0 && Array.isArray(serviceFields) && serviceFields.length > 0) {
+        rawFields = [...serviceFields];
       }
     } else if (Array.isArray(serviceFields) && service?.fields !== null && service?.fields !== undefined) {
       // Only use serviceFields directly if it's explicitly set (even if empty `[]`)
