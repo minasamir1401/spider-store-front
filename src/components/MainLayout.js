@@ -169,6 +169,15 @@ export default function MainLayout({ children }) {
     localStorage.setItem("theme", nextTheme);
   };
 
+  // Prevent background scrolling when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [menuOpen]);
+
   const renderBalanceDropdownAndValue = (user) => {
     if (!user) return null;
     const baseCurr = "USD";
