@@ -616,9 +616,21 @@ export default function CustomerLogin() {
             <div className="animate-line line-4" style={{ textAlign: "center", background: "rgba(56, 189, 248, 0.08)", border: "1px dashed rgba(56, 189, 248, 0.3)", borderRadius: "14px", padding: "16px" }}>
               <div style={{ fontSize: "2rem", marginBottom: "6px" }}>📲</div>
               <h3 style={{ fontWeight: 800, color: "#38bdf8", margin: "0 0 6px 0" }}>تأكيد الهوية وتفعيل الحساب</h3>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "0 0 12px 0", lineHeight: 1.5 }}>
                 تم إرسال كود تحقق (OTP) مكون من 6 أرقام إلى <strong>{otpInfo || "حسابك"}</strong>. يرجى إدخاله أدناه لإتمام العملية.
               </p>
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", borderRadius: "8px", padding: "10px", fontSize: "0.8rem", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.05)" }}>
+                📢 <strong>لتلقي الأكواد عبر تيليجرام:</strong><br />
+                افتح البوت واضغط Start ثم ارسل اسم مستخدم حسابك للربط.<br />
+                <a 
+                  href="https://t.me/ArabTechOTPBot" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-block", marginTop: "8px", background: "#0088cc", color: "#ffffff", padding: "6px 12px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold", fontSize: "0.75rem" }}
+                >
+                  ✈️ افتح بوت التيليجرام واضغط Start
+                </a>
+              </div>
             </div>
 
             <div className="form-group animate-line line-5" style={{ marginBottom: 0 }}>
@@ -698,6 +710,18 @@ export default function CustomerLogin() {
                 <p className="animate-line line-5" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center", marginBottom: "10px" }}>
                   تم إرسال الكود إلى حسابك. يرجى إدخاله هنا.
                 </p>
+                <div style={{ background: "rgba(255, 255, 255, 0.03)", borderRadius: "8px", padding: "10px", fontSize: "0.8rem", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center", marginBottom: "10px" }}>
+                  📢 <strong>لم تستلم الكود على تيليجرام؟</strong><br />
+                  تأكد من فتح البوت والضغط على Start وإرسال اسم حسابك.<br />
+                  <a 
+                    href="https://t.me/ArabTechOTPBot" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ display: "inline-block", marginTop: "8px", background: "#0088cc", color: "#ffffff", padding: "6px 12px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold", fontSize: "0.75rem" }}
+                  >
+                    ✈️ افتح بوت التيليجرام
+                  </a>
+                </div>
                 <div className="form-group animate-line line-6" style={{ marginBottom: 0 }}>
                   <label>كود التحقق (OTP):</label>
                   <input
