@@ -262,6 +262,8 @@ export default function ServiceDetail({ params }) {
     }
 
     if (sFields && sFields.length > 0) return sFields;
+    // For synced API services, if fields is explicitly empty [], do NOT fallback to category fields!
+    if (sFields !== null && Array.isArray(sFields) && service?.api_service_id) return sFields;
 
     // Fallback to category fields
     let catFields = [];
@@ -292,7 +294,7 @@ export default function ServiceDetail({ params }) {
       }
     }
 
-    if (selectedPackage && Array.isArray(selectedPackage.fields) && selectedPackage.fields.length > 0) {
+    if (selectedPackage && Array.isArray(selectedPackage.fields)) {
       // 1. Intersection: Package fields that are ALSO approved by admin
       const packageFieldNames = new Set();
       for (const pf of selectedPackage.fields) {

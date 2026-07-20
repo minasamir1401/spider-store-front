@@ -35,7 +35,6 @@ export default function MainLayout({ children }) {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [fontScale, setFontScale] = useState(1);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,21 +64,11 @@ export default function MainLayout({ children }) {
     const savedScale = localStorage.getItem("font_scale");
     const scaleVal = savedScale ? parseFloat(savedScale) : 1;
     setFontScale(Number.isFinite(scaleVal) ? scaleVal : 1);
-
-    // Sidebar
-    const savedSidebar = localStorage.getItem("sidebar_collapsed") === "true";
-    setSidebarCollapsed(savedSidebar);
   }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--font-scale', fontScale);
   }, [fontScale]);
-
-  const toggleSidebar = () => {
-    const nextVal = !sidebarCollapsed;
-    setSidebarCollapsed(nextVal);
-    localStorage.setItem("sidebar_collapsed", String(nextVal));
-  };
 
   const adjustFontScale = (delta) => {
     let nextScale = parseFloat((fontScale + delta).toFixed(2));
@@ -285,8 +274,8 @@ export default function MainLayout({ children }) {
   }
 
   return (
-    <div className={`app-layout ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
-      {/* Premium Video Background */}
+    <div className="app-layout">
+      {/* Background (Video removed for performance) */}
       <div className="video-background-container" style={{
         position: 'fixed',
         top: 0,
@@ -297,24 +286,6 @@ export default function MainLayout({ children }) {
         overflow: 'hidden',
         background: 'var(--bg-color)'
       }}>
-        {theme === "dark" && (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: 0.15,
-              filter: 'blur(4px) saturate(150%) hue-rotate(20deg)'
-            }}
-          >
-            {/* Generic tech abstract video loop */}
-            <source src="https://cdn.pixabay.com/video/2020/05/24/40061-424694769_large.mp4" type="video/mp4" />
-          </video>
-        )}
       </div>
 
       {/* Abstract Animated Shapes — 4 colorful orbs */}
@@ -686,34 +657,6 @@ export default function MainLayout({ children }) {
             <h2 className="lg-block font-black uppercase tracking-wider text-xs" style={{ color: "var(--text-muted)", margin: 0 }}>
               {getPageTitle()}
             </h2>
-
-            {/* Sidebar Toggle Button (shown on desktop, hidden on mobile) */}
-            <button
-              onClick={toggleSidebar}
-              className="header-btn lg-block w-9 h-9"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer"
-              }}
-              title={sidebarCollapsed ? "عرض القائمة الجانبية" : "إخفاء القائمة الجانبية"}
-              type="button"
-            >
-              {sidebarCollapsed ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                  <rect width="18" height="18" x="3" y="3" rx="2"/>
-                  <path d="M15 3v18"/>
-                  <path d="m12 15-3-3 3-3"/>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                  <rect width="18" height="18" x="3" y="3" rx="2"/>
-                  <path d="M15 3v18"/>
-                  <path d="m9 9 3 3-3 3"/>
-                </svg>
-              )}
-            </button>
           </div>
 
           {/* Right Section: Theme Toggle + Language Switcher + Notifications + Profile Initials/Login */}
@@ -741,7 +684,12 @@ export default function MainLayout({ children }) {
                 whiteSpace: "nowrap"
               }}
             >
-              <span>للتواصل</span>
+              <span className="flex items-center justify-center" style={{ fontSize: "1.1rem" }}>🟢</span>
+              <span className="nav-mobile-hidden" style={{ direction: "ltr" }}>
+                {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0
+                  ? `+${settings.whatsapp_numbers[0]}`
+                  : "+1 (672) 897-2935"}
+              </span>
             </a>
 
 
