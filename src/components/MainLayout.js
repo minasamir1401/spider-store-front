@@ -232,9 +232,13 @@ export default function MainLayout({ children }) {
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`PWA Installation choice: ${outcome}`);
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`PWA Installation choice: ${outcome}`);
+      } catch (err) {
+        console.warn("PWA prompt error:", err);
+      }
       setDeferredPrompt(null);
       setShowInstallBanner(false);
     } else {
