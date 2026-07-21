@@ -459,6 +459,10 @@ export default function WalletPage() {
             <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "12px", borderRadius: "12px" }}>
               {submitting ? "جاري إرسال الطلب..." : "إرسال طلب شحن الرصيد"}
             </button>
+
+            <div style={{ textAlign: "center", marginTop: "6px", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+              🔒 شحنك للمحفظة يخضع لـ <Link href="/terms" style={{ color: "var(--primary-color)", fontWeight: "bold", textDecoration: "underline" }}>شروط الاستخدام وسياسة الاسترجاع</Link>
+            </div>
           </form>
         </section>
 

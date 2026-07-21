@@ -57,8 +57,8 @@ export default function MainLayout({ children }) {
     const isDismissed = localStorage.getItem("pwa_dismissed") === "true";
     setShowInstallBanner(!isStandalone && !isDismissed);
 
-    // Captcha
-    setIsUnlocked(sessionStorage.getItem("captcha_unlocked") === "true");
+    // Captcha enabled on every refresh
+    setIsUnlocked(false);
 
     // Font Scale
     const savedScale = localStorage.getItem("font_scale");
@@ -244,7 +244,8 @@ export default function MainLayout({ children }) {
     { href: "/", label: "الرئيسية", icon: "🏠" },
     { href: "/services", label: "الخدمات", icon: "🛒" },
     { href: "/orders", label: "طلباتي", icon: "📦" },
-    { href: "/wallet", label: "المحفظة", icon: "💳" }
+    { href: "/wallet", label: "المحفظة", icon: "💳" },
+    { href: "/terms", label: "الشروط والاسترجاع", icon: "⚖️" }
   ];
 
   const isActive = (href) => {
@@ -307,9 +308,8 @@ export default function MainLayout({ children }) {
         }}>
           <SliderCaptcha onSuccess={() => {
             setTimeout(() => {
-              sessionStorage.setItem("captcha_unlocked", "true");
               setIsUnlocked(true);
-            }, 800);
+            }, 200);
           }} />
         </div>
       )}
@@ -474,6 +474,7 @@ export default function MainLayout({ children }) {
         <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🛒 الخدمات المتاحة</Link>
         <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>📦 تتبع الطلبات</Link>
         {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
+        <Link href="/terms" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>⚖️ الشروط وسياسة الاسترجاع</Link>
         <button
           type="button"
           onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }}
@@ -736,6 +737,9 @@ export default function MainLayout({ children }) {
                 <Link href="/wallet" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
                   💳 شحن المحفظة
                 </Link>
+                <Link href="/terms" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
+                  ⚖️ الشروط وسياسة الاسترجاع
+                </Link>
                 <button
                   onClick={() => { handleCustomerLogout(); setProfileMenuOpen(false); }}
                   className="header-dropdown-item"
@@ -972,9 +976,63 @@ export default function MainLayout({ children }) {
                 <span style={{ color: "#fe2c55" }}>←</span>
               </a>
 
+              {/* Telegram Channel */}
+              <a
+                href="https://t.me/arabtechserveronline"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(0, 136, 204, 0.08)",
+                  border: "1px solid rgba(0, 136, 204, 0.15)",
+                  borderRadius: "14px",
+                  color: "#0088cc",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>✈️</span>
+                  <span>قناة تيليجرام عرب تك</span>
+                </div>
+                <span style={{ color: "#0088cc" }}>←</span>
+              </a>
+
+              {/* YouTube Channel */}
+              <a
+                href="https://youtube.com/@arabtechsreveronline?si=1sznDeiGn6jAz5o3"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  background: "rgba(255, 0, 0, 0.08)",
+                  border: "1px solid rgba(255, 0, 0, 0.15)",
+                  borderRadius: "14px",
+                  color: "#ff4d4d",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  fontSize: "0.92rem",
+                  transition: "transform 0.2s"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "1.2rem" }}>🔴</span>
+                  <span>قناة يوتيوب عرب تك</span>
+                </div>
+                <span style={{ color: "#ff4d4d" }}>←</span>
+              </a>
+
               {/* Email Support */}
               <a
-                href="mailto:arab.tech.services1@gmail.com"
+                href="mailto:arab.tech.services2@gmail.com"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -992,7 +1050,7 @@ export default function MainLayout({ children }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "1.2rem" }}>✉️</span>
-                  <span>البريد الإلكتروني (arab.tech.services1@gmail.com)</span>
+                  <span>البريد الإلكتروني (arab.tech.services2@gmail.com)</span>
                 </div>
                 <span style={{ color: "#ef4444" }}>←</span>
               </a>
@@ -1005,154 +1063,119 @@ export default function MainLayout({ children }) {
 }
 
 const SliderCaptcha = ({ onSuccess }) => {
-  const [dragX, setDragX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const trackRef = useRef(null);
-  const [maxDrag, setMaxDrag] = useState(240); // default fallback
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  useEffect(() => {
-    if (trackRef.current) {
-      // Handle width is 50px
-      setMaxDrag(trackRef.current.clientWidth - 50);
-    }
-  }, []);
-
-  const handleStart = (e) => {
-    if (isSuccess) return;
-    setIsDragging(true);
-  };
-
-  useEffect(() => {
-    const handleMove = (e) => {
-      if (!isDragging || isSuccess) return;
-      const track = trackRef.current;
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      let x = clientX - rect.left - 25; // 25 is half of handle width
-      if (x < 0) x = 0;
-      if (x > maxDrag) x = maxDrag;
-      setDragX(x);
-
-      if (x >= maxDrag - 5) {
-        setIsSuccess(true);
-        setIsDragging(false);
+  const handleVerify = () => {
+    if (isSuccess || isVerifying) return;
+    setIsVerifying(true);
+    // Simulate a short network delay for realism
+    setTimeout(() => {
+      setIsVerifying(false);
+      setIsSuccess(true);
+      setTimeout(() => {
         onSuccess();
-      }
-    };
-
-    const handleEnd = () => {
-      if (!isDragging) return;
-      setIsDragging(false);
-      if (!isSuccess) {
-        // Reset position with animation
-        setDragX(0);
-      }
-    };
-
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMove);
-      window.addEventListener("mouseup", handleEnd);
-      window.addEventListener("touchmove", handleMove);
-      window.addEventListener("touchend", handleEnd);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleEnd);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging, isSuccess, maxDrag, onSuccess]);
+      }, 500); // short delay to show success state before closing
+    }, 800);
+  };
 
   return (
     <div style={{
-      background: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid rgba(255, 255, 255, 0.08)",
+      position: "relative",
+      background: "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(34, 211, 238, 0.05) 100%)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
       borderRadius: "24px",
       padding: "30px 24px",
       width: "100%",
       maxWidth: "360px",
       textAlign: "center",
-      boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
-      backdropFilter: "blur(20px)"
+      boxShadow: "0 20px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02)",
+      backdropFilter: "blur(20px)",
+      overflow: "hidden"
     }}>
-      <div style={{ fontSize: "2.5rem", marginBottom: "15px" }}>🔒</div>
-      <h3 style={{ fontWeight: 800, color: "#fff", marginBottom: "8px", fontSize: "1.2rem" }}>تحقق الأمان</h3>
-      <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "25px", lineHeight: "1.5" }}>
-        اسحب للتأكيد أنك إنسان لست روبوت
-      </p>
+      {/* Animated Background Effect */}
+      <div style={{
+        position: "absolute",
+        top: "-50%",
+        left: "-50%",
+        width: "200%",
+        height: "200%",
+        background: "radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 60%)",
+        animation: "spin-bg 10s linear infinite",
+        zIndex: 0,
+        pointerEvents: "none"
+      }} />
 
-      {/* Slider Track */}
-      <div
-        ref={trackRef}
-        style={{
-          position: "relative",
-          height: "50px",
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          borderRadius: "25px",
-          overflow: "hidden",
-          userSelect: "none",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-        {/* Background text */}
-        <span style={{
-          fontSize: "0.85rem",
-          color: "#64748b",
-          pointerEvents: "none",
-          zIndex: 1,
-          opacity: isSuccess ? 0 : 1,
-          transition: "opacity 0.2s"
-        }}>
-          اسحب للتأكيد →
-        </span>
+      <style>
+        {`
+          @keyframes spin-bg { 100% { transform: rotate(360deg); } }
+          @keyframes pulse-verify { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+          @keyframes spin-spinner { 100% { transform: rotate(360deg); } }
+        `}
+      </style>
 
-        {/* Dynamic filled background */}
-        <div style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: `${dragX + 25}px`,
-          background: isSuccess
-            ? "linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.4) 100%)"
-            : "linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.3) 100%)",
-          transition: isDragging ? "none" : "width 0.3s ease",
-          zIndex: 0
-        }} />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ fontSize: "2.5rem", marginBottom: "15px", filter: "drop-shadow(0 0 10px rgba(255,255,255,0.2))" }}>
+          {isSuccess ? "✅" : "🛡️"}
+        </div>
+        <h3 style={{ fontWeight: 800, color: "#fff", marginBottom: "8px", fontSize: "1.2rem" }}>
+          نظام حماية الموقع
+        </h3>
+        <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: "25px", lineHeight: "1.5" }}>
+          يرجى النقر على الزر أدناه للتحقق من أنك إنسان
+        </p>
 
-        {/* Handle */}
-        <div
-          onMouseDown={handleStart}
-          onTouchStart={handleStart}
+        {/* Click to Verify Button */}
+        <button
+          onClick={handleVerify}
+          disabled={isSuccess || isVerifying}
           style={{
-            position: "absolute",
-            left: `${dragX}px`,
-            width: "50px",
-            height: "48px",
-            background: isSuccess ? "#22c55e" : "#4f46e5",
-            borderRadius: "50%",
-            cursor: isSuccess ? "default" : "grab",
+            position: "relative",
+            width: "100%",
+            height: "54px",
+            background: isSuccess
+              ? "linear-gradient(90deg, #10b981 0%, #059669 100%)"
+              : "linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 100%)",
+            border: isSuccess ? "none" : "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "16px",
+            color: "#fff",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            cursor: isSuccess || isVerifying ? "default" : "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: "10px",
             boxShadow: isSuccess
-              ? "0 0 15px rgba(34, 197, 94, 0.6)"
-              : "0 0 15px rgba(79, 70, 229, 0.6)",
-            transition: isDragging ? "none" : "left 0.3s ease, background-color 0.3s",
-            zIndex: 2,
-            color: "#fff",
-            fontSize: "1.1rem",
-            fontWeight: "bold"
+              ? "0 0 20px rgba(16, 185, 129, 0.4)"
+              : "0 8px 20px rgba(0,0,0,0.2)",
+            transition: "all 0.3s ease",
+            animation: !isSuccess && !isVerifying ? "pulse-verify 2.5s infinite" : "none",
+            outline: "none"
           }}
         >
-          {isSuccess ? "✓" : "→"}
-        </div>
+          {isVerifying ? (
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{
+                width: "18px", height: "18px", border: "2px solid #fff",
+                borderBottomColor: "transparent", borderRadius: "50%",
+                display: "inline-block", animation: "spin-spinner 1s linear infinite"
+              }}></span>
+              جاري التحقق...
+            </span>
+          ) : isSuccess ? (
+            "تم التحقق بنجاح ✓"
+          ) : (
+            <>
+              <div style={{
+                width: "22px", height: "22px", borderRadius: "6px",
+                border: "2px solid rgba(255,255,255,0.5)", display: "inline-block",
+                background: "rgba(0,0,0,0.2)"
+              }}></div>
+              أنا إنسان (انقر للتحقق)
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

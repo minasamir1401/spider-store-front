@@ -65,7 +65,7 @@ export default function Footer() {
             <a href="https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5" target="_blank" rel="noopener noreferrer">💬 مجتمع واتساب عرب تك</a>
             <a href="https://www.facebook.com/ARABTECHSERVEROnline" target="_blank" rel="noopener noreferrer">📘 صفحة فيسبوك عرب تك</a>
             <a href="https://tiktok.com/@arabtechsuppurt" target="_blank" rel="noopener noreferrer">🎵 تيك توك عرب تك</a>
-            <a href="mailto:arab.tech.services1@gmail.com">📧 البريد الإلكتروني (arab.tech.services1@gmail.com)</a>
+            <a href="mailto:arab.tech.services2@gmail.com">📧 البريد الإلكتروني (arab.tech.services2@gmail.com)</a>
           </div>
         </div>
       </div>

@@ -8,9 +8,10 @@ const WHATSAPP_SUPPORT_2 = "https://wa.me/249123667227";
 
 const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/DINRDwU2lVjFcGRowxT3m5";
 const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029VbD0n6C17En1xFJRPV0H";
-const TELEGRAM_CHANNEL = "https://t.me/ARABTECSUPPURT";
+const TELEGRAM_CHANNEL = "https://t.me/arabtechserveronline";
 const FACEBOOK_PAGE = "https://www.facebook.com/ARABTECHSERVEROnline";
 const TIKTOK_ACCOUNT = "https://tiktok.com/@arabtechsuppurt";
+const YOUTUBE_CHANNEL = "https://youtube.com/@arabtechsreveronline?si=1sznDeiGn6jAz5o3";
 
 export default function ContactFloatingButton() {
   const [open, setOpen] = useState(false);
@@ -87,11 +88,33 @@ export default function ContactFloatingButton() {
             🎵 حساب تيك توك عرب تك
           </a>
 
+          {/* Telegram Channel */}
+          <a
+            href={TELEGRAM_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(0, 136, 204, 0.1)", borderColor: "rgba(0, 136, 204, 0.2)", color: "#0088cc" }}
+          >
+            ✈️ قناة تيليجرام عرب تك
+          </a>
+
+          {/* YouTube Channel */}
+          <a
+            href={YOUTUBE_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-btn"
+            style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(255, 0, 0, 0.1)", borderColor: "rgba(255, 0, 0, 0.2)", color: "#ff4d4d" }}
+          >
+            🔴 قناة يوتيوب عرب تك
+          </a>
+
 
 
           {/* Email Support 1 */}
           <a
-            href="mailto:arab.tech.services1@gmail.com"
+            href="mailto:arab.tech.services2@gmail.com"
             className="glass-btn"
             style={{ padding: "12px 16px", borderRadius: "14px", minWidth: "220px", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", color: "#f87171" }}
           >
