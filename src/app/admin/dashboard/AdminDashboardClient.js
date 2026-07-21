@@ -8,7 +8,6 @@ import dashboardStyles from "./AdminDashboardClient.styles";
 import { AdminDashboardContext } from "@/components/admin/AdminDashboardContext";
 import AdminDashboardModals from "@/components/admin/modals/AdminDashboardModals";
 import SettingsTab from "@/components/admin/tabs/SettingsTab";
-import WhatsAppTab from "@/components/admin/tabs/WhatsAppTab";
 import GmailTab from "@/components/admin/tabs/GmailTab";
 import ExcelPricesTab from "@/components/admin/tabs/ExcelPricesTab";
 import AmrrUnlockerTab from "@/components/admin/tabs/AmrrUnlockerTab";
@@ -2184,7 +2183,6 @@ const handleLogout = () => {
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
           { tab: "settings", icon: "⚙️", label: "إعدادات الموقع" },
-          { tab: "whatsapp", icon: "💬", label: "إعدادات واتساب" },
           { tab: "gmail", icon: "📧", label: "بوابة ربط الجميل" },
           { tab: "amrr_unlocker", icon: "🔓", label: "بوابة Amrr Unlocker" },
           { tab: "backups", icon: "💾", label: "النسخ الاحتياطي" },
@@ -2292,15 +2290,6 @@ const handleLogout = () => {
             </div>
 
             <div
-              className={`nav-item-premium ${activeTab === "whatsapp" ? "active" : ""}`}
-              onClick={() => setActiveTab("whatsapp")}
-              style={{ background: activeTab === "whatsapp" ? "rgba(37,211,102,0.1)" : "", borderColor: activeTab === "whatsapp" ? "rgba(37,211,102,0.3)" : "" }}
-            >
-              <span className="nav-icon">💬</span>
-              <span>إعدادات واتساب</span>
-            </div>
-
-            <div
               className={`nav-item-premium ${activeTab === "gmail" ? "active" : ""}`}
               onClick={() => setActiveTab("gmail")}
               style={{ background: activeTab === "gmail" ? "rgba(234,67,53,0.1)" : "", borderColor: activeTab === "gmail" ? "rgba(234,67,53,0.3)" : "" }}
@@ -2368,7 +2357,6 @@ const handleLogout = () => {
                 {activeTab === "wallets" && "طلبات شحن الرصيد"}
                 {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
                 {activeTab === "settings" && "إعدادات معلومات الموقع"}
-                {activeTab === "whatsapp" && "إعدادات إشعارات واتساب"}
                 {activeTab === "gmail" && "بوابة ربط البريد الإلكتروني (Gmail Portal)"}
                 {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
               {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
@@ -2383,7 +2371,6 @@ const handleLogout = () => {
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
                 {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
                 {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
-                {activeTab === "whatsapp" && "إضافة وإدارة أرقام واتساب التي تستقبل إشعارات طلبات شحن الرصيد من العملاء"}
                 {activeTab === "gmail" && "التحكم ببيانات خادم Gmail، إرسال رسائل تجريبية، وإدارة أكواد تحقق الـ OTP للعملاء"}
                 {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
               {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
@@ -2622,23 +2609,6 @@ const handleLogout = () => {
               <BackupsTab token={token} API_BASE_URL={API_BASE_URL} />
             )}
           </>
-        )}
-
-        {/* ===================== WhatsApp TAB ===================== */}
-        {activeTab === "whatsapp" && (
-          <WhatsAppTab
-            waStatus={waStatus}
-            setWaStatus={setWaStatus}
-            waQR={waQR}
-            setWaQR={setWaQR}
-            whatsappNumbers={whatsappNumbers}
-            setWhatsappNumbers={setWhatsappNumbers}
-            newWhatsappNumber={newWhatsappNumber}
-            setNewWhatsappNumber={setNewWhatsappNumber}
-            token={token}
-            API_BASE_URL={API_BASE_URL}
-            fetchWaStatus={fetchWaStatus}
-          />
         )}
 
         {/* ===================== Gmail TAB ===================== */}
