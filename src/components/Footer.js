@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config";
 import Link from "next/link";
+import LoopsNewsletterForm from "./LoopsNewsletterForm";
 
 export default function Footer() {
   const [settings, setSettings] = useState({ site_name: "عرب تك سيرفر", site_logo: "/logo.jpg" });
@@ -40,6 +41,7 @@ export default function Footer() {
           <p className="footer-desc" style={{ marginTop: "10px" }}>
             المنصة العربية الأسرع والأكثر أماناً لتفعيل برامج السوفت وير وتفعيلات الأدوات والاشتراكات الخدمية بأفضل الأسعار على مدار الساعة.
           </p>
+          <LoopsNewsletterForm />
         </div>
 
         {/* Links column */}
