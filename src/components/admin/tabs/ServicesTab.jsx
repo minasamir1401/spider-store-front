@@ -62,6 +62,28 @@ export default function ServicesTab({
     setQuickFields(prev => prev.filter((_, i) => i !== idx));
   };
 
+  const moveQuickFieldUp = (idx) => {
+    if (idx === 0) return;
+    setQuickFields(prev => {
+      const newFields = [...prev];
+      const temp = newFields[idx];
+      newFields[idx] = newFields[idx - 1];
+      newFields[idx - 1] = temp;
+      return newFields;
+    });
+  };
+
+  const moveQuickFieldDown = (idx) => {
+    setQuickFields(prev => {
+      if (idx === prev.length - 1) return prev;
+      const newFields = [...prev];
+      const temp = newFields[idx];
+      newFields[idx] = newFields[idx + 1];
+      newFields[idx + 1] = temp;
+      return newFields;
+    });
+  };
+
   const saveQuickFields = async () => {
     setSavingQuickFields(true);
     setQuickFieldsMsg("");
@@ -159,7 +181,6 @@ export default function ServicesTab({
               <th>رقم الخدمة</th>
               <th>الخدمة</th>
               <th>القسم التابع</th>
-              <th>الباقات المتوفرة</th>
               <th>السعر الابتدائي</th>
               <th style={{ textAlign: "center" }}>الإجراءات</th>
             </tr>
@@ -167,7 +188,7 @@ export default function ServicesTab({
           <tbody>
             {filteredServices.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
+                <td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
                   لا توجد خدمات مضافة حالياً.
                 </td>
               </tr>
@@ -220,44 +241,7 @@ export default function ServicesTab({
                         </div>
                       </td>
                       <td data-label="القسم التابع" style={{ fontWeight: 700 }}>{parentCat ? parentCat.name : `قسم #${service.category_id}`}</td>
-                      <td data-label="الباقات المتوفرة">
-                        {service.price_type === "dynamic" ? (
-                          <span className="pkg-tag" style={{ background: "rgba(192, 132, 252, 0.15)", color: "#c084fc", borderColor: "rgba(192, 132, 252, 0.3)", fontWeight: "bold" }}>
-                            سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
-                          </span>
-                        ) : service.price_type === "both" ? (
-                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                            <span className="pkg-tag" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", borderColor: "rgba(59, 130, 246, 0.3)", fontWeight: "bold", width: "fit-content" }}>
-                              سعر الـ 1000: {Number(service.price_per_thousand || 0).toFixed(2)} ج.م
-                            </span>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
-                              {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
-                                <span key={pkg.id || pkg.name} className="pkg-tag">
-                                  {pkg.name} ({parentCat && parentCat.currency === "USD" ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
-                                </span>
-                              ))}
-                              {parsedPackages && parsedPackages.length > 3 && (
-                                <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
-                                  + {parsedPackages.length - 3} أخرى
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxWidth: "300px" }}>
-                            {parsedPackages && parsedPackages.slice(0, 3).map((pkg) => (
-                              <span key={pkg.id || pkg.name} className="pkg-tag">
-                                {pkg.name} ({parentCat && parentCat.currency === "USD" ? `$${pkg.usd_price || pkg.price}` : `${pkg.price} ج.م`})
-                              </span>
-                            ))}
-                            {parsedPackages && parsedPackages.length > 3 && (
-                              <span className="pkg-tag" style={{ background: "rgba(139, 92, 246, 0.12)", color: "#c084fc", borderColor: "rgba(139, 92, 246, 0.22)", fontWeight: "bold" }}>
-                                + {parsedPackages.length - 3} أخرى
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </td>
+
                       <td data-label="السعر الابتدائي" style={{ fontWeight: 800, color: "#34d399" }}>
                         {parentCat && parentCat.currency === "USD" ? (
                           `$ ${Number(parsedPackages && parsedPackages.length > 0 ? (parsedPackages[0].usd_price || parsedPackages[0].price) : service.price).toFixed(2)}`
@@ -291,7 +275,7 @@ export default function ServicesTab({
                     {/* Quick Fields Editor Row */}
                     {isExpanded && (
                       <tr>
-                        <td colSpan={6} style={{ padding: 0, background: "rgba(15, 23, 42, 0.8)" }}>
+                        <td colSpan={5} style={{ padding: 0, background: "rgba(15, 23, 42, 0.8)" }}>
                           <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(59,130,246,0.2)", borderBottom: "1px solid rgba(59,130,246,0.2)" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                               <h4 style={{ margin: 0, fontSize: "0.9rem", fontWeight: 800, color: "#38bdf8" }}>
@@ -356,11 +340,25 @@ export default function ServicesTab({
                                     />
                                     <label htmlFor={`req_${idx}`} style={{ fontSize: "0.75rem", color: "#94a3b8", cursor: "pointer" }}>مطلوب</label>
                                   </div>
-                                  <button
-                                    onClick={() => removeQuickField(idx)}
-                                    style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "1rem", padding: "0 4px" }}
-                                    title="حذف الحقل"
-                                  >✕</button>
+                                  <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
+                                    <button
+                                      onClick={() => moveQuickFieldUp(idx)}
+                                      disabled={idx === 0}
+                                      style={{ background: "none", border: "none", color: idx === 0 ? "rgba(255,255,255,0.2)" : "#60a5fa", cursor: idx === 0 ? "default" : "pointer", fontSize: "1.1rem", padding: "0 2px" }}
+                                      title="تحريك لأعلى"
+                                    >↑</button>
+                                    <button
+                                      onClick={() => moveQuickFieldDown(idx)}
+                                      disabled={idx === quickFields.length - 1}
+                                      style={{ background: "none", border: "none", color: idx === quickFields.length - 1 ? "rgba(255,255,255,0.2)" : "#60a5fa", cursor: idx === quickFields.length - 1 ? "default" : "pointer", fontSize: "1.1rem", padding: "0 2px" }}
+                                      title="تحريك لأسفل"
+                                    >↓</button>
+                                    <button
+                                      onClick={() => removeQuickField(idx)}
+                                      style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "1rem", padding: "0 2px", marginLeft: "4px" }}
+                                      title="حذف الحقل"
+                                    >✕</button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
