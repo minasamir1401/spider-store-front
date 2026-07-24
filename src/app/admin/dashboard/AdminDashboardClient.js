@@ -417,35 +417,37 @@ export default function AdminDashboard() {
       setServices(sortedServices);
 
       // Fetch site settings
-      const settingsRes = await fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`);
-      if (settingsRes.ok) {
-        const settingsData = await settingsRes.json();
-        setSiteName(settingsData.site_name || "عرب تك سيرفر");
-        setSiteLogo(settingsData.site_logo || "default");
-        setSiteFavicon(settingsData.site_favicon || "default");
-        setPaymentMethodsList(settingsData.payment_methods || []);
-        if (settingsData.supported_currencies) {
-          setGlobalCurrencies(settingsData.supported_currencies);
-          setSupportedCurrenciesText(settingsData.supported_currencies.join(", "));
-        }
-        if (settingsData.exchange_rates) {
-          setExchangeRates(settingsData.exchange_rates);
-        }
-          setBaseCurrency("USD");
-        setHideWalletPayment(settingsData.hide_wallet_payment || false);
-        if (settingsData.api_auto_submit !== undefined) {
-          setApiAutoSubmit(settingsData.api_auto_submit);
-        }
-        if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
-          setWhatsappNumbers(settingsData.whatsapp_numbers);
-        }
-        if (settingsData.email_user !== undefined) setEmailUser(settingsData.email_user);
-        if (settingsData.email_pass !== undefined) setEmailPass(settingsData.email_pass);
-        if (settingsData.global_markup_percent !== undefined) {
-          setGlobalMarkupPercent(settingsData.global_markup_percent);
-        }
-        if (settingsData.announcement_text !== undefined) {
-          setAnnouncementText(settingsData.announcement_text);
+      if (!isSilent) {
+        const settingsRes = await fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`);
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          setSiteName(settingsData.site_name || "عرب تك سيرفر");
+          setSiteLogo(settingsData.site_logo || "default");
+          setSiteFavicon(settingsData.site_favicon || "default");
+          setPaymentMethodsList(settingsData.payment_methods || []);
+          if (settingsData.supported_currencies) {
+            setGlobalCurrencies(settingsData.supported_currencies);
+            setSupportedCurrenciesText(settingsData.supported_currencies.join(", "));
+          }
+          if (settingsData.exchange_rates) {
+            setExchangeRates(settingsData.exchange_rates);
+          }
+            setBaseCurrency("USD");
+          setHideWalletPayment(settingsData.hide_wallet_payment || false);
+          if (settingsData.api_auto_submit !== undefined) {
+            setApiAutoSubmit(settingsData.api_auto_submit);
+          }
+          if (settingsData.whatsapp_numbers && Array.isArray(settingsData.whatsapp_numbers)) {
+            setWhatsappNumbers(settingsData.whatsapp_numbers);
+          }
+          if (settingsData.email_user !== undefined) setEmailUser(settingsData.email_user);
+          if (settingsData.email_pass !== undefined) setEmailPass(settingsData.email_pass);
+          if (settingsData.global_markup_percent !== undefined) {
+            setGlobalMarkupPercent(settingsData.global_markup_percent);
+          }
+          if (settingsData.announcement_text !== undefined) {
+            setAnnouncementText(settingsData.announcement_text);
+          }
         }
       }
 

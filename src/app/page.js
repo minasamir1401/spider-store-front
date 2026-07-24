@@ -229,7 +229,7 @@ export default function Home() {
             <div className="hp-empty">لا توجد أقسام مطابقة 😕</div>
           ) : (
             <div className="hp-list">
-              {filtered.map(cat => {
+              {filtered.slice(0, 20).map(cat => {
                 const color = cat.color || "#6366f1";
                 const minPrice = null; // categories don't have direct price
                 return (
@@ -285,7 +285,7 @@ export default function Home() {
             <div className="hp-empty">لا توجد بيانات كافية حتى الآن 🔄</div>
           ) : (
             <div className="hp-list">
-              {popularServices.map((svc, i) => {
+              {popularServices.slice(0, 20).map((svc, i) => {
                 const color = svc.category_color || "#6366f1";
                 const imgSrc = resolveImage(svc.image);
                 const minPrice = getMinPrice(svc.packages);

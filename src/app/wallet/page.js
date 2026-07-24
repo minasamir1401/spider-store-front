@@ -302,6 +302,12 @@ export default function WalletPage() {
                           {pm.description}
                         </p>
                         
+                        {pm.image && (
+                          <div style={{ textAlign: "center", marginBottom: "16px" }}>
+                            <img src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} alt="QR Code / Barcode" style={{ maxWidth: "200px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "white", padding: "10px", boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }} />
+                          </div>
+                        )}
+                        
                         <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 800, marginBottom: "6px", color: "var(--text-muted)" }}>رقم أو عنوان التحويل:</div>
