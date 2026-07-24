@@ -258,60 +258,72 @@ export default function WalletPage() {
         {paymentMethods.length === 0 ? (
           <div style={{ color: "var(--text-muted)" }}>يرجى تهيئة طرق الدفع من لوحة التحكم.</div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {paymentMethods.map((pm) => {
-              const isSelected = selectedMethodId === pm.id;
-              return (
-                <div key={pm.id} style={{
-                  border: isSelected ? "2px solid var(--primary-color)" : "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: "16px",
-                  background: isSelected ? "rgba(139, 92, 246, 0.05)" : "rgba(255,255,255,0.02)",
-                  overflow: "hidden",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                }}>
-                  <button
-                    type="button"
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+              {paymentMethods.map((pm) => {
+                const isSelected = selectedMethodId === pm.id;
+                return (
+                  <div
+                    key={pm.id}
                     onClick={() => {
                       setError(""); // Clear error when switching
-                      setSelectedMethodId(isSelected ? "" : pm.id);
+                      setSelectedMethodId(pm.id);
                     }}
                     style={{
-                      width: "100%", padding: "18px", background: "transparent", border: "none",
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                      cursor: "pointer", color: "var(--text-main)", fontSize: "1.1rem", fontWeight: 800,
-                      outline: "none"
+                      border: isSelected ? "2px solid var(--primary-color)" : "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "16px",
+                      background: isSelected ? "rgba(139, 92, 246, 0.05)" : "rgba(255,255,255,0.02)",
+                      overflow: "hidden",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "20px",
+                      gap: "12px",
+                      textAlign: "center",
+                      boxShadow: isSelected ? "0 4px 20px rgba(139, 92, 246, 0.2)" : "none"
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <span style={{ fontSize: "1.5rem" }}>{pm.name.toLowerCase().includes("paypal") || pm.name.includes("باي بال") ? "🅿️" : pm.name.toLowerCase().includes("bnb") || pm.name.toLowerCase().includes("crypto") ? "🟡" : "🏦"}</span>
+                    {pm.image ? (
+                      <div style={{ width: "100%", height: "120px", display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(255, 255, 255, 0.9)", borderRadius: "12px", padding: "10px" }}>
+                        <img src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} alt={pm.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: "3rem" }}>
+                        {pm.name.toLowerCase().includes("paypal") || pm.name.includes("باي بال") ? "🅿️" : pm.name.toLowerCase().includes("bnb") || pm.name.toLowerCase().includes("crypto") ? "🟡" : "🏦"}
+                      </div>
+                    )}
+                    <span style={{ fontSize: "1.1rem", fontWeight: 800, color: isSelected ? "var(--primary-color)" : "var(--text-main)" }}>
                       {pm.name}
-                    </div>
-                    <span style={{ transform: isSelected ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.4s ease", color: isSelected ? "var(--primary-color)" : "var(--text-muted)" }}>▼</span>
-                  </button>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
 
-                  <div style={{
-                    maxHeight: isSelected ? "2000px" : "0",
-                    opacity: isSelected ? 1 : 0,
-                    transition: "all 0.5s ease-in-out",
-                    padding: isSelected ? "0 18px 18px 18px" : "0 18px"
-                  }}>
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "18px", marginTop: "4px" }}>
-                      
-                      <div style={{ marginBottom: "20px" }}>
-                        <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "16px", background: "rgba(255,255,255,0.03)", padding: "12px", borderRadius: "10px" }}>
+            {selectedMethodId && paymentMethods.find(pm => pm.id === selectedMethodId) && (
+              <div style={{
+                border: "1px solid var(--primary-color)",
+                borderRadius: "16px",
+                background: "rgba(255,255,255,0.02)",
+                padding: "24px",
+                animation: "fadeIn 0.4s ease-in-out"
+              }}>
+                {(() => {
+                  const pm = paymentMethods.find(pm => pm.id === selectedMethodId);
+                  return (
+                    <div>
+                      <div style={{ marginBottom: "24px" }}>
+                        <p style={{ color: "var(--text-main)", fontSize: "1rem", lineHeight: 1.7, marginBottom: "16px", background: "rgba(139, 92, 246, 0.1)", padding: "16px", borderRadius: "10px", borderRight: "4px solid var(--primary-color)" }}>
                           {pm.description}
                         </p>
-                        
-                        {pm.image && (
-                          <div style={{ textAlign: "center", marginBottom: "16px" }}>
-                            <img src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} alt="QR Code / Barcode" style={{ maxWidth: "200px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "white", padding: "10px", boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }} />
-                          </div>
-                        )}
                         
                         <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 800, marginBottom: "6px", color: "var(--text-muted)" }}>رقم أو عنوان التحويل:</div>
-                            <div style={{ fontSize: "1.2rem", fontWeight: 900, color: "var(--text-main)", direction: "ltr", userSelect: "all", wordBreak: "break-all" }}>{pm.value}</div>
+                            <div style={{ fontSize: "1.3rem", fontWeight: 900, color: "var(--text-main)", direction: "ltr", userSelect: "all", wordBreak: "break-all" }}>{pm.value}</div>
                           </div>
                           <button
                             type="button"
@@ -320,82 +332,85 @@ export default function WalletPage() {
                               setCopied(true);
                               setTimeout(() => setCopied(false), 2000);
                             }}
-                            style={{ background: copied ? "#10b981" : "#3b82f6", color: "#ffffff", border: "none", borderRadius: "10px", padding: "10px 16px", fontSize: "0.9rem", cursor: "pointer", fontWeight: "bold", transition: "all 0.2s", display: "flex", alignItems: "center", gap: "6px" }}
+                            style={{ background: copied ? "#10b981" : "#3b82f6", color: "#ffffff", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer", fontWeight: "bold", transition: "all 0.2s", display: "flex", alignItems: "center", gap: "6px" }}
                           >
-                            {copied ? "تم النسخ ✓" : "نسخ 📋"}
+                            {copied ? "تم النسخ ✓" : "نسخ العنوان 📋"}
                           </button>
                         </div>
                       </div>
 
-                      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>عملة التحويل والدفع:</label>
-                          <select value={selectedCurrency} onChange={(e) => setSelectedCurrency(e.target.value)} style={{ width: "100%", padding: "14px", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", color: "var(--text-main)", outline: "none", fontSize: "1rem" }}>
-                            {globalCurrencies.map((curr) => (
-                              <option key={curr} value={curr} style={{ background: "var(--bg-color)" }}>
-                                {curr} {curr === "USD" ? "(الدولار الأمريكي 🇺🇸)" : curr === "EGP" ? "(الجنيه المصري 🇪🇬)" : curr === "SDG" ? "(الجنيه السوداني 🇸🇩)" : curr === "USDT" ? "(تيزر 🟢)" : ""}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "24px", marginTop: "24px" }}>
+                        <h3 style={{ fontSize: "1.2rem", fontWeight: "bold", marginBottom: "16px", color: "var(--text-main)" }}>تأكيد عملية الدفع وإرسال الوصل</h3>
+                        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>عملة التحويل والدفع:</label>
+                            <select value={selectedCurrency} onChange={(e) => setSelectedCurrency(e.target.value)} style={{ width: "100%", padding: "14px", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", color: "var(--text-main)", outline: "none", fontSize: "1rem" }}>
+                              {globalCurrencies.map((curr) => (
+                                <option key={curr} value={curr} style={{ background: "var(--bg-color)" }}>
+                                  {curr} {curr === "USD" ? "(الدولار الأمريكي 🇺🇸)" : curr === "EGP" ? "(الجنيه المصري 🇪🇬)" : curr === "SDG" ? "(الجنيه السوداني 🇸🇩)" : curr === "USDT" ? "(تيزر 🟢)" : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
 
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>المبلغ المطلوب إضافته للمحفظة بالدولار (USD):</label>
-                          <input type="number" min="0.01" step="0.01" placeholder="مثال: 10" value={amount} onChange={(e) => setAmount(e.target.value)} required style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
-                          {amount && (
-                            <div style={{ marginTop: "12px", padding: "14px", background: "rgba(96, 165, 250, 0.08)", borderRight: "4px solid var(--primary-color)", borderRadius: "10px", fontSize: "0.9rem", color: "#60a5fa", display: "flex", flexDirection: "column", gap: "6px" }}>
-                              <div>💵 سيتم إضافة: <strong>$ {Number(amount).toFixed(2)} USD</strong></div>
-                              {selectedCurrency !== baseCurrency && (
-                                <div>💸 المبلغ المطلوب تحويله: <strong>{Number(Number(amount) * (selectedCurrency === baseCurrency ? 1 : (exchangeRates[selectedCurrency] || 50))).toFixed(2)} {selectedCurrency}</strong></div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>رقم الهاتف / اسم المحفظة المحول منها: <span style={{ color: "var(--danger-color)" }}>*</span></label>
-                          <input type="text" placeholder="الرقم أو اسم الحساب" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} required style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>صورة وصل التحويل: <span style={{ color: "var(--danger-color)" }}>*</span></label>
-                          <div style={{ border: "2px dashed rgba(255,255,255,0.15)", borderRadius: "14px", padding: "24px", textAlign: "center", background: "rgba(255,255,255,0.02)", cursor: "pointer", transition: "background 0.2s" }} onClick={() => document.getElementById("receipt-upload-input").click()} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}>
-                            <input id="receipt-upload-input" type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const file = e.target.files[0]; if (file) { setReceiptImageFile(file); const reader = new FileReader(); reader.onload = (ev) => setReceiptImagePreview(ev.target.result); reader.readAsDataURL(file); } }} />
-                            {receiptImagePreview ? (
-                              <div>
-                                <img src={receiptImagePreview} alt="وصل التحويل" style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "10px", objectFit: "contain", boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }} />
-                                <div style={{ fontSize: "0.9rem", color: "#10b981", marginTop: "12px", fontWeight: "bold" }}>✓ تم إرفاق الصورة بنجاح</div>
-                              </div>
-                            ) : (
-                              <div style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-                                <div style={{ fontSize: "2.5rem", marginBottom: "10px" }}>📸</div>
-                                اضغط هنا لرفع صورة إيصال الدفع
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>المبلغ المطلوب إضافته للمحفظة بالدولار (USD):</label>
+                            <input type="number" min="0.01" step="0.01" placeholder="مثال: 10" value={amount} onChange={(e) => setAmount(e.target.value)} required style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
+                            {amount && (
+                              <div style={{ marginTop: "12px", padding: "14px", background: "rgba(96, 165, 250, 0.08)", borderRight: "4px solid var(--primary-color)", borderRadius: "10px", fontSize: "0.9rem", color: "#60a5fa", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                <div>💵 سيتم إضافة: <strong>$ {Number(amount).toFixed(2)} USD</strong></div>
+                                {selectedCurrency !== baseCurrency && (
+                                  <div>💸 المبلغ المطلوب تحويله: <strong>{Number(Number(amount) * (selectedCurrency === baseCurrency ? 1 : (exchangeRates[selectedCurrency] || 50))).toFixed(2)} {selectedCurrency}</strong></div>
+                                )}
                               </div>
                             )}
                           </div>
-                        </div>
 
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label>ملاحظات إضافية:</label>
-                          <textarea rows="2" placeholder="اكتب أي تفاصيل..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
-                        </div>
-
-                        {error && (
-                          <div style={{ padding: "12px 16px", background: "rgba(244, 63, 94, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "10px", fontSize: "0.9rem", fontWeight: "600" }}>
-                            ⚠️ {error}
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>رقم الهاتف / اسم المحفظة المحول منها: <span style={{ color: "var(--danger-color)" }}>*</span></label>
+                            <input type="text" placeholder="الرقم أو اسم الحساب" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} required style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
                           </div>
-                        )}
 
-                        <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "16px", borderRadius: "14px", fontSize: "1.05rem", marginTop: "8px" }}>
-                          {submitting ? "جاري إرسال الطلب..." : "إرسال طلب الشحن 🚀"}
-                        </button>
-                      </form>
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>صورة وصل التحويل: <span style={{ color: "var(--danger-color)" }}>*</span></label>
+                            <div style={{ border: "2px dashed rgba(255,255,255,0.15)", borderRadius: "14px", padding: "24px", textAlign: "center", background: "rgba(255,255,255,0.02)", cursor: "pointer", transition: "background 0.2s" }} onClick={() => document.getElementById("receipt-upload-input").click()} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}>
+                              <input id="receipt-upload-input" type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const file = e.target.files[0]; if (file) { setReceiptImageFile(file); const reader = new FileReader(); reader.onload = (ev) => setReceiptImagePreview(ev.target.result); reader.readAsDataURL(file); } }} />
+                              {receiptImagePreview ? (
+                                <div>
+                                  <img src={receiptImagePreview} alt="وصل التحويل" style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "10px", objectFit: "contain", boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }} />
+                                  <div style={{ fontSize: "0.9rem", color: "#10b981", marginTop: "12px", fontWeight: "bold" }}>✓ تم إرفاق الصورة بنجاح</div>
+                                </div>
+                              ) : (
+                                <div style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
+                                  <div style={{ fontSize: "2.5rem", marginBottom: "10px" }}>📸</div>
+                                  اضغط هنا لرفع صورة إيصال الدفع
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>ملاحظات إضافية:</label>
+                            <textarea rows="2" placeholder="اكتب أي تفاصيل..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ padding: "14px", fontSize: "1rem", borderRadius: "12px" }} />
+                          </div>
+
+                          {error && (
+                            <div style={{ padding: "12px 16px", background: "rgba(244, 63, 94, 0.1)", borderRight: "4px solid var(--danger-color)", color: "var(--danger-color)", borderRadius: "10px", fontSize: "0.9rem", fontWeight: "600" }}>
+                              ⚠️ {error}
+                            </div>
+                          )}
+
+                          <button type="submit" disabled={submitting} className="glass-btn glass-btn-primary" style={{ padding: "16px", borderRadius: "14px", fontSize: "1.05rem", marginTop: "8px" }}>
+                            {submitting ? "جاري إرسال الطلب..." : "إرسال طلب الشحن 🚀"}
+                          </button>
+                        </form>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })()}
+              </div>
+            )}
+          </>
         )}
       </section>
 
