@@ -45,7 +45,7 @@ export default function WalletPage() {
           if (data.payment_methods) {
             setPaymentMethods(data.payment_methods);
             if (data.payment_methods.length > 0) {
-              setSelectedMethodId(data.payment_methods[0].id);
+              setSelectedMethodId("");
             }
           }
           if (data.whatsapp_numbers && Array.isArray(data.whatsapp_numbers)) {
