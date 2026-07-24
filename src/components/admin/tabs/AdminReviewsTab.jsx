@@ -52,9 +52,9 @@ export default function AdminReviewsTab({ token }) {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          customer_name: customerName,
+          name: customerName,
           rating: rating,
-          comment: comment,
+          review: comment,
           country_code: countryCode
         })
       });
@@ -133,10 +133,10 @@ export default function AdminReviewsTab({ token }) {
             {reviews.map(review => (
               <div key={review.id} style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "12px", padding: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong style={{ color: "#fff", fontSize: "1.1rem" }}>{review.customer_name}</strong>
+                  <strong style={{ color: "#fff", fontSize: "1.1rem" }}>{review.name}</strong>
                   <span style={{ fontSize: "1.2rem" }}>{"⭐".repeat(review.rating)}</span>
                 </div>
-                <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", flex: 1 }}>{review.comment}</div>
+                <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", flex: 1 }}>{review.review}</div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px", borderTop: "1px solid rgba(255, 255, 255, 0.05)", paddingTop: "10px" }}>
                   <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>دولة: {review.country_code || "N/A"}</span>
                   <button onClick={() => handleDeleteReview(review.id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", padding: "4px 8px", borderRadius: "6px", fontSize: "0.8rem", cursor: "pointer" }}>حذف</button>
