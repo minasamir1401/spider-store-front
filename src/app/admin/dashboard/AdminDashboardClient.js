@@ -46,7 +46,7 @@ export default function AdminDashboard() {
         <div className="mobile-drawer-user-card">
           <span>🔐</span>
           <div>
-            <div style={{ fontWeight: 600 }}>{adminUser?.username || "admin"}</div>
+            <div style={{ fontWeight: 600 }}>{state.adminUser?.username || "admin"}</div>
             <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>مسؤول النظام</div>
           </div>
         </div>
@@ -78,14 +78,14 @@ export default function AdminDashboard() {
           <span style={{ marginInlineEnd: "10px" }}>🏠</span>
           الموقع الرئيسي
         </Link>
-        <button className="mobile-drawer-link danger" onClick={handleLogout}>
+        <button className="mobile-drawer-link danger" onClick={state.handleLogout}>
           <span style={{ marginInlineEnd: "10px" }}>🚪</span>
           تسجيل الخروج
         </button>
       </div>
 
       {/* Sidebar */}
-      <AdminSidebar activeTab={state.activeTab} setActiveTab={state.setActiveTab} unreadOrders={state.orders?.filter(o=>o.status==='pending')?.length || 0} pendingWallets={state.walletRequests?.filter(w=>w.status==='pending')?.length || 0} handleLogout={state.handleLogout} />
+      <AdminSidebar activeTab={state.activeTab} setActiveTab={state.setActiveTab} unreadOrders={state.orders?.filter(o=>o.status==='pending')?.length || 0} pendingWallets={state.walletRequests?.filter(w=>w.status==='pending')?.length || 0} handleLogout={state.handleLogout} adminUser={state.adminUser} siteLogo={state.settings?.site_logo} siteName={state.settings?.site_name} API_BASE_URL={API_BASE_URL} />
 
       {/* Main Content */}
       <main className="premium-content">
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
           <div className="header-actions">
             <button
               onClick={() => {
-                fetchData();
+                state.fetchData();
                 alert("تم تحديث البيانات بنجاح! 🔄");
               }}
               className="btn-add-premium"
@@ -136,8 +136,8 @@ export default function AdminDashboard() {
               🔄 تحديث البيانات
             </button>
             <div className="user-menu-widget" style={{ marginInlineStart: "auto" }}>
-              <span className="user-username">{adminUser?.username || "admin"}</span>
-              <span className="logout-btn-text" onClick={handleLogout}>خروج</span>
+              <span className="user-username">{state.adminUser?.username || "admin"}</span>
+              <span className="logout-btn-text" onClick={state.handleLogout}>خروج</span>
             </div>
             {state.activeTab === "categories" && (
               <button 

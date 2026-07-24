@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import dashboardStyles from "./AdminDashboardClient.styles";
 
-export default function AdminSidebar({ activeTab, setActiveTab, unreadOrders, pendingWallets, handleLogout }) {
+export default function AdminSidebar({ activeTab, setActiveTab, unreadOrders, pendingWallets, handleLogout, adminUser, siteLogo, siteName, API_BASE_URL }) {
   return (
       <aside className="premium-sidebar">
         <div className="premium-logo">
