@@ -2,6 +2,8 @@ import ServicesClient from "./ServicesClient";
 import { API_BASE_URL, SITE_URL } from "@/config";
 import { cache } from "react";
 
+export const dynamic = "force-dynamic";
+
 const getSiteName = cache(async function getSiteName() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 3600 } });
