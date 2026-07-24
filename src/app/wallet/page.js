@@ -287,8 +287,8 @@ export default function WalletPage() {
                     }}
                   >
                     {pm.logo ? (
-                      <div style={{ width: "100%", height: "120px", borderRadius: "12px", overflow: "hidden" }}>
-                        <img src={pm.logo.startsWith("data:image") ? pm.logo : `${API_BASE_URL}${pm.logo}`} alt={pm.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ width: "100%", height: "120px", borderRadius: "12px", display: "flex", justifyContent: "center", alignItems: "center", overflow: "hidden" }}>
+                        <img src={pm.logo.startsWith("data:image") ? pm.logo : `${API_BASE_URL}${pm.logo}`} alt={pm.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                       </div>
                     ) : (
                       <div style={{ fontSize: "3rem" }}>
