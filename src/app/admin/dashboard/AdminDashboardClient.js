@@ -2272,6 +2272,14 @@ const handleLogout = () => {
             <span>إدارة البانر الإعلاني</span>
           </div>
 
+          <div
+            className={`nav-item-premium ${activeTab === "reviews" ? "active" : ""}`}
+            onClick={() => setActiveTab("reviews")}
+          >
+            <span className="nav-icon">⭐</span>
+            <span>آراء العملاء</span>
+          </div>
+
             <div
               className={`nav-item-premium ${activeTab === "memberships" ? "active" : ""}`}
               onClick={() => setActiveTab("memberships")}
