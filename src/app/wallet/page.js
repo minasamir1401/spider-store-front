@@ -286,9 +286,9 @@ export default function WalletPage() {
                       boxShadow: isSelected ? "0 4px 20px rgba(139, 92, 246, 0.2)" : "none"
                     }}
                   >
-                    {pm.image ? (
+                    {pm.logo ? (
                       <div style={{ width: "100%", height: "120px", display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(255, 255, 255, 0.9)", borderRadius: "12px", padding: "10px" }}>
-                        <img src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} alt={pm.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                        <img src={pm.logo.startsWith("data:image") ? pm.logo : `${API_BASE_URL}${pm.logo}`} alt={pm.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
                       </div>
                     ) : (
                       <div style={{ fontSize: "3rem" }}>
@@ -319,6 +319,13 @@ export default function WalletPage() {
                         <p style={{ color: "var(--text-main)", fontSize: "1rem", lineHeight: 1.7, marginBottom: "16px", background: "rgba(139, 92, 246, 0.1)", padding: "16px", borderRadius: "10px", borderRight: "4px solid var(--primary-color)" }}>
                           {pm.description}
                         </p>
+                        
+                        {pm.image && (
+                          <div style={{ textAlign: "center", marginBottom: "16px" }}>
+                            <div style={{ fontWeight: 800, marginBottom: "10px", color: "var(--text-muted)" }}>باركود (QR Code) الدفع:</div>
+                            <img src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} alt="QR Code / Barcode" style={{ maxWidth: "200px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "white", padding: "10px", boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }} />
+                          </div>
+                        )}
                         
                         <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
                           <div style={{ flex: 1 }}>

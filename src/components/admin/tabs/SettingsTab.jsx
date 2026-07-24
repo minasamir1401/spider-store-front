@@ -404,42 +404,81 @@ export default function SettingsTab({
                         style={{ padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13, 18, 36, 0.7)", color: "#ffffff", fontSize: "0.85rem", outline: "none", resize: "vertical" }}
                       />
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>صورة / باركود (QR Code) لطريقة الدفع (اختياري):</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, image: reader.result } : item));
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        style={{ padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13, 18, 36, 0.7)", color: "#ffffff", fontSize: "0.85rem", outline: "none" }}
-                      />
-                      {pm.image && (
-                        <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                          <img 
-                            src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} 
-                            alt="Payment Method Image" 
-                            style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)", background: "white" }} 
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, image: "" } : item));
-                            }}
-                            className="action-btn btn-danger-premium"
-                            style={{ padding: "4px 8px", fontSize: "0.75rem", width: "auto" }}
-                          >
-                            إزالة الصورة
-                          </button>
-                        </div>
-                      )}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>صورة خلفية / لوجو لطريقة الدفع (اختياري):</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, logo: reader.result } : item));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          style={{ padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13, 18, 36, 0.7)", color: "#ffffff", fontSize: "0.85rem", outline: "none" }}
+                        />
+                        {pm.logo && (
+                          <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <img 
+                              src={pm.logo.startsWith("data:image") ? pm.logo : `${API_BASE_URL}${pm.logo}`} 
+                              alt="Payment Method Logo" 
+                              style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)", background: "white" }} 
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, logo: "" } : item));
+                              }}
+                              className="action-btn btn-danger-premium"
+                              style={{ padding: "4px 8px", fontSize: "0.75rem", width: "auto" }}
+                            >
+                              إزالة اللوجو
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: "bold" }}>صورة / باركود (QR Code) لطريقة الدفع (اختياري):</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, image: reader.result } : item));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          style={{ padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13, 18, 36, 0.7)", color: "#ffffff", fontSize: "0.85rem", outline: "none" }}
+                        />
+                        {pm.image && (
+                          <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <img 
+                              src={pm.image.startsWith("data:image") ? pm.image : `${API_BASE_URL}${pm.image}`} 
+                              alt="Payment Method QR Code" 
+                              style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)", background: "white" }} 
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPaymentMethodsList(prev => prev.map(item => item.id === pm.id ? { ...item, image: "" } : item));
+                              }}
+                              className="action-btn btn-danger-premium"
+                              style={{ padding: "4px 8px", fontSize: "0.75rem", width: "auto" }}
+                            >
+                              إزالة الباركود
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
