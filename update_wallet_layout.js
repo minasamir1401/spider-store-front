@@ -1,238 +1,21 @@
-"use client";
+const fs = require('fs');
+const path = require('path');
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { API_BASE_URL } from "@/config";
+const filePath = path.join('D:', 'pj', 'spider-store-front', 'frontend', 'src', 'app', 'wallet', 'page.js');
+let content = fs.readFileSync(filePath, 'utf8');
 
-export default function WalletPage() {
-  const router = useRouter();
-  const [token, setToken] = useState("");
-  const [customer, setCustomer] = useState(null);
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [senderPhone, setSenderPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedMethodId, setSelectedMethodId] = useState("");
-  const [globalCurrencies, setGlobalCurrencies] = useState(["USD"]);
-  const [selectedCurrency, setSelectedCurrency] = useState("USD");
-  const [exchangeRates, setExchangeRates] = useState({ "EGP": 50, "SDG": 600 });
-  const [baseCurrency, setBaseCurrency] = useState("USD");
-  const [loadingRates, setLoadingRates] = useState(true);
-  const [whatsappNumbers, setWhatsappNumbers] = useState([]);
-  const [receiptImageFile, setReceiptImageFile] = useState(null);
-  const [receiptImagePreview, setReceiptImagePreview] = useState("");
-  const [whatsappSent, setWhatsappSent] = useState(false);
-  const [pendingWhatsapp, setPendingWhatsapp] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [theme, setTheme] = useState("dark");
-  const [hydrated, setHydrated] = useState(false);
+const anchor = 'if (!hydrated) {';
+const anchorIndex = content.indexOf(anchor);
+if (anchorIndex === -1) {
+  console.log("Could not find anchor");
+  process.exit(1);
+}
 
-  useEffect(() => {
-    setToken(localStorage.getItem("customer_token") || "");
-    setTheme(document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "dark");
-    
-    fetch(`${API_BASE_URL}/api/settings?t=${Date.now()}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data) {
-          if (data.payment_methods) {
-            setPaymentMethods(data.payment_methods);
-            if (data.payment_methods.length > 0) {
-              setSelectedMethodId(data.payment_methods[0].id);
-            }
-          }
-          if (data.whatsapp_numbers && Array.isArray(data.whatsapp_numbers)) {
-            setWhatsappNumbers(data.whatsapp_numbers);
-          }
-          if (data.supported_currencies && Array.isArray(data.supported_currencies)) {
-            setGlobalCurrencies(data.supported_currencies);
-            if (data.supported_currencies.length > 0) {
-              setSelectedCurrency(data.supported_currencies[0]);
-            }
-          }
-          if (data.exchange_rates) {
-            setExchangeRates(prev => ({ ...prev, ...data.exchange_rates }));
-          }
-          if (data.base_currency) {
-            setBaseCurrency(data.base_currency);
-          }
-        }
-      })
-      .catch(err => console.error("Error loading settings in wallet page:", err));
+// Find the end of the if block
+const ifEndIndex = content.indexOf('}', anchorIndex);
+const contentBeforeReturn = content.substring(0, ifEndIndex + 1);
 
-    // Fetch live exchange rates from ExchangeRate-API
-    fetch("https://v6.exchangerate-api.com/v6/182089caed1406b0fb1aa9e6/latest/USD")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data && data.result === "success" && data.conversion_rates) {
-          setExchangeRates({
-            EGP: data.conversion_rates.EGP || 50,
-            SDG: data.conversion_rates.SDG || 600
-          });
-        }
-        setLoadingRates(false);
-        setHydrated(true);
-      })
-      .catch(err => {
-        console.error("Error fetching live rates:", err);
-        setLoadingRates(false);
-        setHydrated(true);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (hydrated && !token) {
-      router.push("/login");
-    }
-  }, [router, token, hydrated]);
-
-  useEffect(() => {
-    if (!token) return;
-
-    const fetchWalletData = async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const headers = { Authorization: `Bearer ${token}` };
-
-        const meRes = await fetch(`${API_BASE_URL}/api/customer/me`, { headers });
-        if (!meRes.ok) throw new Error("فشل تحميل بيانات المحفظة.");
-        const meData = await meRes.json();
-        setCustomer(meData);
-
-        const requestsRes = await fetch(`${API_BASE_URL}/api/customer/wallet-requests`, { headers });
-        if (!requestsRes.ok) throw new Error("فشل تحميل الطلبات.");
-        const requestsData = await requestsRes.json();
-        setRequests(requestsData);
-      } catch (err) {
-        setError(err.message || "تعذر تحميل بيانات المحفظة.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWalletData();
-  }, [token]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setMessage("");
-
-    const parsedAmount = Number(amount);
-    if (!parsedAmount || parsedAmount <= 0) {
-      setError("يرجى إدخال مبلغ صحيح.");
-      return;
-    }
-    if (!senderPhone.trim()) {
-      setError("يرجى إدخال رقم التحويل.");
-      return;
-    }
-    if (!receiptImageFile) {
-      setError("يرجى إرفاق صورة وصل التحويل.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      // Convert receipt image to base64
-      let receiptBase64 = null;
-      if (receiptImageFile) {
-        receiptBase64 = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.readAsDataURL(receiptImageFile);
-        });
-      }
-
-      const formattedNotes = notes;
-
-      const response = await fetch(`${API_BASE_URL}/api/customer/wallet-requests`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          amount: parsedAmount,
-          currency: selectedCurrency,
-          sender_phone: senderPhone,
-          notes: formattedNotes,
-          receipt_image: receiptBase64  // sent to backend for auto WhatsApp delivery
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "فشل إرسال الطلب.");
-      }
-
-      const requestId = data.id || data.request_id || "";
-      const customerName = customer?.username || "";
-      const waText = [
-        `💳 طلب شحن رصيد #${requestId}`,
-        `👤 الاسم: ${customerName}`,
-        `💰 القيمة المطلوبة: $${parsedAmount} USD`,
-        `💵 عملة التحويل: ${selectedCurrency}`,
-        `📞 رقم التحويل: ${senderPhone}`,
-        notes ? `📝 ملاحظات: ${notes}` : "",
-        `\nالرجاء مراجعة وصل التحويل المرفق والتأكد من اعتماده.`
-      ].filter(Boolean).join("\n");
-
-      setPendingWhatsapp({ text: waText, requestId, autoSent: data.wa_sent === true });
-      setWhatsappSent(false);
-      setMessage("");
-      setAmount("");
-      setSenderPhone("");
-      setNotes("");
-      setReceiptImageFile(null);
-      setReceiptImagePreview("");
-
-      const [meRes, reqRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/customer/me`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE_URL}/api/customer/wallet-requests`, { headers: { Authorization: `Bearer ${token}` } })
-      ]);
-      if (meRes.ok) setCustomer(await meRes.json());
-      if (reqRes.ok) setRequests(await reqRes.json());
-    } catch (err) {
-      setError(err.message || "تعذر إرسال طلب الشحن.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const openWhatsapp = (number) => {
-    const encoded = encodeURIComponent(pendingWhatsapp?.text || "");
-    const clean = number.replace(/[^0-9]/g, "");
-    window.open(`https://wa.me/${clean}?text=${encoded}`, "_blank");
-  };
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.setAttribute("data-theme", nextTheme);
-    localStorage.setItem("theme", nextTheme);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("customer_token");
-    localStorage.removeItem("customer_user");
-    router.push("/login");
-  };
-
-  if (!hydrated) {
-    return <div style={{ textAlign: "center", padding: "50px", color: "var(--text-muted)" }}>جاري تحميل المحفظة...</div>;
-  }
-
+const newReturn = `\n
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "800px", margin: "0 auto" }}>
       {/* Wallet Balance Top Card */}
@@ -420,7 +203,7 @@ export default function WalletPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {whatsappNumbers.length > 0 ? whatsappNumbers.map((num, i) => (
                     <button key={i} onClick={() => { openWhatsapp(num); setWhatsappSent(true); }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "14px", background: "linear-gradient(135deg, #25d366, #128c7e)", border: "none", borderRadius: "14px", color: "#fff", fontWeight: 900, fontSize: "1rem", cursor: "pointer", transition: "transform 0.2s" }} onMouseEnter={(e)=>e.currentTarget.style.transform="scale(1.02)"} onMouseLeave={(e)=>e.currentTarget.style.transform="scale(1)"}>
-                      <span style={{ fontSize: "1.3rem" }}>💬</span> إرسال الوصل عبر واتساب {whatsappNumbers.length > 1 ? `(${i + 1})` : ""}
+                      <span style={{ fontSize: "1.3rem" }}>💬</span> إرسال الوصل عبر واتساب {whatsappNumbers.length > 1 ? \`(\${i + 1})\` : ""}
                     </button>
                   )) : (
                     <div style={{ color: "var(--text-muted)", textAlign: "center", fontSize: "0.9rem" }}>⚠️ رقم الواتساب غير متوفر</div>
@@ -463,7 +246,7 @@ export default function WalletPage() {
               <div key={request.id} style={{ padding: "18px", borderRadius: "16px", background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
                   <strong style={{ fontSize: "1.1rem" }}>طلب #{request.id}</strong>
-                  <span className={`badge badge-${request.status}`} style={{ padding: "6px 12px", borderRadius: "8px", fontSize: "0.85rem" }}>
+                  <span className={\`badge badge-\${request.status}\`} style={{ padding: "6px 12px", borderRadius: "8px", fontSize: "0.85rem" }}>
                     {request.status === "pending" && "قيد الانتظار ⏳"}
                     {request.status === "approved" && "تم الاعتماد ✅"}
                     {request.status === "rejected" && "مرفوض ❌"}
@@ -476,7 +259,7 @@ export default function WalletPage() {
                   <div>بتاريخ: <strong style={{ color: "var(--text-main)" }}>{new Date(request.created_at).toLocaleString("ar-EG")}</strong></div>
                   {request.notes && (
                     <div style={{ gridColumn: "span 2", background: "rgba(0,0,0,0.2)", padding: "10px", borderRadius: "8px", marginTop: "4px" }}>
-                      الملاحظات: <strong style={{ color: "var(--text-main)" }}>{request.notes.replace(/^\[تم تحويل:[^\]]+\]\s*/, "")}</strong>
+                      الملاحظات: <strong style={{ color: "var(--text-main)" }}>{request.notes.replace(/^\\[تم تحويل:[^\\]]+\\]\\s*/, "")}</strong>
                     </div>
                   )}
                 </div>
@@ -492,3 +275,7 @@ export default function WalletPage() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync(filePath, contentBeforeReturn + newReturn, 'utf8');
+console.log('Successfully updated wallet page layout');

@@ -26,12 +26,7 @@ export default function MembershipsTab({ token }) {
   const [memberSearch, setMemberSearch] = useState("");
   const [addMemberNote, setAddMemberNote] = useState("");
 
-  useEffect(() => {
-    if (!token) return;
-    fetchTiers();
-    fetchCategoriesAndServices();
-    fetchAllCustomers();
-  }, [token]);
+
 
   const fetchTiers = async () => {
     try {
@@ -143,6 +138,14 @@ export default function MembershipsTab({ token }) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    if (!token) return;
+    fetchTiers();
+    fetchCategoriesAndServices();
+    fetchAllCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const handleSelectTier = (tier) => {
     setSelectedTier(tier);

@@ -314,119 +314,7 @@ export default function MainLayout({ children }) {
         </div>
       )}
 
-      {/* Desktop Sidebar (RTL Right Side) */}
-      <aside className="app-sidebar">
-        <div className="sidebar-logo-section" style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-          {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
-            <img
-              src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
-              alt={settings.site_name}
-              onError={() => setLogoFailed(true)}
-              style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover" }}
-            />
-          ) : (
-            <div className="logo-circle" style={{ width: "44px", height: "44px", borderRadius: "12px" }}>
-              {settings.site_name ? settings.site_name.charAt(0) : "S"}
-            </div>
-          )}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontWeight: 900, fontSize: "1.15rem", color: "var(--text-main)" }}>{settings.site_name}</span>
-            <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", letterSpacing: "0.5px" }}>DIGITAL SERVICES</span>
-          </div>
-        </div>
-
-        <nav style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "10px", flexGrow: 1 }}>
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`sidebar-nav-item ${isActive(link.href) ? "active" : ""}`}
-            >
-              <span className="sidebar-nav-icon">{link.icon}</span>
-              <span>{link.label}</span>
-            </Link>
-          ))}
-
-          <button
-            type="button"
-            onClick={() => setSupportModalOpen(true)}
-            className="sidebar-nav-item"
-            style={{ width: "100%", background: "none", border: "none", textAlign: "right", cursor: "pointer", display: "flex", alignItems: "center" }}
-          >
-            <span className="sidebar-nav-icon">💬</span>
-            <span>الدعم الفني</span>
-          </button>
-        </nav>
-
-        <div className="sidebar-footer" style={{ display: "flex", flexDirection: "column", gap: "10px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "15px" }}>
-
-
-          {/* Theme Toggle in Sidebar */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
-            <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "1.1rem" }}>{theme === "dark" ? "🌙" : "☀️"}</span>
-              <span>المظهر الليلي</span>
-            </span>
-            <button
-              onClick={toggleTheme}
-              style={{
-                background: theme === "dark" ? "var(--primary-color)" : "rgba(0, 0, 0, 0.15)",
-                border: "none",
-                borderRadius: "100px",
-                width: "48px",
-                height: "26px",
-                display: "flex",
-                alignItems: "center",
-                padding: "3px",
-                cursor: "pointer",
-                transition: "background-color 0.3s ease",
-                position: "relative",
-                outline: "none"
-              }}
-              type="button"
-              aria-label="تبديل المظهر"
-            >
-              <div style={{
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                background: "#ffffff",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                transform: theme === "dark" ? "translateX(-22px)" : "translateX(0)"
-              }} />
-            </button>
-          </div>
-
-          {/* User profile / Logout / Login */}
-          {isCustomerLoggedIn && customerUser ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ padding: "12px", borderRadius: "12px", background: "var(--bg-glass-hover)", border: "var(--border-glass)", fontSize: "0.85rem" }}>
-                <div style={{ fontWeight: 800 }}>👤 {customerUser.username}</div>
-                <div style={{ color: "var(--primary-color)", fontWeight: 800, marginTop: "4px" }}>
-                  {renderBalanceDropdownAndValue(customerUser)}
-                </div>
-              </div>
-              <button
-                onClick={handleCustomerLogout}
-                className="glass-btn"
-                style={{ width: "100%", padding: "10px", borderRadius: "12px", color: "var(--danger-color)", fontWeight: "bold" }}
-                type="button"
-              >
-                🚪 تسجيل الخروج
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              className="glass-btn glass-btn-primary"
-              style={{ width: "100%", padding: "12px", borderRadius: "12px", textAlign: "center", display: "block", textDecoration: "none" }}
-            >
-              🔑 تسجيل الدخول
-            </Link>
-          )}
-        </div>
-      </aside>
+      
 
       {/* Mobile Drawer Overlay */}
       {menuOpen && (
@@ -434,134 +322,146 @@ export default function MainLayout({ children }) {
       )}
 
       {/* Mobile Drawer Menu */}
+      {menuOpen && (
+        <div className="mobile-drawer-overlay" onClick={() => setMenuOpen(false)} />
+      )}
       <div className={`mobile-drawer ${menuOpen ? "open" : "closed"}`}>
         <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span className="mobile-drawer-title" style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "1.25rem" }}>
             {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
               <img
                 src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
                 alt={settings.site_name}
                 onError={() => setLogoFailed(true)}
-                style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }}
+                style={{ width: "38px", height: "38px", borderRadius: "10px", objectFit: "cover", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}
               />
             ) : (
-              <div className="logo-circle" style={{ width: "32px", height: "32px", fontSize: "1rem" }}>
+              <div className="logo-circle" style={{ width: "38px", height: "38px", fontSize: "1.2rem", background: "linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%)", borderRadius: "10px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>
                 {settings.site_name ? settings.site_name.charAt(0) : "S"}
               </div>
             )}
-            {settings.site_name}
+            <span style={{ fontWeight: 900 }}>{settings.site_name}</span>
           </span>
-          <button className="mobile-drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
+          <button className="mobile-drawer-close" onClick={() => setMenuOpen(false)} style={{ background: "rgba(255,255,255,0.08)", border: "none", width: "36px", height: "36px", borderRadius: "50%", fontSize: "1.2rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}>✕</button>
         </div>
 
         {isCustomerLoggedIn && customerUser ? (
-          <div className="mobile-drawer-user-card" style={{ marginBottom: "10px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
-            <div>مرحباً، {customerUser.username}</div>
-            <div style={{ fontSize: "0.8rem", color: "var(--primary-color)", fontWeight: "bold" }}>
+          <div className="mobile-drawer-user-card" style={{ marginBottom: "15px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px", padding: "16px", background: "linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.1))", borderRadius: "16px", border: "1px solid rgba(79, 70, 229, 0.2)" }}>
+            <div style={{ fontSize: "1rem", fontWeight: 800 }}>مرحباً، {customerUser.username} 👋</div>
+            <div style={{ fontSize: "0.9rem", color: "var(--primary-color)", fontWeight: 900, background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "8px", display: "inline-block" }}>
               {renderBalanceDropdownAndValue(customerUser)}
             </div>
           </div>
         ) : (
-          <Link href="/login" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
-            <span>👤</span>
-            حسابي (تسجيل الدخول)
+          <Link href="/login" className="mobile-drawer-link" onClick={() => setMenuOpen(false)} style={{ background: "var(--primary-color)", color: "white", justifyContent: "center", borderRadius: "12px", padding: "14px" }}>
+            <span style={{ fontSize: "1.2rem" }}>👤</span>
+            تسجيل الدخول / حساب جديد
           </Link>
         )}
 
-        <div className="mobile-drawer-divider" />
+        <div className="mobile-drawer-divider" style={{ margin: "12px 0" }} />
 
-        <Link href="/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🏠 الرئيسية</Link>
-        <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>🛒 الخدمات المتاحة</Link>
-        <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>📦 تتبع الطلبات</Link>
-        {isCustomerLoggedIn && <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>💳 شحن رصيدي</Link>}
-        <Link href="/terms" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>⚖️ الشروط وسياسة الاسترجاع</Link>
-        <button
-          type="button"
-          onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }}
-          className="mobile-drawer-link"
-          style={{ width: "100%", textAlign: "right", border: "none", display: "flex", alignItems: "center" }}
-        >
-          💬 الدعم الفني
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <Link href="/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
+            <span style={{ fontSize: "1.2rem" }}>🏠</span> الرئيسية
+          </Link>
+          <Link href="/services" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
+            <span style={{ fontSize: "1.2rem" }}>🛒</span> الخدمات المتاحة
+          </Link>
+          <Link href="/orders" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
+            <span style={{ fontSize: "1.2rem" }}>📦</span> تتبع الطلبات
+          </Link>
+          {isCustomerLoggedIn && (
+            <Link href="/wallet" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
+              <span style={{ fontSize: "1.2rem" }}>💳</span> شحن رصيدي
+            </Link>
+          )}
+          <Link href="/terms" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}>
+            <span style={{ fontSize: "1.2rem" }}>⚖️</span> الشروط وسياسة الاسترجاع
+          </Link>
+          <button
+            type="button"
+            onClick={() => { setSupportModalOpen(true); setMenuOpen(false); }}
+            className="mobile-drawer-link"
+            style={{ width: "100%", textAlign: "right", border: "none", display: "flex", alignItems: "center", background: "transparent", padding: "14px 16px" }}
+          >
+            <span style={{ fontSize: "1.2rem" }}>💬</span> الدعم الفني
+          </button>
+        </div>
 
-        <div className="mobile-drawer-divider" />
+        <div className="mobile-drawer-divider" style={{ margin: "16px 0" }} />
 
-        {/* Font Scale Toggle in Mobile Drawer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
-          <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "1.1rem" }}>📝</span>
-            <span>حجم الخط</span>
+        {/* Premium Font Scale Toggle */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.05)", margin: "4px 0" }}>
+          <span style={{ fontSize: "0.95rem", fontWeight: "800", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "1.2rem" }}>📝</span>
+            حجم الخط
           </span>
-          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center", background: "rgba(0,0,0,0.2)", padding: "4px", borderRadius: "10px" }}>
             <button
               onClick={() => adjustFontScale(-0.05)}
-              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ background: "transparent", border: "none", color: "var(--text-main)", width: "32px", height: "32px", borderRadius: "8px", cursor: "pointer", fontSize: "0.9rem", fontWeight: "bold", transition: "0.2s" }}
               title="تصغير الخط"
               type="button"
-            >
-              A-
-            </button>
+            >A-</button>
+            <div style={{ width: "1px", height: "20px", background: "rgba(255,255,255,0.1)" }}></div>
             <button
               onClick={resetFontScale}
-              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ background: "transparent", border: "none", color: "var(--text-main)", width: "32px", height: "32px", borderRadius: "8px", cursor: "pointer", fontSize: "1rem", fontWeight: "900", transition: "0.2s" }}
               title="حجم افتراضي"
               type="button"
-            >
-              A
-            </button>
+            >A</button>
+            <div style={{ width: "1px", height: "20px", background: "rgba(255,255,255,0.1)" }}></div>
             <button
               onClick={() => adjustFontScale(0.05)}
-              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-main)", width: "28px", height: "28px", borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ background: "transparent", border: "none", color: "var(--text-main)", width: "32px", height: "32px", borderRadius: "8px", cursor: "pointer", fontSize: "1.1rem", fontWeight: "bold", transition: "0.2s" }}
               title="تكبير الخط"
               type="button"
-            >
-              A+
-            </button>
+            >A+</button>
           </div>
         </div>
 
-        {/* Theme Toggle in Mobile Drawer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-glass-hover)", borderRadius: "12px", border: "var(--border-glass)", margin: "4px 0" }}>
-          <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "1.1rem" }}>{theme === "dark" ? "🌙" : "☀️"}</span>
-            <span>المظهر الليلي</span>
+        {/* Premium Theme Toggle */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.05)", margin: "4px 0" }}>
+          <span style={{ fontSize: "0.95rem", fontWeight: "800", color: "var(--text-main)", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "1.2rem" }}>{theme === 'dark' ? '🌙' : '☀️'}</span>
+            المظهر الليلي
           </span>
           <button
             onClick={toggleTheme}
             style={{
-              background: theme === "dark" ? "var(--primary-color)" : "rgba(0, 0, 0, 0.15)",
+              background: theme === 'dark' ? 'var(--primary-color)' : 'rgba(0, 0, 0, 0.15)',
               border: "none",
-              borderRadius: "100px",
-              width: "48px",
-              height: "26px",
+              borderRadius: "20px",
+              width: "56px",
+              height: "30px",
               display: "flex",
               alignItems: "center",
-              padding: "3px",
+              padding: "4px",
               cursor: "pointer",
-              transition: "background-color 0.3s ease",
+              transition: "background-color 0.4s ease",
               position: "relative",
               outline: "none"
             }}
             type="button"
-            aria-label="تبديل المظهر"
           >
             <div style={{
-              width: "20px",
-              height: "20px",
+              width: "22px",
+              height: "22px",
               borderRadius: "50%",
               background: "#ffffff",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              transform: theme === "dark" ? "translateX(-22px)" : "translateX(0)"
+              boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+              transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transform: theme === 'dark' ? 'translateX(-26px)' : 'translateX(0)'
             }} />
           </button>
         </div>
 
         {isCustomerLoggedIn && (
           <>
-            <div className="mobile-drawer-divider" />
-            <button className="mobile-drawer-link danger" onClick={() => { handleCustomerLogout(); setMenuOpen(false); }}>
-              تسجيل الخروج 🚪
+            <div className="mobile-drawer-divider" style={{ margin: "12px 0" }} />
+            <button className="mobile-drawer-link danger" onClick={() => { handleCustomerLogout(); setMenuOpen(false); }} style={{ justifyContent: "center", padding: "14px", borderRadius: "12px", fontWeight: 900 }}>
+              🚪 تسجيل الخروج
             </button>
           </>
         )}
@@ -600,159 +500,91 @@ export default function MainLayout({ children }) {
           </div>
         )}
 
-        {/* Top Navbar (Reference style matching tsmart-one.online) */}
-        <header className="custom-navbar">
+        {/* Top Navbar */}
+        <header className="custom-navbar" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 20px',
+          height: '70px',
+          background: 'rgba(10, 15, 30, 0.8)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000
+        }}>
           <div className="custom-navbar-glow"></div>
-
-          {/* Left Section: Burger Button (mobile) / Back Button (mobile subpages) + Logo (mobile) / Page Title (desktop) */}
+          
+          {/* Right Section (Logo & Mobile Menu) */}
           <div className="flex items-center gap-3">
-            {/* Drawer menu button (shown on mobile, hidden on desktop) */}
-            <button
-              className="header-btn lg-hidden w-9 h-9"
-              onClick={() => setMenuOpen(!menuOpen)}
-              type="button"
-              aria-label="القائمة"
-            >
+            <button className="header-btn lg-hidden w-9 h-9" type="button" aria-label="القائمة" onClick={() => setMenuOpen(!menuOpen)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu w-5 h-5">
                 <line x1="4" x2="20" y1="12" y2="12"></line>
                 <line x1="4" x2="20" y1="6" y2="6"></line>
                 <line x1="4" x2="20" y1="18" y2="18"></line>
               </svg>
             </button>
-
-            {/* Back Button (mobile subpages) */}
-            {pathname !== "/" && (
-              <button
-                className="header-btn lg-hidden w-9 h-9"
-                onClick={() => router.back()}
-                title="رجوع"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right w-5 h-5">
-                  <path d="m9 18 6-6-6-6"></path>
-                </svg>
-              </button>
-            )}
-
-            {/* Logo Link (shown on mobile, hidden on desktop) */}
-            <Link className="lg-hidden flex items-center gap-2" href="/" style={{ textDecoration: "none", minWidth: 0, flex: 1 }}>
-              {settings.site_logo && settings.site_logo !== "default" && !logoFailed ? (
-                <img
-                  src={settings.site_logo.startsWith("http") || settings.site_logo.startsWith("/") || settings.site_logo.startsWith("data:") ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`}
-                  alt={settings.site_name}
-                  onError={() => setLogoFailed(true)}
-                  style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }}
-                />
+            <Link className="flex items-center gap-2" style={{ textDecoration: 'none', minWidth: 0, flex: 1 }} href="/">
+              {settings.site_logo && settings.site_logo !== 'default' && !logoFailed ? (
+                <img src={settings.site_logo.startsWith('http') || settings.site_logo.startsWith('/') || settings.site_logo.startsWith('data:') ? settings.site_logo : `${API_BASE_URL}${settings.site_logo}`} alt={settings.site_name} onError={() => setLogoFailed(true)} style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
               ) : (
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: "linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)", color: "#ffffff", boxShadow: "rgba(79, 70, 229, 0.3) 0px 2px 10px", flexShrink: 0 }}>
-                  {settings.site_name ? settings.site_name.charAt(0) : "S"}
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm" style={{ background: 'linear-gradient(135deg, rgb(79, 70, 229) 0%, rgb(99, 102, 241) 100%)', color: '#ffffff', boxShadow: 'rgba(79, 70, 229, 0.3) 0px 2px 10px', flexShrink: 0 }}>
+                  {settings.site_name ? settings.site_name.charAt(0) : 'S'}
                 </div>
               )}
-              <span className="font-black" style={{ color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: "clamp(0.7rem, 2.5vw, 0.875rem)" }}>{settings.site_name}</span>
+              <span className="font-black" style={{ color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 'clamp(0.7rem, 2.5vw, 0.875rem)' }}>{settings.site_name}</span>
             </Link>
-
-            {/* Page Title (shown on desktop, hidden on mobile) */}
-            <h2 className="lg-block font-black uppercase tracking-wider text-xs" style={{ color: "var(--text-muted)", margin: 0 }}>
-              {getPageTitle()}
-            </h2>
           </div>
 
-          {/* Right Section: Theme Toggle + Language Switcher + Notifications + Profile Initials/Login */}
-          <div className="flex items-center gap-1" style={{ position: "relative" }}>
-            {/* Contact WhatsApp Link */}
-            <a
-              href={`https://wa.me/${settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0 ? settings.whatsapp_numbers[0] : "16728972935"}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="header-btn"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "0 10px",
-                borderRadius: "8px",
-                background: "rgba(34, 197, 94, 0.1)",
-                border: "1px solid rgba(34, 197, 94, 0.2)",
-                color: "#22c55e",
-                textDecoration: "none",
-                height: "36px",
-                fontSize: "0.82rem",
-                fontWeight: "bold",
-                transition: "all 0.3s ease",
-                whiteSpace: "nowrap"
-              }}
-            >
-              <span className="flex items-center justify-center" style={{ fontSize: "1.1rem" }}>🟢</span>
-              <span className="nav-mobile-hidden" style={{ direction: "ltr" }}>
-                {settings.whatsapp_numbers && settings.whatsapp_numbers.length > 0
-                  ? `+${settings.whatsapp_numbers[0]}`
-                  : "+1 (672) 897-2935"}
-              </span>
-            </a>
+          {/* Center Section (Desktop Links) */}
+          <nav className="nav-desktop-links lg-flex hidden items-center gap-6" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <Link href="/" className={`desktop-link ${pathname === '/' ? 'active' : ''}`}>الرئيسية</Link>
+            <Link href="/services" className={`desktop-link ${pathname.startsWith('/services') ? 'active' : ''}`}>الخدمات</Link>
+            <Link href="/orders" className={`desktop-link ${pathname.startsWith('/orders') ? 'active' : ''}`}>الطلبات</Link>
+            <Link href="/wallet" className={`desktop-link ${pathname.startsWith('/wallet') ? 'active' : ''}`}>المحفظة</Link>
+            <button type="button" onClick={() => setSupportModalOpen(true)} className="desktop-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit' }}>تواصل معنا</button>
+          </nav>
 
-
-
-
-
-            {/* User Profile Menu Trigger — desktop only, mobile uses drawer */}
+          {/* Left Section (Auth & WhatsApp & Theme) */}
+          <div className="flex items-center gap-3" style={{ position: 'relative' }}>
+            <button onClick={toggleTheme} className="theme-toggle-btn header-btn lg-block hidden" aria-label="تبديل المظهر" style={{ padding: '6px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer' }}>
+              {theme === 'dark' ? '🌙' : '☀️'}
+            </button>
+            
             <div className="lg-block">
               {isCustomerLoggedIn && customerUser ? (
-                <button
-                  className="header-user-btn"
-                  type="button"
-                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                  title="الملف الشخصي"
-                >
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
-                    {customerUser.username ? customerUser.username.charAt(0).toLowerCase() : "u"}
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
-                </button>
+                <div style={{ position: 'relative' }}>
+                  <button className="header-user-btn" type="button" onClick={() => setProfileMenuOpen(!profileMenuOpen)} title="الملف الشخصي" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '8px', cursor: 'pointer' }}>
+                    <div className="font-black text-sm" style={{ color: 'rgb(79, 70, 229)' }}>
+                      {customerUser.username ? customerUser.username.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{customerUser.username}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="m6 9 6 6 6-6"></path></svg>
+                  </button>
+
+                  {/* Dropdown */}
+                  {profileMenuOpen && (
+                    <div className="header-profile-dropdown" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '220px', background: 'var(--bg-glass)', border: 'var(--border-glass)', borderRadius: '12px', padding: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)', zIndex: 1000 }}>
+                      <div style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '4px' }}>
+                        <div style={{ color: 'var(--primary-color)', fontWeight: 800, fontSize: '0.85rem', marginTop: '2px' }}>
+                          {renderBalanceDropdownAndValue(customerUser)}
+                        </div>
+                      </div>
+                      <Link href="/orders" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>📦 طلباتي</Link>
+                      <Link href="/wallet" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>💳 شحن المحفظة</Link>
+                      <button onClick={() => { handleCustomerLogout(); setProfileMenuOpen(false); }} className="header-dropdown-item" style={{ color: 'var(--danger-color)', width: '100%', textAlign: 'right' }} type="button">🚪 تسجيل الخروج</button>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <button
-                  className="header-user-btn"
-                  type="button"
-                  onClick={() => router.push("/login")}
-                  title="تسجيل الدخول"
-                >
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs" style={{ background: "rgba(79, 70, 229, 0.1)", color: "rgb(79, 70, 229)" }}>
-                    🔑
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down w-3 h-3" style={{ color: "rgb(88, 88, 96)" }}><path d="m6 9 6 6 6-6"></path></svg>
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link href="/login" style={{ textDecoration: 'none', padding: '6px 16px', background: 'var(--primary-color)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>تسجيل</Link>
+                  <Link href="/login" style={{ textDecoration: 'none', padding: '6px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-main)', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>دخول</Link>
+                </div>
               )}
             </div>
-
-            {/* Profile Dropdown Menu */}
-            {isCustomerLoggedIn && customerUser && profileMenuOpen && (
-              <div className="header-profile-dropdown">
-                <div style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", marginBottom: "4px" }}>
-                  <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "var(--text-main)" }}>👤 {customerUser.username}</div>
-                  <div style={{ color: "var(--primary-color)", fontWeight: 800, fontSize: "0.82rem", marginTop: "2px" }}>
-                    {renderBalanceDropdownAndValue(customerUser)}
-                  </div>
-                </div>
-                <Link href="/orders" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
-                  📦 طلباتي
-                </Link>
-                <Link href="/wallet" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
-                  💳 شحن المحفظة
-                </Link>
-                <Link href="/terms" className="header-dropdown-item" onClick={() => setProfileMenuOpen(false)}>
-                  ⚖️ الشروط وسياسة الاسترجاع
-                </Link>
-                <button
-                  onClick={() => { handleCustomerLogout(); setProfileMenuOpen(false); }}
-                  className="header-dropdown-item"
-                  style={{ color: "var(--danger-color)" }}
-                  type="button"
-                >
-                  🚪 تسجيل الخروج
-                </button>
-              </div>
-            )}
           </div>
-
-
         </header>
 
         {/* Child Pages Content */}

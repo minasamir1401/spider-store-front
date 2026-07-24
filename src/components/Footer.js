@@ -52,6 +52,7 @@ export default function Footer() {
             <Link href="/orders">📦 تتبع طلباتي ومشترياتي</Link>
             <Link href="/wallet">💳 محفظتي وشحن الرصيد</Link>
             <Link href="/login">👤 تسجيل الدخول / حساب جديد</Link>
+            <Link href="/terms">⚖️ سياسة الاستخدام</Link>
           </div>
         </div>
 

@@ -33,6 +33,8 @@ export default function SettingsTab({
   setWhatsappNumbers,
   newWhatsappNumber,
   setNewWhatsappNumber,
+  homeStats,
+  setHomeStats,
   emailUser,
   setEmailUser,
   emailPass,
@@ -111,6 +113,45 @@ export default function SettingsTab({
               onChange={(e) => setAnnouncementText(e.target.value)}
               placeholder="مثال: 🟢 واتساب الإدارة: +1 (672) 897-2935"
             />
+          </div>
+
+          {/* Home Stats Management */}
+          <div className="form-group" style={{ background: "rgba(14, 165, 233, 0.05)", padding: "20px", borderRadius: "16px", border: "1px solid rgba(14, 165, 233, 0.2)" }}>
+            <h4 style={{ margin: "0 0 15px 0", color: "#38bdf8", fontSize: "1.05rem" }}>📊 إحصائيات الصفحة الرئيسية</h4>
+            <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "15px" }}>قم بتعديل الأرقام التي تظهر في قسم الإحصائيات بالصفحة الرئيسية.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px" }}>
+              {Array.isArray(homeStats) && homeStats.map((stat, idx) => (
+                <div key={idx} style={{ background: "rgba(0,0,0,0.2)", padding: "15px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                    <span style={{ fontSize: "1.5rem" }}>{stat.icon}</span>
+                    <input 
+                      type="text" 
+                      value={stat.label} 
+                      onChange={(e) => {
+                        const newStats = [...homeStats];
+                        newStats[idx].label = e.target.value;
+                        setHomeStats(newStats);
+                      }}
+                      className="search-input-premium"
+                      style={{ padding: "5px 10px", flex: 1, fontSize: "0.9rem" }}
+                      placeholder="العنوان"
+                    />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={stat.value} 
+                    onChange={(e) => {
+                      const newStats = [...homeStats];
+                      newStats[idx].value = e.target.value;
+                      setHomeStats(newStats);
+                    }}
+                    className="search-input-premium"
+                    style={{ padding: "8px 10px", width: "100%", textAlign: "center", fontWeight: "bold", color: "#38bdf8" }}
+                    placeholder="الرقم (مثال: 10K+)"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px", background: "rgba(16, 185, 129, 0.05)", padding: "12px", borderRadius: "10px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>

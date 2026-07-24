@@ -273,7 +273,7 @@ export default function GmailTab() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "16px" }}>
           <span style={{ fontSize: "1.6rem" }}>📖</span>
           <div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 900, margin: 0, color: "#38bdf8" }}>دليل استخراج "كلمة مرور التطبيقات (App Password)" في 3 خطوات بسيطة</h3>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 900, margin: 0, color: "#38bdf8" }}>دليل استخراج &quot;كلمة مرور التطبيقات (App Password)&quot; في 3 خطوات بسيطة</h3>
             <p style={{ fontSize: "0.82rem", color: "#ffffff", margin: "4px 0 0" }}>كيف تحصل على الكود المكون من 16 حرف من حساب جوجل بدون تعطيل الأمان</p>
           </div>
         </div>
