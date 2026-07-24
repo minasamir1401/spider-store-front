@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   const [newServicePriceType, setNewServicePriceType] = useState("fixed"); // fixed or dynamic
   const [newServicePricePerThousand, setNewServicePricePerThousand] = useState(0);
   const [newServiceIsPopular, setNewServiceIsPopular] = useState(false);
-  
+
   // Package list builder
   const [newServicePackages, setNewServicePackages] = useState([
     { name: "", price: 0 }
@@ -335,10 +335,10 @@ export default function AdminDashboard() {
     const filtered = unlockerServices.filter(s => {
       const name = s.name || "";
       const category = s.category || "";
-      const matchSearch = !query || 
-                          name.toLowerCase().includes(query) || 
-                          category.toLowerCase().includes(query) ||
-                          String(s.id).includes(query);
+      const matchSearch = !query ||
+        name.toLowerCase().includes(query) ||
+        category.toLowerCase().includes(query) ||
+        String(s.id).includes(query);
       const matchCat = unlockerCategoryFilter === "ALL" || s.category === unlockerCategoryFilter;
       return matchSearch && matchCat;
     });
@@ -435,7 +435,7 @@ export default function AdminDashboard() {
           if (settingsData.exchange_rates) {
             setExchangeRates(settingsData.exchange_rates);
           }
-            setBaseCurrency("USD");
+          setBaseCurrency("USD");
           setHideWalletPayment(settingsData.hide_wallet_payment || false);
           if (settingsData.api_auto_submit !== undefined) {
             setApiAutoSubmit(settingsData.api_auto_submit);
@@ -562,7 +562,7 @@ export default function AdminDashboard() {
     loadCustomerTransactions();
   }, [token, selectedCustomerId]);
 
-  
+
   const saveUnlockerSettings = async (e) => {
     e.preventDefault();
     setUnlockerSettingsMsg("");
@@ -617,10 +617,10 @@ export default function AdminDashboard() {
       alert("يرجى تحديد خدمة واحدة على الأقل للاستيراد.");
       return;
     }
-    
+
     setUnlockerLoading(true);
     setUnlockerSyncMsg("");
-    
+
     try {
       let allServicesToImport = unlockerServices
         .filter(s => selectedUnlockerServices.includes(s.id))
@@ -660,13 +660,13 @@ export default function AdminDashboard() {
             group_as_packages: unlockerGroupAsPackages
           })
         });
-        
+
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || `فشل استيراد الدفعة ${chunkNum}.`);
 
         importedCount += chunk.length;
       }
-      
+
       setUnlockerSyncMsg(`✅ تم استيراد عدد ${totalServices} خدمة بنجاح على دفعات متتالية دون أي مشاكل!`);
       setSelectedUnlockerServices([]);
       void fetchData();
@@ -719,10 +719,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل إرسال الطلب لـ API.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -745,10 +745,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل تحديث حالة الطلب.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -765,10 +765,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل إلغاء الطلب.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -785,10 +785,10 @@ export default function AdminDashboard() {
           "Authorization": `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "فشل إرجاع الرصيد.");
-      
+
       alert(data.message);
       void fetchData();
     } catch (err) {
@@ -796,7 +796,7 @@ export default function AdminDashboard() {
     }
   }, [fetchData, token]);
 
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
     router.push("/admin/login");
@@ -831,8 +831,8 @@ const handleLogout = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          status: newStatus || undefined, 
+        body: JSON.stringify({
+          status: newStatus || undefined,
           code: newCode,
           download_link: newDownloadLink,
           download_link_title: newDownloadLinkTitle
@@ -843,9 +843,9 @@ const handleLogout = () => {
       if (!response.ok) throw new Error(data.message);
 
       // Update locally
-      setOrders(prev => prev.map(o => o.id === orderId ? { 
-        ...o, 
-        status: newStatus || o.status, 
+      setOrders(prev => prev.map(o => o.id === orderId ? {
+        ...o,
+        status: newStatus || o.status,
         code: newCode,
         download_link: newDownloadLink,
         download_link_title: newDownloadLinkTitle
@@ -882,7 +882,7 @@ const handleLogout = () => {
   const handleSubmitCodeModal = async (e) => {
     e.preventDefault();
     if (!codeModalOrder) return;
-    
+
     await updateOrderCodeAndStatus(codeModalOrder.id, codeModalStatusToUpdate, codeValue, orderDownloadLinkValue, orderDownloadLinkTitleValue);
     setShowCodeModal(false);
     setCodeModalOrder(null);
@@ -1182,7 +1182,7 @@ const handleLogout = () => {
       }
 
       setServices(prev => [...prev, data]);
-      
+
       // Reset form
       setNewServiceName("");
       setNewServiceDesc("");
@@ -1225,7 +1225,7 @@ const handleLogout = () => {
       setEditCatUploadedFile(null);
       setEditCatImage(cat.image || "games");
     }
-    
+
     // Parse and set edit fields
     let parsedFields = [];
     try {
@@ -1238,7 +1238,7 @@ const handleLogout = () => {
     setEditCatFields(parsedFields && parsedFields.length > 0 ? parsedFields : defaultFields);
     setEditCatFieldsTitle(cat.fields_title || "بيانات الخدمة");
     setEditCatParentId(cat.parent_id || "");
-    
+
     setShowEditCatModal(true);
   };
 
@@ -1276,7 +1276,7 @@ const handleLogout = () => {
       }
 
       setCategories(prev => prev.map(c => c.id === editCatId ? { ...c, name: editCatName, image: data.image, fields: data.fields, fields_title: data.fields_title, parent_id: data.parent_id } : c));
-      
+
       if (applyToServices) {
         setServices(prev => prev.map(s => Number(s.category_id) === Number(editCatId) ? {
           ...s,
@@ -1299,7 +1299,7 @@ const handleLogout = () => {
     setEditServiceName(service.name);
     setEditServiceDesc(service.description || "");
     setEditServiceCatId(service.category_id.toString());
-    
+
     const isCustom = service.image && (service.image.startsWith("data:image") || service.image.startsWith("http") || service.image.startsWith("/uploads"));
     if (isCustom) {
       setEditServiceUploadedFile(service.image);
@@ -1311,20 +1311,20 @@ const handleLogout = () => {
 
     let parsedPackages = [];
     try {
-      parsedPackages = typeof service.packages === 'string' 
-        ? JSON.parse(service.packages) 
+      parsedPackages = typeof service.packages === 'string'
+        ? JSON.parse(service.packages)
         : service.packages;
-    } catch(e) {
+    } catch (e) {
       parsedPackages = service.packages || [];
     }
     setEditServicePackages(parsedPackages.length > 0 ? parsedPackages : [{ name: "", price: 0 }]);
 
     let parsedFields = [];
     try {
-      parsedFields = typeof service.fields === 'string' 
-        ? JSON.parse(service.fields) 
+      parsedFields = typeof service.fields === 'string'
+        ? JSON.parse(service.fields)
         : service.fields;
-    } catch(e) {
+    } catch (e) {
       parsedFields = service.fields || [];
     }
     setEditServiceFields(parsedFields.length > 0 ? parsedFields : defaultFields);
@@ -1483,8 +1483,8 @@ const handleLogout = () => {
         throw new Error(data.message || "فشل تعديل الخدمة.");
       }
 
-      setServices(prev => prev.map(s => s.id === editServiceId ? { 
-        ...s, 
+      setServices(prev => prev.map(s => s.id === editServiceId ? {
+        ...s,
         category_id: parseInt(editServiceCatId),
         name: editServiceName,
         description: editServiceDesc,
@@ -1499,7 +1499,7 @@ const handleLogout = () => {
         download_link_title: data.download_link_title,
         is_popular: editServiceIsPopular
       } : s));
-      
+
       setShowEditServiceModal(false);
     } catch (err) {
       setErrorMsg(err.message);
@@ -1562,7 +1562,7 @@ const handleLogout = () => {
     setEditBannerDesc(banner.desc || "");
     setEditBannerBadge(banner.badge || "");
     setEditBannerColor(banner.color || "#8b5cf6");
-    
+
     const isCustom = banner.icon && (banner.icon.startsWith("data:image") || banner.icon.startsWith("http") || banner.icon.startsWith("/uploads"));
     if (isCustom) {
       setEditBannerUploadedFile(banner.icon);
@@ -1635,7 +1635,7 @@ const handleLogout = () => {
         setWaStatus(d.status || "disconnected");
         setWaQR(d.qr || null);
       }
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -1656,7 +1656,7 @@ const handleLogout = () => {
       clearTimeout(bootstrapTimer);
       clearInterval(interval);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1861,7 +1861,7 @@ const handleLogout = () => {
       }
 
       setCredentialsSuccessMsg("تم تحديث بيانات المسؤول بنجاح!");
-      
+
       // Update local storage username if it changed
       if (adminUser) {
         const updatedUser = { ...adminUser, username: newAdminUsername };
@@ -2047,7 +2047,7 @@ const handleLogout = () => {
       editCustomerNewPassword,
       setEditCustomerNewPassword
     },
-      orderModal: {
+    orderModal: {
       showOrderDetailsModal,
       setShowOrderDetailsModal,
       orderDetailsData,
@@ -2084,7 +2084,7 @@ const handleLogout = () => {
   const filteredOrders = Array.isArray(orders) ? orders.filter(o => {
     const query = (orderSearch || "").trim().toLowerCase();
     if (!query) return orderFilter === "all" ? true : o.status === orderFilter;
-    const matchesSearch = 
+    const matchesSearch =
       o.id.toString().includes(query) ||
       (o.service_name || "").toLowerCase().includes(query) ||
       (o.player_id || "").toLowerCase().includes(query) ||
@@ -2092,7 +2092,7 @@ const handleLogout = () => {
       (o.payment_method || "").toLowerCase().includes(query) ||
       (o.sender_phone || "").includes(query) ||
       (o.transfer_to || "").includes(query);
-    
+
     const matchesStatus = orderFilter === "all" ? true : o.status === orderFilter;
     return matchesSearch && matchesStatus;
   }) : [];
@@ -2106,7 +2106,7 @@ const handleLogout = () => {
     const parentCat = Array.isArray(categories) ? categories.find(c => c.id === s.category_id) : null;
     const catName = parentCat ? parentCat.name : "";
     const query = (serviceSearch || "").trim().toLowerCase();
-    
+
     let hasMatchingPackage = false;
     if (query) {
       let parsedPackages = [];
@@ -2120,10 +2120,10 @@ const handleLogout = () => {
       }
     }
 
-    return (s.name || "").toLowerCase().includes(query) || 
-           catName.toLowerCase().includes(query) ||
-           String(s.id).includes(query) ||
-           hasMatchingPackage;
+    return (s.name || "").toLowerCase().includes(query) ||
+      catName.toLowerCase().includes(query) ||
+      String(s.id).includes(query) ||
+      hasMatchingPackage;
   }) : [];
 
   const filteredWalletRequests = Array.isArray(walletRequests) ? walletRequests.filter((request) => {
@@ -2247,7 +2247,7 @@ const handleLogout = () => {
             <span className="nav-icon">📥</span>
             <span>طلبات الخدمات</span>
           </div>
-          
+
           <div
             className={`nav-item-premium ${activeTab === "categories" ? "active" : ""}`}
             onClick={() => setActiveTab("categories")}
@@ -2280,84 +2280,84 @@ const handleLogout = () => {
             <span>آراء العملاء</span>
           </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "memberships" ? "active" : ""}`}
-              onClick={() => setActiveTab("memberships")}
-            >
-              <span className="nav-icon">⭐</span>
-              <span>نظام العضويات</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "memberships" ? "active" : ""}`}
+            onClick={() => setActiveTab("memberships")}
+          >
+            <span className="nav-icon">⭐</span>
+            <span>نظام العضويات</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "wallets" ? "active" : ""}`}
-              onClick={() => setActiveTab("wallets")}
-            >
-              <span className="nav-icon">💳</span>
-              <span>طلبات شحن الرصيد</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "wallets" ? "active" : ""}`}
+            onClick={() => setActiveTab("wallets")}
+          >
+            <span className="nav-icon">💳</span>
+            <span>طلبات شحن الرصيد</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "customers" ? "active" : ""}`}
-              onClick={() => setActiveTab("customers")}
-            >
-              <span className="nav-icon">👥</span>
-              <span>إدارة المستخدمين</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "customers" ? "active" : ""}`}
+            onClick={() => setActiveTab("customers")}
+          >
+            <span className="nav-icon">👥</span>
+            <span>إدارة المستخدمين</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "settings" ? "active" : ""}`}
-              onClick={() => setActiveTab("settings")}
-            >
-              <span className="nav-icon">⚙️</span>
-              <span>إعدادات الموقع</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "settings" ? "active" : ""}`}
+            onClick={() => setActiveTab("settings")}
+          >
+            <span className="nav-icon">⚙️</span>
+            <span>إعدادات الموقع</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "gmail" ? "active" : ""}`}
-              onClick={() => setActiveTab("gmail")}
-              style={{ background: activeTab === "gmail" ? "rgba(234,67,53,0.1)" : "", borderColor: activeTab === "gmail" ? "rgba(234,67,53,0.3)" : "" }}
-            >
-              <span className="nav-icon">📧</span>
-              <span>بوابة ربط الجميل</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "gmail" ? "active" : ""}`}
+            onClick={() => setActiveTab("gmail")}
+            style={{ background: activeTab === "gmail" ? "rgba(234,67,53,0.1)" : "", borderColor: activeTab === "gmail" ? "rgba(234,67,53,0.3)" : "" }}
+          >
+            <span className="nav-icon">📧</span>
+            <span>بوابة ربط الجميل</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "excel_prices" ? "active" : ""}`}
-              onClick={() => setActiveTab("excel_prices")}
-              style={{ background: activeTab === "excel_prices" ? "rgba(168,85,247,0.1)" : "", borderColor: activeTab === "excel_prices" ? "rgba(168,85,247,0.3)" : "" }}
-            >
-              <span className="nav-icon">📊</span>
-              <span>أسعار أقسام السيرفر</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "excel_prices" ? "active" : ""}`}
+            onClick={() => setActiveTab("excel_prices")}
+            style={{ background: activeTab === "excel_prices" ? "rgba(168,85,247,0.1)" : "", borderColor: activeTab === "excel_prices" ? "rgba(168,85,247,0.3)" : "" }}
+          >
+            <span className="nav-icon">📊</span>
+            <span>أسعار أقسام السيرفر</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "amrr_unlocker" ? "active" : ""}`}
-              onClick={() => setActiveTab("amrr_unlocker")}
-              style={{ background: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.1)" : "", borderColor: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.3)" : "" }}
-            >
-              <span className="nav-icon">🔓</span>
-              <span>بوابة Amrr Unlocker</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "amrr_unlocker" ? "active" : ""}`}
+            onClick={() => setActiveTab("amrr_unlocker")}
+            style={{ background: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.1)" : "", borderColor: activeTab === "amrr_unlocker" ? "rgba(14,165,233,0.3)" : "" }}
+          >
+            <span className="nav-icon">🔓</span>
+            <span>بوابة Amrr Unlocker</span>
+          </div>
 
-            <div
-              className={`nav-item-premium ${activeTab === "backups" ? "active" : ""}`}
-              onClick={() => setActiveTab("backups")}
-              style={{ background: activeTab === "backups" ? "rgba(59,130,246,0.1)" : "", borderColor: activeTab === "backups" ? "rgba(59,130,246,0.3)" : "" }}
-            >
-              <span className="nav-icon">💾</span>
-              <span>النسخ الاحتياطي</span>
-            </div>
+          <div
+            className={`nav-item-premium ${activeTab === "backups" ? "active" : ""}`}
+            onClick={() => setActiveTab("backups")}
+            style={{ background: activeTab === "backups" ? "rgba(59,130,246,0.1)" : "", borderColor: activeTab === "backups" ? "rgba(59,130,246,0.3)" : "" }}
+          >
+            <span className="nav-icon">💾</span>
+            <span>النسخ الاحتياطي</span>
+          </div>
 
-            <hr style={{ opacity: 0.05, margin: "15px 0" }} />
+          <hr style={{ opacity: 0.05, margin: "15px 0" }} />
 
           <Link href="/" className="nav-item-premium">
             <span className="nav-icon">🏠</span>
             <span>الموقع الرئيسي</span>
           </Link>
 
-          <div 
-            className="nav-item-premium" 
-            onClick={handleLogout} 
+          <div
+            className="nav-item-premium"
+            onClick={handleLogout}
             style={{ color: "#f87171", marginTop: "auto" }}
           >
             <span className="nav-icon">🚪</span>
@@ -2374,34 +2374,34 @@ const handleLogout = () => {
             <h1>
               {activeTab === "orders" && "طلبات الخدمات"}
               {activeTab === "categories" && "الأقسام والتبويبات"}
-                {activeTab === "services" && "الخدمات والمنتجات"}
-                {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
-                {activeTab === "reviews" && "إدارة آراء العملاء (Reviews)"}
-                {activeTab === "memberships" && "نظام العضويات والخصومات"}
-                {activeTab === "wallets" && "طلبات شحن الرصيد"}
-                {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
-                {activeTab === "settings" && "إعدادات معلومات الموقع"}
-                {activeTab === "gmail" && "بوابة ربط البريد الإلكتروني (Gmail Portal)"}
-                {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
+              {activeTab === "services" && "الخدمات والمنتجات"}
+              {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
+              {activeTab === "reviews" && "إدارة آراء العملاء (Reviews)"}
+              {activeTab === "memberships" && "نظام العضويات والخصومات"}
+              {activeTab === "wallets" && "طلبات شحن الرصيد"}
+              {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
+              {activeTab === "settings" && "إعدادات معلومات الموقع"}
+              {activeTab === "gmail" && "بوابة ربط البريد الإلكتروني (Gmail Portal)"}
+              {activeTab === "excel_prices" && "أسعار أقسام السيرفر (APPLE & FRP)"}
               {activeTab === "amrr_unlocker" && "بوابة تفعيل ومزامنة Amrr Unlocker"}
               {activeTab === "backups" && "نظام النسخ الاحتياطي واستعادة البيانات"}
-              </h1>
-              <p>
-                {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
-                {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
-                {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
-                {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
-                {activeTab === "reviews" && "استعراض آراء العملاء وتعديلها وإضافتها للصفحة الرئيسية"}
-                {activeTab === "memberships" && "إدارة مستويات العضويات (مثل الفضية والذهبية) وتحديد خصومات خاصة لكل مستوى"}
-                {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
-                {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
-                {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
-                {activeTab === "gmail" && "التحكم ببيانات خادم Gmail، إرسال رسائل تجريبية، وإدارة أكواد تحقق الـ OTP للعملاء"}
-                {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
+            </h1>
+            <p>
+              {activeTab === "orders" && "عرض وإدارة الطلبات المدخلة من العملاء وحالة شحنها"}
+              {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
+              {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
+              {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
+              {activeTab === "reviews" && "استعراض آراء العملاء وتعديلها وإضافتها للصفحة الرئيسية"}
+              {activeTab === "memberships" && "إدارة مستويات العضويات (مثل الفضية والذهبية) وتحديد خصومات خاصة لكل مستوى"}
+              {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
+              {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
+              {activeTab === "settings" && "تعديل اسم الموقع وشعاره وأيقونة التبويب (Favicon) لتبديل الهوية البصرية للفلاتر ومحركات البحث (SEO)"}
+              {activeTab === "gmail" && "التحكم ببيانات خادم Gmail، إرسال رسائل تجريبية، وإدارة أكواد تحقق الـ OTP للعملاء"}
+              {activeTab === "excel_prices" && "التحكم بأسعار صرف الدولار وهامش الأرباح واستيراد وتحديث خدمات APPLE وسيرفر FRP عبر ملفات الإكسل"}
               {activeTab === "amrr_unlocker" && "إدارة مفتاح الـ API واستيراد خدمات تخطي وحسابات Amrr Unlocker بهامش ربح مخصص وتفعيلها آلياً"}
               {activeTab === "backups" && "إنشاء نسخ احتياطية للموقع وتنزيلها محلياً أو استرجاعها مباشرة لضمان سلامة البيانات"}
-              </p>
-            </div>
+            </p>
+          </div>
 
           <div className="header-actions">
             <button
@@ -2419,31 +2419,31 @@ const handleLogout = () => {
               <span className="logout-btn-text" onClick={handleLogout}>خروج</span>
             </div>
             {activeTab === "categories" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewCatImage("games");
                   setCatUploadedFile(null);
                   setShowCatModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة قسم جديد
               </button>
             )}
             {activeTab === "services" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewServiceImage("pubg");
                   setServiceUploadedFile(null);
                   setShowServiceModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة خدمة جديدة
               </button>
             )}
             {activeTab === "banners" && (
-              <button 
+              <button
                 onClick={() => {
                   setNewBannerTitle("");
                   setNewBannerHighlight("");
@@ -2452,7 +2452,7 @@ const handleLogout = () => {
                   setNewBannerColor("#8b5cf6");
                   setNewBannerIcon("⚡");
                   setShowBannerModal(true);
-                }} 
+                }}
                 className="btn-add-premium"
               >
                 + إضافة شريحة جديدة
@@ -2469,24 +2469,24 @@ const handleLogout = () => {
           <>
             {/* Orders Section */}
             {activeTab === "orders" && (
-      <OrdersTab 
-        stats={stats}
-        baseCurrency={baseCurrency}
-        orderSearch={orderSearch}
-        setOrderSearch={setOrderSearch}
+              <OrdersTab
+                stats={stats}
+                baseCurrency={baseCurrency}
+                orderSearch={orderSearch}
+                setOrderSearch={setOrderSearch}
                 orderFilter={orderFilter}
                 setOrderFilter={setOrderFilter}
-        orders={orders}
-        filteredOrders={filteredOrders}
-        setOrderDetailsData={setOrderDetailsData}
-        setShowOrderDetailsModal={setShowOrderDetailsModal}
-        handleApproveOrder={handleApproveOrder}
-        handleOpenCodeModal={handleOpenCodeModal}
-        updateOrderStatus={updateOrderStatus}
-        checkUnlockerOrderStatus={checkUnlockerOrderStatus}
-        cancelUnlockerOrder={cancelUnlockerOrder}
-        handleManualRefund={handleManualRefund}
-        deleteOrder={deleteOrder}
+                orders={orders}
+                filteredOrders={filteredOrders}
+                setOrderDetailsData={setOrderDetailsData}
+                setShowOrderDetailsModal={setShowOrderDetailsModal}
+                handleApproveOrder={handleApproveOrder}
+                handleOpenCodeModal={handleOpenCodeModal}
+                updateOrderStatus={updateOrderStatus}
+                checkUnlockerOrderStatus={checkUnlockerOrderStatus}
+                cancelUnlockerOrder={cancelUnlockerOrder}
+                handleManualRefund={handleManualRefund}
+                deleteOrder={deleteOrder}
                 walletTransactions={walletTransactions}
                 filteredWalletTransactions={filteredWalletTransactions}
               />
@@ -2644,77 +2644,77 @@ const handleLogout = () => {
         {/* ===================== Gmail TAB ===================== */}
         {activeTab === "gmail" && <GmailTab />}
 
-            {/* Excel & Server Prices Tab */}
-            {activeTab === "excel_prices" && (
-              <ExcelPricesTab
-                excelSettingsSuccessMsg={excelSettingsSuccessMsg}
-                excelSettingsErrorMsg={excelSettingsErrorMsg}
-                handleUpdateExcelSettings={handleUpdateExcelSettings}
-                excelAppleUsdRate={excelAppleUsdRate}
-                setExcelAppleUsdRate={setExcelAppleUsdRate}
-                excelAppleMarkup={excelAppleMarkup}
-                setExcelAppleMarkup={setExcelAppleMarkup}
-                excelFrpUsdRate={excelFrpUsdRate}
-                setExcelFrpUsdRate={setExcelFrpUsdRate}
-                excelFrpMarkup={excelFrpMarkup}
-                setExcelFrpMarkup={setExcelFrpMarkup}
-                excelUploadLoading={excelUploadLoading}
-                handleUploadExcelFile={handleUploadExcelFile}
-                excelAppleUploadMsg={excelAppleUploadMsg}
-                excelFrpUploadMsg={excelFrpUploadMsg}
-              />
-            )}
-      
-            {activeTab === "amrr_unlocker" && (
-              <AmrrUnlockerTab
-                unlockerBalanceEmail={unlockerBalanceEmail}
-                unlockerBalance={unlockerBalance}
-                unlockerBalanceLoading={unlockerBalanceLoading}
-                fetchUnlockerBalance={fetchUnlockerBalance}
-                unlockerExchangeRate={unlockerExchangeRate}
-                setUnlockerExchangeRate={setUnlockerExchangeRate}
-                unlockerMarkupPercent={unlockerMarkupPercent}
-                setUnlockerMarkupPercent={setUnlockerMarkupPercent}
-                unlockerImportTargetCat={unlockerImportTargetCat}
-                setUnlockerImportTargetCat={setUnlockerImportTargetCat}
-                categories={categories}
-                unlockerNewCatName={unlockerNewCatName}
-                setUnlockerNewCatName={setUnlockerNewCatName}
-                unlockerGroupAsPackages={unlockerGroupAsPackages}
-                setUnlockerGroupAsPackages={setUnlockerGroupAsPackages}
-                fetchUnlockerServices={fetchUnlockerServices}
-                unlockerLoading={unlockerLoading}
-                importSelectedUnlockerServices={importSelectedUnlockerServices}
-                selectedUnlockerServices={selectedUnlockerServices}
-                setSelectedUnlockerServices={setSelectedUnlockerServices}
-                unlockerSyncMsg={unlockerSyncMsg}
-                unlockerServices={unlockerServices}
-                unlockerSearch={unlockerSearch}
-                setUnlockerSearch={setUnlockerSearch}
-                unlockerPage={unlockerPage}
-                setUnlockerPage={setUnlockerPage}
-                unlockerCategoryFilter={unlockerCategoryFilter}
-                setUnlockerCategoryFilter={setUnlockerCategoryFilter}
-                unlockerPageSize={unlockerPageSize}
-                setUnlockerPageSize={setUnlockerPageSize}
-                unlockerSortOrder={unlockerSortOrder}
-                setUnlockerSortOrder={setUnlockerSortOrder}
-                filteredUnlockerServices={filteredUnlockerServices}
-                paginatedUnlockerServices={paginatedUnlockerServices}
-                importedUnlockerServiceIds={importedUnlockerServiceIds}
-                unlockerCurrency={unlockerCurrency}
-                unlockerCustomPrices={unlockerCustomPrices}
-                setUnlockerCustomPrices={setUnlockerCustomPrices}
-                unlockerCustomDiscounts={unlockerCustomDiscounts}
-                setUnlockerCustomDiscounts={setUnlockerCustomDiscounts}
-                totalUnlockerPages={totalUnlockerPages}
-                unlockerCategories={unlockerCategories}
-                apiAutoSubmit={apiAutoSubmit}
-                handleToggleAutoSubmit={handleToggleAutoSubmit}
-                handleWipeAndSyncAll={handleWipeAndSyncAll}
-              />
-            )}
-</main>
+        {/* Excel & Server Prices Tab */}
+        {activeTab === "excel_prices" && (
+          <ExcelPricesTab
+            excelSettingsSuccessMsg={excelSettingsSuccessMsg}
+            excelSettingsErrorMsg={excelSettingsErrorMsg}
+            handleUpdateExcelSettings={handleUpdateExcelSettings}
+            excelAppleUsdRate={excelAppleUsdRate}
+            setExcelAppleUsdRate={setExcelAppleUsdRate}
+            excelAppleMarkup={excelAppleMarkup}
+            setExcelAppleMarkup={setExcelAppleMarkup}
+            excelFrpUsdRate={excelFrpUsdRate}
+            setExcelFrpUsdRate={setExcelFrpUsdRate}
+            excelFrpMarkup={excelFrpMarkup}
+            setExcelFrpMarkup={setExcelFrpMarkup}
+            excelUploadLoading={excelUploadLoading}
+            handleUploadExcelFile={handleUploadExcelFile}
+            excelAppleUploadMsg={excelAppleUploadMsg}
+            excelFrpUploadMsg={excelFrpUploadMsg}
+          />
+        )}
+
+        {activeTab === "amrr_unlocker" && (
+          <AmrrUnlockerTab
+            unlockerBalanceEmail={unlockerBalanceEmail}
+            unlockerBalance={unlockerBalance}
+            unlockerBalanceLoading={unlockerBalanceLoading}
+            fetchUnlockerBalance={fetchUnlockerBalance}
+            unlockerExchangeRate={unlockerExchangeRate}
+            setUnlockerExchangeRate={setUnlockerExchangeRate}
+            unlockerMarkupPercent={unlockerMarkupPercent}
+            setUnlockerMarkupPercent={setUnlockerMarkupPercent}
+            unlockerImportTargetCat={unlockerImportTargetCat}
+            setUnlockerImportTargetCat={setUnlockerImportTargetCat}
+            categories={categories}
+            unlockerNewCatName={unlockerNewCatName}
+            setUnlockerNewCatName={setUnlockerNewCatName}
+            unlockerGroupAsPackages={unlockerGroupAsPackages}
+            setUnlockerGroupAsPackages={setUnlockerGroupAsPackages}
+            fetchUnlockerServices={fetchUnlockerServices}
+            unlockerLoading={unlockerLoading}
+            importSelectedUnlockerServices={importSelectedUnlockerServices}
+            selectedUnlockerServices={selectedUnlockerServices}
+            setSelectedUnlockerServices={setSelectedUnlockerServices}
+            unlockerSyncMsg={unlockerSyncMsg}
+            unlockerServices={unlockerServices}
+            unlockerSearch={unlockerSearch}
+            setUnlockerSearch={setUnlockerSearch}
+            unlockerPage={unlockerPage}
+            setUnlockerPage={setUnlockerPage}
+            unlockerCategoryFilter={unlockerCategoryFilter}
+            setUnlockerCategoryFilter={setUnlockerCategoryFilter}
+            unlockerPageSize={unlockerPageSize}
+            setUnlockerPageSize={setUnlockerPageSize}
+            unlockerSortOrder={unlockerSortOrder}
+            setUnlockerSortOrder={setUnlockerSortOrder}
+            filteredUnlockerServices={filteredUnlockerServices}
+            paginatedUnlockerServices={paginatedUnlockerServices}
+            importedUnlockerServiceIds={importedUnlockerServiceIds}
+            unlockerCurrency={unlockerCurrency}
+            unlockerCustomPrices={unlockerCustomPrices}
+            setUnlockerCustomPrices={setUnlockerCustomPrices}
+            unlockerCustomDiscounts={unlockerCustomDiscounts}
+            setUnlockerCustomDiscounts={setUnlockerCustomDiscounts}
+            totalUnlockerPages={totalUnlockerPages}
+            unlockerCategories={unlockerCategories}
+            apiAutoSubmit={apiAutoSubmit}
+            handleToggleAutoSubmit={handleToggleAutoSubmit}
+            handleWipeAndSyncAll={handleWipeAndSyncAll}
+          />
+        )}
+      </main>
 
       {/* Universal Deletion 2FA OTP Gate Modal */}
       {deleteOtpModal.isOpen && (

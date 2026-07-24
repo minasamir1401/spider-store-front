@@ -26,10 +26,10 @@ export default function ServicesTab({
   const togglePopularService = async (service) => {
     try {
       const tkn = token || (typeof window !== "undefined" ? localStorage.getItem("adminToken") : "");
-      const res = await fetch(`${API_BASE_URL}/api/services/${service.id}`, {
-        method: "PUT",
+      const res = await fetch(`${API_BASE_URL}/api/services/${service.id}/popular`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${tkn}` },
-        body: JSON.stringify({ ...service, is_popular: !service.is_popular })
+        body: JSON.stringify({ is_popular: !service.is_popular })
       });
       if (!res.ok) throw new Error("فشل تحديث الخدمة");
       if (setServices) {
@@ -45,7 +45,7 @@ export default function ServicesTab({
     try {
       parsedFields = typeof service.fields === "string" ? JSON.parse(service.fields) : (service.fields || []);
     } catch { parsedFields = []; }
-    
+
     // Normalize: ensure each field has both 'id' and 'name'
     const normalized = parsedFields.map(f => ({
       id: (f.id || f.name || "").trim(),
