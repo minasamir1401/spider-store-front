@@ -507,9 +507,9 @@ export default function MainLayout({ children }) {
           alignItems: 'center',
           padding: '0 20px',
           height: '70px',
-          background: 'rgba(10, 15, 30, 0.8)',
+          background: theme === 'dark' ? 'rgba(10, 15, 30, 0.8)' : 'rgba(255, 255, 255, 0.8)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
           position: 'sticky',
           top: 0,
           zIndex: 1000

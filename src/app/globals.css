@@ -502,11 +502,11 @@ button, input, textarea, select { font-family: var(--font-cairo); }
   box-shadow: 0 10px 36px rgba(0,198,224,0.50);
   transform: scale(1.04) translateY(-1px);
 }
-[data-theme="light"] .glass-btn {
+[data-theme="light"] .glass-btn:not(.glass-btn-primary) {
   background: rgba(0,0,0,0.04);
   border-color: rgba(0,0,0,0.08);
 }
-[data-theme="light"] .glass-btn:hover {
+[data-theme="light"] .glass-btn:not(.glass-btn-primary):hover {
   background: rgba(0,0,0,0.08);
 }
 
