@@ -23,6 +23,23 @@ export default function ServicesTab({
   const [savingQuickFields, setSavingQuickFields] = useState(false);
   const [quickFieldsMsg, setQuickFieldsMsg] = useState("");
 
+  const togglePopularService = async (service) => {
+    try {
+      const tkn = token || (typeof window !== "undefined" ? localStorage.getItem("adminToken") : "");
+      const res = await fetch(`${API_BASE_URL}/api/services/${service.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${tkn}` },
+        body: JSON.stringify({ ...service, is_popular: !service.is_popular })
+      });
+      if (!res.ok) throw new Error("فشل تحديث الخدمة");
+      if (setServices) {
+        setServices(prev => prev.map(s => s.id === service.id ? { ...s, is_popular: !service.is_popular } : s));
+      }
+    } catch (err) {
+      alert("خطأ: " + err.message);
+    }
+  };
+
   const openQuickFields = (service) => {
     let parsedFields = [];
     try {
@@ -257,6 +274,14 @@ export default function ServicesTab({
                         <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                           <button onClick={() => handleOpenEditService(service)} className="action-btn btn-edit-premium">
                             تعديل
+                          </button>
+                          <button
+                            onClick={() => togglePopularService(service)}
+                            className="action-btn"
+                            style={{ background: service.is_popular ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.05)", color: service.is_popular ? "#fbbf24" : "#94a3b8", border: `1px solid ${service.is_popular ? "rgba(245,158,11,0.3)" : "rgba(255,255,255,0.1)"}`, padding: "5px 10px", fontSize: "0.78rem" }}
+                            title={service.is_popular ? "إزالة من الأكثر طلباً" : "إضافة إلى الأكثر طلباً"}
+                          >
+                            {service.is_popular ? "⭐ رائج" : "☆ عادي"}
                           </button>
                           <button
                             onClick={() => isExpanded ? closeQuickFields() : openQuickFields(service)}
