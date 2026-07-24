@@ -6,9 +6,9 @@ import { AdminDashboardContext } from "../AdminDashboardContext";
 export default function AdminDashboardModals() {
   const { catModal, serviceModal, editCatModal, editServiceModal, bannerModal, editBannerModal, customerModal, orderModal, codeModal, errorMsg } = useContext(AdminDashboardContext);
   const { showCatModal, setShowCatModal, handleAddCategory, newCatName, setNewCatName, newCatImage, setNewCatImage, catUploadedFile, setCatUploadedFile, newCatFieldsTitle, setNewCatFieldsTitle, newCatFields, handleAddField, handleRemoveField, handleFieldChange, newCatParentId, setNewCatParentId, categories, API_BASE_URL } = catModal;
-  const { showServiceModal, setShowServiceModal, handleAddService, newServiceName, setNewServiceName, newServiceDesc, setNewServiceDesc, newServiceCatId, setNewServiceCatId, newServicePrice, setNewServicePrice, newServiceImage, setNewServiceImage, serviceUploadedFile, setServiceUploadedFile, newServicePriceType, setNewServicePriceType, newServicePricePerThousand, setNewServicePricePerThousand, newServicePackages, handleAddPkgInput, handleRemovePkgInput, handlePkgChange, newServiceFieldsTitle, setNewServiceFieldsTitle, newServiceFields, handleAddCatField, handleRemoveCatField, handleCatFieldChange, newServiceDownloadLink, setNewServiceDownloadLink, newServiceDownloadLinkTitle, setNewServiceDownloadLinkTitle } = serviceModal;
+  const { showServiceModal, setShowServiceModal, handleAddService, newServiceName, setNewServiceName, newServiceDesc, setNewServiceDesc, newServiceCatId, setNewServiceCatId, newServicePrice, setNewServicePrice, newServiceImage, setNewServiceImage, serviceUploadedFile, setServiceUploadedFile, newServicePriceType, setNewServicePriceType, newServicePricePerThousand, setNewServicePricePerThousand, newServiceIsPopular, setNewServiceIsPopular, newServicePackages, handleAddPkgInput, handleRemovePkgInput, handlePkgChange, newServiceFieldsTitle, setNewServiceFieldsTitle, newServiceFields, handleAddCatField, handleRemoveCatField, handleCatFieldChange, newServiceDownloadLink, setNewServiceDownloadLink, newServiceDownloadLinkTitle, setNewServiceDownloadLinkTitle } = serviceModal;
   const { showEditCatModal, setShowEditCatModal, handleEditCategory, editCatName, setEditCatName, editCatImage, setEditCatImage, editCatUploadedFile, setEditCatUploadedFile, editCatFieldsTitle, setEditCatFieldsTitle, editCatFields, handleAddEditCatField, handleRemoveEditCatField, handleEditCatFieldChange, editCatParentId, setEditCatParentId, applyToServices, setApplyToServices, editCatId } = editCatModal;
-  const { showEditServiceModal, setShowEditServiceModal, handleEditService, editServiceName, setEditServiceName, editServiceDesc, setEditServiceDesc, editServiceCatId, setEditServiceCatId, editServiceImage, setEditServiceImage, editServiceUploadedFile, setEditServiceUploadedFile, editServicePackages, handleAddEditPkgInput, handleRemoveEditPkgInput, handleEditPkgChange, editServiceFields, handleAddEditField, handleRemoveEditField, handleEditFieldChange, editServicePriceType, setEditServicePriceType, editServicePricePerThousand, setEditServicePricePerThousand, editServiceFieldsTitle, setEditServiceFieldsTitle, editServiceDownloadLink, setEditServiceDownloadLink, editServiceDownloadLinkTitle, setEditServiceDownloadLinkTitle } = editServiceModal;
+  const { showEditServiceModal, setShowEditServiceModal, handleEditService, editServiceName, setEditServiceName, editServiceDesc, setEditServiceDesc, editServiceCatId, setEditServiceCatId, editServiceImage, setEditServiceImage, editServiceUploadedFile, setEditServiceUploadedFile, editServicePackages, handleAddEditPkgInput, handleRemoveEditPkgInput, handleEditPkgChange, editServiceFields, handleAddEditField, handleRemoveEditField, handleEditFieldChange, editServicePriceType, setEditServicePriceType, editServicePricePerThousand, setEditServicePricePerThousand, editServiceIsPopular, setEditServiceIsPopular, editServiceFieldsTitle, setEditServiceFieldsTitle, editServiceDownloadLink, setEditServiceDownloadLink, editServiceDownloadLinkTitle, setEditServiceDownloadLinkTitle } = editServiceModal;
   const { showBannerModal, setShowBannerModal, handleAddBanner, newBannerTitle, setNewBannerTitle, newBannerHighlight, setNewBannerHighlight, newBannerDesc, setNewBannerDesc, newBannerBadge, setNewBannerBadge, newBannerColor, setNewBannerColor, newBannerIcon, setNewBannerIcon, bannerUploadedFile, setBannerUploadedFile } = bannerModal;
   const { showEditBannerModal, setShowEditBannerModal, handleEditBanner, editBannerTitle, setEditBannerTitle, editBannerHighlight, setEditBannerHighlight, editBannerDesc, setEditBannerDesc, editBannerBadge, setEditBannerBadge, editBannerColor, setEditBannerColor, editBannerIcon, setEditBannerIcon, editBannerUploadedFile, setEditBannerUploadedFile } = editBannerModal;
   const { showEditCustomerModal, setShowEditCustomerModal, handleUpdateCustomer, editCustomerUsername, setEditCustomerUsername, editCustomerEmail, setEditCustomerEmail, editCustomerPhone, setEditCustomerPhone, editCustomerBalance, setEditCustomerBalance, globalCurrencies, editCustomerBalances, setEditCustomerBalances, editCustomerNewPassword, setEditCustomerNewPassword } = customerModal;
@@ -543,6 +543,19 @@ export default function AdminDashboardModals() {
                   className="search-input-premium"
                   style={{ padding: "12px 16px !important" }}
                 />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: "14px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <input
+                  type="checkbox"
+                  id="newServiceIsPopular"
+                  checked={newServiceIsPopular}
+                  onChange={(e) => setNewServiceIsPopular(e.target.checked)}
+                  style={{ width: "20px", height: "20px", accentColor: "#f59e0b", cursor: "pointer" }}
+                />
+                <label htmlFor="newServiceIsPopular" style={{ cursor: "pointer", fontWeight: "bold", color: "#fcd34d", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>⭐ إضافة إلى قسم "الخدمات الأكثر طلباً" في الصفحة الرئيسية</span>
+                </label>
               </div>
 
               {/* Custom Fields Builder */}
@@ -1241,6 +1254,19 @@ export default function AdminDashboardModals() {
                   className="search-input-premium"
                   style={{ padding: "12px 16px !important" }}
                 />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: "14px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <input
+                  type="checkbox"
+                  id="editServiceIsPopularCheckbox"
+                  checked={editServiceIsPopular}
+                  onChange={(e) => setEditServiceIsPopular(e.target.checked)}
+                  style={{ width: "20px", height: "20px", accentColor: "#f59e0b", cursor: "pointer" }}
+                />
+                <label htmlFor="editServiceIsPopularCheckbox" style={{ cursor: "pointer", fontWeight: "bold", color: "#fcd34d", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>⭐ إضافة إلى قسم "الخدمات الأكثر طلباً" في الصفحة الرئيسية</span>
+                </label>
               </div>
 
               {/* Custom Fields Builder */}

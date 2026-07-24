@@ -19,6 +19,7 @@ import ServicesTab from "@/components/admin/tabs/ServicesTab";
 import BannersTab from "@/components/admin/tabs/BannersTab";
 import BackupsTab from "@/components/admin/tabs/BackupsTab";
 import MembershipsTab from "@/components/admin/tabs/MembershipsTab";
+import AdminReviewsTab from "@/components/admin/tabs/AdminReviewsTab";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -62,6 +63,7 @@ export default function AdminDashboard() {
   const [serviceUploadedFile, setServiceUploadedFile] = useState(null);
   const [newServicePriceType, setNewServicePriceType] = useState("fixed"); // fixed or dynamic
   const [newServicePricePerThousand, setNewServicePricePerThousand] = useState(0);
+  const [newServiceIsPopular, setNewServiceIsPopular] = useState(false);
   
   // Package list builder
   const [newServicePackages, setNewServicePackages] = useState([
@@ -99,6 +101,7 @@ export default function AdminDashboard() {
   const [editServiceFieldsTitle, setEditServiceFieldsTitle] = useState("");
   const [editServiceDownloadLink, setEditServiceDownloadLink] = useState("");
   const [editServiceDownloadLinkTitle, setEditServiceDownloadLinkTitle] = useState("تحميل الأداة");
+  const [editServiceIsPopular, setEditServiceIsPopular] = useState(false);
 
   // Banners data & form states
   const [banners, setBanners] = useState([]);
@@ -1167,7 +1170,8 @@ const handleLogout = () => {
           price_per_thousand: parseFloat(newServicePricePerThousand) || 0.0,
           fields_title: newServiceFieldsTitle,
           download_link: newServiceDownloadLink,
-          download_link_title: newServiceDownloadLinkTitle
+          download_link_title: newServiceDownloadLinkTitle,
+          is_popular: newServiceIsPopular
         })
       });
 
@@ -1190,6 +1194,7 @@ const handleLogout = () => {
       setNewServiceFieldsTitle("");
       setNewServicePriceType("fixed");
       setNewServicePricePerThousand(0);
+      setNewServiceIsPopular(false);
       setNewServiceDownloadLink("");
       setNewServiceDownloadLinkTitle("تحميل الأداة");
       setShowServiceModal(false);
@@ -1328,6 +1333,7 @@ const handleLogout = () => {
     setEditServiceFieldsTitle(service.fields_title || "");
     setEditServiceDownloadLink(service.download_link || "");
     setEditServiceDownloadLinkTitle(service.download_link_title || "تحميل الأداة");
+    setEditServiceIsPopular(service.is_popular ? true : false);
 
     setShowEditServiceModal(true);
   };
@@ -1466,7 +1472,8 @@ const handleLogout = () => {
           price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
           fields_title: editServiceFieldsTitle,
           download_link: editServiceDownloadLink,
-          download_link_title: editServiceDownloadLinkTitle
+          download_link_title: editServiceDownloadLinkTitle,
+          is_popular: editServiceIsPopular
         })
       });
 
@@ -1489,7 +1496,8 @@ const handleLogout = () => {
         price_type: editServicePriceType,
         price_per_thousand: parseFloat(editServicePricePerThousand) || 0.0,
         download_link: data.download_link,
-        download_link_title: data.download_link_title
+        download_link_title: data.download_link_title,
+        is_popular: editServiceIsPopular
       } : s));
       
       setShowEditServiceModal(false);
@@ -1909,6 +1917,8 @@ const handleLogout = () => {
       setNewServicePriceType,
       newServicePricePerThousand,
       setNewServicePricePerThousand,
+      newServiceIsPopular,
+      setNewServiceIsPopular,
       newServicePackages,
       handleAddPkgInput,
       handleRemovePkgInput,
@@ -1972,6 +1982,8 @@ const handleLogout = () => {
       setEditServicePriceType,
       editServicePricePerThousand,
       setEditServicePricePerThousand,
+      editServiceIsPopular,
+      setEditServiceIsPopular,
       editServiceFieldsTitle,
       setEditServiceFieldsTitle,
       editServiceDownloadLink,
@@ -2181,6 +2193,7 @@ const handleLogout = () => {
           { tab: "categories", icon: "📁", label: "إدارة الأقسام" },
           { tab: "services", icon: "⚡", label: "إدارة الخدمات" },
           { tab: "banners", icon: "🖼️", label: "إدارة البانر الإعلاني" },
+          { tab: "reviews", icon: "⭐", label: "آراء العملاء" },
           { tab: "memberships", icon: "⭐", label: "العضويات والخصومات" },
           { tab: "wallets", icon: "💳", label: "طلبات شحن الرصيد" },
           { tab: "customers", icon: "👥", label: "إدارة المستخدمين" },
@@ -2355,6 +2368,7 @@ const handleLogout = () => {
               {activeTab === "categories" && "الأقسام والتبويبات"}
                 {activeTab === "services" && "الخدمات والمنتجات"}
                 {activeTab === "banners" && "البانر الإعلاني الرئيسي"}
+                {activeTab === "reviews" && "إدارة آراء العملاء (Reviews)"}
                 {activeTab === "memberships" && "نظام العضويات والخصومات"}
                 {activeTab === "wallets" && "طلبات شحن الرصيد"}
                 {activeTab === "customers" && "إدارة المستخدمين والمحافظ (العملاء)"}
@@ -2369,6 +2383,7 @@ const handleLogout = () => {
                 {activeTab === "categories" && "إدارة وتصنيف أقسام المتجر وتحديث أيقوناتها"}
                 {activeTab === "services" && "إدارة الخدمات وتفاصيل حزم التسعير والباقات"}
                 {activeTab === "banners" && "التحكم الكامل بالشرائح الإعلانية والعروض في الصفحة الرئيسية للموقع"}
+                {activeTab === "reviews" && "استعراض آراء العملاء وتعديلها وإضافتها للصفحة الرئيسية"}
                 {activeTab === "memberships" && "إدارة مستويات العضويات (مثل الفضية والذهبية) وتحديد خصومات خاصة لكل مستوى"}
                 {activeTab === "wallets" && "مراجعة طلبات شحن الرصيد واعتمادها أو رفضها وتحديث رصيد العميل مباشرة"}
                 {activeTab === "customers" && "إدارة حسابات العملاء المسجلين، حذف الحسابات، تعديل الأرصدة والبيانات، واستعراض سجل الحركات"}
@@ -2547,6 +2562,11 @@ const handleLogout = () => {
             {/* Memberships Section */}
             {activeTab === "memberships" && (
               <MembershipsTab token={token} />
+            )}
+
+            {/* Reviews Section */}
+            {activeTab === "reviews" && (
+              <AdminReviewsTab token={token} API_BASE_URL={API_BASE_URL} />
             )}
 
             {/* Settings Section */}
